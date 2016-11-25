@@ -1,0 +1,13 @@
+{
+    "require": {
+        "jolicode/jolinotif": "^1.0",
+        "phpmailer/phpmailer": "^5.2",
+        "nategood/httpful": "*",
+        "gettext/gettext": "*",
+        "gettext/languages": "*",
+        "robmorgan/phinx": "*",
+        "theorchard/monolog-cascade": "~0.4",
+        "jenssegers/date": "^3.2",
+        "Stolz/Assets": "~0.1"
+    }
+}

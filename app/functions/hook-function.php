@@ -1,0 +1,994 @@
+<?php
+if (!defined('BASE_PATH'))
+    exit('No direct script access allowed');
+/**
+ * tinyCampaign Hooks Helper & Wrapper
+ *
+ * @license GPLv3
+ *         
+ * @since 2.0.0
+ * @package tinyCampaign
+ * @author Joshua Parker <joshmac3@icloud.com>
+ */
+$app = \Liten\Liten::getInstance();
+
+/**
+ * Wrapper function for Hooks::register_admin_page() and
+ * register's a plugin administration page.
+ *
+ * @see Hooks::register_admin_page()
+ *
+ * @since 2.0.0
+ * @param string $slug
+ *            Plugin's slug.
+ * @param string $title
+ *            Title that is show for the plugin's link.
+ * @param string $function
+ *            The function which prints the plugin's page.
+ */
+function register_admin_page($slug, $title, $function)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->register_admin_page($slug, $title, $function);
+}
+
+/**
+ * Wrapper function for Hooks::activate_plugin() and
+ * activates plugin based on $_GET['id'].
+ *
+ * @see Hooks::activate_plugin()
+ *
+ * @since 2.0.0
+ * @param string $id
+ *            ID of the plugin to be activated.
+ * @return mixed Activates plugin if it exists.
+ */
+function activate_plugin($id)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->activate_plugin($id);
+}
+
+/**
+ * Wrapper function for Hooks::deactivate_plugin() and
+ * deactivates plugin based on $_GET['id'].
+ *
+ * @see Hooks::deactivate_plugin()
+ *
+ * @since 2.0.0
+ * @param string $id
+ *            ID of the plugin to be deactivated.
+ * @return mixed Deactivates plugin if it exists and is active.
+ */
+function deactivate_plugin($id)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->deactivate_plugin($id);
+}
+
+/**
+ * Wrapper function for Hooks::load_activated_plugins() and
+ * loads all activated plugins for inclusion.
+ *
+ * @see Hooks::load_activated_plugins()
+ *
+ * @since 2.0.0
+ * @param string $plugins_dir
+ *            Loads plugins from specified folder
+ * @return mixed
+ */
+function load_activated_plugins($plugins_dir = '')
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->load_activated_plugins($plugins_dir);
+}
+
+/**
+ * Wrapper function for Hooks::is_plugin_activated() and
+ * checks if a particular plugin is activated
+ *
+ * @see Hooks::is_plugin_activated()
+ *
+ * @since 2.0.0
+ * @param string $plugin
+ *            Name of plugin file.
+ * @return bool False if plugin is not activated and true if it is activated.
+ */
+function is_plugin_activated($plugin)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->is_plugin_activated($plugin);
+}
+
+/**
+ * Wrapper function for Hooks::get_option() method and
+ * reads an option from options_meta table.
+ *
+ * @see Hooks::get_option()
+ *
+ * @since 2.0.0
+ * @param string $meta_key
+ *            Name of the option to retrieve.
+ * @param mixed $default
+ *            The default value.
+ * @return mixed Returns value of default if not found.
+ */
+function get_option($meta_key, $default = false)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->get_option($meta_key, $default);
+}
+
+/**
+ * Wrapper function for Hooks::update_option() method and
+ * updates (add if doesn't exist) an option to options_meta table.
+ *
+ * @see Hooks::update_option()
+ *
+ * @since 2.0.0
+ * @param string $meta_key
+ *            Name of the option to update/add.
+ * @param mixed $newvalue
+ *            The new value to update with or add.
+ * @return bool False if not updated or true if updated.
+ */
+function update_option($meta_key, $newvalue)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->update_option($meta_key, $newvalue);
+}
+
+/**
+ * Wrapper function for Hooks::add_option() method and
+ * adds a new option to the options_meta table.
+ *
+ * @see Hooks::add_option()
+ *
+ * @since 2.0.0
+ * @param string $name
+ *            Name of the option to add.
+ * @param mixed $value
+ *            The option value.
+ * @return bool False if not added or true if added.
+ */
+function add_option($name, $value = '')
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->add_option($name, $value);
+}
+
+/**
+ * Wrapper function for Hooks::delete_option() method and
+ * deletes an option for the options_meta table.
+ *
+ * @see Hooks::delete_option()
+ *
+ * @since 2.0.0
+ * @param string $name
+ *            Name of the option to delete.
+ * @return bool False if not deleted or true if deleted.
+ */
+function delete_option($name)
+{
+    $app = \Liten\Liten::getInstance();
+    return $app->hook->delete_option($name);
+}
+
+/**
+ * Mark a function as deprecated and inform when it has been used.
+ *
+ * There is a hook deprecated_function_run that will be called that can be used
+ * to get the backtrace up to what file and function called the deprecated
+ * function.
+ *
+ * The current behavior is to trigger a user error if APP_ENV is DEV.
+ *
+ * This function is to be used in every function that is deprecated.
+ *
+ * @since 2.0.0
+ *       
+ * @param string $function_name
+ *            The function that was called.
+ * @param string $release
+ *            The release of tinyCampaign that deprecated the function.
+ * @param string $replacement
+ *            Optional. The function that should have been called. Default null.
+ */
+function _deprecated_function($function_name, $release, $replacement = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    /**
+     * Fires when a deprecated function is called.
+     *
+     * @since 2.0.0
+     *       
+     * @param string $function_name
+     *            The function that was called.
+     * @param string $replacement
+     *            The function that should have been called.
+     * @param string $release
+     *            The release of tinyCampaign that deprecated the function.
+     */
+    $app->hook->{'do_action'}('deprecated_function_run', $function_name, $replacement, $release);
+
+    /**
+     * Filter whether to trigger an error for deprecated functions.
+     *
+     * @since 2.0.0
+     *       
+     * @param bool $trigger
+     *            Whether to trigger the error for deprecated functions. Default true.
+     */
+    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_function_trigger_error', true)) {
+        if (function_exists('_t')) {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />'), $function_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />'), $function_name, $release), E_USER_DEPRECATED);
+            }
+        } else {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />', $function_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />', $function_name, $release), E_USER_DEPRECATED);
+            }
+        }
+    }
+}
+
+/**
+ * Mark a class as deprecated and inform when it has been used.
+ *
+ * There is a hook deprecated_class_run that will be called that can be used
+ * to get the backtrace up to what file, function/class called the deprecated
+ * class.
+ *
+ * The current behavior is to trigger a user error if APP_ENV is DEV.
+ *
+ * This function is to be used in every class that is deprecated.
+ *
+ * @since 2.0.0
+ *       
+ * @param string $class_name
+ *            The class that was called.
+ * @param string $release
+ *            The release of tinyCampaign that deprecated the class.
+ * @param string $replacement
+ *            Optional. The class that should have been called. Default null.
+ */
+function _deprecated_class($class_name, $release, $replacement = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    /**
+     * Fires when a deprecated class is called.
+     *
+     * @since 2.0.0
+     *       
+     * @param string $class_name
+     *            The class that was called.
+     * @param string $replacement
+     *            The class that should have been called.
+     * @param string $release
+     *            The release of tinyCampaign that deprecated the class.
+     */
+    $app->hook->{'do_action'}('deprecated_class_run', $class_name, $replacement, $release);
+
+    /**
+     * Filter whether to trigger an error for deprecated classes.
+     *
+     * @since 2.0.0
+     *       
+     * @param bool $trigger
+     *            Whether to trigger the error for deprecated classes. Default true.
+     */
+    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_class_trigger_error', true)) {
+        if (function_exists('_t')) {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s instead. <br />'), $class_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />'), $class_name, $release), E_USER_DEPRECATED);
+            }
+        } else {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s instead. <br />', $class_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />', $class_name, $release), E_USER_DEPRECATED);
+            }
+        }
+    }
+}
+
+/**
+ * Mark a class's method as deprecated and inform when it has been used.
+ *
+ * There is a hook deprecated_class_method_run that will be called that can be used
+ * to get the backtrace up to what file, function/class called the deprecated
+ * method.
+ *
+ * The current behavior is to trigger a user error if APP_ENV is DEV.
+ *
+ * This function is to be used in every class's method that is deprecated.
+ *
+ * @since 2.0.0
+ *       
+ * @param string $method_name
+ *            The class method that was called.
+ * @param string $release
+ *            The release of tinyCampaign that deprecated the class's method.
+ * @param string $replacement
+ *            Optional. The class method that should have been called. Default null.
+ */
+function _deprecated_class_method($method_name, $release, $replacement = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    /**
+     * Fires when a deprecated class method is called.
+     *
+     * @since 2.0.0
+     *       
+     * @param string $method_name
+     *            The class's method that was called.
+     * @param string $replacement
+     *            The class method that should have been called.
+     * @param string $release
+     *            The release of tinyCampaign that deprecated the class's method.
+     */
+    $app->hook->{'do_action'}('deprecated_class_method_run', $method_name, $replacement, $release);
+
+    /**
+     * Filter whether to trigger an error for deprecated class methods.
+     *
+     * @since 2.0.0
+     *       
+     * @param bool $trigger
+     *            Whether to trigger the error for deprecated class methods. Default true.
+     */
+    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_class_method_trigger_error', true)) {
+        if (function_exists('_t')) {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />'), $method_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />'), $method_name, $release), E_USER_DEPRECATED);
+            }
+        } else {
+            if (!is_null($replacement)) {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />', $method_name, $release, $replacement), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf('%1$s() is <strong>deprecated</strong> since release %2$s with no alternative available. <br />', $method_name, $release), E_USER_DEPRECATED);
+            }
+        }
+    }
+}
+
+/**
+ * Mark a function argument as deprecated and inform when it has been used.
+ *
+ * This function is to be used whenever a deprecated function argument is used.
+ * Before this function is called, the argument must be checked for whether it was
+ * used by comparing it to its default value or evaluating whether it is empty.
+ * For example:
+ *
+ * if ( ! empty( $deprecated ) ) {
+ * _deprecated_argument( __FUNCTION__, '6.1.00' );
+ * }
+ *
+ *
+ * There is a hook deprecated_argument_run that will be called that can be used
+ * to get the backtrace up to what file and function used the deprecated
+ * argument.
+ *
+ * The current behavior is to trigger a user error if APP_ENV is set to DEV.
+ *
+ * @since 2.0.0
+ *       
+ * @param string $function_name
+ *            The function that was called.
+ * @param string $release
+ *            The release of tinyCampaign that deprecated the argument used.
+ * @param string $message
+ *            Optional. A message regarding the change. Default null.
+ */
+function _deprecated_argument($function_name, $release, $message = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    /**
+     * Fires when a deprecated argument is called.
+     *
+     * @since 2.0.0
+     *       
+     * @param string $function_name
+     *            The function that was called.
+     * @param string $message
+     *            A message regarding the change.
+     * @param string $release
+     *            The release of tinyCampaign that deprecated the argument used.
+     */
+    $app->hook->{'do_action'}('deprecated_argument_run', $function_name, $message, $release);
+    /**
+     * Filter whether to trigger an error for deprecated arguments.
+     *
+     * @since 2.0.0
+     *       
+     * @param bool $trigger
+     *            Whether to trigger the error for deprecated arguments. Default true.
+     */
+    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_argument_trigger_error', true)) {
+        if (function_exists('_t')) {
+            if (!is_null($message)) {
+                _trigger_error(sprintf(_t('%1$s() was called with an argument that is <strong>deprecated</strong> since release %2$s! %3$s. <br />'), $function_name, $release, $message), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf(_t('%1$s() was called with an argument that is <strong>deprecated</strong> since release %2$s with no alternative available. <br />'), $function_name, $release), E_USER_DEPRECATED);
+            }
+        } else {
+            if (!is_null($message)) {
+                _trigger_error(sprintf('%1$s() was called with an argument that is <strong>deprecated</strong> since release %2$s! %3$s. <br />', $function_name, $release, $message), E_USER_DEPRECATED);
+            } else {
+                _trigger_error(sprintf('%1$s() was called with an argument that is <strong>deprecated</strong> since release %2$s with no alternative available. <br />', $function_name, $release), E_USER_DEPRECATED);
+            }
+        }
+    }
+}
+
+/**
+ * Mark something as being incorrectly called.
+ *
+ * There is a hook incorrectly_called_run that will be called that can be used
+ * to get the backtrace up to what file and function called the deprecated
+ * function.
+ *
+ * The current behavior is to trigger a user error if APP_ENV is set to DEV.
+ *
+ * @since 2.0.0
+ *       
+ * @param string $function_name
+ *            The function that was called.
+ * @param string $message
+ *            A message explaining what has been done incorrectly.
+ * @param string $release
+ *            The release of tinyCampaign where the message was added.
+ */
+function _incorrectly_called($function_name, $message, $release)
+{
+    $app = \Liten\Liten::getInstance();
+
+    /**
+     * Fires when the given function is being used incorrectly.
+     *
+     * @since 2.0.0
+     *       
+     * @param string $function_name
+     *            The function that was called.
+     * @param string $message
+     *            A message explaining what has been done incorrectly.
+     * @param string $release
+     *            The release of tinyCampaign where the message was added.
+     */
+    $app->hook->{'do_action'}('incorrectly_called_run', $function_name, $message, $release);
+
+    /**
+     * Filter whether to trigger an error for _incorrectly_called() calls.
+     *
+     * @since 2.0.0
+     *       
+     * @param bool $trigger
+     *            Whether to trigger the error for _incorrectly_called() calls. Default true.
+     */
+    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('incorrectly_called_trigger_error', true)) {
+        if (function_exists('_t')) {
+            $release = is_null($release) ? '' : sprintf(_t('(This message was added in release %s.) <br /><br />'), $release);
+            /* translators: %s: Codex URL */
+            $message .= ' ' . sprintf(_t('Please see <a href="%s">Debugging in tinyCampaign</a> for more information.'), 'https://developer.edutracsis.com/codex/debugging-edutrac-sis/');
+            _trigger_error(sprintf(_t('%1$s() was called <strong>incorrectly</strong>. %2$s %3$s <br />'), $function_name, $message, $release));
+        } else {
+            $release = is_null($release) ? '' : sprintf('(This message was added in release %s.) <br /><br />', $release);
+            $message .= sprintf(' Please see <a href="%s">Debugging in tinyCampaign</a> for more information.', 'https://developer.edutracsis.com/codex/debugging-edutrac-sis/');
+            _trigger_error(sprintf('%1$s() was called <strong>incorrectly</strong>. %2$s %3$s <br />', $function_name, $message, $release));
+        }
+    }
+}
+
+/**
+ * Prints copyright in the dashboard footer.
+ *
+ * @since 2.0.0
+ */
+function tc_dashboard_copyright_footer()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $copyright = '<!--  Copyright Line -->' . "\n";
+    $copyright .= '<div class="copy">' . _t('&copy; 2013') . ' - ' . foot_release() . ' &nbsp; <a href="http://www.litenframework.com/"><img src="' . get_base_url() . 'static/assets/images/button.png" alt="Built with Liten Framework"/></a></div>' . "\n";
+    $copyright .= '<!--  End Copyright Line -->' . "\n";
+
+    return $app->hook->{'apply_filter'}('dashboard_copyright_footer', $copyright);
+}
+/**
+ * Includes and loads all activated plugins.
+ *
+ * @since 2.0.0
+ */
+load_activated_plugins(APP_PATH . 'plugins' . DS);
+
+/**
+ * An action called to add the plugin's link
+ * to the menu structure.
+ *
+ * @since 2.0.0
+ * @uses $app->hook->{'do_action'}() Calls 'admin_menu' hook.
+ */
+$app->hook->{'do_action'}('admin_menu');
+
+/**
+ * An action called to add custom page links
+ * to menu structure.
+ *
+ * @since 4.2.0
+ * @uses $app->hook->{'do_action'}() Calls 'custom_plugin_page' hook.
+ */
+$app->hook->{'do_action'}('custom_plugin_page');
+
+/**
+ * Fires once activated plugins have loaded.
+ *
+ * @since 2.0.0
+ */
+$app->hook->{'do_action'}('plugin_loaded');
+
+/**
+ * Fires after tinyCampaign has finished loading but before any headers are sent.
+ *
+ * @since 2.0.0
+ */
+$app->hook->{'do_action'}('init');
+
+/**
+ * Fires the admin_head action.
+ *
+ * @since 2.0.0
+ */
+function admin_head()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints scripts and/or data in the head tag of the dashboard.
+     *
+     * @since 2.0.0
+     */
+    $app->hook->{'do_action'}('admin_head');
+}
+
+/**
+ * Fires the footer action via the dashboard.
+ *
+ * @since 2.0.0
+ */
+function footer()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints scripts and/or data before the ending body tag
+     * of the dashboard.
+     *
+     * @since 2.0.0
+     */
+    $app->hook->{'do_action'}('footer');
+}
+
+/**
+ * Fires the release action.
+ *
+ * @since 2.0.0
+ */
+function release()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints tinyCampaign release information.
+     *
+     * @since 2.0.0
+     */
+    $app->hook->{'do_action'}('release');
+}
+
+/**
+ * Fires the dashboard_top_widgets action.
+ *
+ * @since 2.0.0
+ */
+function dashboard_top_widgets()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints widgets at the top portion of the dashboard.
+     *
+     * @since 2.0.0
+     */
+    $app->hook->{'do_action'}('dashboard_top_widgets');
+}
+
+/**
+ * Shows number of active students.
+ *
+ * @since 4.0.0
+ */
+function dashboard_student_count()
+{
+    $app = \Liten\Liten::getInstance();
+    $stu = $app->db->student()
+        ->select('COUNT(student.stuID) as count')
+        ->_join('stu_program', 'student.stuID = stu_program.stuID')
+        ->where('student.status = "A"')
+        ->_and_()
+        ->where('stu_program.currStatus = "A"');
+    $q = $stu->find(function ($data) {
+        $array = [];
+        foreach ($data as $d) {
+            $array[] = $d;
+        }
+        return $array;
+    });
+    $a = [];
+    foreach ($q as $r) {
+        $a[] = $r;
+    }
+    $stuCount = '<div class="col-md-4">';
+    $stuCount .= '<a href="#" class="widget-stats widget-stats-1 widget-stats-inverse">';
+    $stuCount .= '<span class="glyphicons group"><i></i><span class="txt">' . _t('Active Students') . '</span></span>';
+    $stuCount .= '<div class="clearfix"></div>';
+    $stuCount .= '<span class="count">' . $r['count'] . '</span>';
+    $stuCount .= '</a>';
+    $stuCount .= '</div>';
+    echo $app->hook->{'apply_filter'}('dashboard_student_count', $stuCount);
+}
+
+/**
+ * Shows number of active courses.
+ *
+ * @since 4.0.0
+ */
+function dashboard_course_count()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $count = $app->db->course()
+        ->where('course.currStatus = "A" AND course.endDate = "0000-00-00"')
+        ->count('course.courseID');
+
+    $crseCount = '<div class="col-md-4">';
+    $crseCount .= '<a href="#" class="widget-stats widget-stats-1 widget-stats-inverse">';
+    $crseCount .= '<span class="glyphicons book"><i></i><span class="txt">' . _t('Active Courses') . '</span></span>';
+    $crseCount .= '<div class="clearfix"></div>';
+    $crseCount .= '<span class="count">' . $count . '</span>';
+    $crseCount .= '</a>';
+    $crseCount .= '</div>';
+    echo $app->hook->{'apply_filter'}('dashboard_course_count', $crseCount);
+}
+
+/**
+ * Shows number of active academic programs.
+ *
+ * @since 4.0.0
+ */
+function dashboard_acadProg_count()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $count = $app->db->acad_program()
+        ->where('acad_program.currStatus = "A" AND acad_program.endDate = "0000-00-00"')
+        ->count('acad_program.acadProgID');
+
+    $progCount = '<div class="col-md-4">';
+    $progCount .= '<a href="#" class="widget-stats widget-stats-1 widget-stats-inverse">';
+    $progCount .= '<span class="glyphicons keynote"><i></i><span class="txt">' . _t('Active Programs') . '</span></span>';
+    $progCount .= '<div class="clearfix"></div>';
+    $progCount .= '<span class="count">' . $count . '</span>';
+    $progCount .= '</a>';
+    $progCount .= '</div>';
+    echo $app->hook->{'apply_filter'}('dashboard_acadProg_count', $progCount);
+}
+
+/**
+ * Retrieve javascript directory uri.
+ *
+ * @since 2.0.0
+ * @uses $app->hook->{'apply_filter'}() Calls 'javascript_directory_uri' filter.
+ *      
+ * @return string eduTrac javascript url.
+ */
+function get_javascript_directory_uri()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $directory = 'static/assets/components';
+    $javascript_root_uri = get_base_url();
+    $javascript_dir_uri = "$javascript_root_uri$directory/";
+    return $app->hook->{'apply_filter'}('javascript_directory_uri', $javascript_dir_uri, $javascript_root_uri, $directory);
+}
+
+/**
+ * Retrieve less directory uri.
+ *
+ * @since 2.0.0
+ * @uses $app->hook->{'apply_filter'}() Calls 'less_directory_uri' filter.
+ *      
+ * @return string eduTrac less url.
+ */
+function get_less_directory_uri()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $directory = 'static/assets/less';
+    $less_root_uri = get_base_url();
+    $less_dir_uri = "$less_root_uri$directory/";
+    return $app->hook->{'apply_filter'}('less_directory_uri', $less_dir_uri, $less_root_uri, $directory);
+}
+
+/**
+ * Retrieve css directory uri.
+ *
+ * @since 2.0.0
+ * @uses $app->hook->{'apply_filter'}() Calls 'css_directory_uri' filter.
+ *      
+ * @return string eduTrac css url.
+ */
+function get_css_directory_uri()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $directory = 'static/assets/css';
+    $css_root_uri = get_base_url();
+    $css_dir_uri = "$css_root_uri$directory/";
+    return $app->hook->{'apply_filter'}('css_directory_uri', $css_dir_uri, $css_root_uri, $directory);
+}
+
+/**
+ * Parses a string into variables to be stored in an array.
+ *
+ * Uses {@link http://www.php.net/parse_str parse_str()}
+ *
+ * @since 2.0.0
+ * @param string $string
+ *            The string to be parsed.
+ * @param array $array
+ *            Variables will be stored in this array.
+ */
+function tc_parse_str($string, $array)
+{
+    $app = \Liten\Liten::getInstance();
+
+    parse_str($string, $array);
+    /**
+     * Filter the array of variables derived from a parsed string.
+     *
+     * @since 4.2.0
+     * @param array $array
+     *            The array populated with variables.
+     */
+    $array = $app->hook->{'apply_filter'}('tc_parse_str', $array);
+}
+
+function get_user_avatar($email, $s = 80, $class = '', $d = 'mm', $r = 'g', $img = false)
+{
+    $app = \Liten\Liten::getInstance();
+
+    if (function_exists('enable_url_ssl')) {
+        $protocol = 'https://';
+    } else {
+        $protocol = 'http://';
+    }
+
+    $url = $protocol . "www.gravatar.com/avatar/" . md5(strtolower(trim($email))) . "?s=200&d=$d&r=$r";
+
+    if (get_http_response_code($protocol . 'www.gravatar.com/') != 302) {
+        $static_image_url = get_base_url() . "static/assets/img/avatar.png?s=200";
+        $avatarsize = getimagesize($static_image_url);
+        $avatar = '<img src="' . get_base_url() . 'static/assets/img/avatar.png" ' . resize_image($avatarsize[1], $avatarsize[1], $s) . ' class="' . $class . '" />';
+    } else {
+        $avatarsize = getimagesize($url);
+        $avatar = '<img src="' . $url . '" ' . resize_image($avatarsize[1], $avatarsize[1], $s) . ' class="' . $class . '" />';
+    }
+
+    return $app->hook->{'apply_filter'}('user_avatar', $avatar, $email, $s, $class, $d, $r, $img);
+}
+
+function nocache_headers()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $headers = [
+        'Expires' => 'Sun, 01 Jan 2014 00:00:00 GMT',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache'
+    ];
+    foreach ($headers as $k => $v) {
+        header("{$k}: {$v}");
+    }
+    return $app->hook->{'apply_filter'}('nocache_headers', $headers);
+}
+
+/**
+ * Compares release values.
+ *
+ * @since 2.0.0
+ * @param string $current
+ *            Current release value.
+ * @param string $latest
+ *            Latest release value.
+ * @param string $operator
+ *            Operand use to compare current and latest release values.
+ * @return bool
+ */
+function compare_releases($current, $latest, $operator = '>')
+{
+    $app = \Liten\Liten::getInstance();
+
+    $php_function = version_compare($latest, $current, $operator);
+    /**
+     * Filters the comparison between two release.
+     *
+     * @since 2.0.0
+     * @param $php_function PHP
+     *            function for comparing two release values.
+     */
+    $release = $app->hook->{'apply_filter'}('compare_releases', $php_function);
+
+    if ($release) {
+        return $latest;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Retrieves a response code from the header
+ * of a given resource.
+ *
+ * @since 2.0.0
+ * @param string $url
+ *            URL of resource/website.
+ * @return int HTTP response code.
+ */
+function get_http_response_code($url)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $headers = get_headers($url);
+    $status = substr($headers[0], 9, 3);
+    /**
+     * Filters the http response code.
+     *
+     * @since 2.0.0
+     * @param
+     *            string
+     */
+    return $app->hook->{'apply_filter'}('http_response_code', $status);
+}
+
+/**
+ * Plugin success message when plugin is activated successfully.
+ *
+ * @since 2.0.0
+ * @param string $plugin_name
+ *            The name of the plugin that was just activated.
+ */
+function tc_plugin_activate_message($plugin_name)
+{
+    $app = \Liten\Liten::getInstance();
+    $success = $app->flash('plugin_success_message', _t('Plugin <strong>activated</strong>.'));
+    /**
+     * Filter the default plugin success activation message.
+     *
+     * @since 2.0.0
+     * @param string $success
+     *            The success activation message.
+     * @param string $plugin_name
+     *            The name of the plugin that was just activated.
+     */
+    return $app->hook->{'apply_filter'}('tc_plugin_activate_message', $success, $plugin_name);
+}
+
+/**
+ * Plugin success message when plugin is deactivated successfully.
+ *
+ * @since 2.0.0
+ * @param string $plugin_name
+ *            The name of the plugin that was just deactivated.
+ */
+function tc_plugin_deactivate_message($plugin_name)
+{
+    $app = \Liten\Liten::getInstance();
+    $success = $app->flash('plugin_success_message', _t('Plugin <strong>deactivated</strong>.'));
+    /**
+     * Filter the default plugin success deactivation message.
+     *
+     * @since 2.0.0
+     * @param string $success
+     *            The success deactivation message.
+     * @param string $plugin_name
+     *            The name of the plugin that was just deactivated.
+     */
+    return $app->hook->{'apply_filter'}('tc_plugin_deactivate_message', $success, $plugin_name);
+}
+
+/**
+ * Dashboard router function.
+ * 
+ * Includes dashboard router filter (dashboard_router).
+ *
+ * @since 2.0.0
+ */
+function _tc_dashboard_router()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $router = $app->config('routers_dir') . 'dashboard.router.php';
+    if (!$app->hook->{'has_filter'}('dashboard_router')) {
+        require($router);
+    }
+    return $app->hook->{'apply_filter'}('dashboard_router', $router);
+}
+
+/**
+ * Register stylesheet.
+ * 
+ * @since 2.0.0
+ * @param string $handle
+ */
+function tc_register_style($handle) {
+    $app = \Liten\Liten::getInstance();
+    return $app->asset->{'register_style'}($handle);
+}
+
+/**
+ * Register javascript.
+ * 
+ * @since 2.0.0
+ * @param string $handle
+ */
+function tc_register_script($handle) {
+    $app = \Liten\Liten::getInstance();
+    return $app->asset->{'register_script'}($handle);
+}
+
+/**
+ * Enqueue stylesheet.
+ * 
+ * @since 2.0.0
+ */
+function tc_enqueue_style()
+{
+    $app = \Liten\Liten::getInstance();
+    echo $app->asset->{'enqueue_style'}();
+}
+
+/**
+ * Enqueue javascript.
+ * 
+ * @since 2.0.0
+ */
+function tc_enqueue_script()
+{
+    $app = \Liten\Liten::getInstance();
+    echo $app->asset->{'enqueue_script'}();
+}
+
+$app->hook->{'add_action'}('admin_head', 'head_release_meta', 5);
+$app->hook->{'add_action'}('admin_head', 'tc_notify_style', 2);
+$app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
+$app->hook->{'add_action'}('footer', 'tc_notify_script', 5);
+$app->hook->{'add_action'}('release', 'foot_release', 5);
+$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_student_count', 5);
+$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_course_count', 5);
+$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_acadProg_count', 5);
+$app->hook->{'add_action'}('dashboard_right_widgets', 'dashboard_clock', 5);
+$app->hook->{'add_action'}('dashboard_right_widgets', 'dashboard_weather', 5);
+$app->hook->{'add_action'}('activated_plugin', 'tc_plugin_activate_message', 5, 1);
+$app->hook->{'add_action'}('deactivated_plugin', 'tc_plugin_deactivate_message', 5, 1);
+$app->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
+$app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
+$app->hook->{'add_filter'}('tc_authenticate_person', 'tc_authenticate', 5, 3);
+$app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

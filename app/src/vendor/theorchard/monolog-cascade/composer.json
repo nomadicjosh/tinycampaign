@@ -1,0 +1,46 @@
+{
+    "name": "theorchard/monolog-cascade",
+    "license": "MIT",
+    "type": "library",
+    "description": "Monolog extension to configure multiple loggers in the blink of an eye and access them from anywhere",
+    "keywords": ["monolog", "cascade", "monolog extension", "monolog plugin", "monolog utils", "logger", "log"],
+    "authors": [
+        {
+            "name": "Raphaël Antonmattei",
+            "email": "rantonmattei@theorchard.com",
+            "homepage": "https://github.com/rantonmattei"
+        }
+    ],
+    "homepage": "https://github.com/theorchard/monolog-cascade",
+    "require": {
+        "php": ">=5.3.9",
+        "symfony/config": "~2.7",
+        "symfony/options-resolver": "~2.7",
+        "symfony/serializer": "~2.7",
+        "symfony/yaml": "~2.7",
+        "monolog/monolog": "~1.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cascade\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cascade\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "mikey179/vfsStream": "~1.6",
+        "phpunit/phpcov": "~2.0",
+        "phpunit/phpunit": "~4.8",
+        "satooshi/php-coveralls": "~1.0",
+        "squizlabs/php_codesniffer": "~2.5"
+    },
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.4.x-dev"
+        }
+    }
+}
