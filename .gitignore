@@ -13,9 +13,6 @@ app/tmp/logs/*.txt
 config.php
 .tmp
 test-code.php
-CHANGELOG.md
-CHANGELOG.mdown
-READEME.mdown
 tests
 Tests
 phpunit
