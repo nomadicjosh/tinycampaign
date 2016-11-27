@@ -1,82 +1,82 @@
-<?php namespace app\src\Core\Exception;
+<?php namespace app\src\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
 /**
- * eduTrac SIS Exception Class
+ * tinyCampaign Exception Class
  * 
  * This extends the framework `LitenException` class to allow converting
- * exceptions to and from `etsis_Error` objects.
+ * exceptions to and from `tc_Error` objects.
  * 
- * Unfortunately, because an `etsis_Error` object may contain multiple messages and error
+ * Unfortunately, because an `tc_Error` object may contain multiple messages and error
  * codes, only the first message for the first error code in the instance will be
  * accessible through the exception's methods.
  *  
- * @since       6.1.14
- * @package     eduTrac SIS
+ * @since       2.0.0
+ * @package     tinyCampaign
  * @author      Joshua Parker <joshmac3@icloud.com>
  */
 class BaseException extends \Liten\Exception\LitenException {
 
 	/**
-	 * eduTrac SIS handles string error codes.
+	 * tinyCampaign handles string error codes.
 	 * @var string
 	 */
 	protected $code;
 
 	/**
 	 * Error instance.
-	 * @var \app\src\Core\etsis_Error
+	 * @var \app\src\tc_Error
 	 */
-	protected $etsis_error;
+	protected $tc_error;
 
 	/**
-	 * eduTrac SIS exception constructor.
+	 * tinyCampaign exception constructor.
 	 *
 	 * The class constructor accepts either the framework `\Liten\Exception\LitenException` creation
-	 * parameters or an `\app\src\Core\etsis_Error` instance in place of the previous exception.
+	 * parameters or an `\app\src\tc_Error` instance in place of the previous exception.
 	 *
-	 * If an `\app\src\Core\etsis_Error` instance is given in this way, the `$message` and `$code`
+	 * If an `\app\src\tc_Error` instance is given in this way, the `$message` and `$code`
 	 * parameters are ignored in favour of the message and code provided by the
-	 * `\app\src\Core\etsis_Error` instance.
+	 * `\app\src\tc_Error` instance.
 	 *
-	 * Depending on whether an `\app\src\Core\etsis_Error` instance was received, the instance is kept
+	 * Depending on whether an `\app\src\tc_Error` instance was received, the instance is kept
 	 * or a new one is created from the provided parameters.
 	 *
 	 * @param string               $message  Exception message (optional, defaults to empty).
 	 * @param string               $code     Exception code (optional, defaults to empty).
-	 * @param `\Liten\Exception\LitenException` | `\app\src\Core\etsis_Error` $previous Previous exception or error (optional).
+	 * @param `\Liten\Exception\LitenException` | `\app\src\tc_Error` $previous Previous exception or error (optional).
 	 *
-	 * @uses \app\src\Core\etsis_Error
-	 * @uses \app\src\Core\etsis_Error::get_error_code()
-	 * @uses \app\src\Core\etsis_Error::get_error_message()
+	 * @uses \app\src\tc_Error
+	 * @uses \app\src\tc_Error::get_error_code()
+	 * @uses \app\src\tc_Error::get_error_message()
 	 */
 	public function __construct( $message = '', $code = '', $previous = null ) {
 		$exception = $previous;
-		$etsis_error  = null;
+		$tc_error  = null;
 
-		if ( $previous instanceof \app\src\Core\etsis_Error ) {
+		if ( $previous instanceof \app\src\tc_Error ) {
 			$code      = $previous->get_error_code();
 			$message   = $previous->get_error_message( $code );
-			$etsis_error  = $previous;
+			$tc_error  = $previous;
 			$exception = null;
 		}
 
 		parent::__construct( $message, null, $exception );
 
 		$this->code     = $code;
-		$this->etsis_error = $etsis_error;
+		$this->tc_error = $tc_error;
 	}
 
 	/**
-	 * Obtain the exception's `\app\src\Core\etsis_Error` object.
+	 * Obtain the exception's `\app\src\tc_Error` object.
 	 * 
-     * @since 6.1.14
-	 * @return etsis_Error eduTrac SIS error.
+     * @since 2.0.0
+	 * @return tc_Error tinyCampaign error.
 	 */
-	public function get_etsis_error() {
-		return $this->etsis_error ? $this->etsis_error : new \app\src\Core\etsis_Error( $this->code, $this->message, $this );
+	public function get_tc_error() {
+		return $this->tc_error ? $this->tc_error : new \app\src\tc_Error( $this->code, $this->message, $this );
 	}
 
 }

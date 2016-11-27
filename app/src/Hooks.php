@@ -228,20 +228,20 @@ class Hooks
             $pluginFile = _h($v->location);
             $plugin = str_replace('.plugin.php', '', $pluginFile);
             
-            if (! etsis_file_exists($plugins_dir . $plugin . DS . $pluginFile, false)) {
+            if (! tc_file_exists($plugins_dir . $plugin . DS . $pluginFile, false)) {
                 $file = $plugins_dir . $pluginFile;
             } else {
                 $file = $plugins_dir . $plugin . DS . $pluginFile;
             }
             
-            $error = etsis_php_check_syntax($file);
-            if (is_etsis_exception($error)) {
+            $error = tc_php_check_syntax($file);
+            if (is_tc_exception($error)) {
                 $this->deactivate_plugin(_h($v->location));
                 $this->_app->flash('error_message', sprintf(_t('The plugin <strong>%s</strong> has been deactivated because your changes resulted in a <strong>fatal error</strong>. <br /><br />') . $error->getMessage(), _h($v->location)));
                 return false;
             }
             
-            if (etsis_file_exists($file, false)) {
+            if (tc_file_exists($file, false)) {
                 require_once ($file);
             } else {
                 $this->deactivate_plugin(_h($v->location));
@@ -731,7 +731,7 @@ class Hooks
     }
 
     /**
-     * Read an option from options_meta.
+     * Read an option from options.
      * Return value or $default if not found
      */
     public function get_option($meta_key, $default = false)
@@ -765,17 +765,17 @@ class Hooks
         }
         
         if (! isset($this->_app->db->option[$meta_key])) {
-            $meta = $this->_app->db->options_meta();
+            $meta = $this->_app->db->options();
             $q = $meta->select('meta_value')->where('meta_key = ?', $meta_key);
             
-            $results = etsis_cache_get($meta_key, 'option');
+            $results = tc_cache_get($meta_key, 'option');
             if (empty($results)) {
                 $results = $q->find(function ($data) {
                     foreach ($data as $d) {
                         return $d['meta_value'];
                     }
                 });
-                etsis_cache_add($meta_key, $results, 'option');
+                tc_cache_add($meta_key, $results, 'option');
             }
             
             if (is_object($q)) {
@@ -804,7 +804,7 @@ class Hooks
     }
 
     /**
-     * Update (add if doesn't exist) an option to options_meta
+     * Update (add if doesn't exist) an option to options
      */
     public function update_option($meta_key, $newvalue)
     {
@@ -824,11 +824,11 @@ class Hooks
         
         $this->do_action('update_option', $meta_key, $oldvalue, $newvalue);
         
-        $key = $this->_app->db->options_meta();
+        $key = $this->_app->db->options();
         $key->meta_value = $_newvalue;
         $key->where('meta_key = ?', $meta_key)->update();
         
-        etsis_cache_delete($meta_key, 'option');
+        tc_cache_delete($meta_key, 'option');
         
         if (count($key) > 0) {
             $this->_app->db->option[$meta_key] = $newvalue;
@@ -851,11 +851,11 @@ class Hooks
         
         $this->do_action('add_option', $name, $_value);
         
-        $this->_app->db->options_meta()->insert([
+        $this->_app->db->options()->insert([
             'meta_key' => $name,
             'meta_value' => $_value
         ]);
-        etsis_cache_delete($name, 'option');
+        tc_cache_delete($name, 'option');
         $this->_app->db->option[$name] = $value;
         return;
     }
@@ -865,7 +865,7 @@ class Hooks
      */
     public function delete_option($name)
     {
-        $key = $this->_app->db->options_meta()->where('meta_key = ?', $name);
+        $key = $this->_app->db->options()->where('meta_key = ?', $name);
         $results = $key->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -880,10 +880,10 @@ class Hooks
         
         $this->do_action('delete_option', $name);
         
-        $this->_app->db->options_meta()
+        $this->_app->db->options()
             ->where('meta_key', $name)
             ->delete();
-        etsis_cache_delete($name,'option');
+        tc_cache_delete($name,'option');
         return true;
     }
     

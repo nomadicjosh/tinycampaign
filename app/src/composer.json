@@ -8,6 +8,7 @@
         "robmorgan/phinx": "*",
         "theorchard/monolog-cascade": "~0.4",
         "jenssegers/date": "^3.2",
-        "Stolz/Assets": "~0.1"
+        "Stolz/Assets": "~0.1",
+        "ircmaxell/random-lib": ">=1.2"
     }
 }

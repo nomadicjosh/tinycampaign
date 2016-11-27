@@ -69,7 +69,7 @@ function _tc_email()
  *
  * @since 2.0.0
  */
-function _etsis_logger()
+function _tc_logger()
 {
     $logger = new \app\src\tc_Logger();
     return $logger;

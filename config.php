@@ -72,7 +72,7 @@ $app = new \Liten\Liten(
  * Database details
  */
 defined('DB_HOST') or define('DB_HOST', '127.0.0.1');
-defined('DB_NAME') or define('DB_NAME', 'et');
+defined('DB_NAME') or define('DB_NAME', 'new_tc');
 defined('DB_USER') or define('DB_USER', 'root');
 defined('DB_PASS') or define('DB_PASS', 'mysql');
 
@@ -99,8 +99,8 @@ $app->inst->singleton('db', function () {
  * or preliminary functions for your application.
  */
 require( APP_PATH . 'functions.php' );
-//require( APP_PATH . 'functions' . DS . 'dependency.php' );
-//require( APP_PATH . 'functions' . DS . 'hook-function.php' );
+require( APP_PATH . 'functions' . DS . 'dependency.php' );
+require( APP_PATH . 'functions' . DS . 'hook-function.php' );
 require( APP_PATH . 'application.php' );
 
 /**
@@ -110,8 +110,6 @@ require( APP_PATH . 'application.php' );
  * only when it is needed.
  */
 include(APP_PATH . 'routers.php');
-
-benchmark_init();
 
 date_default_timezone_set((get_option('system_timezone') !== NULL) ? get_option('system_timezone') : 'America/New_York');
 

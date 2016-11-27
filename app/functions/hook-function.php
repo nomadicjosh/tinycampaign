@@ -506,6 +506,40 @@ function tc_dashboard_copyright_footer()
 
     return $app->hook->{'apply_filter'}('dashboard_copyright_footer', $copyright);
 }
+
+/**
+ * Fires the tc_dashboard_head action.
+ *
+ * @since 2.0.0
+ */
+function tc_dashboard_head()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints scripts and/or data in the head tag of the dashboard.
+     *
+     * @since 6.3.0
+     */
+    $app->hook->{'do_action'}('tc_dashboard_head');
+}
+
+/**
+ * Fires the tc_dashboard_footer action via the dashboard.
+ *
+ * @since 2.0.0
+ */
+function tc_dashboard_footer()
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Prints scripts and/or data before the ending body tag
+     * of the dashboard.
+     *
+     * @since 2.0.0
+     */
+    $app->hook->{'do_action'}('tc_dashboard_footer');
+}
+
 /**
  * Includes and loads all activated plugins.
  *
@@ -979,7 +1013,7 @@ function tc_enqueue_script()
 $app->hook->{'add_action'}('admin_head', 'head_release_meta', 5);
 $app->hook->{'add_action'}('admin_head', 'tc_notify_style', 2);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
-$app->hook->{'add_action'}('footer', 'tc_notify_script', 5);
+$app->hook->{'add_action'}('tc_dashboard_footer', 'tc_notify_script', 5);
 $app->hook->{'add_action'}('release', 'foot_release', 5);
 $app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_student_count', 5);
 $app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_course_count', 5);

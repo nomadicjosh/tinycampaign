@@ -14,7 +14,7 @@ use Cascade\Cascade;
  */
 function hasPermission($perm)
 {
-    $acl = new \app\src\ACL(get_persondata('personID'));
+    $acl = new \app\src\ACL(get_userdata('id'));
 
     if ($acl->hasPermission($perm) && is_user_logged_in()) {
         return true;
@@ -27,22 +27,12 @@ function get_userdata($field)
 {
     $app = \Liten\Liten::getInstance();
     $user = get_secure_cookie_data('TC_COOKIENAME');
-    $value = $app->db->person()
-        ->select('person.*,address.*,staff.*,student.*')
-        ->_join('address', 'person.personID = address.personID')
-        ->_join('staff', 'person.personID = staff.staffID')
-        ->_join('student', 'person.personID = student.stuID')
-        ->where('person.personID = ?', $user->personID)->_and_()
-        ->where('person.uname = ?', $user->uname);
-    $q = $value->find(function ($data) {
-        $array = [];
-        foreach ($data as $d) {
-            $array[] = $d;
-        }
-        return $array;
-    });
+    $q = $app->db->user()
+        ->where('user.id = ?', $user->id)->_and_()
+        ->where('user.uname = ?', $user->uname)
+        ->find();
     foreach ($q as $r) {
-        return _h($r[$field]);
+        return _h($r->{$field});
     }
 }
 
@@ -56,9 +46,9 @@ function is_user_logged_in()
 {
     $app = \Liten\Liten::getInstance();
 
-    $user = get_user_by('personID', get_persondata('personID'));
+    $user = get_user_by('id', get_userdata('id'));
 
-    if ('' != $user->personID && $app->cookies->verifySecureCookie('TC_COOKIENAME')) {
+    if ('' != $user->id && $app->cookies->verifySecureCookie('TC_COOKIENAME')) {
         return true;
     }
 
@@ -76,12 +66,8 @@ function get_user_by($field, $value)
 {
     $app = \Liten\Liten::getInstance();
 
-    $user = $app->db->person()
-        ->select('person.*, address.*, staff.*, student.*')
-        ->_join('address', 'person.personID = address.personID')
-        ->_join('staff', 'person.personID = staff.staffID')
-        ->_join('student', 'person.personID = student.stuID')
-        ->where("person.$field = ?", $value)
+    $user = $app->db->user()
+        ->where("user.$field = ?", $value)
         ->findOne();
 
     return $user;
@@ -99,23 +85,19 @@ function tc_authenticate($login, $password, $rememberme)
 {
     $app = \Liten\Liten::getInstance();
 
-    $user = $app->db->person()
-        ->select('person.personID,person.uname,person.password')
-        ->_join('staff', 'person.personID = staff.staffID')
-        ->_join('student', 'person.personID = student.stuID')
-        ->where('(person.uname = ? OR person.email = ?)', [$login, $login])->_and_()
-        ->where('(staff.status = "A" OR student.status = "A")')
+    $user = $app->db->user()
+        ->where('(user.uname = ? OR user.email = ?)', [$login, $login])
         ->findOne();
 
     if (false == $user) {
-        $app->flash('error_message', sprintf(_t('Your account is not active. <a href="%s">More info.</a>'), 'https://www.edutracsis.com/manual/troubleshooting/#Your_Account_is_Deactivated'));
+        $app->flash('error_message', _t('The account does not exist'));
         redirect($app->req->server['HTTP_REFERER']);
         return;
     }
 
-    $ll = $app->db->person();
+    $ll = $app->db->user();
     $ll->LastLogin = $ll->NOW();
-    $ll->where('personID = ?', _h($user->personID))->update();
+    $ll->where('id = ?', _h($user->id))->update();
     /**
      * Filters the authentication cookie.
      * 
@@ -125,12 +107,12 @@ function tc_authenticate($login, $password, $rememberme)
      * @throws Exception If $user is not a database object.
      */
     try {
-        $app->hook->apply_filter('tc_auth_cookie', $user, $rememberme);
+        $app->hook->{'apply_filter'}('tc_auth_cookie', $user, $rememberme);
     } catch (UnauthorizedException $e) {
         Cascade::getLogger('error')->error(sprintf('AUTHSTATE[%s]: Unauthorized: %s', $e->getCode(), $e->getMessage()));
     }
 
-    tc_logger_activity_log_write('Authentication', 'Login', get_name(_h($user->personID)), _h($user->uname));
+    tc_logger_activity_log_write('Authentication', 'Login', get_name(_h($user->id)), _h($user->uname));
     redirect(get_base_url());
 }
 
@@ -142,7 +124,7 @@ function tc_authenticate($login, $password, $rememberme)
  * @param string $password Person's password.
  * @param string $rememberme Whether to remember the person.
  */
-function tc_authenticate_person($login, $password, $rememberme)
+function tc_authenticate_user($login, $password, $rememberme)
 {
     $app = \Liten\Liten::getInstance();
 
@@ -156,7 +138,7 @@ function tc_authenticate_person($login, $password, $rememberme)
             $app->flash('error_message', _t('<strong>ERROR</strong>: The password field is empty.'));
         }
 
-        redirect(get_base_url() . 'login' . '/');
+        redirect(get_base_url());
         return;
     }
 
@@ -166,7 +148,7 @@ function tc_authenticate_person($login, $password, $rememberme)
         if (false == $user->email) {
             $app->flash('error_message', _t('<strong>ERROR</strong>: Invalid email address.'));
 
-            redirect(get_base_url() . 'login' . '/');
+            redirect(get_base_url());
             return;
         }
     } else {
@@ -175,15 +157,15 @@ function tc_authenticate_person($login, $password, $rememberme)
         if (false == $user->uname) {
             $app->flash('error_message', _t('<strong>ERROR</strong>: Invalid username.'));
 
-            redirect(get_base_url() . 'login' . '/');
+            redirect(get_base_url());
             return;
         }
     }
 
-    if (!tc_check_password($password, $user->password, _h($user->personID))) {
+    if (!tc_check_password($password, $user->password, _h($user->id))) {
         $app->flash('error_message', _t('<strong>ERROR</strong>: The password you entered is incorrect.'));
 
-        redirect(get_base_url() . 'login' . '/');
+        redirect(get_base_url());
         return;
     }
 
@@ -195,7 +177,7 @@ function tc_authenticate_person($login, $password, $rememberme)
      * @param string $password Person's password.
      * @param string $rememberme Whether to remember the person.
      */
-    $user = $app->hook->{'apply_filter'}('tc_authenticate_person', $login, $password, $rememberme);
+    $user = $app->hook->{'apply_filter'}('tc_authenticate_user', $login, $password, $rememberme);
 
     return $user;
 }
@@ -227,7 +209,7 @@ function tc_set_auth_cookie($user, $rememberme = '')
 
     $auth_cookie = [
         'key' => 'TC_COOKIENAME',
-        'personID' => _h($user->personID),
+        'id' => _h($user->id),
         'uname' => _h($user->uname),
         'remember' => (isset($rememberme) ? $rememberme : _t('no')),
         'exp' => $expire + time()
@@ -305,7 +287,7 @@ function tc_clear_auth_cookie()
 function tc_login_form_show_message()
 {
     $app = \Liten\Liten::getInstance();
-    $flash = new \app\src\Core\tc_Messages();
+    $flash = new \app\src\tc_Messages();
     echo $app->hook->{'apply_filter'}('login_form_show_message', $flash->showMessage());
 }
 
