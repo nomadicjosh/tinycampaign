@@ -4,8 +4,8 @@
  *
  * @license GPLv3
  *         
- * @since 6.2.10
- * @package eduTrac SIS
+ * @since 2.0.0
+ * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
 
