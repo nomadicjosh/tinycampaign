@@ -1,5 +1,9 @@
 <?php namespace app\src;
 
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\tc_QueueMessage as Message;
+use Cascade\Cascade;
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
@@ -8,158 +12,145 @@ if (!defined('BASE_PATH'))
  *  
  * @since       2.0.0
  * @package     tinyCampaign
- * @subpackage  Assets
  * @author      Joshua Parker <joshmac3@icloud.com>
  */
 class tc_Queue
 {
+
     /**
-	 * Available style collections.
-	 * Each collection is an array of assets.
-	 * Collections may also contain other collections.
-	 *
-	 * @var array
-	 */
-	protected $style_collections = [];
-    
-    /**
-	 * Available script collections.
-	 * Each collection is an array of assets.
-	 * Collections may also contain other collections.
-	 *
-	 * @var array
-	 */
-	protected $script_collections = [];
-    
-    /**
-	 * Class constructor.
-	 *
-	 * @param  array $options See config() method for details.
-	 * @return void
-	 */
-    public function __construct(array $options)
-    {
-        parent::__construct($options);
-    }
-    
-    /**
-     * Add css asset or a collection of css assets.
+     * Application object.
      * 
-     * You may add more than one css asset passing an array as argument.
-     * 
-     * @since   2.0.0
-     * @param   mixed $asset
-     * @return  `\app\src\tc_Assets`
+     * @var object
      */
-    public function register_style($asset)
-    {
-        // More than one asset
-        if (is_array($asset)) {
-            foreach ($asset as $a) {
-                $this->add($a);
-            }
-        }
-
-        // Collection
-        elseif (isset($this->style_collections[$asset])) {
-            $this->add($this->style_collections[$asset]);
-        }
-
-        // CSS asset
-        elseif (preg_match($this->css_regex, $asset)) {
-            $this->addCss($asset);
-        }
-
-        return $this;
-    }
+    public $app;
 
     /**
-     * Add js asset or a collection of js assets.
      * 
-     * You may add more than one js asset passing an array as argument.
-     * 
-     * @since   2.0.0
-     * @param   mixed $asset
-     * @return  `\app\src\tc_Assets`
+     * @param \Liten\Liten $liten
      */
-    public function register_script($asset)
+    public function __construct(\Liten\Liten $liten = null)
     {
-        // More than one asset
-        if (is_array($asset)) {
-            foreach ($asset as $a) {
-                $this->add($a);
-            }
-        }
-
-        // Collection
-        elseif (isset($this->script_collections[$asset])) {
-            $this->add($this->script_collections[$asset]);
-        }
-
-        // JavaScript asset
-        elseif (preg_match($this->js_regex, $asset)) {
-            $this->addJs($asset);
-        }
-        return $this;
+        $this->app = !empty($liten) ? $liten : \Liten\Liten::getInstance();
     }
-    
-    /**
-	 * Build the CSS `<link>` tags.
-	 *
-	 * Accepts an array of $attributes for the HTML tag.
-	 * You can take control of the tag rendering by
-	 * providing a closure that will receive an array of assets.
-	 *
-	 * @param  array|Closure $attributes
-	 * @return string
-	 */
-    public function enqueue_style($attributes = null)
+
+    public function getNode()
     {
-        return $this->css($attributes);
+        $q = $this->app->db->message()
+            ->select('message.node')
+            ->where('message.sent = "0"')->_and_()
+            ->whereNull('message.sent_date')
+            ->findOne();
+
+        return $q->node;
     }
 
     /**
-	 * Build the JavaScript `<script>` tags.
-	 *
-	 * Accepts an array of $attributes for the HTML tag.
-	 * You can take control of the tag rendering by
-	 * providing a closure that will receive an array of assets.
-	 *
-	 * @param  array|Closure $attributes
-	 * @return string
-	 */
-    public function enqueue_script($attributes = null)
-    {
-        return $this->js($attributes);
-    }
-    
-    /**
-	 * Add/replace style collection.
-	 *
+     * Return email count of emails not sent yet.
+     * 
      * @since 2.0.0
-	 * @param   string  $collectionName
-	 * @param   array   $assets
-	 * @return  `\app\src\tc_Assets`
-	 */
-	public function registerStyleCollection($collectionName, array $assets)
-	{
-		$this->style_collections[$collectionName] = $assets;
-
-		return $this;
-	}
+     * @return int unsent email count
+     */
+    public function getUnsentEmailCount()
+    {
+        $count = Node::table($this->getNode())->where('is_sent', '=', false)->findAll()->count();
+        return $count;
+    }
     
     /**
-     * Add/replace script collection.
-	 *
+     * Return email count.
+     * 
      * @since 2.0.0
-	 * @param   string  $collectionName
-	 * @param   array   $assets
-     * @return  `\app\src\tc_Assets`
+     * @return int email count
      */
-    public function registerScriptCollection($collectionName, array $assets)
-	{
-		$this->script_collections[$collectionName] = $assets;
+    public function getEmailCount()
+    {
+        $count = Node::table($this->getNode())->findAll()->count();
+        return $count;
+    }
 
-		return $this;
-	}
+    /**
+     * Returns emails from queue.
+     * 
+     * @return tc_QueueMessage[]
+     */
+    public function getEmails()
+    {
+        $node = Node::table($this->getNode())->where('is_sent', '=', false)->findAll();
+
+        $result_array = [];
+
+        foreach ($node as $row) {
+            $message = new Message();
+            $message->setId($row->id);
+            $message->setMessageId($row->mid);
+            $message->setToEmail($row->to_email);
+            $message->setToName($row->to_name);
+            $message->setMessageHtml($row->message_html);
+            $message->setMessagePlainText($row->message_plain_text);
+            $message->setTimestampCreated($row->timestamp_created);
+            $message->setTimestampToSend($row->timestamp_to_send);
+            $message->setTimestampSent($row->timestamp_sent);
+            $message->setIsSent(($row->is_sent ? true : false));
+            $message->setHeaders(maybe_unserialize($row->headers));
+
+            $result_array[] = $message;
+        }
+
+        return $result_array;
+    }
+
+    /**
+     * sets is_sent value of the message record to true
+     *
+     * @param PHPEQMessage $message message to update
+     * 
+     * @return bool
+     */
+    public function setMessageIsSent($message)
+    {
+        if (!is_a($message, 'tc_QueueMessage')) {
+            return false;
+        }
+        
+        set_queued_message_is_sent($this->getNode(), $message->getId());
+
+        return true;
+    }
+
+    /**
+     * saves the message record to queue
+     *
+     * @param PHPEQMessage $message message to save
+     * 
+     * @return bool
+     */
+    public function addMessage($message)
+    {
+        if (!is_a($message, 'tc_QueueMessage')) {
+            return false;
+        }
+
+        try {
+            $node = Node::table($this->getNode());
+            $node->mid = (int) $message->getMessageId();
+            $node->to_email = (string) $message->getToEmail();
+            $node->to_name = (string) $message->getToName();
+            //$node->message_html = $message->getMessageHtml();
+            //$node->message_plain_text = $message->getMessagePlainText();
+            $node->message_html = (bool) true;
+            $node->message_plain_text = (bool) false;
+            $node->timestamp_created = (string) $message->getTimestampCreated();
+            $node->timestamp_sent = (string) $message->getTimestampSent();
+            $node->timestamp_to_send = (string) $message->getTimeStampToSend();
+            $node->is_sent = (bool) $message->getIsSent();
+            $node->serialized_headers = (string) $message->getSerializedHeaders();
+            $node->save();
+        } catch (app\src\Exception\Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (\Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+
+        return true;
+    }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace app\src\Core\NodeQ\Helpers;
+namespace app\src\NodeQ\Helpers;
 
-use \app\src\Core\NodeQ\LazerException;
-use \app\src\Core\NodeQ\Relation;
+use \app\src\NodeQ\LazerException;
+use \app\src\NodeQ\Relation;
 
 /**
  * Validation for tables

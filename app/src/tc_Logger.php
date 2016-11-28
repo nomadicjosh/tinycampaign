@@ -32,14 +32,14 @@ class tc_Logger
      */
     public function writeLog($action, $process, $record, $uname)
     {
-        $create = date("Y-m-d H:i:s", time());
+        $create = \Jenssegers\Date\Date::now()->format("Y-m-d H:i:s");
         $current_date = strtotime($create);
         /* 20 days after creation date */
         $expire = date("Y-m-d H:i:s", $current_date+=1728000);
         
-        $expires_at = $this->app->hook->apply_filter('activity_log_expires', $expire);
+        $expires_at = $this->app->hook->{'apply_filter'}('activity_log_expires', $expire);
 
-        $log = $this->app->db->activity_log();
+        $log = $this->app->db->activity();
         $log->action = $action;
         $log->process = $process;
         $log->record = $record;
@@ -57,7 +57,7 @@ class tc_Logger
      */
     public function purgeActivityLog()
     {
-        $this->app->db->query("DELETE FROM activity_log WHERE expires_at <= ?", [ date('Y-m-d H:i:s', time())]);
+        $this->app->db->query("DELETE FROM activity WHERE expires_at <= ?", [\Jenssegers\Date\Date::now()->format("Y-m-d H:i:s")]);
     }
 
     /**

@@ -37,11 +37,11 @@ class Hooks
 
     /**
      *
-     * @access protected
+     * @access public
      * @var object
      *
      */
-    protected $_app;
+    public $app;
 
     /**
      *
@@ -107,7 +107,7 @@ class Hooks
      */
     public function __construct(\Liten\Liten $liten = null)
     {
-        $this->_app = ! empty($liten) ? $liten : \Liten\Liten::getInstance();
+        $this->app = ! empty($liten) ? $liten : \Liten\Liten::getInstance();
     }
 
     /**
@@ -189,7 +189,7 @@ class Hooks
      */
     public function activate_plugin($plugin)
     {
-        $this->_app->db->plugin()->insert([
+        $this->app->db->plugin()->insert([
             'location' => $plugin
         ]);
     }
@@ -205,7 +205,7 @@ class Hooks
      */
     public function deactivate_plugin($plugin)
     {
-        $this->_app->db->plugin()
+        $this->app->db->plugin()
             ->where('location = ?', $plugin)
             ->delete();
     }
@@ -221,7 +221,7 @@ class Hooks
      */
     public function load_activated_plugins($plugins_dir)
     {
-        $plugin = $this->_app->db->plugin();
+        $plugin = $this->app->db->plugin();
         $q = $plugin->find();
         
         foreach ($q as $v) {
@@ -237,7 +237,7 @@ class Hooks
             $error = tc_php_check_syntax($file);
             if (is_tc_exception($error)) {
                 $this->deactivate_plugin(_h($v->location));
-                $this->_app->flash('error_message', sprintf(_t('The plugin <strong>%s</strong> has been deactivated because your changes resulted in a <strong>fatal error</strong>. <br /><br />') . $error->getMessage(), _h($v->location)));
+                $this->app->flash('error_message', sprintf(_t('The plugin <strong>%s</strong> has been deactivated because your changes resulted in a <strong>fatal error</strong>. <br /><br />') . $error->getMessage(), _h($v->location)));
                 return false;
             }
             
@@ -258,7 +258,7 @@ class Hooks
      */
     public function is_plugin_activated($plugin)
     {
-        $active = $this->_app->db->plugin()->where('location = ?', $plugin);
+        $active = $this->app->db->plugin()->where('location = ?', $plugin);
         $q = $active->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -684,10 +684,10 @@ class Hooks
      */
     public function list_plugin_admin_pages($url)
     {
-        if (! property_exists($this->_app->hook, 'plugin_pages') || ! $this->_app->hook->plugin_pages)
+        if (! property_exists($this->app->hook, 'plugin_pages') || ! $this->app->hook->plugin_pages)
             return;
         
-        foreach ((array) $this->_app->hook->plugin_pages as $page) {
+        foreach ((array) $this->app->hook->plugin_pages as $page) {
             echo '<li><a href="' . $url . '?page=' . $page['slug'] . '">' . $page['title'] . '</a></li>' . "\n";
         }
     }
@@ -701,10 +701,10 @@ class Hooks
      */
     public function register_admin_page($slug, $title, $function)
     {
-        if (! property_exists($this->_app->hook, 'plugin_pages') || ! $this->_app->hook->plugin_pages)
-            $this->_app->hook->plugin_pages = [];
+        if (! property_exists($this->app->hook, 'plugin_pages') || ! $this->app->hook->plugin_pages)
+            $this->app->hook->plugin_pages = [];
         
-        $this->_app->hook->plugin_pages[$slug] = [
+        $this->app->hook->plugin_pages[$slug] = [
             'slug' => $slug,
             'title' => $title,
             'function' => $function
@@ -720,14 +720,14 @@ class Hooks
     {
         
         // Check the plugin page is actually registered
-        if (! isset($this->_app->hook->plugin_pages[$plugin_page])) {
+        if (! isset($this->app->hook->plugin_pages[$plugin_page])) {
             die('This page does not exist. Maybe a plugin you thought was activated is inactive?');
         }
         
         // Draw the page itself
         $this->do_action('load-' . $plugin_page);
         
-        call_user_func($this->_app->hook->plugin_pages[$plugin_page]['function']);
+        call_user_func($this->app->hook->plugin_pages[$plugin_page]['function']);
     }
 
     /**
@@ -764,8 +764,8 @@ class Hooks
             return $pre;
         }
         
-        if (! isset($this->_app->db->option[$meta_key])) {
-            $meta = $this->_app->db->options();
+        if (! isset($this->app->db->option[$meta_key])) {
+            $meta = $this->app->db->options();
             $q = $meta->select('meta_value')->where('meta_key = ?', $meta_key);
             
             $results = tc_cache_get($meta_key, 'option');
@@ -785,7 +785,7 @@ class Hooks
                 $value = $default;
                 return $value;
             }
-            $this->_app->db->option[$meta_key] = $this->maybe_unserialize($value);
+            $this->app->db->option[$meta_key] = $this->maybe_unserialize($value);
         }
         /**
          * Filter the value of an existing option.
@@ -797,10 +797,10 @@ class Hooks
          * @param mixed $value
          *            Value of the option. If stored serialized, it will be
          *            unserialized prior to being returned.
-         * @param string $this->_app->db->option[$meta_key]
+         * @param string $this->app->db->option[$meta_key]
          *            Option name.
          */
-        return $this->apply_filter('get_option_' . $meta_key, $this->_app->db->option[$meta_key]);
+        return $this->apply_filter('get_option_' . $meta_key, $this->app->db->option[$meta_key]);
     }
 
     /**
@@ -824,14 +824,14 @@ class Hooks
         
         $this->do_action('update_option', $meta_key, $oldvalue, $newvalue);
         
-        $key = $this->_app->db->options();
+        $key = $this->app->db->options();
         $key->meta_value = $_newvalue;
         $key->where('meta_key = ?', $meta_key)->update();
         
         tc_cache_delete($meta_key, 'option');
         
         if (count($key) > 0) {
-            $this->_app->db->option[$meta_key] = $newvalue;
+            $this->app->db->option[$meta_key] = $newvalue;
             return true;
         }
         return false;
@@ -851,12 +851,12 @@ class Hooks
         
         $this->do_action('add_option', $name, $_value);
         
-        $this->_app->db->options()->insert([
+        $this->app->db->options()->insert([
             'meta_key' => $name,
             'meta_value' => $_value
         ]);
         tc_cache_delete($name, 'option');
-        $this->_app->db->option[$name] = $value;
+        $this->app->db->option[$name] = $value;
         return;
     }
 
@@ -865,7 +865,7 @@ class Hooks
      */
     public function delete_option($name)
     {
-        $key = $this->_app->db->options()->where('meta_key = ?', $name);
+        $key = $this->app->db->options()->where('meta_key = ?', $name);
         $results = $key->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -880,7 +880,7 @@ class Hooks
         
         $this->do_action('delete_option', $name);
         
-        $this->_app->db->options()
+        $this->app->db->options()
             ->where('meta_key', $name)
             ->delete();
         tc_cache_delete($name,'option');

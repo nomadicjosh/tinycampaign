@@ -1,11 +1,11 @@
 <?php
 
-namespace app\src\Core\NodeQ;
+namespace app\src\NodeQ;
 
-use \app\src\Core\NodeQ\LazerException;
-use \app\src\Core\NodeQ\Database;
-use \app\src\Core\NodeQ\Relation;
-use \app\src\Core\NodeQ\Helpers;
+use \app\src\NodeQ\LazerException;
+use \app\src\NodeQ\Database;
+use \app\src\NodeQ\Relation;
+use \app\src\NodeQ\Helpers;
 
 /**
  * Core class of Lazer.

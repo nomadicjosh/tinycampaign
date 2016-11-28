@@ -1,6 +1,9 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
+
 /**
  * tinyCampaign Hooks Helper & Wrapper
  *
@@ -1010,6 +1013,24 @@ function tc_enqueue_script()
     echo $app->asset->{'enqueue_script'}();
 }
 
+function tc_smtp($tcMailer)
+{
+    $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
+    $tcMailer->Mailer = "smtp";
+    $tcMailer->From = _h(get_option("system_email"));
+    $tcMailer->FromName = _h(get_option("system_name"));
+    $tcMailer->Sender = $tcMailer->From; // Return-Path
+    $tcMailer->AddReplyTo($tcMailer->From, $tcMailer->FromName); // Reply-To
+    $tcMailer->Host = _h(get_option("tc_smtp_host"));
+    $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
+    $tcMailer->Port = _h(get_option("tc_smtp_port"));
+    $tcMailer->SMTPAuth = (_h(get_option("tc_smtp_password")) != "") ? TRUE : FALSE;
+    if ($tcMailer->SMTPAuth) {
+        $tcMailer->Username = _h(get_option("tc_smtp_username"));
+        $tcMailer->Password = Crypto::decrypt(_h(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
+    }
+}
+
 $app->hook->{'add_action'}('admin_head', 'head_release_meta', 5);
 $app->hook->{'add_action'}('admin_head', 'tc_notify_style', 2);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
@@ -1024,5 +1045,6 @@ $app->hook->{'add_action'}('activated_plugin', 'tc_plugin_activate_message', 5, 
 $app->hook->{'add_action'}('deactivated_plugin', 'tc_plugin_deactivate_message', 5, 1);
 $app->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
 $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
+$app->hook->{'add_action'}('tcMailer_init', 'tc_smtp');
 $app->hook->{'add_filter'}('tc_authenticate_person', 'tc_authenticate', 5, 3);
 $app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

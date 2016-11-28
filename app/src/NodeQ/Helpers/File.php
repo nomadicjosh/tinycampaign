@@ -1,8 +1,8 @@
 <?php
 
-namespace app\src\Core\NodeQ\Helpers;
+namespace app\src\NodeQ\Helpers;
 
-use \app\src\Core\NodeQ\LazerException;
+use \app\src\NodeQ\LazerException;
 
 /**
  * File managing class
@@ -42,13 +42,13 @@ class File implements FileInterface {
 
     public final function getPath()
     {
-        if (!defined('ETSIS_NODEQ_PATH'))
+        if (!defined('TC_NODEQ_PATH'))
         {
-            throw new LazerException('Please define constant ETSIS_NODEQ_PATH (check README.md)');
+            throw new LazerException('Please define constant TC_NODEQ_PATH (check README.md)');
         }
         else if (!empty($this->type))
         {
-            return ETSIS_NODEQ_PATH . $this->name . '.' . $this->type . '.node';
+            return TC_NODEQ_PATH . $this->name . '.' . $this->type . '.node';
         }
         else
         {

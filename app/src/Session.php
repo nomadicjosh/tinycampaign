@@ -1,17 +1,11 @@
 <?php namespace app\src;
 if ( ! defined('BASE_PATH') ) exit('No direct script access allowed');
 /**
- * Session Management
+ * tinyCampaign Session Management
  *  
- * PHP 5.4+
- *
- * eduTrac(tm) : Student Information System (http://www.7mediaws.org/)
- * @copyright (c) 2013 7 Media Web Solutions, LLC
- * 
- * @link        http://www.7mediaws.org/
- * @since       3.0.0
- * @package     eduTrac
- * @author      Joshua Parker <josh@7mediaws.org>
+ * @since       2.0.0
+ * @package     tinyCampaign
+ * @author      Joshua Parker <joshmac3@icloud.com>
  */
 
 class Session {

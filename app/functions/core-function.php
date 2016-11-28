@@ -90,6 +90,12 @@ function _t($msgid, $domain = '')
     }
 }
 
+function microtime_float()
+{
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float) $usec + (float) $sec);
+}
+
 function getPathInfo($relative)
 {
     $app = \Liten\Liten::getInstance();
@@ -1197,9 +1203,9 @@ function tc_file_exists($filename, $throw = true)
 function set_email_template($body)
 {
     $app = \Liten\Liten::getInstance();
-    
+
     $tpl = _file_get_contents(APP_PATH . 'views/setting/tpl/email_alert.tpl');
-    
+
     $template = $app->hook->{'apply_filter'}('email_template', $tpl);
 
     return str_replace('{content}', $body, $template);

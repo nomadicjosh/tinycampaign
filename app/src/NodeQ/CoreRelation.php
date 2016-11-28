@@ -1,11 +1,11 @@
 <?php
 
-namespace app\src\Core\NodeQ;
+namespace app\src\NodeQ;
 
-use \app\src\Core\NodeQ\Helpers\Validate;
-use \app\src\Core\NodeQ\Helpers\Config;
-use \app\src\Core\NodeQ\Database;
-use \app\src\Core\NodeQ\LazerException;
+use \app\src\NodeQ\Helpers\Validate;
+use \app\src\NodeQ\Helpers\Config;
+use \app\src\NodeQ\Database;
+use \app\src\NodeQ\LazerException;
 
 /**
  * Relation class of LAZER project.

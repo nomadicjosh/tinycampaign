@@ -1,7 +1,7 @@
-<?php namespace app\src\Core\NodeQ;
+<?php namespace app\src\NodeQ;
 
-use \app\src\Core\NodeQ\Database as NodeQ;
-use \app\src\Core\NodeQ\Helpers;
+use \app\src\NodeQ\Database as NodeQ;
+use \app\src\NodeQ\Helpers;
 
 /**
  * NodeQ
@@ -10,11 +10,11 @@ use \app\src\Core\NodeQ\Helpers;
  *
  * @license GPLv3
  *         
- * @since 6.2.11
- * @package eduTrac SIS
+ * @since 2.0.0
+ * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-class etsis_NodeQ extends NodeQ
+class tc_NodeQ extends NodeQ
 {
 
     public static function dispense($table)

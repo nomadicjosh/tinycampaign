@@ -12,6 +12,7 @@
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
+define('SCREEN', 'dash');
 ?>
 
   <!-- Content Wrapper. Contains page content -->

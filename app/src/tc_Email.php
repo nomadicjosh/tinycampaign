@@ -61,7 +61,7 @@ class tc_Email
          *            A compacted array of tc_mail() arguments, including the "to" email,
          *            subject, message, headers, and attachments values.
          */
-        $atts = $this->app->hook->apply_filter('tc_mail', compact('to', 'subject', 'message', 'headers', 'attachments'));
+        $atts = $this->app->hook->{'apply_filter'}('tc_mail', compact('to', 'subject', 'message', 'headers', 'attachments'));
         
         if (isset($atts['to'])) {
             $to = $atts['to'];
@@ -202,7 +202,7 @@ class tc_Email
          * @param string $from_email
          *            Email address to send from.
          */
-        $this->mailer->From = $this->app->hook->apply_filter('tc_mail_from', $from_email);
+        $this->mailer->From = $this->app->hook->{'apply_filter'}('tc_mail_from', $from_email);
         
         /**
          * Filter the name to associate with the "from" email address.
@@ -212,7 +212,7 @@ class tc_Email
          * @param string $from_name
          *            Name associated with the "from" email address.
          */
-        $this->mailer->FromName = $this->app->hook->apply_filter('tc_mail_from_name', $from_name);
+        $this->mailer->FromName = $this->app->hook->{'apply_filter'}('tc_mail_from_name', $from_name);
         
         // Set destination addresses
         if (! is_array($to)) {
@@ -293,7 +293,7 @@ class tc_Email
          * @param string $content_type
          *            Default tc_mail() content type.
          */
-        $content_type = $this->app->hook->apply_filter('tc_mail_content_type', $content_type);
+        $content_type = $this->app->hook->{'apply_filter'}('tc_mail_content_type', $content_type);
         
         $this->mailer->ContentType = $content_type;
         
@@ -312,7 +312,7 @@ class tc_Email
          * @param string $charset
          *            Default email charset.
          */
-        $this->mailer->CharSet = $this->app->hook->apply_filter('tc_mail_charset', $charset);
+        $this->mailer->CharSet = $this->app->hook->{'apply_filter'}('tc_mail_charset', $charset);
         
         // Set custom headers
         if (! empty($headers)) {
@@ -343,7 +343,7 @@ class tc_Email
          * @param PHPMailer $this->mailer
          *            The PHPMailer instance, passed by reference.
          */
-        $this->app->hook->do_action_array('etsisMailer_init', [
+        $this->app->hook->{'do_action_array'}('tcMailer_init', [
             &$this->mailer
         ]);
         
@@ -362,7 +362,7 @@ class tc_Email
              *            A tc_Error object with the phpmailerException code, message, and an array
              *            containing the mail recipient, subject, message, headers, and attachments.
              */
-            $this->app->hook->do_action('tc_mail_failed', new \app\src\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
+            $this->app->hook->{'do_action'}('tc_mail_failed', new \app\src\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
             return false;
         }
         

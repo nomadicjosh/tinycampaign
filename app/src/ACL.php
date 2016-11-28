@@ -4,18 +4,11 @@ if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
 /**
- * Access Level Control Class
+ * Access Level Control
  *  
- * PHP 5.4+
- *
- * eduTrac(tm) : Student Information System (http://www.7mediaws.org/)
- * @copyright (c) 2013 7 Media Web Solutions, LLC
- * 
- * @license     http://www.edutracerp.com/general/edutrac-erp-commercial-license/ Commercial License
- * @link        http://www.7mediaws.org/
- * @since       3.0.0
- * @package     eduTrac
- * @author      Joshua Parker <josh@7mediaws.org>
+ * @since       2.0.0
+ * @package     tinyCampaign
+ * @author      Joshua Parker <joshmac3@icloud.com>
  */
 class ACL
 {
@@ -44,11 +37,11 @@ class ACL
      */
     protected $_userRoles = [];
     
-    protected $_app;
+    public $app;
 
     public function __construct($id = '')
     {
-        $this->_app = \Liten\Liten::getInstance();
+        $this->app = \Liten\Liten::getInstance();
 
         if ($id != '') {
             $this->_id = floatval($id);
@@ -77,9 +70,9 @@ class ACL
 
     public function getPermKeyFromID($permID)
     {
-        $strSQL = $this->_app->db->permission()
+        $strSQL = $this->app->db->permission()
             ->select('permission.permKey')
-            ->where('ID = ?', floatval($permID))
+            ->where('id = ?', floatval($permID))
             ->limit(1);
         $q = $strSQL->find(function($data) {
             $array = [];
@@ -96,9 +89,9 @@ class ACL
 
     public function getPermNameFromID($permID)
     {
-        $strSQL = $this->_app->db->permission()
+        $strSQL = $this->app->db->permission()
             ->select('permission.permName')
-            ->where('ID = ?', floatval($permID))
+            ->where('id = ?', floatval($permID))
             ->limit(1);
         $q = $strSQL->find(function($data) {
             $array = [];
@@ -115,7 +108,7 @@ class ACL
 
     public function getRoleNameFromID($roleID)
     {
-        $strSQL = $this->_app->db->role()
+        $strSQL = $this->app->db->role()
             ->select('role.roleName')
             ->where('id = ?', floatval($roleID))
             ->limit(1);
@@ -134,7 +127,7 @@ class ACL
 
     public function getUserRoles()
     {
-        $strSQL = $this->_app->db->user_roles()
+        $strSQL = $this->app->db->user_roles()
             ->where('id = ?', floatval($this->_id))
             ->orderBy('addDate', 'ASC');
         $q = $strSQL->find(function($data) {
@@ -157,7 +150,7 @@ class ACL
     {
         $format = strtolower($format);
 
-        $strSQL = $this->_app->db->role()
+        $strSQL = $this->app->db->role()
             ->orderBy('roleName', 'ASC');
         $q = $strSQL->find(function($data) {
             $array = [];
@@ -171,9 +164,9 @@ class ACL
         foreach($q as $r) {
             if ($format == 'full')
 			{
-				$resp[] = [ "ID" => $r['ID'],"Name" => $r['roleName'] ];
+				$resp[] = [ "ID" => $r['id'],"Name" => $r['roleName'] ];
 			} else {
-				$resp[] = $r['ID'];
+				$resp[] = $r['id'];
 			}
         }
         return $resp;
@@ -183,7 +176,7 @@ class ACL
     {
         $format = strtolower($format);
 
-        $strSQL = $this->_app->db->permission()
+        $strSQL = $this->app->db->permission()
             ->orderBy('permName', 'ASC');
         $q = $strSQL->find(function($data) {
             $array = [];
@@ -196,9 +189,9 @@ class ACL
         $resp = [];
         foreach($q as $r) {
             if ($format == 'full') {
-				$resp[$r['permKey']] = [ 'ID' => $r['ID'], 'Name' => $r['permName'], 'Key' => $r['permKey'] ];
+				$resp[$r['permKey']] = [ 'ID' => $r['id'], 'Name' => $r['permName'], 'Key' => $r['permKey'] ];
 			} else {
-				$resp[] = $r['ID'];
+				$resp[] = $r['id'];
 			}
         }
         return $resp;
@@ -207,11 +200,11 @@ class ACL
     public function getRolePerms($role)
     {
         if (is_array($role)) {
-            $roleSQL = $this->_app->db->query("SELECT * FROM role_perms WHERE roleID IN (" . implode(",",$role) . ") ORDER BY ID ASC");
+            $roleSQL = $this->app->db->query("SELECT * FROM role_perms WHERE roleID IN (" . implode(",",$role) . ") ORDER BY id ASC");
         } else {
-            $roleSQL = $this->_app->db->role_perms()
+            $roleSQL = $this->app->db->role_perms()
                 ->where('roleID = ?', floatval($role))
-                ->orderBy('ID', 'ASC');
+                ->orderBy('id', 'ASC');
         }
 
        $q = $roleSQL->find(function($data) {
@@ -238,7 +231,7 @@ class ACL
 
     public function getUserPerms($id)
     {
-        $strSQL = $this->_app->db->user_perms()
+        $strSQL = $this->app->db->user_perms()
             ->where('id = ?', floatval($id))
             ->orderBy('LastUpdate', 'ASC');
 
@@ -278,7 +271,7 @@ class ACL
 
     public function hasPermission($permKey)
     {
-        $roles = $this->_app->db->query("SELECT 
+        $roles = $this->app->db->query("SELECT 
 						a.id 
 					FROM 
 						role a 
@@ -299,7 +292,7 @@ class ACL
             return $array;
         });
         
-        $perms = $this->_app->db->query('SELECT ID FROM user_perms WHERE permission LIKE ? AND id = ?', ["%$permKey%", get_userdata('id')]);
+        $perms = $this->app->db->query('SELECT id FROM user_perms WHERE permission LIKE ? AND id = ?', ["%$permKey%", get_userdata('id')]);
         
         $q2 = $perms->find(function($data) {
             $array = [];
@@ -320,7 +313,7 @@ class ACL
 
     public function getUsername($id)
     {
-        $strSQL = $this->_app->db->user()
+        $strSQL = $this->app->db->user()
             ->select('user.uname')
             ->where('id = ?', floatval($id))
             ->limit(1);
