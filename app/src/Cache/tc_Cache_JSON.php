@@ -79,7 +79,7 @@ class tc_Cache_JSON extends \app\src\Cache\tc_Abstract_Cache
     {
         $this->app = !empty($liten) ? $liten : \Liten\Liten::getInstance();
 
-        if (ETSIS_FILE_CACHE_LOW_RAM && function_exists('memory_get_usage')) {
+        if (TC_FILE_CACHE_LOW_RAM && function_exists('memory_get_usage')) {
             $limit = _trim(ini_get('memory_limit'));
             $mod = strtolower($limit[strlen($limit) - 1]);
             switch ($mod) {
@@ -100,7 +100,7 @@ class tc_Cache_JSON extends \app\src\Cache\tc_Abstract_Cache
 
             $this->_memory_limit = $limit;
 
-            $limit = _trim(ETSIS_FILE_CACHE_LOW_RAM);
+            $limit = _trim(TC_FILE_CACHE_LOW_RAM);
             $mod = strtolower($limit[strlen($limit) - 1]);
             switch ($mod) {
                 case 'g':

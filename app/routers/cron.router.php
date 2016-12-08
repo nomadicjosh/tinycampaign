@@ -4,6 +4,9 @@ if (!defined('BASE_PATH'))
 use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\Helpers\Validate as Validate;
 use Cascade\Cascade;
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 
 /**
  * Cron Router
@@ -63,9 +66,8 @@ foreach ($regions as $name => $mask) {
 }
 
 $email = _tc_email();
-$flashNow = new \app\src\tc_Messages();
 
-$app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
+$app->group('/cron', function () use($app, $css, $js, $email) {
 
     /**
      * Before route checks to make sure the logged in user
@@ -73,11 +75,19 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
      */
     $app->before('GET', '/', function () {
         if (!hasPermission('access_cronjob_screen')) {
-            redirect(get_base_url() . 'dashboard' . '/');
+            _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
         }
     });
 
     $app->match('GET|POST', '/', function () use($app, $css, $js) {
+
+        if ($app->req->isPost()) {
+            foreach ($_POST['cronjobs'] as $job) {
+                Node::table('cronjob_handler')->find($job)->delete();
+            }
+            redirect($app->req->server['HTTP_REFERER']);
+        }
+
         if (!Validate::table('cronjob_setting')->exists()) {
             Node::dispense('cronjob_setting');
         }
@@ -87,38 +97,27 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
         }
 
         $set = Node::table('cronjob_setting')->findAll();
-        $job = Node::table('cronjob_handler')->findAll();
+        $jobs = Node::table('cronjob_handler')->findAll();
 
-        if ($app->req->isPost()) {
-            foreach ($_POST['cronjobs'] as $job) {
-                Node::table('cronjob_handler')->find($job)->delete();
-            }
-            redirect($app->req->server['HTTP_REFERER']);
-        }
+        tc_register_style('datatables');
+        tc_register_style('iCheck');
+        tc_register_script('datatables');
+        tc_register_script('iCheck');
 
         $app->view->display('cron/index', [
             'title' => 'Cronjob Handlers',
-            'cssArray' => $css,
-            'jsArray' => $js,
-            'cron' => $job,
+            'jobs' => $jobs,
             'set' => $set
         ]);
     });
 
-    /**
-     * Before route checks to make sure the logged in user
-     * us allowed to manage options/settings.
-     */
-    $app->before('GET|POST', '/(\d+)/', function () {
-        if (!hasPermission('access_cronjob_screen')) {
-            redirect(get_base_url() . 'dashboard' . '/');
-        }
-    });
-
-    $app->match('GET|POST', '/new/', function () use($app, $css, $js, $flashNow) {
+    $app->match('GET|POST', '/new/', function () use($app, $css, $js) {
         if ($app->req->isPost()) {
             if (filter_var($_POST['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
-                $url = Node::table('cronjob_handler')->where('url', '=', $app->req->_post('url'))->find();
+                $url = Node::table('cronjob_handler')
+                    ->where('url', '=', $app->req->_post('url'))
+                    ->find();
+
                 $found = false;
                 if ($url->count() > 0) {
                     $found = true;
@@ -126,7 +125,7 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
 
                 if ($found == false) {
                     if ($app->req->_post('each') == '') {
-                        $app->flash('error_message', _t('Time setting missing, please add time settings.'));
+                        _tc_flash()->error(_t('Time setting missing, please add time settings.'));
                     } else {
 
                         $cron = Node::table('cronjob_handler');
@@ -137,16 +136,16 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
                         $cron->save();
 
                         if ($cron) {
-                            $app->flash('success_message', $flashNow->notice(200));
+                            _tc_flash()->success(_tc_flash()->notice(200));
                         } else {
-                            $app->flash('error_message', $flashNow->notice(409));
+                            _tc_flash()->error(_tc_flash()->notice(409));
                         }
                     }
                 } else {
-                    $app->flash('error_message', _t('Cronjob handler already exists in the system.'));
+                    _tc_flash()->error(_t('Cronjob handler already exists in the system.'));
                 }
             } else {
-                $app->flash('error_message', _t('Cronjob URL is wrong.'));
+                _tc_flash()->error(_t('Cronjob URL is wrong.'));
             }
             redirect(get_base_url() . 'cron/');
         }
@@ -158,29 +157,33 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
         ]);
     });
 
-    $app->match('GET|POST', '/setting/', function () use($app, $css, $js, $flashNow) {
+    $app->match('GET|POST', '/setting/', function () use($app, $css, $js) {
 
         if ($app->req->isPost()) {
             $good = true;
 
             if (strlen(trim($_POST['cronjobpassword'])) < 2) {
-                $app->flash('error_message', _t('Cronjobs cannot run without a password. Your cronjob password contains wrong characters, minimum of 4 letters and numbers.'));
+                _tc_flash()->error(_t('Cronjobs cannot run without a password. Your cronjob password contains wrong characters, minimum of 4 letters and numbers.'));
                 $good = false;
             }
 
             if ($good == true) {
-                $cron = Node::table('cronjob_setting')->find(1);
+                try {
+                    $cron = Node::table('cronjob_setting')->find(1);
                 $cron->cronjobpassword = (string) $app->req->_post('cronjobpassword');
                 $cron->timeout = (isset($_POST['timeout']) && is_numeric($_POST['timeout']) ? (int) $app->req->_post('timeout') : 30);
                 $cron->save();
 
                 if ($cron) {
-                    $app->flash('success_message', $flashNow->notice(200));
+                    _tc_flash()->success(_tc_flash()->notice(200));
                 } else {
-                    $app->flash('error_message', $flashNow->notice(409));
+                    _tc_flash()->error(_tc_flash()->notice(409));
                 }
+                } catch (Exception $e) {
+
+                }
+                
             }
-            redirect($app->req->server['HTTP_REFERER']);
         }
 
         $set = Node::table('cronjob_setting')->find(1);
@@ -193,7 +196,17 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
         ]);
     });
 
-    $app->match('GET|POST', '/view/(\d+)/', function ($id) use($app, $css, $js, $flashNow) {
+    /**
+     * Before route checks to make sure the logged in user
+     * us allowed to manage options/settings.
+     */
+    $app->before('GET|POST', '/(\d+)/', function () {
+        if (!hasPermission('access_cronjob_screen')) {
+            _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->match('GET|POST', '/(\d+)/', function ($id) use($app, $css, $js) {
         if ($app->req->isPost()) {
             if (filter_var($_POST['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
 
@@ -205,15 +218,13 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
                 $cron->save();
 
                 if ($cron) {
-                    $app->flash('success_message', $flashNow->notice(200));
+                    _tc_flash()->success(_tc_flash()->notice(200));
                 } else {
-                    $app->flash('error_message', $flashNow->notice(409));
+                    _tc_flash()->error(_tc_flash()->notice(409));
                 }
             } else {
-                $app->flash('error_message', _t('Current URL is not correct; must begin with http(s):// and followed with a path.'));
+                _tc_flash()->error(_t('Current URL is not correct; must begin with http(s):// and followed with a path.'));
             }
-
-            redirect($app->req->server['HTTP_REFERER']);
         }
 
         $sql = Node::table('cronjob_handler')->find($id);
@@ -246,10 +257,11 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
          * the results in a html format.
          */ else {
 
+            tc_register_style('select2');
+            tc_register_script('select2');
+
             $app->view->display('cron/view', [
                 'title' => 'View Cronjob Handler',
-                'cssArray' => $css,
-                'jsArray' => $js,
                 'cron' => $sql
                 ]
             );
@@ -348,9 +360,17 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
     });
 
     $app->get('/purgeErrorLog/', function () use($app) {
-        $app->db->error()
-            ->where('DATE_ADD(error.addDate, INTERVAL 5 DAY) <= ?', Jenssegers\Date\Date::now()->format('Y-m-d'))
-            ->delete();
+        try {
+            $app->db->error()
+                ->where('DATE_ADD(error.addDate, INTERVAL 5 DAY) <= ?', Jenssegers\Date\Date::now()->format('Y-m-d'))
+                ->delete();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         tc_logger_error_log_purge();
     });
@@ -404,7 +424,7 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
                 $message->getToEmail(), $message->getSubject(), $message->getMessageHtml(), $message->getHeaders()
             );
 
-            $q = $app->db->message();
+            $q = $app->db->campaign();
             $q->recipients = +1;
             if (++$i === 1) {
                 $q->sendfinish = $last->timestamp_to_send;
@@ -413,7 +433,7 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
                 $q->status = 'sent';
             }
             $q->where('node = ?', $queue->getNode())
-                ->update;
+                ->update();
 
             // remove message from the queue by updating is_sent value
             $queue->setMessageIsSent($message);
@@ -422,38 +442,38 @@ $app->group('/cron', function () use($app, $css, $js, $email, $flashNow) {
 
     $app->get('/runBounceHandler/', function () {
         $time_start = microtime_float();
-        
+
         $bmh = new app\src\tc_BounceHandler();
-        $bmh->action_function    = 'bounce_callback_action'; // default is 'bounce_callback_action'
-        $bmh->verbose            = VERBOSE_SIMPLE; //VERBOSE_REPORT; //VERBOSE_DEBUG; //VERBOSE_QUIET; // default is VERBOSE_SIMPLE
+        $bmh->action_function = 'bounce_callback_action'; // default is 'bounce_callback_action'
+        $bmh->verbose = VERBOSE_SIMPLE; //VERBOSE_REPORT; //VERBOSE_DEBUG; //VERBOSE_QUIET; // default is VERBOSE_SIMPLE
         $bmh->use_fetchstructure = true; // true is default, no need to speficy
-        $bmh->testmode           = false; // false is default, no need to specify
-        $bmh->debug_body_rule    = false; // false is default, no need to specify
-        $bmh->debug_dsn_rule     = false; // false is default, no need to specify
-        $bmh->purge_unprocessed  = false; // false is default, no need to specify
-        $bmh->disable_delete     = false; // false is default, no need to specify
+        $bmh->testmode = false; // false is default, no need to specify
+        $bmh->debug_body_rule = false; // false is default, no need to specify
+        $bmh->debug_dsn_rule = false; // false is default, no need to specify
+        $bmh->purge_unprocessed = false; // false is default, no need to specify
+        $bmh->disable_delete = false; // false is default, no need to specify
 
         /*
          * for remote mailbox
          */
-        $bmh->mailhost          = get_option('tc_smtp_host'); // your mail server
-        $bmh->mailbox_username  = get_option('tc_smtp_username'); // your mailbox username
-        $bmh->mailbox_password  = get_option('tc_smtp_password'); // your mailbox password
-        $bmh->port              = get_option('tc_smtp_port'); // the port to access your mailbox, default is 143
-        $bmh->service           = get_option('tc_smtp_service'); // the service to use (imap or pop3), default is 'imap'
-        $bmh->service_option    = get_option('tc_smtp_smtpsecure'); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
-        $bmh->boxname           = (get_option('tc_smtp_mailbox') == '' ? 'INBOX' : get_option('tc_smtp_mailbox')); // the mailbox to access, default is 'INBOX'
-        $bmh->moveHard          = true; // default is false
-        $bmh->hardMailbox       = (get_option('tc_smtp_mailbox') == '' ? 'INBOX' : get_option('tc_smtp_mailbox')).'.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
-        $bmh->moveSoft          = false; // default is false
-        $bmh->softMailbox       = ''; // default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
-        $bmh->deleteMsgDate     = Jenssegers\Date\Date::now()->format('yyyy-mm-dd H:i:s'); // format must be as 'yyyy-mm-dd'
+        $bmh->mailhost = get_option('tc_bmh_host'); // your mail server
+        $bmh->mailbox_username = get_option('tc_bmh_username'); // your mailbox username
+        $bmh->mailbox_password = get_option('tc_bmh_password'); // your mailbox password
+        $bmh->port = get_option('tc_bmh_port'); // the port to access your mailbox, default is 143
+        $bmh->service = get_option('tc_bmh_service'); // the service to use (imap or pop3), default is 'imap'
+        $bmh->service_option = get_option('tc_bmh_service_option'); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
+        $bmh->boxname = (get_option('tc_bmh_mailbox') == '' ? 'INBOX' : get_option('tc_bmh_mailbox')); // the mailbox to access, default is 'INBOX'
+        $bmh->moveHard = true; // default is false
+        $bmh->hardMailbox = (get_option('tc_bmh_mailbox') == '' ? 'INBOX' : get_option('tc_bmh_mailbox')) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
+        $bmh->moveSoft = false; // default is false
+        $bmh->softMailbox = ''; // default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
+        $bmh->deleteMsgDate = Jenssegers\Date\Date::now()->format('yyyy-mm-dd H:i:s'); // format must be as 'yyyy-mm-dd'
         $bmh->openMailbox();
         $bmh->processMailbox();
-        
+
         $time_end = microtime_float();
         $time = $time_end - $time_start;
-        
+
         Cascade::getLogger('info')->info('BOUNCES[401]: ' . sprintf(_t('Seconds to process: '), $time));
     });
 });

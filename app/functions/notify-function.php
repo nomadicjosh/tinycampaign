@@ -52,47 +52,6 @@ function tc_notify_script()
 }
 
 /**
- * Desktop Notifications
- * 
- * Used to pass notifications to the desktop.
- * 
- * @since 2.0.0
- * @param string $title Give title of notification.
- * @param string $message Message that should be displayed.
- * @param bool $hide True if notification hides automatically.
- */
-function tc_desktop_notify($title, $message, $hide = 'true')
-{
-    $app = \Liten\Liten::getInstance();
-    $script = "<script type=\"text/javascript\">
-                $(function(){
-                    PNotify.desktop.permission();
-                    (new PNotify({
-                        title: '$title',
-                        text: '$message',
-                        addclass: 'growl',
-                        styling: 'fontawesome',
-                        width: \"400px\",
-                        type: \"notice\",
-                        shadow: true,
-                        hide: $hide,
-                        delay: 200000,
-                        desktop: {
-                            desktop: true,
-                            fallback: true,
-                            icon: '" . getSchoolPhoto(get_persondata('personID'), get_persondata('email')) . "'
-                        },
-                        mobile: {
-                            swipe_dismiss: true,
-                            styling: true
-                        }
-                    }));
-                });
-            </script>";
-    return $app->hook->{'apply_filter'}('pnotify', $app->flash('pnotify', $script));
-}
-
-/**
  * Desktop Push Notification
  * 
  * Notifications that can be pushed at a delayed time.

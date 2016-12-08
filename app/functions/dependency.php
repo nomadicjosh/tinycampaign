@@ -21,8 +21,8 @@ $app->inst->singleton('hook', function () {
 $app->inst->singleton('asset', function () {
     $options = [
         'public_dir' => remove_trailing_slash(BASE_PATH),
-        'css_dir' => 'static/assets',
-        'js_dir' => 'static/assets',
+        'css_dir' => 'static/assets/css',
+        'js_dir' => 'static/assets/js',
         'pipeline' => false,
         'pipeline_dir' => 'static/assets/min'
     ];
@@ -299,8 +299,36 @@ function remove_trailing_slash($string)
 {
     return rtrim($string, '/\\');
 }
+
+$app->asset->registerStyleCollection('morris', ['morris/morris.css']);
+$app->asset->registerStyleCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
+$app->asset->registerStyleCollection('timepicker', ['timepicker/bootstrap-timepicker.min.css']);
+$app->asset->registerStyleCollection('datatables', ['datatables/dataTables.bootstrap.css']);
+$app->asset->registerStyleCollection('tabletools', ['datatables/extensions/TableTools/css/dataTables.tableTools.min.css']);
+$app->asset->registerStyleCollection('iCheck', ['iCheck/all.css']);
+$app->asset->registerStyleCollection('iCheck_blue', ['iCheck/minimal/blue.css']);
+$app->asset->registerStyleCollection('select2', ['select2/select2.min.css']);
+$app->asset->registerStyleCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.css']);
+$app->asset->registerStyleCollection('elfinder', ['elfinder/css/elfinder.min.css', 'elfinder/css/theme.css']);
+
+$app->asset->registerScriptCollection('morris', ['morris/morris.min.js']);
+$app->asset->registerScriptCollection('chartjs', ['chartjs/Chart.min.js']);
+$app->asset->registerScriptCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
+$app->asset->registerScriptCollection('timepicker', ['timepicker/bootstrap-timepicker.min.js']);
+$app->asset->registerScriptCollection('datatables', ['datatables/jquery.dataTables.min.js','datatables/dataTables.bootstrap.min.js','pages/datatable.js']);
+$app->asset->registerScriptCollection('tabletools', ['datatables/extensions/TableTools/js/dataTables.tableTools.min.js']);
+$app->asset->registerScriptCollection('iCheck', ['iCheck/icheck.min.js','pages/iCheck.js']);
+$app->asset->registerScriptCollection('select2', ['select2/select2.full.min.js','select2/select2.js','pages/select2.js']);
+$app->asset->registerScriptCollection('moment.js', ['daterangepicker/moment.min.js']);
+$app->asset->registerScriptCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.js','pages/datetime.js']);
+$app->asset->registerScriptCollection('elfinder', ['elfinder/js/elfinder.full.js', 'elfinder/js/tinymce.plugin.js']);
+$app->asset->registerScriptCollection('highcharts', ['Highcharts/highcharts.js', 'Highcharts/modules/exporting.js']);
+$app->asset->registerScriptCollection('dashboard', ['pages/dashboard.js']);
 require( APP_PATH . 'functions' . DS . 'global-function.php' );
+require( APP_PATH . 'functions' . DS . 'db-function.php' );
 require( APP_PATH . 'functions' . DS . 'notify-function.php' );
+require( APP_PATH . 'functions' . DS . 'bounce-function.php' );
+require( APP_PATH . 'functions' . DS . 'list-function.php' );
 require( APP_PATH . 'functions' . DS . 'nodeq-function.php' );
 require( APP_PATH . 'functions' . DS . 'auth-function.php' );
 require( APP_PATH . 'functions' . DS . 'cache-function.php' );

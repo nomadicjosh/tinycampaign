@@ -35,10 +35,9 @@ class tc_Queue
 
     public function getNode()
     {
-        $q = $this->app->db->message()
-            ->select('message.node')
-            ->where('message.sent = "0"')->_and_()
-            ->whereNull('message.sent_date')
+        $q = $this->app->db->campaign()
+            ->select('campaign.node')
+            ->where('campaign.sent = "0"')
             ->findOne();
 
         return $q->node;

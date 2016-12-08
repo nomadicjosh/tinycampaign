@@ -17,7 +17,7 @@ try {
     /**
      * Creates a cookies directory with proper permissions.
      */
-    //_mkdir($app->config('cookies.savepath'));
+    _mkdir($app->config('cookies.savepath'));
 } catch (IOException $e) {
     Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
 }
@@ -26,7 +26,7 @@ try {
     /**
      * Creates a node directory with proper permissions.
      */
-    //_mkdir($app->config('cookies.savepath') . 'nodes' . DS . 'etsis' . DS);
+    _mkdir($app->config('cookies.savepath') . 'nodes' . DS);
 } catch (IOException $e) {
     Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
 }
@@ -35,7 +35,7 @@ try {
     /**
      * Creates a file directory with proper permissions.
      */
-    //_mkdir($app->config('file.savepath'));
+    _mkdir($app->config('file.savepath'));
 } catch (IOException $e) {
     Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
 }

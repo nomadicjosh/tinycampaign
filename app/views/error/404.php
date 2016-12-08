@@ -27,6 +27,9 @@ $app->view->block('dashboard');
 
     <!-- Main content -->
     <section class="content">
+        
+        <?= _tc_flash()->showMessage(); ?>
+        
       <div class="error-page">
         <h2 class="headline text-yellow"> 404</h2>
 

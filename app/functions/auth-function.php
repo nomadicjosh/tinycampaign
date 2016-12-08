@@ -1,8 +1,10 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Core\Exception\NotFoundException;
-use app\src\Core\Exception\UnauthorizedException;
+use app\src\Exception\NotFoundException;
+use app\src\Exception\UnauthorizedException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 use Cascade\Cascade;
 
 /**
@@ -26,13 +28,20 @@ function hasPermission($perm)
 function get_userdata($field)
 {
     $app = \Liten\Liten::getInstance();
-    $user = get_secure_cookie_data('TC_COOKIENAME');
-    $q = $app->db->user()
-        ->where('user.id = ?', $user->id)->_and_()
-        ->where('user.uname = ?', $user->uname)
-        ->find();
-    foreach ($q as $r) {
-        return _h($r->{$field});
+
+    try {
+        $auth = get_secure_cookie_data('TC_COOKIENAME');
+        $user = $app->db->user()
+            ->where('user.id = ?', $auth->id)->_and_()
+            ->where('user.uname = ?', $auth->uname)
+            ->findOne();
+        return _h($user->{$field});
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
     }
 }
 
@@ -65,12 +74,21 @@ function is_user_logged_in()
 function get_user_by($field, $value)
 {
     $app = \Liten\Liten::getInstance();
+    try {
+        $user = $app->db->user()
+            ->select('user.*,role.roleName,role.permission')
+            ->_join('role', 'user.roleID = role.id')
+            ->where("user.$field = ?", $value)
+            ->findOne();
 
-    $user = $app->db->user()
-        ->where("user.$field = ?", $value)
-        ->findOne();
-
-    return $user;
+        return $user;
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 }
 
 /**
@@ -85,24 +103,36 @@ function tc_authenticate($login, $password, $rememberme)
 {
     $app = \Liten\Liten::getInstance();
 
-    $user = $app->db->user()
-        ->where('(user.uname = ? OR user.email = ?)', [$login, $login])
-        ->findOne();
+    try {
+        $user = $app->db->user()
+            ->where('(user.uname = ? OR user.email = ?)', [$login, $login])->_and_()
+            ->where('user.status = "1"')
+            ->findOne();
 
-    if (false == $user) {
-        $app->flash('error_message', _t('The account does not exist'));
-        redirect($app->req->server['HTTP_REFERER']);
-        return;
+        if (false == $user) {
+            _tc_flash()->error(_t('Your account is inactive.'), $app->req->server['HTTP_REFERER']);
+            return;
+        }
+
+        $ll = $app->db->user();
+        $ll->LastLogin = \Jenssegers\Date\Date::now();
+        $ll->where('id = ?', _h($user->id))
+            ->update();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+        return false;
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+        return false;
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+        return false;
     }
-
-    $ll = $app->db->user();
-    $ll->LastLogin = $ll->NOW();
-    $ll->where('id = ?', _h($user->id))->update();
     /**
      * Filters the authentication cookie.
      * 
      * @since 2.0.0
-     * @param object $user Person data object.
+     * @param object $user User data object.
      * @param string $rememberme Whether to remember the person.
      * @throws Exception If $user is not a database object.
      */
@@ -113,15 +143,15 @@ function tc_authenticate($login, $password, $rememberme)
     }
 
     tc_logger_activity_log_write('Authentication', 'Login', get_name(_h($user->id)), _h($user->uname));
-    redirect(get_base_url());
+    _tc_flash()->success(sprintf(_t('Login was successful. Welcome <strong>%s</strong> to your dashboard.'), get_name(_h($user->id))), get_base_url() . 'dashboard/');
 }
 
 /**
  * Checks a user's login information.
  *
  * @since 2.0.0
- * @param string $login Person's username or email address.
- * @param string $password Person's password.
+ * @param string $login User's username or email address.
+ * @param string $password User's password.
  * @param string $rememberme Whether to remember the person.
  */
 function tc_authenticate_user($login, $password, $rememberme)
@@ -131,14 +161,13 @@ function tc_authenticate_user($login, $password, $rememberme)
     if (empty($login) || empty($password)) {
 
         if (empty($login)) {
-            $app->flash('error_message', _t('<strong>ERROR</strong>: The username/email field is empty.'));
+            _tc_flash()->error(_t('<strong>ERROR</strong>: The username/email field is empty.'), get_base_url());
         }
 
         if (empty($password)) {
-            $app->flash('error_message', _t('<strong>ERROR</strong>: The password field is empty.'));
+            _tc_flash()->error(_t('<strong>ERROR</strong>: The password field is empty.'), get_base_url());
         }
 
-        redirect(get_base_url());
         return;
     }
 
@@ -146,26 +175,23 @@ function tc_authenticate_user($login, $password, $rememberme)
         $user = get_user_by('email', $login);
 
         if (false == $user->email) {
-            $app->flash('error_message', _t('<strong>ERROR</strong>: Invalid email address.'));
+            _tc_flash()->error(_t('<strong>ERROR</strong>: Invalid email address.'), get_base_url());
 
-            redirect(get_base_url());
             return;
         }
     } else {
         $user = get_user_by('uname', $login);
 
         if (false == $user->uname) {
-            $app->flash('error_message', _t('<strong>ERROR</strong>: Invalid username.'));
+            _tc_flash()->error(_t('<strong>ERROR</strong>: Invalid username.'), get_base_url());
 
-            redirect(get_base_url());
             return;
         }
     }
 
     if (!tc_check_password($password, $user->password, _h($user->id))) {
-        $app->flash('error_message', _t('<strong>ERROR</strong>: The password you entered is incorrect.'));
+        _tc_flash()->error(_t('<strong>ERROR</strong>: The password you entered is incorrect.'), get_base_url());
 
-        redirect(get_base_url());
         return;
     }
 
@@ -173,8 +199,8 @@ function tc_authenticate_user($login, $password, $rememberme)
      * Filters log in details.
      * 
      * @since 2.0.0
-     * @param string $login Person's username or email address.
-     * @param string $password Person's password.
+     * @param string $login User's username or email address.
+     * @param string $password User's password.
      * @param string $rememberme Whether to remember the person.
      */
     $user = $app->hook->{'apply_filter'}('tc_authenticate_user', $login, $password, $rememberme);
@@ -287,8 +313,7 @@ function tc_clear_auth_cookie()
 function tc_login_form_show_message()
 {
     $app = \Liten\Liten::getInstance();
-    $flash = new \app\src\tc_Messages();
-    echo $app->hook->{'apply_filter'}('login_form_show_message', $flash->showMessage());
+    echo $app->hook->{'apply_filter'}('login_form_show_message', _tc_flash()->showMessage());
 }
 
 /**

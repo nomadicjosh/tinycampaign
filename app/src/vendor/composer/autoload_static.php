@@ -29,6 +29,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
             'Symfony\\Component\\Config\\' => 25,
             'Stolz\\Assets\\' => 13,
         ),
+        'R' => 
+        array (
+            'Respect\\Validation\\' => 19,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
@@ -103,6 +107,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         'Stolz\\Assets\\' => 
         array (
             0 => __DIR__ . '/..' . '/stolz/assets/src',
+        ),
+        'Respect\\Validation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/respect/validation/library',
         ),
         'Psr\\Log\\' => 
         array (

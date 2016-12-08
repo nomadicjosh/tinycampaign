@@ -19,43 +19,6 @@ class Migrations
         return true;
     }
 
-    public static function create_node()
-    {
-        try {
-            Node::create('create_node', [
-                'mid' => 'integer',
-                'to_email' => 'string',
-                'to_name' => 'string',
-                'message_html' => 'boolean',
-                'message_plain_text' => 'boolean',
-                'timestamp_created' => 'string',
-                'timestamp_to_send' => 'string',
-                'timestamp_sent' => 'string',
-                'is_sent' => 'boolean',
-                'headers' => 'string'
-            ]);
-        } catch (\Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        }
-    }
-
-    public static function login_details()
-    {
-        try {
-            Node::create('login_details', [
-                'userid' => 'integer',
-                'uname' => 'string',
-                'email' => 'string',
-                'fname' => 'string',
-                'lname' => 'string',
-                'password' => 'string',
-                'sent' => 'integer'
-            ]);
-        } catch (\Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        }
-    }
-
     public static function cronjob_setting()
     {
         try {
@@ -113,6 +76,16 @@ class Migrations
             $q->url = (string) $url . 'cron/purgeErrorLog/';
             $q->time = (string) '';
             $q->each = (int) 1800;
+            $q->eachtime = (string) '';
+            $q->lastrun = (string) '';
+            $q->running = (boolean) false;
+            $q->runned = (int) 0;
+            $q->save();
+            
+            $q->name = 'Run Bounce Handler';
+            $q->url = (string) $url . 'cron/runBounceHandler/';
+            $q->time = (string) '';
+            $q->each = (int) 86400;
             $q->eachtime = (string) '';
             $q->lastrun = (string) '';
             $q->running = (boolean) false;

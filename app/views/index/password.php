@@ -12,7 +12,6 @@
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/myet/' . _h(get_option('myet_layout')) . '.layout');
 $app->view->block('myet');
-$flash = new \app\src\Core\etsis_Messages();
 ?>
 
 <script type="text/javascript">
@@ -28,7 +27,7 @@ setTimeout(function() { $(".panel").hide(); }, 10000);
 	<h3 class="glyphicons keys"><i></i><?=_t( 'Change Password' );?></h3>
 	<div class="separator bottom"></div>
     
-    <?=$flash->showMessage();?>
+    <?=_tc_flash()->showMessage();?>
 
 <!-- Form -->
 <form class="form-horizontal margin-none" action="<?=get_base_url();?>password/" id="validateSubmitForm" method="post" autocomplete="off">	

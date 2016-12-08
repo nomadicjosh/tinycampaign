@@ -2,6 +2,7 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use duncan3dc\Sessions\Session;
 
 /**
  * tinyCampaign Flash Messages Library
@@ -28,36 +29,35 @@ class tc_Messages
         $this->app->cookies->set($name, $value);
     }
 
+    public function setMessage($key, $value, $name)
+    {
+        Session::name($name);
+        Session::setFlash($key, $value);
+    }
+
     public function showMessage()
     {
-        // get the message (they are arrays, to make multiple positive/negative messages possible)
-        $success_message[] = $_COOKIE['success_message'];
-        $error_message[] = $_COOKIE['error_message'];
         $plugin_success_message[] = $_COOKIE['plugin_success_message'];
         $plugin_error_message[] = $_COOKIE['plugin_error_message'];
         $pnotify[] = $_COOKIE['pnotify'];
 
         // echo out positive messages
-        if (isset($_COOKIE['success_message'])) {
-            foreach ($success_message as $message) {
-                $this->app->cookies->remove('success_message');
-                return '<section class="flash_message success-panel"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . $message . '</div></section>';
-            }
+        if (isset($_SESSION['_fs_success']) && $_SESSION['_fs_success'] != 'N') {
+            Session::name('system_success');
+            return '<section class="flash_message"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . Session::getFlash('success') . '</div></section>';
         }
 
         // echo out negative messages
-        if (isset($_COOKIE['error_message'])) {
-            foreach ($error_message as $message) {
-                $this->app->cookies->remove('error_message');
-                return '<section class="flash_message error-panel"><div class="alert alert-danger alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . $message . '</div></section>';
-            }
+        if (isset($_SESSION['_fs_error']) && $_SESSION['_fs_error'] != 'N') {
+            Session::name('system_error');
+            return '<section class="flash_message"><div class="alert alert-danger alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . Session::getFlash('error') . '</div></section>';
         }
 
         // echo out positive plugin messages
         if (isset($_COOKIE['plugin_success_message'])) {
             foreach ($plugin_success_message as $message) {
                 $this->app->cookies->remove('plugin_success_message');
-                return '<section class="flash_message success-panel"><div class="alert alert-success alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . $message . '</div></section>';
+                return '<section class="flash_message"><div class="alert alert-success alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . $message . '</div></section>';
             }
         }
 
@@ -65,10 +65,10 @@ class tc_Messages
         if (isset($_COOKIE['plugin_error_message'])) {
             foreach ($plugin_error_message as $message) {
                 $this->app->cookies->remove('plugin_error_message');
-                return '<section class="flash_message error-panel"><div class="alert alert-danger alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . sprintf(_t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br /> %s</div></section>'), $message);
+                return '<section class="flash_message"><div class="alert alert-danger alert-dismissible center"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' . sprintf(_t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br /> %s</div></section>'), $message);
             }
         }
-        
+
         // return a browser notification if set
         if (isset($_COOKIE['pnotify'])) {
             foreach ($pnotify as $message) {

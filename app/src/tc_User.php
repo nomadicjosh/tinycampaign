@@ -4,7 +4,7 @@ if (! defined('BASE_PATH'))
     exit('No direct script access allowed');
 
 /**
- * User API: tc_UserClass
+ * User API: tc_User Class
  *
  * @license GPLv3
  *         
@@ -20,7 +20,7 @@ final class tc_User
      *
      * @var int
      */
-    public $userID;
+    public $id;
 
     /**
      * The user's username.
@@ -28,20 +28,6 @@ final class tc_User
      * @var string
      */
     public $uname;
-
-    /**
-     * The user's prefix.
-     *
-     * @var string
-     */
-    public $prefix;
-
-    /**
-     * The user's user type.
-     *
-     * @var string
-     */
-    public $userType;
 
     /**
      * The user's first name.
@@ -56,14 +42,7 @@ final class tc_User
      * @var string
      */
     public $lname;
-
-    /**
-     * The user's middle initial.
-     *
-     * @var string
-     */
-    public $mname;
-
+    
     /**
      * The user's email address.
      *
@@ -72,91 +51,81 @@ final class tc_User
     public $email;
 
     /**
-     * The user's social security number.
+     * The user's address1.
+     *
+     * @var string
+     */
+    public $address1;
+    
+    /**
+     * The user's address2.
+     *
+     * @var string
+     */
+    public $address2;
+
+    /**
+     * The user's city of residence.
      *
      * @var int
      */
-    public $ssn;
+    public $city;
 
     /**
-     * The user's date of birth.
+     * The user's state of residence.
      *
      * @var string
      */
-    public $dob;
+    public $state;
 
     /**
-     * The user's veteran status.
+     * The user's postal code.
      *
      * @var bool
      */
-    public $veteran;
+    public $postal_code;
 
     /**
-     * The user's ethnicity.
+     * The user's country.
      *
      * @var string
      */
-    public $ethnicity;
-
-    /**
-     * The user's gender.
-     *
-     * @var string
-     */
-    public $gender;
-
-    /**
-     * The user's emergency contact user.
-     *
-     * @var string
-     */
-    public $emergency_contact;
-
-    /**
-     * The user's emergency contact user phone number.
-     *
-     * @var string
-     */
-    public $emergency_contact_phone;
-
-    /**
-     * The user's uploaded photo.
-     *
-     * @var string
-     */
-    public $photo;
+    public $country;
 
     /**
      * The user's status.
      *
-     * @var string
+     * @var int
      */
     public $status;
-
+    
     /**
-     * The user's approved date.
-     *
-     * @var string
-     */
-    public $approvedDate = '0000-00-00';
-
-    /**
-     * The user's approval user.
+     * Role ID of the user.
      *
      * @var int
      */
-    public $approvedBy = 1;
+    public $roleID;
+    
+    /**
+     * The timestamp of when record was created.
+     *
+     * @var string
+     */
+    public $date_added;
 
     /**
-     * The user's last log in date and time.
+     * The user's last login timestamp.
+     *
+     * @var string
      */
-    public $LastLogin = '0000-00-00 00:00:00';
+    public $LastLogin;
 
     /**
-     * The user's modified date and time.
+     * The modified timestamp of user's record.
+     *
+     * @var string
      */
-    public $LastUpdate = '0000-00-00 00:00:00';
+    public $LastUpdate;
 
     /**
      * Retrieve tc_User instance.
@@ -171,13 +140,12 @@ final class tc_User
     {
         global $app;
         
-        //$user_id = (int) $user_id;
-        
         if (! $user_id) {
             return false;
         }
         
-        $q = $app->db->user()->where('userID = ?', $user_id);
+        $q = $app->db->user()
+            ->where('id = ?', $user_id);
         
         $user = tc_cache_get($user_id, 'user');
         if (empty($user)) {

@@ -387,22 +387,22 @@ function tc_hash_password($password)
  *            Plain test password.
  * @param string $hash
  *            Hashed password in the database to check against.
- * @param int $person_id
+ * @param int $user_id
  *            User ID.
  * @return mixed
  */
-function tc_check_password($password, $hash, $person_id = '')
+function tc_check_password($password, $hash, $user_id = '')
 {
     $app = \Liten\Liten::getInstance();
     // If the hash is still md5...
     if (strlen($hash) <= 32) {
         $check = ($hash == md5($password));
-        if ($check && $person_id) {
+        if ($check && $user_id) {
             // Rehash using new hash.
-            tc_set_password($password, $person_id);
+            tc_set_password($password, $user_id);
             $hash = tc_hash_password($password);
         }
-        return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $person_id);
+        return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
     }
 
     // If the stored hash is longer than an MD5, presume the
@@ -411,7 +411,7 @@ function tc_check_password($password, $hash, $person_id = '')
 
     $check = $hasher->CheckPassword($password, $hash);
 
-    return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $person_id);
+    return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
 }
 
 /**
@@ -421,17 +421,17 @@ function tc_check_password($password, $hash, $person_id = '')
  * @since 2.0.0
  * @param string $password
  *            User password.
- * @param int $person_id
+ * @param int $user_id
  *            User ID.
  * @return mixed
  */
-function tc_set_password($password, $person_id)
+function tc_set_password($password, $user_id)
 {
     $app = \Liten\Liten::getInstance();
     $hash = tc_hash_password($password);
-    $q = $app->db->person();
+    $q = $app->db->user();
     $q->password = $hash;
-    $q->where('personID = ?', $person_id)->update();
+    $q->where('id = ?', $user_id)->update();
 }
 
 /**
@@ -507,7 +507,7 @@ function get_age($birthdate = '0000-00-00')
 /**
  * Converts a string into unicode values.
  *
- * @since 4.3
+ * @since 2.0.0
  * @param string $string            
  * @return mixed
  */
@@ -525,7 +525,7 @@ function unicoder($string)
  * Subdomain as directory function uses the subdomain
  * of the install as a directory.
  *
- * @since 6.0.05
+ * @since 2.0.0
  * @return string
  */
 function subdomain_as_directory()
@@ -841,7 +841,7 @@ function tc_validate_plugin($plugin_name)
 
     $error = tc_php_check_syntax($file);
     if (is_tc_exception($error)) {
-        $app->flash('error_message', _t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br />') . $error->getMessage());
+        _tc_flash()->error(_t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br />') . $error->getMessage());
         return false;
     }
 
@@ -1124,7 +1124,7 @@ function tc_field_css_class($element)
  * A wrapper for htmLawed which is a set of functions
  * for html purifier
  *
- * @since 5.0
+ * @since 2.0.0
  * @param string $str            
  * @return mixed
  */
@@ -1223,7 +1223,7 @@ function template_vars_replacement($template)
     $app = \Liten\Liten::getInstance();
 
     $var_array = [
-        'institution_name' => _h(get_option('institution_name')),
+        'system_name' => _h(get_option('system_name')),
         'address' => _h(get_option('mailing_address'))
     ];
 
@@ -1261,4 +1261,21 @@ function process_email_html($text, $title)
     $message = $app->hook->{'apply_filter'}('email_template_body', template_vars_replacement($body));
 
     return $message;
+}
+
+/**
+ * Retrieve the domain name.
+ * 
+ * @since 2.0.0
+ * @return type
+ */
+function get_domain_name()
+{
+    $app = \Liten\Liten::getInstance();
+    
+    $server_name = strtolower($app->req->server['SERVER_NAME']);
+    if (substr($server_name, 0, 4) == 'www.') {
+        $server_name = substr($server_name, 4);
+    }
+    return $server_name;
 }

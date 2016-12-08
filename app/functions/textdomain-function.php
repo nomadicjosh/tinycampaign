@@ -164,7 +164,7 @@ function tc_dropdown_languages($active = '')
         $protocol = 'http://';
     }
 
-    $locales = _file_get_contents($protocol . 'etsis.s3.amazonaws.com/core/1.1/translations.json');
+    $locales = _file_get_contents($protocol . 'tiny-campaign.s3.amazonaws.com/api/v1/locales.json');
     $json = json_decode($locales, true);
     foreach ($json as $locale) {
         echo '<option value="' . $locale['language'] . '"' . selected($active, $locale['language'], false) . '>' . $locale['native_name'] . '</option>';

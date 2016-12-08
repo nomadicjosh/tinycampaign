@@ -15,33 +15,14 @@ elseif (strpos(getPathInfo('/dashboard'), "/dashboard") === 0)
     _tc_dashboard_router();
 }
 
-elseif (strpos(getPathInfo('/appl'), "/appl") === 0)
+elseif (strpos(getPathInfo('/list'), "/list") === 0)
 {
-    //_tc_appl_router();
+    require($app->config('routers_dir') . 'list.router.php');
 }
 
-elseif (strpos(getPathInfo('/calendar'), "/calendar") === 0)
+elseif (strpos(getPathInfo('/campaign'), "/campaign") === 0)
 {
-    require($app->config('routers_dir') . 'booking.router.php');
-}
-
-elseif (strpos(getPathInfo('/cmgmt'), "/cmgmt") === 0)
-{
-    require($app->config('routers_dir') . 'cmgmt.router.php');
-}
-
-elseif (strpos(getPathInfo('/crse'), "/crse") === 0)
-{    
-    //_tc_crse_router();
-    
-    if(file_exists($app->config('routers_dir') . 'transfer.router.php')) {
-        require($app->config('routers_dir') . 'transfer.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/courses'), "/courses") === 0)
-{
-    require($app->config('routers_dir') . 'courses.router.php');
+    require($app->config('routers_dir') . 'campaign.router.php');
 }
 
 elseif (strpos(getPathInfo('/cron'), "/cron") === 0)
@@ -49,154 +30,39 @@ elseif (strpos(getPathInfo('/cron'), "/cron") === 0)
     require($app->config('routers_dir') . 'cron.router.php');
 }
 
-elseif (strpos(getPathInfo('/financial'), "/financial") === 0)
-{
-    require($app->config('routers_dir') . 'financial.router.php');
-}
-
-elseif (strpos(getPathInfo('/form'), "/form") === 0)
-{
-    require($app->config('routers_dir') . 'form.router.php');
-    
-    if(file_exists($app->config('routers_dir') . 'import.router.php')) {
-        require($app->config('routers_dir') . 'import.router.php');
-    }
-    
-    if(file_exists($app->config('routers_dir') . 'booking.router.php')) {
-        require($app->config('routers_dir') . 'booking.router.php');
-    }
-    
-    if(file_exists($app->config('routers_dir') . 'myet.router.php')) {
-        require($app->config('routers_dir') . 'myet.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/hr'), "/hr") === 0)
-{
-    require($app->config('routers_dir') . 'hr.router.php');
-    
-    if(file_exists($app->config('routers_dir') . 'timesheet.router.php')) {
-        require($app->config('routers_dir') . 'timesheet.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/nae'), "/nae") === 0)
-{
-    //_tc_nae_router();
-}
-
 elseif (strpos(getPathInfo('/plugins'), "/plugins") === 0)
 {
     require($app->config('routers_dir') . 'plugins.router.php');
 }
 
-elseif (strpos(getPathInfo('/program'), "/program") === 0)
-{
-    //_tc_prog_router();
-}
-
-elseif (strpos(getPathInfo('/sect/brgn'), "/sect/brgn") === 0)
-{
-    require($app->config('routers_dir') . 'savedquery.router.php');
-}
-
-elseif (strpos(getPathInfo('/sect'), "/sect") === 0)
-{
-    //_tc_sect_router();
-    
-    if(file_exists($app->config('routers_dir') . 'gradebook.router.php')) {
-        require($app->config('routers_dir') . 'gradebook.router.php');
-    }
-    
-    if(file_exists($app->config('routers_dir') . 'booking.router.php')) {
-        require($app->config('routers_dir') . 'booking.router.php');
-    }
-    
-    if(file_exists($app->config('routers_dir') . 'financial.router.php')) {
-        require($app->config('routers_dir') . 'financial.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/admin'), "/admin") === 0)
-{
-    require($app->config('routers_dir') . 'myet.router.php');
-}
-
 elseif (strpos(getPathInfo('/setting'), "/setting") === 0)
 {
-    require($app->config('routers_dir') . 'settings.router.php');
+    require($app->config('routers_dir') . 'setting.router.php');
 }
 
-elseif (strpos(getPathInfo('/email'), "/email") === 0)
+elseif (strpos(getPathInfo('/user'), "/user") === 0)
 {
-    require($app->config('routers_dir') . 'settings.router.php');
+    require($app->config('routers_dir') . 'user.router.php');
 }
 
-elseif (strpos(getPathInfo('/registration'), "/registration") === 0)
+elseif (strpos(getPathInfo('/subscriber'), "/subscriber") === 0)
 {
-    require($app->config('routers_dir') . 'settings.router.php');
+    require($app->config('routers_dir') . 'subscriber.router.php');
 }
 
-elseif (strpos(getPathInfo('/templates'), "/templates") === 0)
+elseif (strpos(getPathInfo('/error'), "/error") === 0)
 {
-    require($app->config('routers_dir') . 'settings.router.php');
-}
-
-elseif (strpos(getPathInfo('/sql'), "/sql") === 0)
-{
-    require($app->config('routers_dir') . 'sql.router.php');
-    
-    if(file_exists($app->config('routers_dir') . 'savedquery.router.php')) {
-        require($app->config('routers_dir') . 'savedquery.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/staff'), "/staff") === 0)
-{
-    require($app->config('routers_dir') . 'staff.router.php');
-    
-    if(file_exists($app->config('routers_dir') . 'timesheet.router.php')) {
-        require($app->config('routers_dir') . 'timesheet.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/stu'), "/stu") === 0)
-{
-    //_tc_student_router();
-    
-    if(file_exists($app->config('routers_dir') . 'financial.router.php')) {
-        require($app->config('routers_dir') . 'financial.router.php');
-    }
-    
-    if(file_exists($app->config('routers_dir') . 'gradebook.router.php')) {
-        require($app->config('routers_dir') . 'gradebook.router.php');
-    }
-}
-
-elseif (strpos(getPathInfo('/err'), "/err") === 0)
-{
-    require($app->config('routers_dir') . 'error.router.php');
-    
-    if(file_exists($app->config('routers_dir') . 'log.router.php')) {
-        require($app->config('routers_dir') . 'log.router.php');
-    }
+    _tc_error_router();
 }
 
 elseif (strpos(getPathInfo('/audit-trail'), "/audit-trail") === 0)
 {
-    require($app->config('routers_dir') . 'log.router.php');
-}
-
-elseif (strpos(getPathInfo('/rlde'), "/rlde") === 0)
-{
-    require($app->config('routers_dir') . 'rlde.router.php');
+    _tc_error_router();
 }
 
 else {
-    require($app->config('routers_dir') . 'index.router.php');
     
-    if(file_exists($app->config('routers_dir') . 'myet.router.php')) {
-        require($app->config('routers_dir') . 'myet.router.php');
-    } // default routes
+    require($app->config('routers_dir') . 'index.router.php');
+    // default routes
 }
 

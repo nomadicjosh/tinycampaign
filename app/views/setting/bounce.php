@@ -1,8 +1,11 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
 /**
- * Setting View
+ * Bounce Email Setting View
  *  
  * @license GPLv3
  * 
@@ -13,7 +16,7 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'setting');
+define('SCREEN_PARENT', 'admin');
 define('SCREEN', 'bounce');
 ?>
 
@@ -21,52 +24,70 @@ define('SCREEN', 'bounce');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1>
-<?= _t('General Settings'); ?>
-        </h1>
+        <h1><?= _t('Bounce Email Settings'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li class="active"><?= _t('General Settings'); ?></li>
+            <li class="active"><?= _t('Bounce Email Settings'); ?></li>
         </ol>
     </section>
 
     <!-- Main content -->
     <section class="content">
-
-        <!-- SELECT2 EXAMPLE -->
+        
+        <?= _tc_flash()->showMessage(); ?>
+        
         <div class="box box-default">
             <!-- form start -->
-            <form method='post' action='<?= get_base_url(); ?>setting/'>
+            <form method="post" action="<?= get_base_url(); ?>setting/bounce/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label><?= _t('System Name'); ?></label>
-                                <input type="text" class="form-control" name="system_name" value="<?= _h(get_option('system_name')); ?>" required>
+                                <label><font color="red">*</font> <?= _t('Host'); ?></label>
+                                <input type="text" class="form-control" name="tc_bmh_host" value="<?= _h(get_option('tc_bmh_host')); ?>" required>
                             </div>
 
                             <div class="form-group">
-                                <label><?= _t('System Email'); ?></label>
-                                <input type="text" class="form-control" name="system_email" value="<?= _h(get_option('system_email')); ?>" required>
+                                <label><font color="red">*</font> <?= _t('Username'); ?></label>
+                                <input type="text" class="form-control" name="tc_bmh_username" value="<?= _h(get_option('tc_bmh_username')); ?>" required>
                             </div>
                             
                             <div class="form-group">
-                                <label><?= _t('Mail Throttle'); ?></label>
-                                <input type="text" class="form-control" name="mail_throttle" value="<?= _h(get_option('mail_throttle')); ?>" required>
-                                <p class="help-block"><?=_t('Value in seconds between each email to be sent.');?></p>
+                                <label><font color="red">*</font> <?= _t('Password'); ?></label>
+                                <input type="password" class="form-control" name="tc_bmh_password" value="<?=(_h(get_option('tc_bmh_password')) != '' ? Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key)) : _h(get_option('tc_bmh_password'))); ?>" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Mailbox'); ?></label>
+                                <input type="text" class="form-control" name="tc_bmh_mailbox" value="<?= _h(get_option('tc_bmh_mailbox')); ?>" required>
                             </div>
                         </div>
                         <!-- /.col -->
+                        
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label><?= _t('Cookie TTL'); ?></label>
-                                <input type="text" class="form-control" name="cookieexpire" value="<?= _h(get_option('cookieexpire')); ?>" required>
-                                <p class="help-block"><?=_t('Value in seconds of how long secure cookies should live.');?></p>
+                                <label><font color="red">*</font> <?= _t('Port'); ?></label>
+                                <input type="text" class="form-control" name="tc_bmh_port" value="<?= _h(get_option('tc_bmh_port')); ?>" required>
                             </div>
 
                             <div class="form-group">
-                                <label><?= _t('Cookie Path'); ?></label>
-                                <input type="text" class="form-control" name="cookiepath" value="<?= _h(get_option('cookiepath')); ?>" required>
+                                <label><font color="red">*</font> <?= _t('Service'); ?></label>
+                                <select class="form-control select2" name="tc_bmh_service" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="imap"<?=selected('imap', _h(get_option('tc_bmh_service')), false);?>><?=_t('Imap');?></option>
+                                    <option value="pop3"<?=selected('pop3', _h(get_option('tc_bmh_service')), false);?>><?=_t('Pop3');?></option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Service Option'); ?></label>
+                                <select class="form-control select2" name="tc_bmh_service_option" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="none"<?=selected('none', _h(get_option('tc_bmh_service_option')), false);?>><?=_t('None');?></option>
+                                    <option value="tls"<?=selected('tls', _h(get_option('tc_bmh_service_option')), false);?>><?=_t('TLS');?></option>
+                                    <option value="notls"<?=selected('notls', _h(get_option('tc_bmh_service_option')), false);?>><?=_t('NOTLS');?></option>
+                                    <option value="ssl"<?=selected('ssl', _h(get_option('tc_bmh_service_option')), false);?>><?=_t('SSL');?></option>
+                                </select>
                             </div>
                         </div>
                         <!-- /.col -->
@@ -75,7 +96,7 @@ define('SCREEN', 'bounce');
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
             </div>
         </form>
         <!-- form end -->

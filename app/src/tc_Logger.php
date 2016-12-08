@@ -1,5 +1,9 @@
 <?php namespace app\src;
 
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
@@ -57,7 +61,15 @@ class tc_Logger
      */
     public function purgeActivityLog()
     {
-        $this->app->db->query("DELETE FROM activity WHERE expires_at <= ?", [\Jenssegers\Date\Date::now()->format("Y-m-d H:i:s")]);
+        try {
+            $this->app->db->query("DELETE FROM activity WHERE expires_at <= ?", [\Jenssegers\Date\Date::now()->format("Y-m-d H:i:s")]);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
     }
 
     /**

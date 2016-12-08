@@ -111,36 +111,21 @@ class ACL
         $strSQL = $this->app->db->role()
             ->select('role.roleName')
             ->where('id = ?', floatval($roleID))
-            ->limit(1);
-        $q = $strSQL->find(function($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
-            }
-            return $array;
-        });
+            ->findOne();
         
-        foreach($q as $r) {
-            return $r['roleName'];
-        }
+            return $strSQL->roleName;
     }
 
     public function getUserRoles()
     {
-        $strSQL = $this->app->db->user_roles()
+        $strSQL = $this->app->db->user()
             ->where('id = ?', floatval($this->_id))
-            ->orderBy('addDate', 'ASC');
-        $q = $strSQL->find(function($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
-            }
-            return $array;
-        });
+            ->orderBy('date_added', 'ASC')
+            ->find();
         
         $resp = [];
-        foreach($q as $r) {
-            $resp[] = $r['roleID'];
+        foreach($strSQL as $r) {
+            $resp[] = $r->roleID;
         }
         
         return $resp;
@@ -276,9 +261,9 @@ class ACL
 					FROM 
 						role a 
 					LEFT JOIN 
-						user_roles b 
+						user b 
 					ON 
-						a.id = b.id
+						a.id = b.roleID
 					WHERE 
 						a.permission LIKE ? 
 					AND 
