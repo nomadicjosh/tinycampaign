@@ -1,8 +1,6 @@
-<?php
+<?php namespace app\src;
 
-namespace app\src;
-
-if (! defined('BASE_PATH'))
+if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
 /**
@@ -18,7 +16,6 @@ class tc_Email
 {
 
     public $mailer;
-
     public $app;
 
     public function __construct()
@@ -51,7 +48,7 @@ class tc_Email
     public function tc_mail($to, $subject, $message, $headers = '', $attachments = array())
     {
         $charset = 'UTF-8';
-        
+
         /**
          * Filter the tc_mail() arguments.
          *
@@ -61,8 +58,8 @@ class tc_Email
          *            A compacted array of tc_mail() arguments, including the "to" email,
          *            subject, message, headers, and attachments values.
          */
-        $atts = $this->app->hook->apply_filter('tc_mail', compact('to', 'subject', 'message', 'headers', 'attachments'));
-        
+        $atts = $this->app->hook->{'apply_filter'}('tc_mail', compact('to', 'subject', 'message', 'headers', 'attachments'));
+
         if (isset($atts['to'])) {
             $to = $atts['to'];
         }
@@ -78,16 +75,16 @@ class tc_Email
         if (isset($atts['attachments'])) {
             $attachments = $atts['attachments'];
         }
-        
-        if (! is_array($attachments)) {
+
+        if (!is_array($attachments)) {
             $attachments = explode("\n", str_replace("\r\n", "\n", $attachments));
         }
-        
+
         // Headers
         if (empty($headers)) {
             $headers = [];
         } else {
-            if (! is_array($headers)) {
+            if (!is_array($headers)) {
                 // Explode the headers out, so this function can take both
                 // string headers and an array of headers.
                 $tempheaders = explode("\n", str_replace("\r\n", "\n", $headers));
@@ -98,7 +95,7 @@ class tc_Email
             $cc = [];
             $bcc = [];
             // If it's actually got contents
-            if (! empty($tempheaders)) {
+            if (!empty($tempheaders)) {
                 // Iterate through the raw headers
                 foreach ((array) $tempheaders as $header) {
                     if (strpos($header, ':') === false) {
@@ -107,7 +104,7 @@ class tc_Email
                             $boundary = trim(str_replace(array(
                                 "'",
                                 '"'
-                            ), '', $parts[1]));
+                                    ), '', $parts[1]));
                         }
                         continue;
                     }
@@ -143,13 +140,13 @@ class tc_Email
                                     $charset = trim(str_replace(array(
                                         'charset=',
                                         '"'
-                                    ), '', $charset_content));
+                                            ), '', $charset_content));
                                 } elseif (false !== stripos($charset_content, 'boundary=')) {
                                     $boundary = trim(str_replace(array(
                                         'BOUNDARY=',
                                         'boundary=',
                                         '"'
-                                    ), '', $charset_content));
+                                            ), '', $charset_content));
                                     $charset = '';
                                 }
                                 // Avoid setting an empty $content_type.
@@ -171,29 +168,29 @@ class tc_Email
                 }
             }
         }
-        
+
         // Empty out the values that may be set
         $this->mailer->ClearAllRecipients();
         $this->mailer->ClearAttachments();
         $this->mailer->ClearCustomHeaders();
         $this->mailer->ClearReplyTos();
-        
+
         // From email and name
         // If we don't have a name from the input headers
-        if (! isset($from_name)) {
+        if (!isset($from_name)) {
             $from_name = 'tinyCampaign';
         }
-        
-        if (! isset($from_email)) {
+
+        if (!isset($from_email)) {
             // Get the site domain and get rid of www.
             $sitename = strtolower($_SERVER['SERVER_NAME']);
             if (substr($sitename, 0, 4) == 'www.') {
                 $sitename = substr($sitename, 4);
             }
-            
+
             $from_email = 'tc@' . $sitename;
         }
-        
+
         /**
          * Filter the email address to send from.
          *
@@ -202,8 +199,8 @@ class tc_Email
          * @param string $from_email
          *            Email address to send from.
          */
-        $this->mailer->From = $this->app->hook->apply_filter('tc_mail_from', $from_email);
-        
+        $this->mailer->From = $this->app->hook->{'apply_filter'}('tc_mail_from', $from_email);
+
         /**
          * Filter the name to associate with the "from" email address.
          *
@@ -212,13 +209,13 @@ class tc_Email
          * @param string $from_name
          *            Name associated with the "from" email address.
          */
-        $this->mailer->FromName = $this->app->hook->apply_filter('tc_mail_from_name', $from_name);
-        
+        $this->mailer->FromName = $this->app->hook->{'apply_filter'}('tc_mail_from_name', $from_name);
+
         // Set destination addresses
-        if (! is_array($to)) {
+        if (!is_array($to)) {
             $to = explode(',', $to);
         }
-        
+
         foreach ((array) $to as $recipient) {
             try {
                 // Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
@@ -234,13 +231,13 @@ class tc_Email
                 continue;
             }
         }
-        
+
         // Set mail's subject and body
         $this->mailer->Subject = $subject;
         $this->mailer->Body = $message;
-        
+
         // Add any CC and BCC recipients
-        if (! empty($cc)) {
+        if (!empty($cc)) {
             foreach ((array) $cc as $recipient) {
                 try {
                     // Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
@@ -257,8 +254,8 @@ class tc_Email
                 }
             }
         }
-        
-        if (! empty($bcc)) {
+
+        if (!empty($bcc)) {
             foreach ((array) $bcc as $recipient) {
                 try {
                     // Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
@@ -275,16 +272,16 @@ class tc_Email
                 }
             }
         }
-        
+
         // Set to use PHP's mail()
         $this->mailer->IsMail();
-        
+
         // Set Content-Type and charset
         // If we don't have a content-type from the input headers
-        if (! isset($content_type)) {
+        if (!isset($content_type)) {
             $content_type = 'text/plain';
         }
-        
+
         /**
          * Filter the tc_mail() content type.
          *
@@ -293,17 +290,17 @@ class tc_Email
          * @param string $content_type
          *            Default tc_mail() content type.
          */
-        $content_type = $this->app->hook->apply_filter('tc_mail_content_type', $content_type);
-        
+        $content_type = $this->app->hook->{'apply_filter'}('tc_mail_content_type', $content_type);
+
         $this->mailer->ContentType = $content_type;
-        
+
         // Set whether it's plaintext, depending on $content_type
         if ('text/html' == $content_type) {
             $this->mailer->IsHTML(true);
         }
-        
+
         // Set the content-type and charset
-        
+
         /**
          * Filter the default tc_mail() charset.
          *
@@ -312,20 +309,20 @@ class tc_Email
          * @param string $charset
          *            Default email charset.
          */
-        $this->mailer->CharSet = $this->app->hook->apply_filter('tc_mail_charset', $charset);
-        
+        $this->mailer->CharSet = $this->app->hook->{'apply_filter'}('tc_mail_charset', $charset);
+
         // Set custom headers
-        if (! empty($headers)) {
+        if (!empty($headers)) {
             foreach ((array) $headers as $name => $content) {
                 $this->mailer->AddCustomHeader(sprintf('%1$s: %2$s', $name, $content));
             }
-            
-            if (false !== stripos($content_type, 'multipart') && ! empty($boundary)) {
+
+            if (false !== stripos($content_type, 'multipart') && !empty($boundary)) {
                 $this->mailer->AddCustomHeader(sprintf("Content-Type: %s;\n\t boundary=\"%s\"", $content_type, $boundary));
             }
         }
-        
-        if (! empty($attachments)) {
+
+        if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
                 try {
                     $this->mailer->AddAttachment($attachment);
@@ -334,7 +331,7 @@ class tc_Email
                 }
             }
         }
-        
+
         /**
          * Fires after PHPMailer is initialized.
          *
@@ -343,15 +340,15 @@ class tc_Email
          * @param PHPMailer $this->mailer
          *            The PHPMailer instance, passed by reference.
          */
-        $this->app->hook->do_action_array('etsisMailer_init', [
+        $this->app->hook->{'do_action_array'}('tcMailer_init', [
             &$this->mailer
         ]);
-        
+
         // Send!
         try {
             return $this->mailer->Send();
         } catch (phpmailerException $e) {
-            
+
             $mail_error_data = compact($to, $subject, $message, $headers, $attachments);
             /**
              * Fires after a phpmailerException is caught.
@@ -362,10 +359,44 @@ class tc_Email
              *            A tc_Error object with the phpmailerException code, message, and an array
              *            containing the mail recipient, subject, message, headers, and attachments.
              */
-            $this->app->hook->do_action('tc_mail_failed', new \app\src\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
+            $this->app->hook->{'do_action'}('tc_mail_failed', new \app\src\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
             return false;
         }
-        
+
         return true;
+    }
+
+    /**
+     * Email sent to new user when account is created.
+     * 
+     * @since 2.0.0
+     *
+     * @param int $user
+     *            User object.
+     * @param string $pass
+     *            Plaintext password.
+     * @return type
+     */
+    public function sendNewUserEmail($user, $pass)
+    {
+        $domain = get_domain_name();
+        $site = _h(get_option('system_name'));
+
+        $message = _t('Hi there,') . "<br />";
+        $message .= sprintf(_t("<p>Welcome to %s! Here's how to log in: "), $site);
+        $message .= get_base_url() . "</p>";
+        $message .= sprintf(_t('Username: %s'), $user->uname) . "<br />";
+        $message .= sprintf(_t('Password: %s'), $pass) . "<br />";
+        $message .= sprintf(_t('<p>If you have any problems, please contact us at %s.'), get_option('system_email')) . "</p>";
+
+        $message = process_email_html($message, _t("New Account"));
+        $headers = "From: $site <auto-reply@$domain>\r\n";
+        if (_h(get_option('tc_smtp_status')) == 0) {
+            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+            $headers .= "MIME-Version: 1.0" . "\r\n";
+        }
+
+        $this->tc_mail($user->email, _t('New Account'), $message, $headers);
+        return $this->app->hook->{'apply_filter'}('new_user_email', $message, $headers);
     }
 }

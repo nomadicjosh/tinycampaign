@@ -42,28 +42,28 @@ $config = [
             'level' => 'INFO',
             'formatter' => 'exception',
             'maxFiles' => 10,
-            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'etsis-info.txt'
+            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'tc-info.txt'
         ],
         'error_file_handler' => [
             'class' => 'Monolog\Handler\RotatingFileHandler',
             'level' => 'ERROR',
             'formatter' => 'exception',
             'maxFiles' => 10,
-            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'etsis-error.txt'
+            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'tc-error.txt'
         ],
         'notice_file_handler' => [
             'class' => 'Monolog\Handler\RotatingFileHandler',
             'level' => 'NOTICE',
             'formatter' => 'exception',
             'maxFiles' => 10,
-            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'etsis-notice.txt'
+            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'tc-notice.txt'
         ],
         'critical_file_handler' => [
             'class' => 'Monolog\Handler\RotatingFileHandler',
             'level' => 'CRITICAL',
             'formatter' => 'exception',
             'maxFiles' => 10,
-            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'etsis-critical.txt'
+            'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'tc-critical.txt'
         ],
         'alert_file_handler' => [
             'class' => 'app\src\tc_MailHandler',

@@ -1,5 +1,9 @@
 <?php namespace app\src;
 
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
@@ -32,22 +36,22 @@ class tc_Logger
      */
     public function writeLog($action, $process, $record, $uname)
     {
-        $create = date("Y-m-d H:i:s", time());
+        $create = \Jenssegers\Date\Date::now()->format("Y-m-d H:i:s");
         $current_date = strtotime($create);
         /* 20 days after creation date */
         $expire = date("Y-m-d H:i:s", $current_date+=1728000);
         
-        $expires_at = $this->app->hook->apply_filter('activity_log_expires', $expire);
+        $expires_at = $this->app->hook->{'apply_filter'}('activity_log_expires', $expire);
 
-        $log = $this->app->db->activity_log();
-        $log->action = $action;
-        $log->process = $process;
-        $log->record = $record;
-        $log->uname = $uname;
-        $log->created_at = $create;
-        $log->expires_at = $expires_at;
-
-        $log->save();
+        $log = $this->app->db->activity();
+        $log->insert([
+            'action' => $action,
+            'process' => $process,
+            'record' => $record,
+            'uname' => $uname,
+            'created_at' => $create,
+            'expires_at' => $expires_at
+        ]);
     }
 
     /**
@@ -57,7 +61,15 @@ class tc_Logger
      */
     public function purgeActivityLog()
     {
-        $this->app->db->query("DELETE FROM activity_log WHERE expires_at <= ?", [ date('Y-m-d H:i:s', time())]);
+        try {
+            $this->app->db->query("DELETE FROM activity WHERE expires_at <= ?", [\Jenssegers\Date\Date::now()->format("Y-m-d H:i:s")]);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
     }
 
     /**
@@ -83,13 +95,13 @@ class tc_Logger
         $date = new \DateTime();
 
         $log = $this->app->db->error();
-        $log->time = $date->getTimestamp();
-        $log->type = (int) $type;
-        $log->string = (string) $string;
-        $log->file = (string) $file;
-        $log->line = (int) $line;
-
-        $log->save();
+        $log->insert([
+            'time' => $date->getTimestamp(),
+            'type' => (int) $type,
+            'string' => (string) $string,
+            'file' => (string) $file,
+            'line' => (int) $line
+        ]);
     }
 
     public function error_constant_to_name($value)

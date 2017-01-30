@@ -1,5 +1,5 @@
 <?php
-if (! defined('BASE_PATH'))
+if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
 /**
@@ -21,7 +21,7 @@ if (! defined('BASE_PATH'))
 function _tc_cache_init()
 {
     $app = \Liten\Liten::getInstance();
-    
+
     $driver = $app->hook->{'apply_filter'}('tc_cache_driver', 'file');
     $cache = new \app\src\Cache\tc_Object_Cache($driver);
     return $cache;
@@ -69,8 +69,32 @@ function _tc_email()
  *
  * @since 2.0.0
  */
-function _etsis_logger()
+function _tc_logger()
 {
     $logger = new \app\src\tc_Logger();
     return $logger;
+}
+
+/**
+ * Sets up tinyCampaign Flash Messages global scope.
+ *
+ * @since 2.0.0
+ */
+function _tc_flash()
+{
+    $flash = new \app\src\tc_FlashMessages();
+    return $flash;
+}
+
+/**
+ * Sets up random number and string generator global scope.
+ * 
+ * @since 2.0.0
+ * @return type
+ */
+function _random_lib()
+{
+    $factory = new RandomLib\Factory;
+    $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
+    return $generator;
 }

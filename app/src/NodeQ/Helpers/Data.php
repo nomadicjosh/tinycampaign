@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src\Core\NodeQ\Helpers;
+namespace app\src\NodeQ\Helpers;
 
 /**
  * Data managing class

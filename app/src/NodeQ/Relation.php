@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src\Core\NodeQ;
+namespace app\src\NodeQ;
 
 class Relation extends CoreRelation {
     

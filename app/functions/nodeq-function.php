@@ -1,9 +1,10 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-
-use \app\src\Core\NodeQ\tc_NodeQ as Node;
-use \app\src\Core\Exception\Exception;
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use app\src\Exception\Exception;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign NodeQ Functions
@@ -14,262 +15,152 @@ use \app\src\Core\Exception\Exception;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
+$app = \Liten\Liten::getInstance();
 
-/**
- * Login Details Email
- * 
- * Function used to send login details to new
- * person record.
- * 
- * @since 2.0.0
- */
-function tc_nodeq_login_details()
+function set_queued_message_is_sent($node, $id)
 {
-    $app = \Liten\Liten::getInstance();
-
-    $email = _tc_email();
-    $site = _t('myetSIS :: ') . _h(get_option('institution_name'));
-    $host = $app->req->server['HTTP_HOST'];
-    // Creates node's schema if does not exist.
-    Node::dispense('login_details');
-    
+    $now = Jenssegers\Date\Date::now();
     try {
-        $sql = Node::table('login_details')->where('sent','=',0)->findAll();
-        
-        if ($sql->count() == 0) {
-            Node::table('login_details')->delete();
-        }
-
-        $numItems = $sql->count();
-        $i = 0;
-        if ($sql->count() > 0) {
-            foreach ($sql as $r) {
-                $message = _escape(get_option('person_login_details'));
-                $message = str_replace('#uname#', _h($r->uname), $message);
-                $message = str_replace('#fname#', _h($r->fname), $message);
-                $message = str_replace('#lname#', _h($r->lname), $message);
-                $message = str_replace('#name#', get_name(_h($r->personid)), $message);
-                $message = str_replace('#id#', _h($r->personid), $message);
-                $message = str_replace('#altID#', _h($r->altid), $message);
-                $message = str_replace('#password#', _h($r->password), $message);
-                $message = str_replace('#url#', get_base_url(), $message);
-                $message = str_replace('#helpdesk#', _h(get_option('help_desk')), $message);
-                $message = str_replace('#instname#', _h(get_option('institution_name')), $message);
-                $message = str_replace('#mailaddr#', _h(get_option('mailing_address')), $message);
-                $message = process_email_html( $message, _t("myetSIS Login Details") );
-                $headers = "From: $site <auto-reply@$host>\r\n";
-                $headers .= "X-Mailer: PHP/" . phpversion();
-                $headers .= "MIME-Version: 1.0\r\n";
-                $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-
-                $email->tc_mail(_h($r->email), _t("myetSIS Login Details"), $message, $headers);
-                
-                $upd = Node::table('login_details')->find(_h($r->id));
-                $upd->sent = 1;
-                $upd->save();
-
-                if (++$i === $numItems) {
-                    //If we reach the last item, send user a desktop notification.
-                    tc_push_notify('Login Details', 'New login details sent.');
-                }
-            }
-        }
+        $queue = Node::table("$node")->where('timestamp_to_send', '>=', $now)->find($id);
+        $queue->timestamp_sent = (string) $now;
+        $queue->is_sent = (bool) true;
+        $queue->save();
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        throw new Exception($e->getMessage(), 'NodeQ');
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 
-/**
- * Reset Password Email
- * 
- * Function used to send reset password emails.
- * 
- * @since 2.0.0
- */
-function tc_nodeq_reset_password()
+function send_confirm_email()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $email = _tc_email();
-    $from = _h(get_option('institution_name'));
-    $host = $app->req->server['HTTP_HOST'];
-    // Creates node's schema if does not exist.
-    Node::dispense('reset_password');
+    $domain = get_domain_name();
+    $site = _h(get_option('system_name'));
 
     try {
-        $sql = Node::table('reset_password')->where('sent','=',0)->findAll();
-        
-        if ($sql->count() == 0) {
-            Node::table('reset_password')->delete();
+        Node::dispense('confirm_email');
+
+        $queue = Node::table('confirm_email')->where('sent', '=', 0)->findAll();
+
+        if ($queue->count() == 0) {
+            Node::table('confirm_email')->delete();
         }
 
-        $numItems = $sql->count();
-        $i = 0;
-        if ($sql->count() > 0) {
-            foreach ($sql as $r) {
-                $message = _escape(get_option('reset_password_text'));
-                $message = str_replace('#instname#', $from, $message);
-                $message = str_replace('#mailaddr#', _h(get_option('mailing_address')), $message);
-                $message = str_replace('#url#', get_base_url(), $message);
-                $message = str_replace('#helpdesk#', _h(get_option('help_desk')), $message);
-                $message = str_replace('#adminemail#', _h(get_option('institution_name')), $message);
-                $message = str_replace('#uname#', _h($r->uname), $message);
-                $message = str_replace('#email#', _h($r->email), $message);
-                $message = str_replace('#name#', get_name(_h($r->personid)), $message);
-                $message = str_replace('#fname#', _h($r->fname), $message);
-                $message = str_replace('#lname#', _h($r->lname), $message);
-                $message = str_replace('#password#', _h($r->password), $message);
-                $message = process_email_html( $message, _t('Reset Password') );
-                $headers = "From: $from <auto-reply@$host>\r\n";
-                $headers .= "X-Mailer: PHP/" . phpversion();
-                $headers .= "MIME-Version: 1.0\r\n";
-                $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        if ($queue->count() > 0) {
+            foreach ($queue as $q) {
+                $list = get_list_by('code', $q->lcode);
+                $sub = get_subscriber_by('id', $q->sid);
 
-                $email->tc_mail(_h($r->email), _t('Reset Password'), $message, $headers);
-                
-                $upd = Node::table('reset_password')->find(_h($r->id));
+                $message = _escape($list->confirm_email);
+                $message = str_replace('{list_name}', _h($list->name), $message);
+                $message = str_replace('{confirm_url}', confirm_subscription_button($q), $message);
+                $message = str_replace('{system_name}', $site, $message);
+                $headers = "From: $site <auto-reply@$domain>\r\n";
+                if (_h(get_option('tc_smtp_status')) == 0) {
+                    $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+                    $headers .= "MIME-Version: 1.0" . "\r\n";
+                }
+                try {
+                    _tc_email()->tc_mail($sub->email, _t('Confirm Subscription for') . ' ' . _h($list->name), $message, $headers);
+                } catch (phpmailerException $e) {
+                    Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+                $upd = Node::table('confirm_email')->find(_h($q->id));
                 $upd->sent = 1;
                 $upd->save();
-
-                if (++$i === $numItems) {
-                    //If we reach the last item, send user a desktop notification.
-                    tc_push_notify('Reset Password', 'Reset password email sent.');
-                }
             }
         }
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        throw new Exception($e->getMessage(), 'NodeQ');
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 
-/**
- * CSV to Email
- * 
- * Function used to send .csv email reports.
- * 
- * @since 2.0.0
- */
-function tc_nodeq_csv_email()
+function send_subscribe_email()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $email = _tc_email();
-    $site = _h(get_option('institution_name'));
-
-    $sitename = strtolower($app->req->server['SERVER_NAME']);
-    if (substr($sitename, 0, 4) == 'www.') {
-        $sitename = substr($sitename, 4);
-    }
-    // Creates node's schema if does not exist.
-    Node::dispense('csv_email');
+    $domain = get_domain_name();
+    $site = _h(get_option('system_name'));
 
     try {
-        $sql = Node::table('csv_email')->where('sent','=',0)->findAll();
+        Node::dispense('subscribe_email');
 
-        if ($sql->count() == 0) {
-            Node::table('csv_email')->delete();
+        $queue = Node::table('subscribe_email')->where('sent', '=', 0)->findAll();
+
+        if ($queue->count() == 0) {
+            Node::table('subscribe_email')->delete();
         }
 
-        $numItems = $sql->count();
-        $i = 0;
-        if ($sql->count() > 0) {
-            foreach ($sql as $r) {
-                $message = process_email_html( _escape($r->message), _h($r->subject) );
-                $headers = "From: $site <auto-reply@$sitename>\r\n";
-                $headers .= "X-Mailer: PHP/" . phpversion();
-                $headers .= "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        if ($queue->count() > 0) {
+            foreach ($queue as $q) {
+                $list = get_list_by('code', $q->lcode);
+                $sub = get_subscriber_by('id', $q->sid);
 
-                $attachment = $app->config('file.savepath') . _h($r->filename);
-
-                $email->tc_mail(_h($r->recipient), _h($r->subject), $message, $headers, [$attachment]);
-
-                $upd = Node::table('csv_email')->find(_h($r->id));
+                $message = _escape($list->subscribe_email);
+                $message = str_replace('{list_name}', _h($list->name), $message);
+                $message = str_replace('{personal_preferences}', update_preferences_button($sub), $message);
+                $message = str_replace('{system_name}', $site, $message);
+                $headers = "From: $site <auto-reply@$domain>\r\n";
+                if (_h(get_option('tc_smtp_status')) == 0) {
+                    $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+                    $headers .= "MIME-Version: 1.0" . "\r\n";
+                }
+                try {
+                    _tc_email()->tc_mail($sub->email, _t('Welcome to') . ' ' . _h($list->name), $message, $headers);
+                } catch (phpmailerException $e) {
+                    Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+                $upd = Node::table('subscribe_email')->find(_h($q->id));
                 $upd->sent = 1;
                 $upd->save();
-                
-                unlink($attachment);
-
-                if (++$i === $numItems) {
-                    //If we reach the last item, send user a desktop notification.
-                    tc_push_notify('CSV to Email', 'Email sent.');
-                }
             }
         }
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        throw new Exception($e->getMessage(), 'NodeQ');
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 
-/**
- * Change of Address Email
- * 
- * Function used to send change of address to
- * appropriate staff member.
- * 
- * @since 2.0.0
- */
-function tc_nodeq_change_address()
+function send_unsubscribe_email()
 {
-    $app = \Liten\Liten::getInstance();
+    $domain = get_domain_name();
+    $site = _h(get_option('system_name'));
 
-    $email = _tc_email();
-    $host = $app->req->server['HTTP_HOST'];
-    $site = _t('myetSIS :: ') . _h(get_option('institution_name'));
-    // Creates node's schema if does not exist.
-    Node::dispense('change_address');
-    
     try {
-        $sql = Node::table('change_address')->where('sent','=',0)->findAll();
+        Node::dispense('unsubscribe_email');
 
-        if ($sql->count() == 0) {
-            Node::table('change_address')->delete();
+        $queue = Node::table('unsubscribe_email')->where('sent', '=', 0)->findAll();
+
+        if ($queue->count() == 0) {
+            Node::table('unsubscribe_email')->delete();
         }
 
-        $numItems = $sql->count();
-        $i = 0;
-        if ($sql->count() > 0) {
-            foreach ($sql as $r) {
-                $message = _escape(get_option('coa_form_text'));
-                $message = str_replace('#uname#', _h($r->uname), $message);
-                $message = str_replace('#fname#', _h($r->fname), $message);
-                $message = str_replace('#lname#', _h($r->lname), $message);
-                $message = str_replace('#name#', get_name(_h($r->personid)), $message);
-                $message = str_replace('#id#', _h($r->personid), $message);
-                $message = str_replace('#address1#', _h($r->address1), $message);
-                $message = str_replace('#address2#', _h($r->address2), $message);
-                $message = str_replace('#city#', _h($r->city), $message);
-                $message = str_replace('#state#', _h($r->state), $message);
-                $message = str_replace('#zip#', _h($r->zip), $message);
-                $message = str_replace('#country#', _h($r->country), $message);
-                $message = str_replace('#phone#', _h($r->phone), $message);
-                $message = str_replace('#email#', _h($r->email), $message);
-                $message = str_replace('#adminemail#', _h(get_option('system_email')), $message);
-                $message = str_replace('#url#', get_base_url(), $message);
-                $message = str_replace('#helpdesk#', _h(get_option('help_desk')), $message);
-                $message = str_replace('#currentterm#', _h(get_option('current_term_code')), $message);
-                $message = str_replace('#instname#', _h(get_option('institution_name')), $message);
-                $message = str_replace('#mailaddr#', _h(get_option('mailing_address')), $message);
-                $message = process_email_html( $message, _t('Change of Address Request') );
+        if ($queue->count() > 0) {
+            foreach ($queue as $q) {
+                $list = get_list_by('code', $q->lcode);
+                $sub = get_subscriber_by('id', $q->sid);
 
-                $headers = "From: $site <auto-reply@$host>\r\n";
-                $headers .= "X-Mailer: PHP/" . phpversion();
-                $headers .= "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-
-                $email->tc_mail(_h(get_option('contact_email')), _t('Change of Address Request'), $message, $headers);
-                
-                $upd = Node::table('change_address')->find(_h($r->id));
+                $message = _escape($list->unsubscribe_email);
+                $message = str_replace('{personal_preferences}', update_preferences_button($sub), $message);
+                $headers = "From: $site <auto-reply@$domain>\r\n";
+                if (_h(get_option('tc_smtp_status')) == 0) {
+                    $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+                    $headers .= "MIME-Version: 1.0" . "\r\n";
+                }
+                try {
+                    _tc_email()->tc_mail($sub->email, _t('Confirm Removal from') . ' ' . _h($list->name), $message, $headers);
+                } catch (phpmailerException $e) {
+                    Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+                $upd = Node::table('unsubscribe_email')->find(_h($q->id));
                 $upd->sent = 1;
                 $upd->save();
-
-                if (++$i === $numItems) {
-                    //If we reach the last item, send user a desktop notification.
-                    tc_push_notify('Change of Address', 'Request has been submitted.');
-                }
             }
         }
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        throw new Exception($e->getMessage(), 'NodeQ');
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }

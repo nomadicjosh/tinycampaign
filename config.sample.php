@@ -112,11 +112,6 @@ require( APP_PATH . 'application.php' );
 include(APP_PATH . 'routers.php');
 
 /**
- * Initialize benchmark.
- */
-benchmark_init();
-
-/**
  * Set the timezone for the application.
  */
 date_default_timezone_set((get_option('system_timezone') !== NULL) ? get_option('system_timezone') : 'America/New_York');

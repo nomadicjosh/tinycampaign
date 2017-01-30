@@ -1,6 +1,12 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\Exception\Exception;
+use app\src\Exception\NotFoundException;
+use app\src\Exception\IOException;
+use Cascade\Cascade;
+use Jenssegers\Date\Date;
+
 /**
  * tinyCampaign Core Functions
  *
@@ -13,17 +19,12 @@ if (!defined('BASE_PATH'))
 define('CURRENT_RELEASE', trim(_file_get_contents(BASE_PATH . 'RELEASE')));
 
 $app = \Liten\Liten::getInstance();
-use app\src\Exception\Exception;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\IOException;
-use Cascade\Cascade;
-use Jenssegers\Date\Date;
 
 /**
  * Retrieves tinyCampaign site root url.
  *
  * @since 4.1.9
- * @uses $app->hook->apply_filter() Calls 'base_url' filter.
+ * @uses $app->hook->{'apply_filter'}() Calls 'base_url' filter.
  *      
  * @return string tinyCampaign root url.
  */
@@ -31,7 +32,7 @@ function get_base_url()
 {
     $app = \Liten\Liten::getInstance();
     $url = url('/');
-    return $app->hook->apply_filter('base_url', $url);
+    return $app->hook->{'apply_filter'}('base_url', $url);
 }
 
 /**
@@ -88,6 +89,12 @@ function _t($msgid, $domain = '')
     } else {
         return d__('tiny-campaign', $msgid);
     }
+}
+
+function microtime_float()
+{
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float) $usec + (float) $sec);
 }
 
 function getPathInfo($relative)
@@ -381,22 +388,22 @@ function tc_hash_password($password)
  *            Plain test password.
  * @param string $hash
  *            Hashed password in the database to check against.
- * @param int $person_id
+ * @param int $user_id
  *            User ID.
  * @return mixed
  */
-function tc_check_password($password, $hash, $person_id = '')
+function tc_check_password($password, $hash, $user_id = '')
 {
     $app = \Liten\Liten::getInstance();
     // If the hash is still md5...
     if (strlen($hash) <= 32) {
         $check = ($hash == md5($password));
-        if ($check && $person_id) {
+        if ($check && $user_id) {
             // Rehash using new hash.
-            tc_set_password($password, $person_id);
+            tc_set_password($password, $user_id);
             $hash = tc_hash_password($password);
         }
-        return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $person_id);
+        return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
     }
 
     // If the stored hash is longer than an MD5, presume the
@@ -405,7 +412,7 @@ function tc_check_password($password, $hash, $person_id = '')
 
     $check = $hasher->CheckPassword($password, $hash);
 
-    return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $person_id);
+    return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
 }
 
 /**
@@ -415,17 +422,17 @@ function tc_check_password($password, $hash, $person_id = '')
  * @since 2.0.0
  * @param string $password
  *            User password.
- * @param int $person_id
+ * @param int $user_id
  *            User ID.
  * @return mixed
  */
-function tc_set_password($password, $person_id)
+function tc_set_password($password, $user_id)
 {
     $app = \Liten\Liten::getInstance();
     $hash = tc_hash_password($password);
-    $q = $app->db->person();
+    $q = $app->db->user();
     $q->password = $hash;
-    $q->where('personID = ?', $person_id)->update();
+    $q->where('id = ?', $user_id)->update();
 }
 
 /**
@@ -501,7 +508,7 @@ function get_age($birthdate = '0000-00-00')
 /**
  * Converts a string into unicode values.
  *
- * @since 4.3
+ * @since 2.0.0
  * @param string $string            
  * @return mixed
  */
@@ -519,7 +526,7 @@ function unicoder($string)
  * Subdomain as directory function uses the subdomain
  * of the install as a directory.
  *
- * @since 6.0.05
+ * @since 2.0.0
  * @return string
  */
 function subdomain_as_directory()
@@ -699,7 +706,7 @@ function is_duplicate_function($file_name)
     $merge = array_merge($plugin, $functions['user']);
     if (count($merge) !== count(array_unique($merge))) {
         $dupe = array_unique(array_diff_assoc($merge, array_unique($merge)));
-        foreach ($dupe as $key => $value) {
+        foreach ($dupe as $value) {
             return new \app\src\tc_Error('duplicate_function_error', sprintf(_t('The following function is already defined elsewhere: <strong>%s</strong>'), $value));
         }
     }
@@ -835,7 +842,7 @@ function tc_validate_plugin($plugin_name)
 
     $error = tc_php_check_syntax($file);
     if (is_tc_exception($error)) {
-        $app->flash('error_message', _t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br />') . $error->getMessage());
+        _tc_flash()->error(_t('Plugin could not be activated because it triggered a <strong>fatal error</strong>. <br /><br />') . $error->getMessage());
         return false;
     }
 
@@ -1012,7 +1019,7 @@ function tc_get_file_data($file, $default_headers, $context = '')
      * @param array $extra_context_headers
      *            Empty array by default.
      */
-    if ($context && $extra_headers = $app->hook->apply_filter("extra_{$context}_headers", [])) {
+    if ($context && $extra_headers = $app->hook->{'apply_filter'}("extra_{$context}_headers", [])) {
         $extra_headers = array_combine($extra_headers, $extra_headers); // keys equal values
         $all_headers = array_merge($extra_headers, (array) $default_headers);
     } else {
@@ -1118,7 +1125,7 @@ function tc_field_css_class($element)
  * A wrapper for htmLawed which is a set of functions
  * for html purifier
  *
- * @since 5.0
+ * @since 2.0.0
  * @param string $str            
  * @return mixed
  */
@@ -1197,9 +1204,9 @@ function tc_file_exists($filename, $throw = true)
 function set_email_template($body)
 {
     $app = \Liten\Liten::getInstance();
-    
+
     $tpl = _file_get_contents(APP_PATH . 'views/setting/tpl/email_alert.tpl');
-    
+
     $template = $app->hook->{'apply_filter'}('email_template', $tpl);
 
     return str_replace('{content}', $body, $template);
@@ -1217,7 +1224,7 @@ function template_vars_replacement($template)
     $app = \Liten\Liten::getInstance();
 
     $var_array = [
-        'institution_name' => _h(get_option('institution_name')),
+        'system_name' => _h(get_option('system_name')),
         'address' => _h(get_option('mailing_address'))
     ];
 
@@ -1255,4 +1262,21 @@ function process_email_html($text, $title)
     $message = $app->hook->{'apply_filter'}('email_template_body', template_vars_replacement($body));
 
     return $message;
+}
+
+/**
+ * Retrieve the domain name.
+ * 
+ * @since 2.0.0
+ * @return string
+ */
+function get_domain_name()
+{
+    $app = \Liten\Liten::getInstance();
+
+    $server_name = strtolower($app->req->server['SERVER_NAME']);
+    if (substr($server_name, 0, 4) == 'www.') {
+        $server_name = substr($server_name, 4);
+    }
+    return $server_name;
 }
