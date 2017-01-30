@@ -454,7 +454,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function testFindNamespaceDoesNotFailOnDeepSimilarNamespaces()
     {
-        $application = $this->getMock('Symfony\Component\Console\Application', array('getNamespaces'));
+        $application = $this->getMockBuilder('Symfony\Component\Console\Application')->setMethods(array('getNamespaces'))->getMock();
         $application->expects($this->once())
             ->method('getNamespaces')
             ->will($this->returnValue(array('foo:sublong', 'bar:sub')));
@@ -701,7 +701,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $exception = new \Exception('', 4);
 
-        $application = $this->getMock('Symfony\Component\Console\Application', array('doRun'));
+        $application = $this->getMockBuilder('Symfony\Component\Console\Application')->setMethods(array('doRun'))->getMock();
         $application->setAutoExit(false);
         $application->expects($this->once())
             ->method('doRun')
@@ -716,7 +716,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $exception = new \Exception('', 0);
 
-        $application = $this->getMock('Symfony\Component\Console\Application', array('doRun'));
+        $application = $this->getMockBuilder('Symfony\Component\Console\Application')->setMethods(array('doRun'))->getMock();
         $application->setAutoExit(false);
         $application->expects($this->once())
             ->method('doRun')
@@ -942,6 +942,24 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $tester = new ApplicationTester($application);
         $tester->run(array('command' => 'foo'));
         $this->assertContains('before.foo.caught.after.', $tester->getDisplay());
+    }
+
+    public function testRunWithError()
+    {
+        $this->setExpectedException('Exception', 'dymerr');
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+
+        $application->register('dym')->setCode(function (InputInterface $input, OutputInterface $output) {
+            $output->write('dym.');
+
+            throw new \Error('dymerr');
+        });
+
+        $tester = new ApplicationTester($application);
+        $tester->run(array('command' => 'dym'));
     }
 
     /**
