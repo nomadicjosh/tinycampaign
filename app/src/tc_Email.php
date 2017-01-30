@@ -382,19 +382,21 @@ class tc_Email
         $domain = get_domain_name();
         $site = _h(get_option('system_name'));
 
-        $message = __('Hi there,') . "<br />";
-        $message .= sprintf(__("<p>Welcome to %s! Here's how to log in: "), $site);
+        $message = _t('Hi there,') . "<br />";
+        $message .= sprintf(_t("<p>Welcome to %s! Here's how to log in: "), $site);
         $message .= get_base_url() . "</p>";
-        $message .= sprintf(__('Username: %s'), $user->uname) . "<br />";
-        $message .= sprintf(__('Password: %s'), $pass) . "<br />";
-        $message .= sprintf(__('<p>If you have any problems, please contact us at %s.'), get_option('system_email')) . "</p>";
+        $message .= sprintf(_t('Username: %s'), $user->uname) . "<br />";
+        $message .= sprintf(_t('Password: %s'), $pass) . "<br />";
+        $message .= sprintf(_t('<p>If you have any problems, please contact us at %s.'), get_option('system_email')) . "</p>";
 
         $message = process_email_html($message, _t("New Account"));
         $headers = "From: $site <auto-reply@$domain>\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
-        $headers .= "MIME-Version: 1.0" . "\r\n";
+        if (_h(get_option('tc_smtp_status')) == 0) {
+            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+            $headers .= "MIME-Version: 1.0" . "\r\n";
+        }
 
         $this->tc_mail($user->email, _t('New Account'), $message, $headers);
-        return $this->app->hook->apply_filter('new_user_email', $message, $headers);
+        return $this->app->hook->{'apply_filter'}('new_user_email', $message, $headers);
     }
 }

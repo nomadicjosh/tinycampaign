@@ -67,7 +67,7 @@ class tc_MailHandler extends MailHandler
         if ($records) {
             $subjectFormatter = new LineFormatter($this->subject);
             $headers = "From: $site <auto-reply@$sitename>\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
+            $headers .= "X-Mailer: tinyCampaign/" . CURRENT_RELEASE;
             $headers .= "MIME-Version: 1.0" . "\r\n";
             $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
             $body = process_email_html( $content, $subjectFormatter->format($this->getHighestRecord($records)) );

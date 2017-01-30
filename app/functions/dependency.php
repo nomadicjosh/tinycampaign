@@ -310,6 +310,7 @@ $app->asset->registerStyleCollection('iCheck_blue', ['iCheck/minimal/blue.css'])
 $app->asset->registerStyleCollection('select2', ['select2/select2.min.css']);
 $app->asset->registerStyleCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.css']);
 $app->asset->registerStyleCollection('elfinder', ['elfinder/css/elfinder.min.css', 'elfinder/css/theme.css']);
+$app->asset->registerStyleCollection('elfinder-moono', ['elfinder/moono/css/theme.css']);
 
 $app->asset->registerScriptCollection('morris', ['morris/morris.min.js']);
 $app->asset->registerScriptCollection('chartjs', ['chartjs/Chart.min.js']);
@@ -336,4 +337,5 @@ require( APP_PATH . 'functions' . DS . 'textdomain-function.php' );
 require( APP_PATH . 'functions' . DS . 'core-function.php' );
 require( APP_PATH . 'functions' . DS . 'logger-function.php' );
 require( APP_PATH . 'functions' . DS . 'user-function.php' );
+require( APP_PATH . 'functions' . DS . 'subscriber-function.php' );
 require( APP_PATH . 'functions' . DS . 'parsecode-function.php' );

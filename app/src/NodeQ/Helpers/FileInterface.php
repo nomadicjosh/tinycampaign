@@ -2,7 +2,7 @@
 
 namespace app\src\NodeQ\Helpers;
 
-use \app\src\NodeQ\LazerException;
+use \app\src\NodeQ\NodeQException;
 
 interface FileInterface {
 
@@ -22,7 +22,7 @@ interface FileInterface {
     /**
      * Returning path to file
      * @return string Path to file
-     * @throws LazerException You must specify the type of file
+     * @throws NodeQException You must specify the type of file
      */
     public function getPath();
 
@@ -49,7 +49,7 @@ interface FileInterface {
     /**
      * Removing file
      * @return boolean
-     * @throws LazerException If file doesn't exists or there's problems with deleting files
+     * @throws NodeQException If file doesn't exists or there's problems with deleting files
      */
     public function remove();
 }

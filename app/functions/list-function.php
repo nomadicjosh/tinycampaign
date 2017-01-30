@@ -2,6 +2,9 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Respect\Validation\Validator as v;
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 
 /**
  * tinyCampaign List Functions
@@ -23,44 +26,52 @@ $app = \Liten\Liten::getInstance();
 function get_email_lists()
 {
     $app = \Liten\Liten::getInstance();
-    $lists = $app->db->list()
-        ->where('owner = ?', get_userdata('id'))
-        ->find();
-    foreach ($lists as $list) {
-        echo '<li' . (SCREEN === $list->code ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . $list->id . '/"><i class="fa fa-circle-o"></i> ' . $list->name . '</a></li>';
+    try {
+        $lists = $app->db->list()
+            ->where('owner = ?', get_userdata('id'))
+            ->find();
+        foreach ($lists as $list) {
+            echo '<li' . (SCREEN === $list->code ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . $list->id . '/"><i class="fa fa-circle-o"></i> ' . $list->name . '</a></li>';
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
     }
 }
 
-function check_custom_success_url($code)
+function check_custom_success_url($code, $sub)
 {
-    $app = \Liten\Liten::getInstance();
-    $email = _tc_email();
-
     $list = get_list_by('code', $code);
-    if ($list->redirect_success != null && v::url()->validate($list->redirect_success) && $list->optin == 1) {
+
+    if ($list->redirect_success != NULL && v::url()->validate($list->redirect_success) && $list->optin == 1) {
         // send confirm email and redirect.
-        $url = _h($list->redirect_success);
-    } elseif ($list->redirect_success != null && v::url()->validate($list->redirect_success) && $list->optin == 0) {
-        // send success email and redirect.
-        $url = _h($list->redirect_success);
-    } elseif ($list->redirect_success == null && $list->optin == 1) {
+        confirm_email_node($code, $sub);
+        _tc_flash()->info(sprintf(_t('You were added to the list <strong>%s</strong>, but you will need to check your email in a few minutes in order to confirm your subscription.'), $list->name), _h($list->redirect_success));
+    } elseif ($list->redirect_success != NULL && v::url()->validate($list->redirect_success) && $list->optin == 0) {
+        // send success email and redirect to default success.
+        subscribe_email_node($code, $sub);
+        _tc_flash()->success(sprintf(_t('Thank you for subscribing to the mailing list <strong>%s</strong>.'), $list->name), _h($list->redirect_success));
+    } elseif ($list->redirect_success == NULL && $list->optin == 1) {
         // send confirm email and redirect to default success.
-        $url = get_base_url() . 'success' . '/' . $list->code . '/';
-    } elseif ($list->redirect_success == null && $list->optin == 0) {
-        // send confirm success and redirect to default success.
-        $url = get_base_url() . 'success' . '/' . $list->code . '/';
+        confirm_email_node($code, $sub);
+        _tc_flash()->info(sprintf(_t('You were added to the list <strong>%s</strong>, but you will need to check your email in a few minutes in order to confirm your subscription.'), $list->name), get_base_url() . 'status' . '/');
+    } elseif ($list->redirect_success == NULL && $list->optin == 0) {
+        // send success email and redirect to default success.
+        subscribe_email_node($code, $sub);
+        _tc_flash()->success(sprintf(_t('Thank you for subscribing to the mailing list <strong>%s</strong>.'), $list->name), get_base_url() . 'status' . '/');
     }
 }
 
 function check_custom_error_url($code)
 {
-    $app = \Liten\Liten::getInstance();
-
     $list = get_list_by('code', $code);
     if ($list->redirect_unsuccess != null && v::url()->validate($list->redirect_unsuccess)) {
         $url = _h($list->redirect_unsuccess);
     } elseif ($list->redirect_unsuccess == null) {
-        $url = get_base_url() . 'unsuccess' . '/' . $list->code . '/';
+        $url = get_base_url() . 'status' . '/';
     }
 }
 
@@ -75,11 +86,19 @@ function get_list_by($field, $value)
 {
     $app = \Liten\Liten::getInstance();
 
-    $list = $app->db->list()
-        ->where("list.$field = ?", $value)
-        ->findOne();
+    try {
+        $list = $app->db->list()
+            ->where("list.$field = ?", $value)
+            ->findOne();
 
-    return $list;
+        return $list;
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 }
 
 /**
@@ -92,11 +111,19 @@ function get_campaign_by_id($id)
 {
     $app = \Liten\Liten::getInstance();
 
-    $msg = $app->db->campaign()
-        ->where("campaign.id = ?", $id)
-        ->findOne();
+    try {
+        $msg = $app->db->campaign()
+            ->where("campaign.id = ?", $id)
+            ->findOne();
 
-    return $msg;
+        return $msg;
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 }
 
 /**
@@ -166,17 +193,25 @@ function is_status_sent($id)
 /**
  * Get count of subscribers from a particular list.
  * 
- * @since 6.0.0
+ * @since 2.0.0
  * @param int $id Email list id.
  * @return int Number of subscribers in a particular list.
  */
 function get_list_subscribers_count($id)
 {
     $app = \Liten\Liten::getInstance();
-    $count = $app->db->subscriber_list()
-        ->where('subscriber_list.lid = ?', $id)
-        ->count('subscriber_list.sid');
-    return $count;
+    try {
+        $count = $app->db->subscriber_list()
+            ->where('subscriber_list.lid = ?', $id)
+            ->count('subscriber_list.sid');
+        return $count;
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 }
 
 /**

@@ -44,14 +44,14 @@ class tc_Logger
         $expires_at = $this->app->hook->{'apply_filter'}('activity_log_expires', $expire);
 
         $log = $this->app->db->activity();
-        $log->action = $action;
-        $log->process = $process;
-        $log->record = $record;
-        $log->uname = $uname;
-        $log->created_at = $create;
-        $log->expires_at = $expires_at;
-
-        $log->save();
+        $log->insert([
+            'action' => $action,
+            'process' => $process,
+            'record' => $record,
+            'uname' => $uname,
+            'created_at' => $create,
+            'expires_at' => $expires_at
+        ]);
     }
 
     /**
@@ -95,13 +95,13 @@ class tc_Logger
         $date = new \DateTime();
 
         $log = $this->app->db->error();
-        $log->time = $date->getTimestamp();
-        $log->type = (int) $type;
-        $log->string = (string) $string;
-        $log->file = (string) $file;
-        $log->line = (int) $line;
-
-        $log->save();
+        $log->insert([
+            'time' => $date->getTimestamp(),
+            'type' => (int) $type,
+            'string' => (string) $string,
+            'file' => (string) $file,
+            'line' => (int) $line
+        ]);
     }
 
     public function error_constant_to_name($value)

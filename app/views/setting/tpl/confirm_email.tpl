@@ -15,7 +15,7 @@
                                         <tbody>
                                             <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                 <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-                                                    <p>Thank you for your interest in our newsletter. To confirm your subscription, please click the button below.</p>
+                                                    <p>Thank you for your interest in joining the mailing list, <strong>{list_name}</strong>. To confirm your subscription, please click the button below.</p>
                                                     <p>{confirm_url}</p>
                                                 </td>
                                             </tr>

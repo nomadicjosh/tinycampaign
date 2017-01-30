@@ -9,6 +9,6 @@ namespace app\src\NodeQ;
  * @author Grzegorz Kuźnik
  * @copyright (c) 2013, Grzegorz Kuźnik
  */
-class LazerException extends \Exception {
+class NodeQException extends \Exception {
     
 }

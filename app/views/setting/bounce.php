@@ -2,8 +2,6 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
-use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Key;
 /**
  * Bounce Email Setting View
  *  
@@ -54,7 +52,7 @@ define('SCREEN', 'bounce');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Password'); ?></label>
-                                <input type="password" class="form-control" name="tc_bmh_password" value="<?=(_h(get_option('tc_bmh_password')) != '' ? Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key)) : _h(get_option('tc_bmh_password'))); ?>" required>
+                                <input type="password" class="form-control" name="tc_bmh_password" value="<?=$password;?>" required>
                             </div>
                             
                             <div class="form-group">

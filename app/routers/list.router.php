@@ -63,12 +63,18 @@ $app->group('/list', function() use ($app) {
         if ($app->req->isPost()) {
             try {
                 $list = $app->db->list();
-                foreach (_filter_input_array(INPUT_POST) as $k => $v) {
-                    $list->$k = $v;
-                }
+                $list->code = $app->req->_post('code');
+                $list->name = $app->req->_post('name');
+                $list->description = $app->req->_post('description');
+                $list->created = Jenssegers\Date\Date::now();
+                $list->owner = get_userdata('id');
+                $list->redirect_success = (empty($app->req->post['redirect_success']) ? NULL : $app->req->post['redirect_success']);
+                $list->redirect_unsuccess = (empty($app->req->post['redirect_unsuccess']) ? NULL : $app->req->post['redirect_unsuccess']);
                 $list->confirm_email = _file_get_contents(APP_PATH . 'views/setting/tpl/confirm_email.tpl');
                 $list->subscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/subscribe_email.tpl');
                 $list->unsubscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/unsubscribe_email.tpl');
+                $list->optin = $app->req->_post('optin');
+                $list->status = $app->req->_post('status');
 
                 if ($list->save()) {
                     $ID = $list->lastInsertId();
@@ -111,8 +117,8 @@ $app->group('/list', function() use ($app) {
                 $list = $app->db->list();
                 $list->name = $app->req->_post('name');
                 $list->description = $app->req->_post('description');
-                $list->redirect_success = $app->req->_post('redirect_success');
-                $list->redirect_unsuccess = $app->req->_post('redirect_unsuccess');
+                $list->redirect_success = (empty($app->req->post['redirect_success']) ? NULL : $app->req->post['redirect_success']);
+                $list->redirect_unsuccess = (empty($app->req->post['redirect_unsuccess']) ? NULL : $app->req->post['redirect_unsuccess']);
                 $list->confirm_email = $app->req->_post('confirm_email');
                 $list->subscribe_email = $app->req->_post('subscribe_email');
                 $list->unsubscribe_email = $app->req->_post('unsubscribe_email');
@@ -185,10 +191,16 @@ $app->group('/list', function() use ($app) {
                 ->select('subscriber.addDate,subscriber.id as Subscriber')
                 ->select('list.id as ListID')
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->_join('list', 'subscriber_list.lid = list.id')
+                ->_join('list', 'subscriber_list.lid LIKE CONCAT("%", list.id, "%")')
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where('list.id = ?', $id)
                 ->find();
+            
+            $list = $app->db->list()
+                ->select('list.name,list.id')
+                ->where('list.id = ?', $id)
+                ->findOne();
+            
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -202,7 +214,8 @@ $app->group('/list', function() use ($app) {
 
         $app->view->display('list/subscriber', [
             'title' => _t('Subscribers'),
-            'subs' => $subs
+            'subs' => $subs,
+            'list' => $list
             ]
         );
     });
@@ -236,6 +249,86 @@ $app->group('/list', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
         redirect($app->req->server['HTTP_REFERER']);
+    });
+    
+    $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function () use($app) {
+        error_reporting(0);
+        try {
+            _mkdir($app->config('file.savepath') . get_userdata('uname') . '/');
+        } catch (\app\src\Exception\IOException $e) {
+            Cascade\Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
+        }
+        $opts = [
+            // 'debug' => true,
+            'roots' => [
+                [
+                    'driver' => 'LocalFileSystem',
+                    'path' => $app->config('file.savepath') . get_userdata('uname') . '/',
+                    'alias' => 'Files',
+                    'mimeDetect' => 'auto',
+                    'accessControl' => 'access',
+                    'attributes' => [
+                        [
+                            'read' => true,
+                            'write' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.tmb/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.quarantine/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.DS_Store/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.json$/',
+                            'read' => true,
+                            'write' => true,
+                            'hidden' => false,
+                            'locked' => false
+                        ]
+                    ],
+                    'uploadMaxSize' => '500M',
+                    'uploadAllow' => [
+                        'image/png', 'image/gif', 'image/jpeg',
+                        'application/pdf', 'application/msword',
+                        'application/zip', 'audio/mpeg', 'audio/x-m4a',
+                        'audio/x-wav', 'text/css', 'text/plain',
+                        'text/x-comma-separated-values', 'video/mpeg',
+                        'video/mp4', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-powerpoint', 'application/vnd.ms-excel'
+                    ],
+                    'uploadOrder' => ['allow', 'deny']
+                ]
+            ]
+        ];
+        // run elFinder
+        $connector = new elFinderConnector(new elFinder($opts));
+        $connector->run();
+    });
+
+    $app->match('GET|POST', '/elfinder/', function () use($app) {
+        
+        tc_register_script('elfinder');
+
+        $app->view->display('campaign/elfinder', [
+            'title' => 'elfinder 2.0'
+            ]
+        );
     });
 });
 

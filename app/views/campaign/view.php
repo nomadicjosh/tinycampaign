@@ -139,7 +139,7 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/<?=$cpgn->id;?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -163,10 +163,6 @@ define('SCREEN', 'cpgn');
                                 <input type="text" class="form-control" name="from_email" value="<?=_h($cpgn->from_email);?>" required>
                             </div>
                             
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
-                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Send Start'); ?></label>
                                 <div class='input-group date' id='datetimepicker1'>
@@ -178,6 +174,10 @@ define('SCREEN', 'cpgn');
                                 <p class="help-block"><?=_t('Start data and time of the campaign. Editing it later will not update the queue once it starts.');?></p>
                             </div>
                             
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Archive?'); ?></label>
                                 <select class="form-control select2" name="archive" style="width: 100%;" required>
@@ -186,6 +186,11 @@ define('SCREEN', 'cpgn');
                                     <option value="0"<?=selected('0', _h($cpgn->archive), false);?>><?=_t('No');?></option>
                                 </select>
                                 <p class="help-block"><?=_t('Should this campaign be available in the online archives?');?></p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('Lists'); ?></label><br />
+                                <ul><?php get_campaign_lists(_h($cpgn->id)); ?></ul>
                             </div>
                             
                             <div class="form-group">
@@ -227,6 +232,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
         <!-- form end -->

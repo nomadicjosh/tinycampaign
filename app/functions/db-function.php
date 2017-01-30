@@ -165,3 +165,110 @@ function get_user_roles($active = null)
         echo '<option value="' . $role->id . '"' . selected($active, _h($role->id), false) . '>' . _h($role->roleName) . '</option>';
     }
 }
+
+/**
+ * Retrieve email lists of logged in user
+ * to be used for subscribers.
+ * 
+ * @since 2.0.0
+ * @param int $active Subscriber's id.
+ */
+function get_user_lists($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $in = "'" . implode("','", get_subscriber_list_id($active)) . "'";
+    $lists = $app->db->list()
+        ->where('list.owner = ?', get_userdata('id'))->_and_()
+        ->where("(list.status = 'open' OR list.id IN($in))")
+        ->find();
+
+    foreach ($lists as $list) {
+        if (in_array($list->id, get_subscriber_list_id($active))) {
+            echo '<li><input type="hidden" name="id[]" value="'.$list->id.'" /><input type="checkbox" name="lid['.$list->id.']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . '</li>';
+        } else {
+            echo '<li><input type="hidden" name="id[]" value="'.$list->id.'" /><input type="checkbox" name="lid['.$list->id.']" class="minimal" value="' . $list->id . '" /> ' . $list->name . '</li>';
+        }
+    }
+}
+
+/**
+ * Retrieve subscriber list id.
+ * 
+ * @since 2.0.0
+ * @param int $id Subscriber's id.
+ * @return int
+ */
+function get_subscriber_list_id($id)
+{
+    $app = \Liten\Liten::getInstance();
+    $lists = $app->db->subscriber_list()
+        ->where('sid = ?', $id)->_and_()
+        ->where('unsubscribe = "0"');
+    $q = $lists->find(function ($data) {
+        $array = [];
+        foreach ($data as $d) {
+            $array[] = $d;
+        }
+        return $array;
+    });
+
+    $a = [];
+    foreach ($q as $r) {
+        $a[] = $r['lid'];
+    }
+    return $a;
+}
+
+/**
+ * Retrieve email lists of logged in user
+ * to be used for campaigns.
+ * 
+ * @since 2.0.0
+ * @param int $active Campaign's id.
+ */
+function get_campaign_lists($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $in = "'" . implode("','", get_campaign_list_id($active)) . "'";
+    $lists = $app->db->list()
+        ->where('list.owner = ?', get_userdata('id'))->_and_()
+        ->where("(list.status = 'open' OR list.id IN($in))")
+        ->find();
+
+    foreach ($lists as $list) {
+        if (in_array($list->id, get_campaign_list_id($active))) {
+            echo '<li><input type="hidden" name="id[]" value="'.$list->id.'" /><input type="checkbox" name="lid['.$list->id.']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . '</li>';
+        } else {
+            echo '<li><input type="hidden" name="id[]" value="'.$list->id.'" /><input type="checkbox" name="lid['.$list->id.']" class="minimal" value="' . $list->id . '" /> ' . $list->name . '</li>';
+        }
+    }
+}
+
+/**
+ * Retrieve campaign list id.
+ * 
+ * @since 2.0.0
+ * @param int $id Campaigns id.
+ * @return int
+ */
+function get_campaign_list_id($id)
+{
+    $app = \Liten\Liten::getInstance();
+    $lists = $app->db->campaign_list()
+        ->where('cid = ?', $id);
+    $q = $lists->find(function ($data) {
+        $array = [];
+        foreach ($data as $d) {
+            $array[] = $d;
+        }
+        return $array;
+    });
+
+    $a = [];
+    foreach ($q as $r) {
+        $a[] = $r['cid'];
+    }
+    return $a;
+}

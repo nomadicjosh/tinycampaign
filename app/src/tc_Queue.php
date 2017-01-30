@@ -1,11 +1,14 @@
 <?php namespace app\src;
 
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\tc_QueueMessage as Message;
-use Cascade\Cascade;
-
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use app\src\tc_QueueMessage as Message;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign Queue
@@ -23,6 +26,13 @@ class tc_Queue
      * @var object
      */
     public $app;
+    
+    /**
+     * Node where messages are saved.
+     * 
+     * @var type 
+     */
+    public $node;
 
     /**
      * 
@@ -35,12 +45,7 @@ class tc_Queue
 
     public function getNode()
     {
-        $q = $this->app->db->campaign()
-            ->select('campaign.node')
-            ->where('campaign.sent = "0"')
-            ->findOne();
-
-        return $q->node;
+        return $this->node;
     }
 
     /**
@@ -51,10 +56,16 @@ class tc_Queue
      */
     public function getUnsentEmailCount()
     {
-        $count = Node::table($this->getNode())->where('is_sent', '=', false)->findAll()->count();
-        return $count;
+        try {
+            $count = Node::table($this->getNode())->where('is_sent', '=', false)->findAll()->count();
+            return $count;
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
     }
-    
+
     /**
      * Return email count.
      * 
@@ -63,8 +74,14 @@ class tc_Queue
      */
     public function getEmailCount()
     {
-        $count = Node::table($this->getNode())->findAll()->count();
-        return $count;
+        try {
+            $count = Node::table($this->getNode())->findAll()->count();
+            return $count;
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
     }
 
     /**
@@ -74,28 +91,34 @@ class tc_Queue
      */
     public function getEmails()
     {
-        $node = Node::table($this->getNode())->where('is_sent', '=', false)->findAll();
+        try {
+            $node = Node::table($this->getNode())->where('is_sent', '=', false)->findAll();
 
-        $result_array = [];
+            $result_array = [];
 
-        foreach ($node as $row) {
-            $message = new Message();
-            $message->setId($row->id);
-            $message->setMessageId($row->mid);
-            $message->setToEmail($row->to_email);
-            $message->setToName($row->to_name);
-            $message->setMessageHtml($row->message_html);
-            $message->setMessagePlainText($row->message_plain_text);
-            $message->setTimestampCreated($row->timestamp_created);
-            $message->setTimestampToSend($row->timestamp_to_send);
-            $message->setTimestampSent($row->timestamp_sent);
-            $message->setIsSent(($row->is_sent ? true : false));
-            $message->setHeaders(maybe_unserialize($row->headers));
+            foreach ($node as $row) {
+                $message = new Message();
+                $message->setId($row->id);
+                $message->setMessageId($row->mid);
+                $message->setToEmail($row->to_email);
+                $message->setToName($row->to_name);
+                $message->setMessageHtml($row->message_html);
+                $message->setMessagePlainText($row->message_plain_text);
+                $message->setTimestampCreated($row->timestamp_created);
+                $message->setTimestampToSend($row->timestamp_to_send);
+                $message->setTimestampSent($row->timestamp_sent);
+                $message->setIsSent(($row->is_sent ? true : false));
+                $message->setSerializedHeaders(maybe_unserialize($row->serialized_headers));
 
-            $result_array[] = $message;
+                $result_array[] = $message;
+            }
+
+            return $result_array;
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
-
-        return $result_array;
     }
 
     /**
@@ -107,10 +130,10 @@ class tc_Queue
      */
     public function setMessageIsSent($message)
     {
-        if (!is_a($message, 'tc_QueueMessage')) {
+        if (!is_a($message, 'app\\src\\tc_QueueMessage')) {
             return false;
         }
-        
+
         set_queued_message_is_sent($this->getNode(), $message->getId());
 
         return true;
@@ -125,7 +148,7 @@ class tc_Queue
      */
     public function addMessage($message)
     {
-        if (!is_a($message, 'tc_QueueMessage')) {
+        if (!is_a($message, 'app\\src\\tc_QueueMessage')) {
             return false;
         }
 
@@ -144,9 +167,9 @@ class tc_Queue
             $node->is_sent = (bool) $message->getIsSent();
             $node->serialized_headers = (string) $message->getSerializedHeaders();
             $node->save();
-        } catch (app\src\Exception\Exception $e) {
+        } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
 

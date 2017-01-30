@@ -14,6 +14,7 @@ class tc_QueueMessage
 {
 
     private $_id;
+    private $_mid;
     private $_from_email;
     private $_from_name;
     private $_to_email;
@@ -23,13 +24,15 @@ class tc_QueueMessage
     private $_message_plain_text;
     private $_timestamp_created;
     private $_timestamp_sent;
+    private $_timestamp_to_send;
     private $_is_sent;
-    private $_headers;
+    private $_serialized_headers;
     private $_category;
 
     public function __construct()
     {
         $this->_id = 0;
+        $this->_mid = 0;
         $this->_from_email = '';
         $this->_from_name = '';
         $this->_to_email = '';
@@ -38,9 +41,10 @@ class tc_QueueMessage
         $this->_message_html = '';
         $this->_message_plain_text = '';
         $this->_timestamp_created = time();
-        $this->_timestamp_sent = 0;
+        $this->_timestamp_sent = '';
+        $this->_timestamp_to_send = '';
         $this->_is_sent = false;
-        $this->_headers = [];
+        $this->_serialized_headers = [];
         $this->_category = '';
     }
 
@@ -52,6 +56,16 @@ class tc_QueueMessage
     public function setId($id)
     {
         $this->_id = $id;
+    }
+    
+    /**
+     * Sets the campaign id
+     * 
+     * @param int $mid id
+     */
+    public function setMessageId($mid)
+    {
+        $this->_mid = $mid;
     }
 
     /**
@@ -143,6 +157,16 @@ class tc_QueueMessage
     {
         $this->_timestamp_sent = $timestamp;
     }
+    
+    /**
+     * Sets timestamp of when message will be sent.
+     * 
+     * @param int $timestamp message sent unix timestamp
+     */
+    public function setTimestampToSend($timestamp)
+    {
+        $this->_timestamp_to_send = $timestamp;
+    }
 
     /**
      * Sets if the message is sent
@@ -159,9 +183,9 @@ class tc_QueueMessage
      * 
      * @param array $headers message headers
      */
-    public function setHeaders($headers)
+    public function setSerializedHeaders($headers)
     {
-        $this->_headers = $headers;
+        $this->_serialized_headers = $headers;
     }
 
     /**
@@ -182,6 +206,16 @@ class tc_QueueMessage
     public function getId()
     {
         return $this->_id;
+    }
+    
+    /**
+     * returns campaign id
+     *
+     * @return int id
+     */
+    public function getMessageId()
+    {
+        return $this->_mid;
     }
 
     /**
@@ -273,6 +307,16 @@ class tc_QueueMessage
     {
         return $this->_timestamp_sent;
     }
+    
+    /**
+     * returns timestamp of when message will be sent.
+     * 
+     * return int message sent unix timestamp
+     */
+    public function getTimestampToSend()
+    {
+        return $this->_timestamp_to_send;
+    }
 
     /**
      * returns if the message is sent
@@ -285,23 +329,13 @@ class tc_QueueMessage
     }
 
     /**
-     * returns message headers
-     * 
-     * return array message headers
-     */
-    public function getHeaders()
-    {
-        return $this->_headers;
-    }
-
-    /**
      * returns serialized message headers string
      * 
      * return string serialized message headers
      */
     public function getSerializedHeaders()
     {
-        return maybe_serialize($this->_headers);
+        return $this->_serialized_headers;
     }
 
     /**

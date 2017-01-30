@@ -8,8 +8,6 @@ use Defuse\Crypto\Key;
 use app\src\NodeQ\tc_NodeQ as Node;
 use PDOException as ORMException;
 
-$email = _tc_email();
-
 /**
  * Before route check.
  */
@@ -31,9 +29,9 @@ $app->match('GET|POST', '/setting/', function () use($app) {
             ];
 
             foreach ($options as $option_name) {
-                if (!isset($_POST[$option_name]))
+                if (!isset($app->req->post[$option_name]))
                     continue;
-                $value = $_POST[$option_name];
+                $value = $app->req->post[$option_name];
                 update_option($option_name, $value);
             }
             // Update more options here
@@ -70,7 +68,7 @@ $app->before('GET', '/setting/smtp/', function() {
 $app->match('GET|POST', '/setting/smtp/', function () use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\LazerException $e) {
+    } catch (app\src\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -80,13 +78,13 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            update_option('tc_smtp_host', $app->req->_post('tc_smtp_host'));
-            update_option('tc_smtp_username', $app->req->_post('tc_smtp_username'));
-            update_option('tc_smtp_password', Crypto::encrypt($app->req->_post('tc_smtp_password'), Key::loadFromAsciiSafeString($node->key)));
-            update_option('tc_smtp_port', $app->req->_post('tc_smtp_port'));
-            update_option('tc_smtp_service', $app->req->_post('tc_smtp_service'));
-            update_option('tc_smtp_smtpsecure', $app->req->_post('tc_smtp_smtpsecure'));
-            update_option('tc_smtp_mailbox', $app->req->_post('tc_smtp_mailbox'));
+            update_option('tc_smtp_host', $app->req->post['tc_smtp_host']);
+            update_option('tc_smtp_username', $app->req->post['tc_smtp_username']);
+            update_option('tc_smtp_password', Crypto::encrypt($app->req->post['tc_smtp_password'], Key::loadFromAsciiSafeString($node->key)));
+            update_option('tc_smtp_port', $app->req->post['tc_smtp_port']);
+            update_option('tc_smtp_service', $app->req->post['tc_smtp_service']);
+            update_option('tc_smtp_smtpsecure', $app->req->post['tc_smtp_smtpsecure']);
+            update_option('tc_smtp_mailbox', $app->req->post['tc_smtp_mailbox']);
 
             // Update more options here
             $app->hook->do_action('update_smtp_options');
@@ -109,9 +107,9 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
         }
     } catch (Defuse\Crypto\Exception\BadFormatException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (\Defuse\Crypto\Exception $e) {
+    } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (\app\src\Exception\Exception $e) {
+    } catch (app\src\Exception\Exception $e) {
         _tc_flash()->error($e->getMessage());
     }
 
@@ -134,11 +132,11 @@ $app->before('POST', '/setting/smtp/test/', function() {
     }
 });
 
-$app->post('/setting/smtp/test/', function () use($app, $email) {
+$app->post('/setting/smtp/test/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            $email->tc_mail($app->req->_post('to_email'), $app->req->_post('subject'), $app->req->_post('message'));
+            _tc_email()->tc_mail($app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
             tc_logger_activity_log_write('Update', 'Settings', 'SMTP Settings', get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200));
         } catch (\phpmailerException $e) {
@@ -163,7 +161,7 @@ $app->before('GET', '/setting/bounce/', function() {
 $app->match('GET|POST', '/setting/bounce/', function () use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\LazerException $e) {
+    } catch (app\src\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -173,13 +171,13 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            update_option('tc_bmh_host', $app->req->_post('tc_bmh_host'));
-            update_option('tc_bmh_username', $app->req->_post('tc_bmh_username'));
-            update_option('tc_bmh_password', Crypto::encrypt($app->req->_post('tc_bmh_password'), Key::loadFromAsciiSafeString($node->key)));
-            update_option('tc_bmh_mailbox', $app->req->_post('tc_bmh_mailbox'));
-            update_option('tc_bmh_port', $app->req->_post('tc_bmh_port'));
-            update_option('tc_bmh_service', $app->req->_post('tc_bmh_service'));
-            update_option('tc_bmh_service_option', $app->req->_post('tc_bmh_service_option'));
+            update_option('tc_bmh_host', $app->req->post['tc_bmh_host']);
+            update_option('tc_bmh_username', $app->req->post['tc_bmh_username']);
+            update_option('tc_bmh_password', Crypto::encrypt($app->req->post['tc_bmh_password'], Key::loadFromAsciiSafeString($node->key)));
+            update_option('tc_bmh_mailbox', $app->req->post['tc_bmh_mailbox']);
+            update_option('tc_bmh_port', $app->req->post['tc_bmh_port']);
+            update_option('tc_bmh_service', $app->req->post['tc_bmh_service']);
+            update_option('tc_bmh_service_option', $app->req->post['tc_bmh_service_option']);
 
             // Update more options here
             $app->hook->{'do_action'}('update_bounce_options');
@@ -193,12 +191,27 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
             _tc_flash()->error($e->getMessage());
         }
     }
+    
+    try {
+        if (_h(get_option('tc_bmh_password')) != '') {
+            $password = Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
+        } else {
+            $password = _h(get_option('tc_bmh_password'));
+        }
+    } catch (Defuse\Crypto\Exception\BadFormatException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (app\src\Exception\Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 
     tc_register_style('select2');
     tc_register_script('select2');
 
     $app->view->display('setting/bounce', [
-        'title' => 'Bounce Email Settings'
+        'title' => 'Bounce Email Settings',
+        'password' => $password
         ]
     );
 });

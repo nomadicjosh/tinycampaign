@@ -201,6 +201,16 @@ class tc_FlashMessages
         if ($this->hasMessages(self::ERROR)) {
             return $this->display(self::ERROR, false);
         }
+        
+        // echo out informative messages
+        if ($this->hasMessages(self::INFO)) {
+            return $this->display(self::INFO, false);
+        }
+        
+        // echo out warning messages
+        if ($this->hasMessages(self::WARNING)) {
+            return $this->display(self::WARNING, false);
+        }
 
         // echo out positive plugin messages
         if (isset($_COOKIE['plugin_success_message'])) {
@@ -232,6 +242,7 @@ class tc_FlashMessages
         $msg[200] = _t('200 - Success: Ok');
         $msg[201] = _t('201 - Success: Created');
         $msg[204] = _t('204 - Error: No Content');
+        $msg[404] = _t('404 - Error: Not Found');
         $msg[409] = _t('409 - Error: Conflict');
         return $msg[$num];
     }

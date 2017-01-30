@@ -14,7 +14,6 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$email = _tc_email();
 $hasher = new \app\src\PasswordHash(8, FALSE);
 
 /**
@@ -83,7 +82,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app, $json_url
             _tc_flash()->error($e->getMessage());
         }
     }
-    
+
     try {
         $perm = $app->db->permission()->where('id = ?', $id)->findOne();
     } catch (NotFoundException $e) {
@@ -231,9 +230,9 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            $roleID = $_POST['roleID'];
-            $roleName = $_POST['roleName'];
-            $rolePerm = maybe_serialize($_POST['permission']);
+            $roleID = $app->req->post['roleID'];
+            $roleName = $app->req->post['roleName'];
+            $rolePerm = maybe_serialize($app->req->post['permission']);
 
             $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
             if ($strSQL) {
@@ -259,9 +258,9 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
 $app->post('/role/editRole/', function () use($app) {
     try {
-        $roleID = $_POST['roleID'];
-        $roleName = $_POST['roleName'];
-        $rolePerm = maybe_serialize($_POST['permission']);
+        $roleID = $app->req->post['roleID'];
+        $roleName = $app->req->post['roleName'];
+        $rolePerm = maybe_serialize($app->req->post['permission']);
 
         $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
         if ($strSQL) {
@@ -278,6 +277,242 @@ $app->post('/role/editRole/', function () use($app) {
     }
 
     redirect($app->req->server['HTTP_REFERER']);
+});
+
+$app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
+
+    $list = get_list_by('id', $lid);
+
+    try {
+        $subscriber = $app->db->subscriber_list()
+            ->select('subscriber_list.lid,subscriber_list.sid')
+            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+            ->where('subscriber_list.lid = ?', $lid)->_and_()
+            ->where('subscriber_list.sid = ?', $sid)->_and_()
+            ->where('subscriber_list.code = ?', $code)->_and_()
+            ->where('subscriber_list.confirmed = "0"')
+            ->findOne();
+        /**
+         * Check if subscriber has already confirmed subscription.
+         */
+        if ($subscriber->confirmed == 1) {
+            _tc_flash()->error(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), $list->name));
+        }
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */ elseif ($subscriber == false) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($subscriber) == true) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count($subscriber->sid) <= 0) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query.
+         */ else {
+            $sub = $app->db->subscriber_list();
+            $sub->set([
+                    'confirmed' => (int) 1
+                ])
+                ->where('lid = ?', $lid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->where('code = ?', $code)
+                ->update();
+            subscribe_email_node($list->code, $subscriber);
+            _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), $list->name));
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    $app->view->display('index/status', [
+        'title' => 'Email Confirmed'
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/subscribe/', function() use($app) {
+    if (!$app->req->server['HTTP_REFERER']) {
+        $app->res->_format('json', 204);
+    }
+
+    if ($app->req->isPost()) {
+        if ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
+            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+            exit();
+        }
+
+        if ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
+            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+            exit();
+        }
+    }
+});
+
+$app->post('/subscribe/', function () use($app) {
+
+    $list = get_list_by('code', $app->req->post['code']);
+
+    if ($app->req->isPost()) {
+        try {
+            $subscriber = $app->db->subscriber();
+            $subscriber->insert([
+                'fname' => $app->req->post['fname'],
+                'lname' => $app->req->post['lname'],
+                'email' => $app->req->post['email'],
+                'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'ip' => $app->req->server['REMOTE_ADDR'],
+                'addedBy' => (int) 1,
+                'addDate' => Jenssegers\Date\Date::now()
+            ]);
+            $sid = $subscriber->lastInsertId();
+
+            $sub_list = $app->db->subscriber_list();
+            $sub_list->insert([
+                'lid' => $list->id,
+                'sid' => $sid,
+                'addDate' => Jenssegers\Date\Date::now(),
+                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'confirmed' => ($list->optin == 1 ? 0 : 1)
+            ]);
+
+            $sub = $app->db->subscriber_list()
+                ->where('lid = ?', $list->id)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->findOne();
+
+            tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
+            check_custom_success_url($app->req->post['code'], $sub);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        }
+    }
+});
+
+$app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
+
+    $list = get_list_by('id', $lid);
+
+    try {
+        $subscriber = $app->db->subscriber_list()
+            ->select('subscriber_list.lid,subscriber_list.sid')
+            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+            ->where('subscriber_list.lid = ?', $lid)->_and_()
+            ->where('subscriber_list.sid = ?', $sid)->_and_()
+            ->where('subscriber_list.code = ?', $code)->_and_()
+            ->where('subscriber_list.unsubscribe = "0"')
+            ->findOne();
+        /**
+         * Check if subscriber has already unsubscribed from list.
+         */
+        if ($subscriber->unsubscribe == 1) {
+            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), $list->name));
+        }
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */ elseif ($subscriber == false) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($subscriber) == true) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count($subscriber->sid) <= 0) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query.
+         */ else {
+            $sub = $app->db->subscriber_list();
+            $sub->set([
+                    'unsubscribe' => (int) 1
+                ])
+                ->where('lid = ?', $lid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->where('code = ?', $code)
+                ->update();
+            subscribe_email_node($list->code, $subscriber);
+            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), $list->name));
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    $app->view->display('index/status', [
+        'title' => 'Unsubscribe Confirmed'
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/status/', function() use($app) {
+    if (!$app->req->server['HTTP_REFERER']) {
+        $app->res->_format('json', 204);
+    }
+});
+
+$app->get('/status/', function () use($app) {
+
+    $app->view->display('index/status', [
+        'title' => 'Status'
+        ]
+    );
+});
+
+$app->before('GET|POST', '/spam/', function() use($app) {
+    if (!$app->req->server['HTTP_REFERER']) {
+        $app->res->_format('json', 204);
+    }
+});
+
+$app->get('/spam/', function () use($app) {
+
+    $app->view->display('index/status', [
+        'title' => 'No Spamming!'
+        ]
+    );
 });
 
 $app->get('/switchUserTo/(\d+)/', function ($id) use($app) {
@@ -389,6 +624,126 @@ $app->get('/logout/', function () {
     tc_clear_auth_cookie();
 
     redirect(get_base_url());
+});
+
+$app->match('GET|POST', '/preferences/', function () use($app) {
+
+    $app->res->_format('json', 404);
+});
+
+$app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code, $id) use($app) {
+
+    if ($app->req->isPost()) {
+        try {
+            $subscriber = $app->db->subscriber();
+            $subscriber->set([
+                'fname' => $app->req->post['fname'],
+                'lname' => $app->req->post['lname'],
+                'email' => $app->req->post['email'],
+                'address1' => $app->req->post['address1'],
+                'address2' => $app->req->post['address2'],
+                'city' => $app->req->post['city'],
+                'state' => $app->req->post['state'],
+                'zip' => $app->req->post['zip'],
+                'country' => $app->req->post['country']
+            ]);
+            $subscriber->where('id = ?', $id)
+                ->update();
+
+            $data = [];
+            $data['lid'] = $app->req->post['lid'];
+
+            foreach ($app->req->post['id'] as $list) {
+                $sub = $app->db->subscriber_list()
+                    ->where('sid = ?', $id)->_and_()
+                    ->where('lid = ?', $list)
+                    ->findOne();
+
+                if ($sub == false && $list == $data['lid'][$list]) {
+                    $sub_list = $app->db->subscriber_list();
+                    $sub_list->insert([
+                        'lid' => $list,
+                        'sid' => $id,
+                        'addDate' => Jenssegers\Date\Date::now(),
+                        'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                        'confirmed' => 1
+                    ]);
+                } else {
+                    $sub_list = $app->db->subscriber_list();
+                    $sub_list->set([
+                            'lid' => $list,
+                            'sid' => $id,
+                            'unsubscribe' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                        ])
+                        ->where('sid = ?', $id)->_and_()
+                        ->where('lid = ?', $list)
+                        ->update();
+                }
+            }
+
+            tc_cache_delete($id, 'subscriber');
+            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    }
+
+    try {
+        $get_sub = $app->db->subscriber()
+            ->where('code = ?', $code)->_and_()
+            ->where('id = ?', $id)
+            ->findOne();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    /**
+     * If the database table doesn't exist, then it
+     * is false and a 404 should be sent.
+     */
+    if ($get_sub == false) {
+
+        $app->res->_format('json', 404);
+    }
+    /**
+     * If the query is legit, but there
+     * is no data in the table, then 404
+     * will be shown.
+     */ elseif (empty($get_sub) == true) {
+
+        $app->res->_format('json', 404);
+    }
+    /**
+     * If data is zero, 404 not found.
+     */ elseif ($get_sub->id <= 0) {
+
+        $app->res->_format('json', 404);
+    }
+    /**
+     * If we get to this point, the all is well
+     * and it is ok to process the query and print
+     * the results in a html format.
+     */ else {
+
+        tc_register_style('select2');
+        tc_register_style('iCheck');
+        tc_register_script('select2');
+        tc_register_script('iCheck');
+
+        $app->view->display('index/preferences', [
+            'title' => 'My Preferences',
+            'subscriber' => $get_sub
+            ]
+        );
+    }
 });
 
 $app->setError(function () use($app) {

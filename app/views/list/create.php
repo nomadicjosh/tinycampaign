@@ -15,8 +15,6 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'list');
 define('SCREEN', 'clist');
-$factory = new RandomLib\Factory;
-$generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -44,7 +42,7 @@ $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strengt
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Code'); ?></label>
-                                <input type="text" class="form-control" name="code" value="<?=$generator->generateString(12);?>" readonly required>
+                                <input type="text" class="form-control" name="code" value="<?=_random_lib()->generateString(12,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');?>" readonly required>
                             </div>
 
                             <div class="form-group">

@@ -22,7 +22,7 @@ define('SCREEN', 'lists');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('Subscribers'); ?></h1>
+        <h1><?= _h($list->name); ?> <?= _t('Subscribers'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li class="active"><?= _t('Subscribers'); ?></li>
@@ -102,6 +102,9 @@ define('SCREEN', 'lists');
                         </tr>
                     </tfoot>
                 </table>
+                <div class="box-footer">
+                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
+            </div>
             </div>
             <!-- /.box-body -->
         </div>

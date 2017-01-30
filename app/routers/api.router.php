@@ -41,17 +41,17 @@ $app->group('/api', function() use ($app) {
         
         $t = $app->db->$table();
         
-        if(isset($_GET['by']) === true) {
-            if(isset($_GET['order']) !== true) {
-                $_GET['order'] = 'ASC';
+        if(isset($app->req->get['by']) === true) {
+            if(isset($app->req->get['order']) !== true) {
+                $app->req->get['order'] = 'ASC';
             }
-            $t->orderBy($_GET['by'], $_GET['order']);
+            $t->orderBy($app->req->get['by'], $app->req->get['order']);
         }
         
-        if(isset($_GET['limit']) === true) {
-            $t->limit($_GET['limit']);
-            if(isset($_GET['offset']) === true) {
-                $t->offset($_GET['offset']);
+        if(isset($app->req->get['limit']) === true) {
+            $t->limit($app->req->get['limit']);
+            if(isset($app->req->get['offset']) === true) {
+                $t->offset($app->req->get['offset']);
             }
         }
         

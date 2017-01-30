@@ -15,7 +15,8 @@
                                         <tbody>
                                             <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                 <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-                                                    <p>We are sorry to see you go. We hope that you will come back soon.</p>
+                                                    <p>We are sorry to see you go, but you can always re-join and update your preferences at any time by clicking the button below.</p>
+                                                    <p>{personal_preferences}</p>
                                                 </td>
                                             </tr>
                                         </tbody>

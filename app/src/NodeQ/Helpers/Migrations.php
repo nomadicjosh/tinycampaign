@@ -1,6 +1,8 @@
 <?php namespace app\src\NodeQ\Helpers;
 
 use \app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use app\src\Exception\Exception;
 use Cascade\Cascade;
 
 /**
@@ -31,7 +33,9 @@ class Migrations
             $q->cronjobpassword = (string) 'changeme';
             $q->timeout = (int) 30;
             $q->save();
-        } catch (\Exception $e) {
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
@@ -91,7 +95,9 @@ class Migrations
             $q->running = (boolean) false;
             $q->runned = (int) 0;
             $q->save();
-        } catch (\Exception $e) {
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
@@ -109,7 +115,57 @@ class Migrations
             $q->key = (string) $key->saveToAsciiSafeString();
             $q->created_at = (string) \Jenssegers\Date\Date::now();
             $q->save();
-        } catch (\Exception $e) {
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
+    public static function confirm_email()
+    {
+        try {
+            Node::create('confirm_email', [
+                'lcode' => 'string',
+                'sid' => 'integer',
+                'scode' => 'string',
+                'sent' => 'integer'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
+    public static function subscribe_email()
+    {
+        try {
+            Node::create('subscribe_email', [
+                'lcode' => 'string',
+                'sid' => 'integer',
+                'scode' => 'string',
+                'sent' => 'integer'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
+    public static function unsubscribe_email()
+    {
+        try {
+            Node::create('unsubscribe_email', [
+                'lcode' => 'string',
+                'sid' => 'integer',
+                'scode' => 'string',
+                'sent' => 'integer'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }

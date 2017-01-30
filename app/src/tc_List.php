@@ -1,7 +1,10 @@
 <?php namespace app\src;
 
-if (! defined('BASE_PATH'))
+if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 
 /**
  * List API: tc_List Class
@@ -104,36 +107,44 @@ final class tc_List
     public static function get_instance($list_id)
     {
         global $app;
-        
-        if (! $list_id) {
+
+        if (!$list_id) {
             return false;
         }
-        
-        $q = $app->db->list()->where('id = ?', $list_id);
-        
-        $list = tc_cache_get($list_id, 'list');
-        if (empty($list)) {
-            $list = $q->find(function ($data) {
-                $array = [];
-                foreach ($data as $d) {
-                    $array[] = $d;
-                }
-                return $array;
-            });
-            tc_cache_add($list_id, $list, 'list');
+
+        try {
+            $q = $app->db->list()->where('id = ?', $list_id);
+
+            $list = tc_cache_get($list_id, 'list');
+            if (empty($list)) {
+                $list = $q->find(function ($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($list_id, $list, 'list');
+            }
+
+            $a = [];
+
+            foreach ($list as $_list) {
+                $a[] = $_list;
+            }
+
+            if (!$_list) {
+                return false;
+            }
+
+            return $_list;
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
         }
-        
-        $a = [];
-        
-        foreach ($list as $_list) {
-            $a[] = $_list;
-        }
-        
-        if (! $_list) {
-            return false;
-        }
-        
-        return $_list;
     }
 
     /**

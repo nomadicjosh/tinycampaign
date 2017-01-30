@@ -119,7 +119,7 @@ function is_plugin_activated($plugin)
 function get_option($meta_key, $default = false)
 {
     $app = \Liten\Liten::getInstance();
-    return $app->hook->get_option($meta_key, $default);
+    return $app->hook->{'get_option'}($meta_key, $default);
 }
 
 /**
@@ -138,7 +138,7 @@ function get_option($meta_key, $default = false)
 function update_option($meta_key, $newvalue)
 {
     $app = \Liten\Liten::getInstance();
-    return $app->hook->update_option($meta_key, $newvalue);
+    return $app->hook->{'update_option'}($meta_key, $newvalue);
 }
 
 /**
@@ -157,7 +157,7 @@ function update_option($meta_key, $newvalue)
 function add_option($name, $value = '')
 {
     $app = \Liten\Liten::getInstance();
-    return $app->hook->add_option($name, $value);
+    return $app->hook->{'add_option'}($name, $value);
 }
 
 /**
@@ -174,7 +174,7 @@ function add_option($name, $value = '')
 function delete_option($name)
 {
     $app = \Liten\Liten::getInstance();
-    return $app->hook->delete_option($name);
+    return $app->hook->{'delete_option'}($name);
 }
 
 /**
@@ -521,7 +521,7 @@ function tc_dashboard_head()
     /**
      * Prints scripts and/or data in the head tag of the dashboard.
      *
-     * @since 6.3.0
+     * @since 2.0.0
      */
     $app->hook->{'do_action'}('tc_dashboard_head');
 }
@@ -661,11 +661,11 @@ function dashboard_email_list_count()
             ->where('list.status = "open"')
             ->count('id');
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
@@ -697,11 +697,11 @@ function dashboard_campaign_count()
             ->groupBy('campaign.id')
             ->count('campaign.recipients');
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
@@ -727,18 +727,19 @@ function dashboard_subscriber_count()
 
     // Number of overall active subscribers
     try {
-        $subs = $app->db->list()
-            ->_join('subscriber_list', 'list.id = subscriber_list.lid')
+        $subs = $app->db->subscriber_list()
+            ->_join('list', 'subscriber_list.lid = list.id')
             ->where('list.owner = ?', get_userdata('id'))->_and_()
             ->where('subscriber_list.confirmed = "1"')->_and_()
             ->where('subscriber_list.unsubscribe = "0"')
+            ->groupBy('subscriber_list.lid')
             ->count('subscriber_list.lid');
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
@@ -768,18 +769,18 @@ function dashboard_email_sent_count()
             ->groupBy('campaign.id')
             ->count('campaign.recipients');
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
     $count .= '<div class="small-box bg-red">';
     $count .= '<div class="inner">';
     $count .= '<h3>' . _h($emails) . '</h3>';
-    $count .= '<p>' . _t('Campaigns') . '</p>';
+    $count .= '<p>' . _t('Emails Sent') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-paper-airplane"></i></div>';
     $count .= '<a href="' . get_base_url() . 'campaign/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
@@ -974,7 +975,7 @@ function get_http_response_code($url)
 function tc_plugin_activate_message($plugin_name)
 {
     $app = \Liten\Liten::getInstance();
-    $success = _tc_flash()->success(_t('Plugin <strong>activated</strong>.'));
+    $success = _tc_flash()->{'success'}(_t('Plugin <strong>activated</strong>.'));
     /**
      * Filter the default plugin success activation message.
      *
@@ -997,7 +998,7 @@ function tc_plugin_activate_message($plugin_name)
 function tc_plugin_deactivate_message($plugin_name)
 {
     $app = \Liten\Liten::getInstance();
-    $success = _tc_flash()->success(_t('Plugin <strong>deactivated</strong>.'));
+    $success = _tc_flash()->{'success'}(_t('Plugin <strong>deactivated</strong>.'));
     /**
      * Filter the default plugin success deactivation message.
      *
@@ -1092,42 +1093,92 @@ function tc_enqueue_script()
     echo $app->asset->{'enqueue_script'}();
 }
 
+/**
+ * Mini logo. Filterable.
+ * 
+ * @since 2.0.0
+ * @return string
+ */
+function get_logo_mini()
+{
+    $app = \Liten\Liten::getInstance();
+    $logo = '<strong>' . _t('ti') . '</strong>' . _t('ny');
+    return $app->hook->{'apply_filter'}('logo_mini', $logo);
+}
+
+/**
+ * Large logo. Filterable.
+ * 
+ * @since 2.0.0
+ * @return string
+ */
+function get_logo_large()
+{
+    $app = \Liten\Liten::getInstance();
+    $logo = '<strong>' . _t('tiny') . '</strong>' . _t('Campaign');
+    return $app->hook->{'apply_filter'}('logo_large', $logo);
+}
+
+/**
+ * Generates tracking code.
+ * 
+ * @since 2.0.0
+ * @param mixed $cid Campaign id.
+ * @return mixed
+ */
+function campaign_tracking_code($cid)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
+    $div .= '<div id="logo-track"><img src="http://localhost:8888/tiny/static/assets/img/tinyC-Logo.png" /></div>';
+    $div .= '</div>';
+    return $app->hook->apply_filter('tracking_code', $div, $cid);
+}
+
 function tc_smtp($tcMailer)
 {
     if (get_option('tc_smtp_host') && get_option('tc_smtp_host') != '') {
 
         try {
             $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
-        } catch (app\src\NodeQ\LazerException $e) {
-            _tc_flash()->error($e->getMessage());
+        } catch (app\src\NodeQ\NodeQException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
 
         try {
             $password = Crypto::decrypt(_h(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
-            _tc_flash()->error($e->getMessage());
-        } catch (\Defuse\Crypto\Exception $e) {
-            _tc_flash()->error($e->getMessage());
-        } catch (\app\src\Exception\Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (app\src\Exception\Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
         }
 
-        $tcMailer->Mailer = "smtp";
-        $tcMailer->From = _h(get_option("system_email"));
-        $tcMailer->FromName = _h(get_option("system_name"));
-        $tcMailer->Sender = $tcMailer->From; // Return-Path
-        $tcMailer->AddReplyTo($tcMailer->From, $tcMailer->FromName); // Reply-To
-        $tcMailer->Host = _h(get_option("tc_smtp_host"));
-        $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
-        $tcMailer->Port = _h(get_option("tc_smtp_port"));
-        $tcMailer->SMTPAuth = TRUE;
-        $tcMailer->isHTML(true);
-        $tcMailer->Username = _h(get_option("tc_smtp_username"));
-        $tcMailer->Password = $password;
+        try {
+            $tcMailer->Mailer = "smtp";
+            $tcMailer->ContentType = "text/html";
+            $tcMailer->CharSet = "UTF-8";
+            $tcMailer->XMailer = 'tinyCampaign '.CURRENT_RELEASE;
+            $tcMailer->From = _h(get_option("system_email"));
+            $tcMailer->FromName = _h(get_option("system_name"));
+            $tcMailer->Sender = $tcMailer->From; // Return-Path
+            $tcMailer->AddReplyTo($tcMailer->From, $tcMailer->FromName); // Reply-To
+            $tcMailer->Host = _h(get_option("tc_smtp_host"));
+            $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
+            $tcMailer->Port = _h(get_option("tc_smtp_port"));
+            $tcMailer->SMTPAuth = TRUE;
+            $tcMailer->isHTML(true);
+            $tcMailer->Username = _h(get_option("tc_smtp_username"));
+            $tcMailer->Password = $password;
+        } catch (phpmailerException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (\app\src\Exception\Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        }
     }
 }
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);

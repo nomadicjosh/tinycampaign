@@ -1,7 +1,10 @@
 <?php namespace app\src;
 
-if (! defined('BASE_PATH'))
+if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\Exception\NotFoundException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 
 /**
  * User API: tc_User Class
@@ -42,7 +45,7 @@ final class tc_User
      * @var string
      */
     public $lname;
-    
+
     /**
      * The user's email address.
      *
@@ -56,7 +59,7 @@ final class tc_User
      * @var string
      */
     public $address1;
-    
+
     /**
      * The user's address2.
      *
@@ -98,14 +101,14 @@ final class tc_User
      * @var int
      */
     public $status;
-    
+
     /**
      * Role ID of the user.
      *
      * @var int
      */
     public $roleID;
-    
+
     /**
      * The timestamp of when record was created.
      *
@@ -139,37 +142,45 @@ final class tc_User
     public static function get_instance($user_id)
     {
         global $app;
-        
-        if (! $user_id) {
+
+        if (!$user_id) {
             return false;
         }
-        
-        $q = $app->db->user()
-            ->where('id = ?', $user_id);
-        
-        $user = tc_cache_get($user_id, 'user');
-        if (empty($user)) {
-            $user = $q->find(function ($data) {
-                $array = [];
-                foreach ($data as $d) {
-                    $array[] = $d;
-                }
-                return $array;
-            });
-            tc_cache_add($user_id, $user, 'user');
+
+        try {
+            $q = $app->db->user()
+                ->where('id = ?', $user_id);
+
+            $user = tc_cache_get($user_id, 'user');
+            if (empty($user)) {
+                $user = $q->find(function ($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($user_id, $user, 'user');
+            }
+
+            $a = [];
+
+            foreach ($user as $_user) {
+                $a[] = $_user;
+            }
+
+            if (!$_user) {
+                return false;
+            }
+
+            return $_user;
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
         }
-        
-        $a = [];
-        
-        foreach ($user as $_user) {
-            $a[] = $_user;
-        }
-        
-        if (! $_user) {
-            return false;
-        }
-        
-        return $_user;
     }
 
     /**

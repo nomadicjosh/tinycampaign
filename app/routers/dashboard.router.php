@@ -14,9 +14,8 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-
 /**
- * Before route check.
+ * Before router check.
  */
 $app->before('GET|POST', '/dashboard(.*)', function () {
     if (!hasPermission('access_dashboard')) {
@@ -36,19 +35,19 @@ $app->group('/dashboard', function () use($app) {
         ]);
     });
 
-    $app->match('GET|POST','/support/', function () use($app) {
-        if($app->req->isPost()) {
-            $name = $app->req->_post('name');
-            $email = $app->req->_post('email');
-            $topic = $app->req->_post('topic');
-            $summary = $app->req->_post('summary');
-            $details = $app->req->_post('details');
-            $attachment = $name = $app->req->_post('attachment');
+    $app->match('GET|POST', '/support/', function () use($app) {
+        if ($app->req->isPost()) {
+            $name = $app->req->post['name'];
+            $email = $app->req->post['email'];
+            $topic = $app->req->post['topic'];
+            $summary = $app->req->post['summary'];
+            $details = $app->req->post['details'];
+            $attachment = $name = $app->req->post['attachment'];
         }
-        
+
         tc_register_style('select2');
         tc_register_script('select2');
-        
+
         $app->view->display('dashboard/support', [
             'title' => 'Support Ticket'
         ]);
@@ -69,9 +68,19 @@ $app->group('/dashboard', function () use($app) {
         ]);
     });
 
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/flushCache/', function () {
+        if (!hasPermission('access_settings_screen')) {
+            _tc_flash()->error(_t("You are not allowed to flush the cache."), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
     $app->get('/flushCache/', function () use($app) {
         tc_cache_flush();
-        redirect($app->req->server['HTTP_REFERER']);
+        _tc_flash()->success(_t('Cache was flushed successfully.'), $app->req->server['HTTP_REFERER']);
     });
 
     $app->get('/getSubList/', function () use($app) {
@@ -102,7 +111,7 @@ $app->group('/dashboard', function () use($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     $app->get('/getSentEmail/', function () use($app) {
 
         try {
@@ -110,7 +119,7 @@ $app->group('/dashboard', function () use($app) {
                 ->select('list.name')
                 ->select('COUNT(campaign.id) AS count')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-                ->_join('list','campaign_list.lid = list.id')
+                ->_join('list', 'campaign_list.lid = list.id')
                 ->where('campaign.status = "sent"')
                 ->groupBy('campaign.id')
                 ->find();
@@ -151,14 +160,14 @@ $app->group('/dashboard', function () use($app) {
         }
         print json_encode($rows, JSON_NUMERIC_CHECK);
     });
-    
+
     $app->get('/getBouncedEmail/', function () use($app) {
 
         try {
             $emails = $app->db->campaign()
                 ->select('COUNT(campaign.bounces) as count,list.name')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-                ->_join('list','campaign_list.lid = list.id')
+                ->_join('list', 'campaign_list.lid = list.id')
                 ->where('campaign.status = "sent"')
                 ->groupBy('campaign.id')
                 ->find();

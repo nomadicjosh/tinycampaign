@@ -170,19 +170,18 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
             if ($good == true) {
                 try {
                     $cron = Node::table('cronjob_setting')->find(1);
-                $cron->cronjobpassword = (string) $app->req->_post('cronjobpassword');
-                $cron->timeout = (isset($_POST['timeout']) && is_numeric($_POST['timeout']) ? (int) $app->req->_post('timeout') : 30);
-                $cron->save();
+                    $cron->cronjobpassword = (string) $app->req->_post('cronjobpassword');
+                    $cron->timeout = (isset($_POST['timeout']) && is_numeric($_POST['timeout']) ? (int) $app->req->_post('timeout') : 30);
+                    $cron->save();
 
-                if ($cron) {
-                    _tc_flash()->success(_tc_flash()->notice(200));
-                } else {
-                    _tc_flash()->error(_tc_flash()->notice(409));
-                }
+                    if ($cron) {
+                        _tc_flash()->success(_tc_flash()->notice(200));
+                    } else {
+                        _tc_flash()->error(_tc_flash()->notice(409));
+                    }
                 } catch (Exception $e) {
-
+                    
                 }
-                
             }
         }
 
@@ -475,6 +474,11 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         $time = $time_end - $time_start;
 
         Cascade::getLogger('info')->info('BOUNCES[401]: ' . sprintf(_t('Seconds to process: '), $time));
+    });
+
+    $app->get('/runNodeQ/', function () {
+        send_confirm_email();
+        send_subscribe_email();
     });
 });
 

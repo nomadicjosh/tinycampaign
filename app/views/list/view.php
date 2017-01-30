@@ -38,8 +38,39 @@ define('SCREEN', $list->code);
             "searchreplace visualblocks code",
             "insertdatetime media table contextmenu paste"
         ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | gplaceholder | pplaceholder | splaceholder | eplaceholder"
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | gplaceholder | pplaceholder | splaceholder | eplaceholder",
+        file_picker_callback: elFinderBrowser
     });
+    function elFinderBrowser(callback, value, meta) {
+        tinymce.activeEditor.windowManager.open({
+            file: '<?= get_base_url(); ?>list/elfinder/', // use an absolute path!
+            title: 'elFinder 2.0',
+            width: 900,
+            height: 600,
+            resizable: 'yes'
+        }, {
+            oninsert: function (file) {
+                // Provide file and text for the link dialog
+                if (meta.filetype == 'file') {
+//            callback('mypage.html', {text: 'My text'});
+                    callback(file.url);
+                }
+
+                // Provide image and alt text for the image dialog
+                if (meta.filetype == 'image') {
+//            callback('myimage.jpg', {alt: 'My alt text'});
+                    callback(file.url);
+                }
+
+                // Provide alternative source and posted for the media dialog
+                if (meta.filetype == 'media') {
+//            callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+                    callback(file.url);
+                }
+            }
+        });
+        return false;
+    }
 </script>
 
 <!-- Content Wrapper. Contains page content -->
@@ -163,10 +194,13 @@ define('SCREEN', $list->code);
                             <div class="form-group">
                                 <label><?= _t('List Subscribe Form'); ?></label>
 <pre>
-&lt;form class="form-campaign" method="post" action="<?=get_base_url();?>subscribe/<?=_h($list->code);?>/"&gt;
+&lt;form class="form-campaign" method="post" action="<?=get_base_url();?>subscribe/"&gt;
     &lt;p&gt;&lt;label&gt;First Name: &lt;/label&gt;&lt;input type="text" class="input" name="fname" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;label&gt;Last Name: &lt;/label&gt;&lt;input type="text" class="input" name="lname" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;label&gt;Email: &lt;/label&gt;&lt;input type="text" class="input" name="email" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;input type="hidden" name="m6qIHt4Z5evV" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;input type="hidden" name="YgexGyklrgi1" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;input type="hidden" name="code" value="<?=_h($list->code);?>" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;input type="submit" name="submit" id="submit" value="Submit" /&gt;&lt;/p&gt;
 &lt;/form&gt;
 </pre>

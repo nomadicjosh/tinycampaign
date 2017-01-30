@@ -16,7 +16,13 @@ $app->view->block('dashboard');
 define('SCREEN_PARENT', 'list');
 define('SCREEN', 'lists');
 
-?>        
+?>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+});
+</script>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -55,18 +61,9 @@ define('SCREEN', 'lists');
                                 <td class="text-center"><?= ucfirst(_h($list->status)); ?></td>
                                 <td class="text-center"><?=get_list_subscribers_count($list->id);?></td>
                                 <td class="text-center">
-                                    <div class="btn-group dropdown">
-                                        <button class="btn btn-default btn-xs" type="button"><?= _t('Actions'); ?></button>
-                                        <button data-toggle="dropdown" class="btn btn-xs btn-primary dropdown-toggle" type="button">
-                                            <span class="caret"></span>
-                                            <span class="sr-only"><?= _t('Toggle Dropdown'); ?></span>
-                                        </button>
-                                        <ul role="menu" class="dropdown-menu dropup-text pull-right">
-                                            <li><a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/"><?= _t('View'); ?></a></li>
-                                            <li><a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/subscriber/"><?= _t('Subscribers'); ?></a></li>
-                                            <li><a href="#" data-toggle="modal" data-target="#delete-<?= _h($list->id); ?>"><?= _t('Delete'); ?></a></li>
-                                        </ul>
-                                    </div>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button class="btn bg-blue"><i class="fa fa-group"></i></button></a>
+                                    <a href="#" data-toggle="modal" data-target="#delete-<?= _h($list->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= _h($list->id); ?>">
                                         <div class="modal-dialog">

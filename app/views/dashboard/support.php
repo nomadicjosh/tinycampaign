@@ -20,10 +20,10 @@ define('SCREEN', 'support');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('Contact Support'); ?></h1>
+        <h1><?= _t('Support'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li class="active"><?= _t('Contact Support'); ?></li>
+            <li class="active"><?= _t('Support'); ?></li>
         </ol>
     </section>
 
@@ -32,11 +32,15 @@ define('SCREEN', 'support');
         
         <?= _tc_flash()->showMessage(); ?>
         
-        <section class="flash_message"><div class="alert alert-warning center" style="color:#333 !important;"><?=sprintf(_t('If you found a bug or need help with a particular feature, use the form below to contact support. If you need coding help, etc., this type of support/help is handled through the <a href="%s">support forums</a> only.'),'https://codecanyon.7mediaws.org/forums/');?></div></section>
+        <!-- <section class="flash_message"><div class="alert alert-warning center" style="color:#333 !important;"><?=sprintf(_t('If you found a bug or need help with a particular feature, use the form below to contact support. If you need coding help, etc., this type of support/help is handled through the <a href="%s">support forums</a> only.'),'https://codecanyon.7mediaws.org/forums/');?></div></section> -->
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>dashboard/support/" enctype="multipart/form-data">
+            <iframe src="//codecanyon.7mediaws.org/" width="100%" height="900" marginwidth="0" marginheight="0" frameborder="0">
+			  <p><?=_t( 'Your browser does not support iframes.' );?></p>
+			</iframe>
+            
+            <!-- <form method="post" action="<?= get_base_url(); ?>dashboard/support/" enctype="multipart/form-data">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -52,7 +56,6 @@ define('SCREEN', 'support');
                             </div>
                             
                         </div>
-                        <!-- /.col -->
                         
                         <div class="col-md-6">
                             
@@ -72,7 +75,7 @@ define('SCREEN', 'support');
                             </div>
                             
                         </div>
-                        <!-- /.col -->
+            
                         <div class="col-md-12">
                             
                             <div class="form-group">
@@ -86,15 +89,15 @@ define('SCREEN', 'support');
                             </div>
                             
                         </div>
-                        <!-- /.col -->
+            
                     </div>
-                    <!-- /.row -->
+            
                 </div>
-            <!-- /.box-body -->
+            
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
             </div>
-        </form>
+        </form> -->
         <!-- form end -->
         </div>
         <!-- /.box -->

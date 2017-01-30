@@ -38,9 +38,9 @@ ob_implicit_flush(0);
     <!-- Logo -->
     <a href="<?=get_base_url();?>dashboard/" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b><?=_t('ti');?></b><?=_t('ny');?></span>
+      <span class="logo-mini"><?=get_logo_mini();?></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b><?=_t('tiny');?></b><?=_t('Campaign');?></span>
+      <span class="logo-lg"><?=get_logo_large();?></span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -106,6 +106,11 @@ ob_implicit_flush(0);
             <i class="fa fa-dashboard"></i> <span><?=_t('Dashboard');?></span>
           </a>
         </li>
+        <li class="treeview">
+          <a href="<?=get_base_url();?>dashboard/flushCache/">
+            <i class="fa fa-database"></i> <span><?=_t('Flush Cache');?></span>
+          </a>
+        </li>
         <li class="treeview<?=(SCREEN_PARENT === 'admin') ? ' active' : '';?>">
           <a href="#">
             <i class="fa fa-th"></i>
@@ -162,7 +167,7 @@ ob_implicit_flush(0);
           </a>
           <ul class="treeview-menu">
             <li<?=(SCREEN === 'asub' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>subscriber/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Subscriber');?></a></li>
-            <li<?=(SCREEN === 'sub' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>subscriber/add/"><i class="fa fa-circle-o"></i> <?=_t('Manage Subscribers');?></a></li>
+            <li<?=(SCREEN === 'sub' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>subscriber/"><i class="fa fa-circle-o"></i> <?=_t('Manage Subscribers');?></a></li>
           </ul>
         </li>
         <li class="treeview<?=(SCREEN_PARENT === 'users' ? ' active' : '');?>">
@@ -181,7 +186,7 @@ ob_implicit_flush(0);
         </li>
         <li<?=(SCREEN === 'support' ? ' class="active"' : '');?>>
           <a href="<?=get_base_url();?>dashboard/support/">
-            <i class="fa fa-ticket"></i> <span><?=_t('Contact Support');?></span>
+            <i class="fa fa-ticket"></i> <span><?=_t('Support');?></span>
           </a>
         </li>
       </ul>
@@ -211,7 +216,7 @@ var basePath = '<?=get_base_url();?>';
 <!-- Bootstrap 3.3.6 -->
 <script src="static/assets/js/bootstrap/bootstrap.min.js"></script>
 <!-- Bootstrap Validator 0.11.7 -->
-<script src="static/assets/plugins/bootstrap-validator//validator.js"></script>
+<script src="static/assets/plugins/bootstrap-validator/validator.js"></script>
 <!-- AdminLTE App -->
 <script src="static/assets/js/app.min.js"></script>
 <?php tc_dashboard_footer(); ?>

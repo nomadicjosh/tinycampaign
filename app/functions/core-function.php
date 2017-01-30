@@ -1,6 +1,12 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\Exception\Exception;
+use app\src\Exception\NotFoundException;
+use app\src\Exception\IOException;
+use Cascade\Cascade;
+use Jenssegers\Date\Date;
+
 /**
  * tinyCampaign Core Functions
  *
@@ -13,17 +19,12 @@ if (!defined('BASE_PATH'))
 define('CURRENT_RELEASE', trim(_file_get_contents(BASE_PATH . 'RELEASE')));
 
 $app = \Liten\Liten::getInstance();
-use app\src\Exception\Exception;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\IOException;
-use Cascade\Cascade;
-use Jenssegers\Date\Date;
 
 /**
  * Retrieves tinyCampaign site root url.
  *
  * @since 4.1.9
- * @uses $app->hook->apply_filter() Calls 'base_url' filter.
+ * @uses $app->hook->{'apply_filter'}() Calls 'base_url' filter.
  *      
  * @return string tinyCampaign root url.
  */
@@ -31,7 +32,7 @@ function get_base_url()
 {
     $app = \Liten\Liten::getInstance();
     $url = url('/');
-    return $app->hook->apply_filter('base_url', $url);
+    return $app->hook->{'apply_filter'}('base_url', $url);
 }
 
 /**
@@ -705,7 +706,7 @@ function is_duplicate_function($file_name)
     $merge = array_merge($plugin, $functions['user']);
     if (count($merge) !== count(array_unique($merge))) {
         $dupe = array_unique(array_diff_assoc($merge, array_unique($merge)));
-        foreach ($dupe as $key => $value) {
+        foreach ($dupe as $value) {
             return new \app\src\tc_Error('duplicate_function_error', sprintf(_t('The following function is already defined elsewhere: <strong>%s</strong>'), $value));
         }
     }
@@ -1018,7 +1019,7 @@ function tc_get_file_data($file, $default_headers, $context = '')
      * @param array $extra_context_headers
      *            Empty array by default.
      */
-    if ($context && $extra_headers = $app->hook->apply_filter("extra_{$context}_headers", [])) {
+    if ($context && $extra_headers = $app->hook->{'apply_filter'}("extra_{$context}_headers", [])) {
         $extra_headers = array_combine($extra_headers, $extra_headers); // keys equal values
         $all_headers = array_merge($extra_headers, (array) $default_headers);
     } else {
@@ -1267,12 +1268,12 @@ function process_email_html($text, $title)
  * Retrieve the domain name.
  * 
  * @since 2.0.0
- * @return type
+ * @return string
  */
 function get_domain_name()
 {
     $app = \Liten\Liten::getInstance();
-    
+
     $server_name = strtolower($app->req->server['SERVER_NAME']);
     if (substr($server_name, 0, 4) == 'www.') {
         $server_name = substr($server_name, 4);

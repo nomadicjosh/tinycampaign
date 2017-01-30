@@ -15,8 +15,6 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'cpgns');
 define('SCREEN', 'ccpgn');
-$factory = new RandomLib\Factory;
-$generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
 
 ?>
 
@@ -149,7 +147,7 @@ $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strengt
 
                             <div class="form-group">
                                 <label><?= _t('Node'); ?></label>
-                                <input type="text" class="form-control" name="node" value="<?= $generator->generateString(12) . '_campaign'; ?>" readonly required>
+                                <input type="text" class="form-control" name="node" value="<?=_random_lib()->generateString(12,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') . '_campaign'; ?>" readonly required>
                             </div>
 
                             <div class="form-group">
@@ -159,12 +157,12 @@ $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strengt
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?=$app->req->_post('from_name');?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?=(isset($app->req->post['from_name']) ? $app->req->post['from_name'] : _h(get_option('system_name')));?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?=$app->req->_post('from_email');?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?=(isset($app->req->post['from_email']) ? $app->req->post['from_email'] : _h(get_option('tc_smtp_username')));?>" required>
                             </div>
 
                         </div>
@@ -190,6 +188,11 @@ $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strengt
                                     <option value="0"><?= _t('No'); ?></option>
                                 </select>
                                 <p class="help-block"><?= _t('Should this campaign be available in the online archives?'); ?></p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('Lists'); ?></label><br />
+                                <ul><?php get_campaign_lists(); ?></ul>
                             </div>
 
                         </div>
