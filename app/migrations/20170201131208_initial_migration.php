@@ -8,6 +8,9 @@ class InitialSchema extends AbstractMigration
     public function change()
     {
         $NOW = date("Y-m-d H:i:s");
+        $factory = new RandomLib\Factory;
+        $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
+        $api_key = $generator->generateString(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
         // disable foreign key checks to ensure all tables can be initially created
         $this->execute('SET FOREIGN_KEY_CHECKS=0;');
@@ -422,7 +425,7 @@ INSERT INTO `options` VALUES(11, 'tc_smtp_status', '0');
 INSERT INTO `options` VALUES(12, 'backend_skin', 'skin-blue');
 INSERT INTO `options` VALUES(13, 'tc_core_locale', 'en_US');
 INSERT INTO `options` VALUES(14, 'system_timezone', 'America/New_York');
-INSERT INTO `options` VALUES(15, 'api_key', '');
+INSERT INTO `options` VALUES(15, 'api_key', '".$api_key."');
 INSERT INTO `options` VALUES(16, 'mailing_address', '');
 INSERT INTO `options` VALUES(17, 'tc_bmh_host', '');
 INSERT INTO `options` VALUES(18, 'tc_bmh_username', '');
