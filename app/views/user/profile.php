@@ -58,7 +58,7 @@ define('SCREEN', 'profile');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email'); ?></label>
-                                <input type="text" class="form-control" name="email" value="<?=_h($user->email);?>" required>
+                                <input type="email" class="form-control" name="email" value="<?=_h($user->email);?>" required>
                             </div>
                             
                             <div class="form-group">
@@ -103,7 +103,7 @@ define('SCREEN', 'profile');
                             
                             <div class="form-group">
                                 <label><?= _t('Password'); ?></label>
-                                <input type="text" class="form-control" name="password" />
+                                <input type="password" class="form-control" name="password" />
                                 <p class="help-block"><?=_t('Leave blank if you are not changing your password.');?></p>
                             </div>
                             

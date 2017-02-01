@@ -1,6 +1,7 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use Respect\Validation\Validator as v;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
@@ -214,8 +215,9 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app, $json_url) {
      * the results in a html format.
      */ else {
 
+        tc_register_style('select2');
         tc_register_style('iCheck');
-        tc_register_style('iCheck_blue');
+        tc_register_script('select2');
         tc_register_script('iCheck');
 
         $app->view->display('role/view', [
@@ -250,6 +252,11 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
         }
     }
 
+    tc_register_style('select2');
+    tc_register_style('iCheck');
+    tc_register_script('select2');
+    tc_register_script('iCheck');
+
     $app->view->display('role/add', [
         'title' => 'Add Role'
         ]
@@ -277,6 +284,68 @@ $app->post('/role/editRole/', function () use($app) {
     }
 
     redirect($app->req->server['HTTP_REFERER']);
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/archive/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 404);
+    exit();
+});
+
+$app->before('GET|POST', '/archive/(\d+)/', function ($id) use($app) {
+    try {
+        $cpgn = $app->db->campaign()
+            ->where('campaign.id = ?', $id)->_and_()
+            ->where('campaign.archive = "1"')
+            ->findOne();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    /**
+     * If the database table doesn't exist, then it
+     * is false and a 404 should be sent.
+     */
+    if ($cpgn == false) {
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If the query is legit, but there
+     * is no data in the table, then 404
+     * will be shown.
+     */ elseif (empty($cpgn) == true) {
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If data is zero, 404 not found.
+     */ elseif (count($cpgn->id) <= 0) {
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If we get to this point, the all is well
+     * and it is ok to process the query and print
+     * the results in a html format.
+     */ else {
+
+        $app->view->display('index/archive', [
+            'title' => 'Archive',
+            'cpgn' => $cpgn
+            ]
+        );
+    }
 });
 
 $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
@@ -354,7 +423,9 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
  */
 $app->before('GET|POST', '/subscribe/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
+        header('Content-Type: application/json');
         $app->res->_format('json', 204);
+        exit();
     }
 
     if ($app->req->isPost()) {
@@ -373,6 +444,16 @@ $app->before('GET|POST', '/subscribe/', function() use($app) {
 $app->post('/subscribe/', function () use($app) {
 
     $list = get_list_by('code', $app->req->post['code']);
+    $sub = get_subscriber_by('email', $app->req->post['email']);
+    if ($sub->id > 0) {
+        _tc_flash()->error(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
+        exit();
+    }
+
+    if (!v::email()->validate($app->req->post['email'])) {
+        _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
+        exit();
+    }
 
     if ($app->req->isPost()) {
         try {
@@ -467,7 +548,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
                 ->where('sid = ?', $sid)->_and_()
                 ->where('code = ?', $code)
                 ->update();
-            subscribe_email_node($list->code, $subscriber);
+            unsubscribe_email_node($list->code, $subscriber);
             _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), $list->name));
         }
     } catch (NotFoundException $e) {
@@ -484,12 +565,64 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
     );
 });
 
+$app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
+
+    try {
+        $tracking = $app->db->tracking()
+            ->where('cid = ?', $cid)->_and_()
+            ->where('sid = ?', $sid)
+            ->count();
+
+        if ($tracking <= 0) {
+            $track = $app->db->tracking();
+            $track->insert([
+                'cid' => $cid,
+                'sid' => $sid,
+                'first_open' => \Jenssegers\Date\Date::now(),
+                'viewed' => +1
+            ]);
+
+            $cpgn = $app->db->campaign();
+            $cpgn->set([
+                    'viewed' => +1
+                ])
+                ->where('id = ?', $cid)
+                ->update();
+        } else {
+            $track = $app->db->tracking()
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)
+                ->findOne();
+            $track->set([
+                    'viewed' => $track->viewed + 1
+                ])
+                ->update();
+
+            $cpgn = $app->db->campaign()
+                ->where('id = ?', $cid)
+                ->findOne();
+            $cpgn->set([
+                    'viewed' => $cpgn->viewed + 1
+                ])
+                ->update();
+        }
+    } catch (NotFoundException $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    }
+});
+
 /**
  * Before route check.
  */
 $app->before('GET|POST', '/status/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
+        header('Content-Type: application/json');
         $app->res->_format('json', 204);
+        exit();
     }
 });
 
@@ -503,7 +636,9 @@ $app->get('/status/', function () use($app) {
 
 $app->before('GET|POST', '/spam/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
+        header('Content-Type: application/json');
         $app->res->_format('json', 204);
+        exit();
     }
 });
 
@@ -513,104 +648,6 @@ $app->get('/spam/', function () use($app) {
         'title' => 'No Spamming!'
         ]
     );
-});
-
-$app->get('/switchUserTo/(\d+)/', function ($id) use($app) {
-
-    if (isset($_COOKIE['TC_COOKIENAME'])) {
-        $switch_cookie = [
-            'key' => 'SWITCH_USERBACK',
-            'personID' => get_userdata('personID'),
-            'uname' => get_userdata('uname'),
-            'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-            'exp' => _h(get_option('cookieexpire')) + time()
-        ];
-        $app->cookies->setSecureCookie($switch_cookie);
-    }
-
-    $vars = [];
-    parse_str($app->cookies->get('TC_COOKIENAME'), $vars);
-    /**
-     * Checks to see if the cookie is exists on the server.
-     * It it exists, we need to delete it.
-     */
-    $file = $app->config('cookies.savepath') . 'cookies.' . $vars['data'];
-    try {
-        if (tc_file_exists($file)) {
-            unlink($file);
-        }
-    } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
-    }
-
-    /**
-     * Delete the old cookie.
-     */
-    $app->cookies->remove("TC_COOKIENAME");
-
-    $auth_cookie = [
-        'key' => 'TC_COOKIENAME',
-        'personID' => $id,
-        'uname' => get_user_value($id, 'uname'),
-        'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-        'exp' => _h(get_option('cookieexpire')) + time()
-    ];
-
-    $app->cookies->setSecureCookie($auth_cookie);
-
-    redirect(get_base_url() . 'dashboard' . '/');
-});
-
-$app->get('/switchUserBack/(\d+)/', function ($id) use($app) {
-    $vars1 = [];
-    parse_str($app->cookies->get('TC_COOKIENAME'), $vars1);
-    /**
-     * Checks to see if the cookie is exists on the server.
-     * It it exists, we need to delete it.
-     */
-    $file1 = $app->config('cookies.savepath') . 'cookies.' . $vars1['data'];
-    try {
-        if (tc_file_exists($file1)) {
-            unlink($file1);
-        }
-    } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
-    }
-
-    $app->cookies->remove("TC_COOKIENAME");
-
-    $vars2 = [];
-    parse_str($app->cookies->get('SWITCH_USERBACK'), $vars2);
-    /**
-     * Checks to see if the cookie is exists on the server.
-     * It it exists, we need to delete it.
-     */
-    $file2 = $app->config('cookies.savepath') . 'cookies.' . $vars2['data'];
-    try {
-        if (tc_file_exists($file2)) {
-            unlink($file2);
-        }
-    } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
-    }
-
-    $app->cookies->remove("SWITCH_USERBACK");
-
-    /**
-     * After the login as user cookies have been
-     * removed from the server and the browser,
-     * we need to set fresh cookies for the
-     * original logged in user.
-     */
-    $switch_cookie = [
-        'key' => 'TC_COOKIENAME',
-        'personID' => $id,
-        'uname' => get_user_value($id, 'uname'),
-        'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-        'exp' => _h(get_option('cookieexpire')) + time()
-    ];
-    $app->cookies->setSecureCookie($switch_cookie);
-    redirect(get_base_url() . 'dashboard' . '/');
 });
 
 $app->get('/logout/', function () {
@@ -628,7 +665,9 @@ $app->get('/logout/', function () {
 
 $app->match('GET|POST', '/preferences/', function () use($app) {
 
-    $app->res->_format('json', 404);
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
 });
 
 $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code, $id) use($app) {
@@ -711,7 +750,9 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
      */
     if ($get_sub == false) {
 
+        header('Content-Type: application/json');
         $app->res->_format('json', 404);
+        exit();
     }
     /**
      * If the query is legit, but there
@@ -719,13 +760,17 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
      * will be shown.
      */ elseif (empty($get_sub) == true) {
 
+        header('Content-Type: application/json');
         $app->res->_format('json', 404);
+        exit();
     }
     /**
      * If data is zero, 404 not found.
      */ elseif ($get_sub->id <= 0) {
 
+        header('Content-Type: application/json');
         $app->res->_format('json', 404);
+        exit();
     }
     /**
      * If we get to this point, the all is well
@@ -746,9 +791,159 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
     }
 });
 
+$app->post('/reset-password/', function () use($app) {
+
+    $user = get_user_by('email', $app->req->post['email']);
+
+    if ($user->email == '') {
+        _tc_flash()->error(_t('The email you entered does not exist.'), get_base_url());
+    }
+
+    try {
+        $code = _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $pass = $app->db->user();
+        $pass->set([
+                'code' => $code,
+            ])
+            ->where('id = ?', $user->id)
+            ->update();
+
+        $domain = get_domain_name();
+        $site = _h(get_option('system_name'));
+        $link = get_base_url() . 'password' . '/' . $code . '/';
+
+        $message = _file_get_contents(APP_PATH . 'views/setting/tpl/reset_password.tpl');
+        $message = str_replace('{password_reset}', sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">' . _t('Reset Password') . '</a>', $link), $message);
+        $message = str_replace('{system_name}', $site, $message);
+        $headers = "From: $site <auto-reply@$domain>\r\n";
+        if (_h(get_option('tc_smtp_status')) == 0) {
+            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
+            $headers .= "MIME-Version: 1.0" . "\r\n";
+        }
+
+        try {
+            _tc_email()->tc_mail($user->email, get_option('system_name') . ': ' . _t('Password Reset'), $message, $headers);
+        } catch (phpmailerException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url());
+        }
+
+        _tc_flash()->success(_t('Please check your email for instructions on changing your password.'), get_base_url());
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    }
+});
+
+$app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
+
+    try {
+        $user = $app->db->user()
+            ->where('code = ?', $code)
+            ->findOne();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url());
+    }
+
+    if ($app->req->isPost()) {
+        if ($app->req->post['password'] != $app->req->post['confirm']) {
+            _tc_flash()->error(_t('Passwords did not match.'), $app->req->server['HTTP_REFERER']);
+            exit();
+        }
+
+        $password = $app->req->post['password'];
+
+        try {
+            $pass = $app->db->user();
+            $pass->set([
+                    'code' => NULL,
+                    'password' => tc_hash_password($password)
+                ])
+                ->where('id = ?', $user->id)
+                ->update();
+
+            $domain = get_domain_name();
+            $site = _h(get_option('system_name'));
+
+            $message = _file_get_contents(APP_PATH . 'views/setting/tpl/new_password.tpl');
+            $message = str_replace('{password}', $password, $message);
+            $message = str_replace('{system_name}', $site, $message);
+            $headers = "From: $site <auto-reply@$domain>\r\n";
+            if (_h(get_option('tc_smtp_status')) == 0) {
+                $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
+                $headers .= "MIME-Version: 1.0" . "\r\n";
+            }
+
+            try {
+                _tc_email()->tc_mail($user->email, get_option('system_name') . ': ' . _t('New Password'), $message, $headers);
+            } catch (phpmailerException $e) {
+                _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+            }
+
+            _tc_flash()->success(_t('Your password was updated successfully.'), get_base_url() . 'status' . '/');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    }
+
+    /**
+     * If the database table doesn't exist, then it
+     * is false and a 404 should be sent.
+     */
+    if ($user == false) {
+
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If the query is legit, but there
+     * is no data in the table, then 404
+     * will be shown.
+     */ elseif (empty($user) == true) {
+
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If data is zero, 404 not found.
+     */ elseif ($user->id <= 0) {
+
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    }
+    /**
+     * If we get to this point, the all is well
+     * and it is ok to process the query and print
+     * the results in a html format.
+     */ else {
+
+        tc_register_style('select2');
+        tc_register_script('select2');
+
+        $app->view->display('index/password', [
+            'title' => 'New Password',
+            'user' => $user
+            ]
+        );
+    }
+});
+
 $app->setError(function () use($app) {
 
-    $app->view->display('error/404', [
-        'title' => '404 Error'
-    ]);
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
 });

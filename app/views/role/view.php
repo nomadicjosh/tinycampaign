@@ -58,7 +58,7 @@ define('SCREEN', 'role');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php rolePerm(_h($role->id)); ?>
+                            <?php role_perm(_h($role->id)); ?>
                         </tbody>
                         <tfoot>
                             <tr>

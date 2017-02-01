@@ -20,7 +20,7 @@ $app->view->block('index');
   <base href="<?=get_base_url();?>">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><?=_t('Subscribe');?><?=' - ' . _h(get_option('system_name'));?></title>
+  <title><?=(isset($title)) ? $title . ' - ' . _h(get_option('system_name')) : _h(get_option('system_name'));?></title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.6 -->

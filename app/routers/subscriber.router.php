@@ -2,6 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
+use Respect\Validation\Validator as v;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
 
@@ -52,6 +53,11 @@ $app->group('/subscriber', function() use ($app) {
     $app->match('GET|POST', '/add/', function () use($app) {
 
         if ($app->req->isPost()) {
+            if (!v::email()->validate($app->req->post['email'])) {
+                _tc_flash()->error(_t('Invalid email address.'));
+                exit();
+            }
+
             try {
                 $subscriber = $app->db->subscriber();
                 $subscriber->insert([
@@ -62,7 +68,7 @@ $app->group('/subscriber', function() use ($app) {
                     'address2' => $app->req->post['address2'],
                     'city' => $app->req->post['city'],
                     'state' => $app->req->post['state'],
-                    'zip' => $app->req->post['zip'],
+                    'postal_code' => $app->req->post['postal_code'],
                     'country' => $app->req->post['country'],
                     'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                     'ip' => $app->req->server['REMOTE_ADDR'],
@@ -104,6 +110,15 @@ $app->group('/subscriber', function() use ($app) {
         );
     });
 
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/', function() {
+        if (!hasPermission('edit_subscriber')) {
+            _tc_flash()->error(_t("You don't have permission to access the Edit Subscriber screen."), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
         $sub = get_subscriber_by('id', $id);
@@ -119,7 +134,7 @@ $app->group('/subscriber', function() use ($app) {
                     'address2' => $app->req->post['address2'],
                     'city' => $app->req->post['city'],
                     'state' => $app->req->post['state'],
-                    'zip' => $app->req->post['zip'],
+                    'postal_code' => $app->req->post['postal_code'],
                     'country' => $app->req->post['country']
                 ]);
                 $subscriber->where('id = ?', $id)
@@ -221,10 +236,12 @@ $app->group('/subscriber', function() use ($app) {
 
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
-            $list = $app->db->subscriber()
+            $app->db->subscriber()
                 ->where('addedBy = ?', get_userdata('id'))->_and_()
-                ->where('id = ?', $id);
-            $list->delete();
+                ->where('id = ?', $id)
+                ->reset()
+                ->findOne($id)
+                ->delete();
 
             tc_cache_delete($id, 'subscriber');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);

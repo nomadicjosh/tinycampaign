@@ -47,7 +47,7 @@ define('SCREEN', 'cpgn');
                 icon: false,
                 menu: [
                     {text: 'Date', onclick: function () {
-                            editor.insertContent('{today_date}');
+                            editor.insertContent('{todays_date}');
                         }},
                     {text: 'View Online', onclick: function () {
                             editor.insertContent('{view_online}');
@@ -231,7 +231,7 @@ define('SCREEN', 'cpgn');
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button<?=ie('campaign_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
                 <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>

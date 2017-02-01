@@ -70,6 +70,10 @@ define('SCREEN', 'sub');
                                 <input type="text" class="form-control" name="city" value="<?=_h($subscriber->city);?>" />
                             </div>
                             
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
                             <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
@@ -78,13 +82,9 @@ define('SCREEN', 'sub');
                                 </select>
                             </div>
                             
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
-                            
                             <div class="form-group">
-                                <label><?= _t('Zip'); ?></label>
-                                <input type="text" class="form-control" name="zip" value="<?=_h($subscriber->zip);?>" />
+                                <label><?= _t('Postal Code'); ?></label>
+                                <input type="text" class="form-control" name="postal_code" value="<?=_h($subscriber->postal_code);?>" />
                             </div>
                             
                             <div class="form-group">
@@ -92,15 +92,6 @@ define('SCREEN', 'sub');
                                 <select class="form-control select2" name="country" style="width: 100%;">
                                     <option>&nbsp;</option>
                                     <?php table_dropdown('country', null, 'iso2', 'iso2', 'short_name', _h($subscriber->country)); ?>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label><?= _t('Allowed to receive Email?'); ?></label>
-                                <select class="form-control select2" name="allowed" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <option value="true"<?=selected(_h($subscriber->allowed), 'true', false);?>><?=_t('Yes');?></option>
-                                    <option value="true"<?=selected(_h($subscriber->allowed), 'false', false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -116,7 +107,7 @@ define('SCREEN', 'sub');
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button<?=ie('subscriber_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
                 <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>subscriber/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>

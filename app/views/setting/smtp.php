@@ -1,8 +1,6 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Key;
 
 /**
  * SMTP Setting View

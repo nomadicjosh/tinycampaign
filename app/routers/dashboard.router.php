@@ -63,8 +63,22 @@ $app->group('/dashboard', function () use($app) {
     });
 
     $app->get('/system-snapshot/', function () use($app) {
+        try {
+            $db = $app->db->query("SELECT version() AS version")->findOne();
+            $user = $app->db->user()->where("status = '1'")->count('id');
+            $error = $app->db->error()->count('ID');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
         $app->view->display('dashboard/system-snapshot', [
-            'title' => 'System Snapshot Report'
+            'title' => 'System Snapshot Report',
+            'db' => $db,
+            'user' => $user,
+            'error' => $error
         ]);
     });
 
@@ -147,14 +161,14 @@ $app->group('/dashboard', function () use($app) {
             ->select('COUNT(campaign_list.id) AS count')
             ->_join('campaign_list', 'campaign.id = campaign_list.cid')
             ->_join('list', 'campaign_list.lid = list.id')
-            ->groupBy('campaign_list.id')
+            ->groupBy('list.name')
             ->orderBy('campaign.id', 'DESC')
             ->limit(10)
             ->find();
 
         $rows = [];
         foreach ($cpgn as $c) {
-            $row[0] = $c->list;
+            $row[0] = $c->List;
             $row[1] = $c->count;
             array_push($rows, $row);
         }
@@ -164,18 +178,19 @@ $app->group('/dashboard', function () use($app) {
     $app->get('/getBouncedEmail/', function () use($app) {
 
         try {
-            $emails = $app->db->campaign()
+            $cpgns = $app->db->campaign()
                 ->select('COUNT(campaign.bounces) as count,list.name')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.status = "sent"')
+                ->where('campaign.status = "sent"')->_and_()
+                ->where('campaign.bounces > 0')
                 ->groupBy('campaign.id')
                 ->find();
 
             $rows = [];
-            foreach ($emails as $email) {
-                $row[0] = $email->name;
-                $row[1] = $email->count;
+            foreach ($cpgns as $cpgn) {
+                $row[0] = $cpgn->name;
+                $row[1] = $cpgn->count;
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);

@@ -142,7 +142,7 @@ define('SCREEN', 'user');
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary"><?=_t('Save');?></button>
+                <button<?=ie('user_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Save');?></button>
                 <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>user/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>

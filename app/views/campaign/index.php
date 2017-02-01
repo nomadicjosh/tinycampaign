@@ -1,6 +1,7 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\NodeQ\tc_NodeQ as Node;
 /**
  * My Campaigns View
  *  
@@ -15,7 +16,16 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'cpgns');
 define('SCREEN', 'cpgn');
-?>        
+?>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    setInterval(function () {
+        $("#example2").load(location.href+" #example2>*","");
+    }, 10000);
+});
+</script>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -53,14 +63,19 @@ define('SCREEN', 'cpgn');
                                 <td class="text-center"><?= ucfirst(_h($msg->status)); ?></td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($msg->sendstart))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center"><?=(_h($msg->sendfinish) != '' ? Jenssegers\Date\Date::parse(_h($msg->sendfinish))->format('M. d, Y @ h:i A') : ''); ?></td>
-                                <td class="text-center"></td>
+                                <?php if($msg->recipients < Node::table($msg->node)->findAll()->count()) : ?>
+                                <td class="text-center"><?=_h($msg->recipients);?> / <?=_h(Node::table($msg->node)->findAll()->count());?></td>
+                                <?php else : ?>
+                                <td class="text-center"><?=_h($msg->recipients);?></td>
+                                <?php endif; ?>
                                 <td class="text-center">
                                     <a href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
                                     <a<?=(is_status_ready($msg->id) == false ? ' style="display:none !important;"' : '');?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/queue/" data-toggle="tooltip" data-placement="top" title="Send to Queue"><button class="btn bg-green"><i class="fa fa-arrow-right"></i></button></a>
                                     <a<?=(is_status_processing($msg->id) == true ? '' : ' style="display:none !important;"');?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/pause/" data-toggle="tooltip" data-placement="top" title="Pause Queue"><button class="btn bg-orange"><i class="fa fa-pause"></i></button></a>
                                     <a<?=(is_status_paused($msg->id) == true ? '' : ' style="display:none !important;"');?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/resume/" data-toggle="tooltip" data-placement="top" title="Resume Queue"><button class="btn bg-orange"><i class="fa fa-play"></i></button></a>
                                     <a href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/report/" data-toggle="tooltip" data-placement="top" title="Report"><button class="btn bg-blue"><i class="fa fa-area-chart"></i></button></a>
-                                    <a<?=(is_status_processing($msg->id) == false ? '' : ' style="display:none !important;"');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($msg->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a<?=(_h($msg->status) == 'sent' ? ' style="display:none !important;"' : '');?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/test/" data-toggle="tooltip" data-placement="top" title="Send Test"><button class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
+                                    <a<?=(is_status_processing($msg->id) == false ? '' : ' style="display:none !important;"');?><?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($msg->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= _h($msg->id); ?>">
                                         <div class="modal-dialog">

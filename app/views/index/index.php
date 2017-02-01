@@ -57,7 +57,35 @@ $app->view->block('login');
       </div>
     </form>
 
-    <a href="#"><?=_t('Reset Password');?></a>
+    <a href="#reset" data-toggle="modal"><?=_t('Reset Password');?></a>
+    
+    <!-- modal -->
+    <form method="post" action="<?= get_base_url(); ?>reset-password/" data-toggle="validator" autocomplete="off">
+    <div class="modal" id="reset">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Enter Email' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label><font color="red">*</font> <?= _t('Email'); ?></label>
+                        <input type="email" class="form-control" id="email" name="email" required/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                    <button type="submit" class="btn btn-primary pull-right"><?=_t('Submit');?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    </form>
+    <!-- /.modal -->
     
     <?php 
     /**

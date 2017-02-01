@@ -57,19 +57,14 @@ define('SCREEN', 'user');
                                 <td class="text-center"><?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?></td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
-                                    <div class="btn-group dropdown">
-                                        <button class="btn btn-default btn-xs" type="button"><?= _t('Actions'); ?></button>
-                                        <button data-toggle="dropdown" class="btn btn-xs btn-primary dropdown-toggle" type="button">
-                                            <span class="caret"></span>
-                                            <span class="sr-only"><?= _t('Toggle Dropdown'); ?></span>
-                                        </button>
-                                        <ul role="menu" class="dropdown-menu dropup-text pull-right">
-                                            <li><a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/"><?= _t('View'); ?></a></li>
-                                            <?php if($user->id != 1) : ?>
-                                            <li><a href="#" data-toggle="modal" data-target="#delete-<?= _h($user->id); ?>"><?= _t('Delete'); ?></a></li>
-                                            <?php endif; ?>
-                                        </ul>
-                                    </div>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
+                                    <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && _h($user->id) != get_userdata('id')) : ?>
+                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
+                                    <?php endif; ?>
+                                    <?php if($user->id != 1) : ?>
+                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($user->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <?php endif; ?>
 
                                     <div class="modal" id="delete-<?= _h($user->id); ?>">
                                         <div class="modal-dialog">

@@ -14,7 +14,9 @@ class tc_QueueMessage
 {
 
     private $_id;
+    private $_lid;
     private $_mid;
+    private $_sid;
     private $_from_email;
     private $_from_name;
     private $_to_email;
@@ -32,7 +34,9 @@ class tc_QueueMessage
     public function __construct()
     {
         $this->_id = 0;
+        $this->_lid = 0;
         $this->_mid = 0;
+        $this->_sid = 0;
         $this->_from_email = '';
         $this->_from_name = '';
         $this->_to_email = '';
@@ -59,6 +63,16 @@ class tc_QueueMessage
     }
     
     /**
+     * Sets list id
+     * 
+     * @param int $lid id
+     */
+    public function setListId($lid)
+    {
+        $this->_lid = $lid;
+    }
+    
+    /**
      * Sets the campaign id
      * 
      * @param int $mid id
@@ -66,6 +80,16 @@ class tc_QueueMessage
     public function setMessageId($mid)
     {
         $this->_mid = $mid;
+    }
+    
+    /**
+     * Sets the subscriber id
+     * 
+     * @param int $sid id
+     */
+    public function setSubscriberId($sid)
+    {
+        $this->_sid = $sid;
     }
 
     /**
@@ -209,13 +233,33 @@ class tc_QueueMessage
     }
     
     /**
+     * returns list id
+     *
+     * @return int lid
+     */
+    public function getListId()
+    {
+        return $this->_lid;
+    }
+    
+    /**
      * returns campaign id
      *
-     * @return int id
+     * @return int mid
      */
     public function getMessageId()
     {
         return $this->_mid;
+    }
+    
+    /**
+     * returns subscriber id
+     *
+     * @return int sid
+     */
+    public function getSubscriberId()
+    {
+        return $this->_sid;
     }
 
     /**

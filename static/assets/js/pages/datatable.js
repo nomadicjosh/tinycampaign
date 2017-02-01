@@ -4,7 +4,7 @@ $(function () {
         "paging": true,
         "lengthChange": false,
         "searching": false,
-        "ordering": true,
+        "ordering": false,
         "info": true,
         "autoWidth": false
     });

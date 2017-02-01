@@ -48,7 +48,7 @@ define('SCREEN', 'ccpgn');
                 icon: false,
                 menu: [
                     {text: 'Date', onclick: function () {
-                            editor.insertContent('{today_date}');
+                            editor.insertContent('{todays_date}');
                         }},
                     {text: 'View Online', onclick: function () {
                             editor.insertContent('{view_online}');
@@ -152,17 +152,17 @@ define('SCREEN', 'ccpgn');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?></label>
-                                <input type="text" class="form-control" name="subject" value="<?=$app->req->_post('subject');?>" required>
+                                <input type="text" class="form-control" name="subject" value="<?=(_h($app->req->post['subject']) != '' ? _h($app->req->post['subject']) : '');?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?=(isset($app->req->post['from_name']) ? $app->req->post['from_name'] : _h(get_option('system_name')));?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?=(_h($app->req->post['from_name']) != '' ? _h($app->req->post['from_name']) : _h(get_option('system_name')));?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?=(isset($app->req->post['from_email']) ? $app->req->post['from_email'] : _h(get_option('tc_smtp_username')));?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?=(_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : _h(get_option('tc_smtp_username')));?>" required>
                             </div>
 
                         </div>
@@ -172,7 +172,7 @@ define('SCREEN', 'ccpgn');
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Send Start'); ?></label>
                                 <div class='input-group date' id='datetimepicker1'>
-                                    <input type='text' class="form-control" name="sendstart" required/>
+                                    <input type='text' class="form-control" name="sendstart" value="<?=(_h($app->req->post['sendstart']) != '' ? _h($app->req->post['sendstart']) : '');?>" required/>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
@@ -184,8 +184,8 @@ define('SCREEN', 'ccpgn');
                                 <label><font color="red">*</font> <?= _t('Archive?'); ?></label>
                                 <select class="form-control select2" name="archive" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"><?= _t('Yes'); ?></option>
-                                    <option value="0"><?= _t('No'); ?></option>
+                                    <option value="1"<?=selected('1',(_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''),false);?>><?= _t('Yes'); ?></option>
+                                    <option value="0"<?=selected('0',(_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''),false);?>><?= _t('No'); ?></option>
                                 </select>
                                 <p class="help-block"><?= _t('Should this campaign be available in the online archives?'); ?></p>
                             </div>
@@ -202,7 +202,7 @@ define('SCREEN', 'ccpgn');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('HTML Message'); ?></label>
-                                <textarea class="form-control template" rows="3" name="html" required></textarea>
+                                <textarea class="form-control template" rows="3" name="html" required><?=(_h($app->req->post['html']) != '' ? _h($app->req->post['html']) : '');?></textarea>
                             </div>
 
                         </div>

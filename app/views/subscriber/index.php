@@ -48,7 +48,8 @@ $(document).ready(function(){
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
                             <th class="text-center"><?= _t('Email'); ?></th>
-                            <th class="text-center"><?= _t('Status'); ?></th>
+                            <th class="text-center"><?= _t('Email Status'); ?></th>
+                            <th class="text-center"><?= _t('Add Date'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>
                     </thead>
@@ -58,10 +59,12 @@ $(document).ready(function(){
                                 <td class="text-center"><?= _h($subscriber->fname); ?> <?= _h($subscriber->lname); ?></td>
                                 <td class="text-center"><?= _h($subscriber->email); ?></td>
                                 <td class="text-center"><?=(_h($subscriber->allowed) == 'true' ? 'Allowed' : 'Not Allowed'); ?></td>
+                                <td class="text-center"><?= _h($subscriber->addDate); ?></td>
                                 <td class="text-center">
                                     <a href="<?= get_base_url(); ?>subscriber/<?= _h($subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
-                                    <a href="#" data-toggle="modal" data-target="#delete-<?= _h($subscriber->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
-
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($subscriber->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    
+                                    <!-- modal -->
                                     <div class="modal" id="delete-<?= _h($subscriber->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -91,7 +94,8 @@ $(document).ready(function(){
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
                             <th class="text-center"><?= _t('Email'); ?></th>
-                            <th class="text-center"><?= _t('Status'); ?></th>
+                            <th class="text-center"><?= _t('Email Status'); ?></th>
+                            <th class="text-center"><?= _t('Add Date'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>
                     </tfoot>

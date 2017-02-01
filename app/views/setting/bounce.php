@@ -56,8 +56,8 @@ define('SCREEN', 'bounce');
                             </div>
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Mailbox'); ?></label>
-                                <input type="text" class="form-control" name="tc_bmh_mailbox" value="<?= _h(get_option('tc_bmh_mailbox')); ?>" required>
+                                <label><?= _t('Mailbox'); ?></label>
+                                <input type="text" class="form-control" name="tc_bmh_mailbox" value="<?= _h(get_option('tc_bmh_mailbox')); ?>" />
                             </div>
                         </div>
                         <!-- /.col -->
