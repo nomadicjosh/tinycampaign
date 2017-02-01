@@ -11,6 +11,11 @@ class InitialSchema extends AbstractMigration
         $factory = new RandomLib\Factory;
         $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
         $api_key = $generator->generateString(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        
+        $host = $this->adapter->getOption('host');
+        $name = $this->adapter->getOption('name');
+        $user = $this->adapter->getOption('user');
+        $pass = $this->adapter->getOption('pass');
 
         // disable foreign key checks to ensure all tables can be initially created
         $this->execute('SET FOREIGN_KEY_CHECKS=0;');
@@ -758,5 +763,21 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
 
         // re-arm foreign key checks
         $this->execute('SET FOREIGN_KEY_CHECKS=1;');
+        
+        if (!file_exists('config.php')) {
+            copy('config.sample.php', 'config.php');
+        }
+        $file = 'config.php';
+        $config = file_get_contents($file);
+
+        $config = str_replace('{product}', 'tinyCampaign', $config);
+        $config = str_replace('{release}', trim(file_get_contents('RELEASE')), $config);
+        $config = str_replace('{datenow}', $NOW, $config);
+        $config = str_replace('{hostname}', $host, $config);
+        $config = str_replace('{database}', $name, $config);
+        $config = str_replace('{username}', $user, $config);
+        $config = str_replace('{password}', $pass, $config);
+
+        file_put_contents($file, $config);
     }
 }
