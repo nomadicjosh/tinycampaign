@@ -141,6 +141,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
           </a>
           <ul class="treeview-menu">
             <li<?=(SCREEN === 'general' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/"><i class="fa fa-circle-o"></i> <?=_t('General Settings');?></a></li>
+            <li<?=(SCREEN === 'snapshot' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>dashboard/system-snapshot/"><i class="fa fa-circle-o"></i> <?=_t('System Snapshot Report');?></a></li>
             <li<?=(SCREEN === 'smtp' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/smtp/"><i class="fa fa-circle-o"></i> <?=_t('SMTP Settings');?></a></li>
             <li<?=(SCREEN === 'bounce' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/bounce/"><i class="fa fa-circle-o"></i> <?=_t('Bounce Email Settings');?></a></li>
             <li<?=(SCREEN === 'perm' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>permission/"><i class="fa fa-circle-o"></i> <?=_t('Permissions');?></a></li>

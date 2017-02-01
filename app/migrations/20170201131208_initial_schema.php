@@ -764,6 +764,10 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
         // re-arm foreign key checks
         $this->execute('SET FOREIGN_KEY_CHECKS=1;');
         
+        if (!file_exists('.htaccess')) {
+            copy('htaccess.txt', '.htaccess');
+        }
+        
         if (!file_exists('config.php')) {
             copy('config.sample.php', 'config.php');
         }

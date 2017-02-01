@@ -63,8 +63,22 @@ $app->group('/dashboard', function () use($app) {
     });
 
     $app->get('/system-snapshot/', function () use($app) {
+        try {
+            $db = $app->db->query("SELECT version() AS version")->findOne();
+            $user = $app->db->user()->where("status = '1'")->count('id');
+            $error = $app->db->error()->count('ID');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
         $app->view->display('dashboard/system-snapshot', [
-            'title' => 'System Snapshot Report'
+            'title' => 'System Snapshot Report',
+            'db' => $db,
+            'user' => $user,
+            'error' => $error
         ]);
     });
 
