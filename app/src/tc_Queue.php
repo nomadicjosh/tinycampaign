@@ -26,7 +26,7 @@ class tc_Queue
      * @var object
      */
     public $app;
-    
+
     /**
      * Node where messages are saved.
      * 
@@ -57,10 +57,12 @@ class tc_Queue
     public function getUnsentEmailCount()
     {
         try {
-            $count = Node::table($this->getNode())->where('is_sent', '=', false)->findAll()->count();
+            $count = Node::table($this->getNode())->where('is_sent', '=', 'false')->findAll()->count();
             return $count;
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (InvalidArgumentException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -79,6 +81,8 @@ class tc_Queue
             return $count;
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (InvalidArgumentException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -91,15 +95,17 @@ class tc_Queue
      */
     public function getEmails()
     {
+        $now = \Jenssegers\Date\Date::now()->format('Y-m-d H:i:s');
         try {
-            $node = Node::table($this->getNode())->where('is_sent', '=', false)->findAll();
-
+            $node = Node::table($this->getNode())->where('is_sent', '=', 'false')->andWhere('timestamp_to_send', '<=', $now)->findAll();
             $result_array = [];
 
             foreach ($node as $row) {
                 $message = new Message();
                 $message->setId($row->id);
+                $message->setListId($row->lid);
                 $message->setMessageId($row->mid);
+                $message->setSubscriberId($row->sid);
                 $message->setToEmail($row->to_email);
                 $message->setToName($row->to_name);
                 $message->setMessageHtml($row->message_html);
@@ -116,6 +122,8 @@ class tc_Queue
             return $result_array;
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (InvalidArgumentException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -154,21 +162,25 @@ class tc_Queue
 
         try {
             $node = Node::table($this->getNode());
+            $node->lid = (int) $message->getListId();
             $node->mid = (int) $message->getMessageId();
+            $node->sid = (int) $message->getSubscriberId();
             $node->to_email = (string) $message->getToEmail();
             $node->to_name = (string) $message->getToName();
             //$node->message_html = $message->getMessageHtml();
             //$node->message_plain_text = $message->getMessagePlainText();
-            $node->message_html = (bool) true;
-            $node->message_plain_text = (bool) false;
+            $node->message_html = (string) 'true';
+            $node->message_plain_text = (string) 'false';
             $node->timestamp_created = (string) $message->getTimestampCreated();
             $node->timestamp_sent = (string) $message->getTimestampSent();
             $node->timestamp_to_send = (string) $message->getTimeStampToSend();
-            $node->is_sent = (bool) $message->getIsSent();
+            $node->is_sent = (string) 'false';
             $node->serialized_headers = (string) $message->getSerializedHeaders();
             $node->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (InvalidArgumentException $e) {
+            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }

@@ -63,7 +63,7 @@ define('SCREEN', 'arole');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php rolePerm(); ?>
+                            <?php role_perm(); ?>
                         </tbody>
                         <tfoot>
                             <tr>

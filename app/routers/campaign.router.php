@@ -5,6 +5,7 @@ use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use Cascade\Cascade;
 use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
 use app\src\elFinder\elFinderConnector;
 use app\src\elFinder\elFinder;
 use PDOException as ORMException;
@@ -22,9 +23,18 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/', function () use($app) {
 
-        $msgs = $app->db->campaign()
-            ->where('owner = ?', get_userdata('id'))
-            ->find();
+        try {
+            $msgs = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))
+                ->orderBy('sendstart', 'ASC')
+                ->find();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         tc_register_style('datatables');
         tc_register_script('datatables');
@@ -60,6 +70,7 @@ $app->group('/campaign', function() use ($app) {
                 $msg->status = 'ready';
                 $msg->sendstart = $app->req->post['sendstart'];
                 $msg->archive = $app->req->post['archive'];
+                $msg->addDate = \Jenssegers\Date\Date::now();
                 $msg->save();
 
                 $ID = $msg->lastInsertId();
@@ -75,18 +86,19 @@ $app->group('/campaign', function() use ($app) {
                 try {
                     Node::create($app->req->post['node'], [
                         'mid' => 'integer',
+                        'sid' => 'integer',
                         'to_email' => 'string',
                         'to_name' => 'string',
-                        'message_html' => 'boolean',
-                        'message_plain_text' => 'boolean',
+                        'message_html' => 'string',
+                        'message_plain_text' => 'string',
                         'timestamp_created' => 'string',
                         'timestamp_to_send' => 'string',
                         'timestamp_sent' => 'string',
-                        'is_sent' => 'boolean',
+                        'is_sent' => 'string',
                         'serialized_headers' => 'string'
                     ]);
-                } catch (\app\src\NodeQ\NodeQException $e) {
-                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
                 }
                 tc_logger_activity_log_write('New Record', 'Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'campaign' . '/' . $ID . '/');
@@ -198,33 +210,64 @@ $app->group('/campaign', function() use ($app) {
         }
     });
 
-    /**
-     * Before route check.
-     */
-    $app->before('GET', '/(\d+)/d/', function() {
-        if (!hasPermission('manage_email_lists')) {
-            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+    $app->get('/(\d+)/queue/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+        if ($cpgn->status == 'processing') {
+            _tc_flash()->error(_t('Message is already queued.'), $app->req->server['HTTP_REFERER']);
+            exit();
+        }
+
+        try {
+            $node = Node::dispense('queued_campaign');
+            $node->node = (string) $cpgn->node;
+            $node->mid = (int) $cpgn->id;
+            $node->sendstart = (string) $cpgn->sendstart;
+            $node->complete = (int) 0;
+            $node->save();
+
+            try {
+                $upd = $app->db->campaign();
+                $upd->set([
+                        'status' => 'processing'
+                    ])
+                    ->where('id = ?', $cpgn->id)
+                    ->update();
+            } catch (NotFoundException $e) {
+                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            } catch (ORMException $e) {
+                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            }
+
+
+            tc_logger_activity_log_write('Update Record', 'Campaign Queued', $cpgn->subject, get_userdata('uname'));
+            _tc_flash()->success(_t('Campaign was successfully sent to the queue.'), $app->req->server['HTTP_REFERER']);
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
 
-    $app->get('/(\d+)/d/', function ($id) use($app) {
+    $app->get('/(\d+)/pause/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+        if ($cpgn->status == 'paused') {
+            _tc_flash()->error(_t('Message is already paused.'), $app->req->server['HTTP_REFERER']);
+            exit();
+        }
+
         try {
-            $msg = $app->db->campaign()
-                ->where('owner = ?', get_userdata('id'));
-
-            try {
-                $msg->findOne($id);
-                Node::remove($msg->node);
-            } catch (\app\src\NodeQ\NodeQException $e) {
-                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            }
-
-            if ($msg->reset()->findOne($id)->delete()) {
-                tc_cache_delete($id, 'list');
-                _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
-            } else {
-                _tc_flash()->error(_tc_flash()->notice(409), $app->req->server['HTTP_REFERER']);
-            }
+            $upd = $app->db->campaign();
+            $upd->set([
+                    'status' => 'paused'
+                ])
+                ->where('id = ?', $cpgn->id)
+                ->update();
+            tc_logger_activity_log_write('Update Record', 'Campaign Paused', $cpgn->subject, get_userdata('uname'));
+            _tc_flash()->success(_t('Campaign was successfully paused.'), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (Exception $e) {
@@ -234,69 +277,126 @@ $app->group('/campaign', function() use ($app) {
         }
     });
 
-    $app->get('/(\d+)/queue/', function ($id) use($app) {
+    $app->get('/(\d+)/resume/', function ($id) use($app) {
 
         $cpgn = get_campaign_by_id($id);
-        if($cpgn->status == 'processing') {
-            _tc_flash()->error(_t('Message is already queued.'), $app->req->server['HTTP_REFERER']);
+        if ($cpgn->status == 'processing') {
+            _tc_flash()->error(_t('Message is already processing.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
-        
-        try {
-            $subscriber = $app->db->subscriber()
-                ->select('DISTINCT subscriber.fname,subscriber.lname,subscriber.email')
-                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->_join('list', 'subscriber_list.lid = list.id')
-                ->_join('campaign_list', 'list.id = campaign_list.lid')
-                ->_join('campaign', 'campaign_list.lid = campaign.id')
-                ->where('subscriber.allowed = "true"')->_and_()
-                ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribe = "0"')->_and_()
-                ->where('campaign.id = ?', $id)->_and_()
-                ->where('campaign_list.cid = ?', $id)
-                ->find();
-            /**
-             * Instantiate the message queue.
-             */
-            $queue = new app\src\tc_Queue();
-            $queue->node = $cpgn->node;
-            $send_date = explode(' ', $cpgn->sendstart);
-            $throttle = _h(get_option('mail_throttle'));
-            foreach ($subscriber as $sub) {
-                $time = date('H:i:s', time());
-                /**
-                 * Create new tc_QueueMessage object.
-                 */
-                $new_message = new app\src\tc_QueueMessage();
-                $new_message->setMessageId($cpgn->id);
-                $new_message->setFromEmail($cpgn->from_email);
-                $new_message->setFromName($cpgn->from_name);
-                $new_message->setToEmail($sub->email);
-                $new_message->setToName($sub->fname . ' ' . $sub->lname);
-                //$new_message->setSubject($cpgn->subject);
-                $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
-                $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$send_date[0] $time+$throttle seconds"));
-                /**
-                 * Add message to the queue.
-                 */
-                $queue->addMessage($new_message);
-            }
 
+        try {
             $upd = $app->db->campaign();
             $upd->set([
                     'status' => 'processing'
                 ])
                 ->where('id = ?', $cpgn->id)
                 ->update();
-
-            tc_logger_activity_log_write('New Record', 'Campaign Queued', $cpgn->subject, get_userdata('uname'));
-            _tc_flash()->success(_t('Campaign was successfully sent to the queue.'), $app->req->server['HTTP_REFERER']);
+            tc_logger_activity_log_write('Update Record', 'Campaign Resumed', $cpgn->subject, get_userdata('uname'));
+            _tc_flash()->success(_t('Campaign was successfully resumed.'), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (Exception $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    });
+
+    $app->get('/(\d+)/test/', function ($id) use($app) {
+
+        $domain = get_domain_name();
+        $site = _h(get_option('system_name'));
+
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $sub = get_user_by('id', get_userdata('id'));
+
+            $footer = _escape($cpgn->footer);
+            $footer = str_replace('{email}', $sub->email, $footer);
+            $footer = str_replace('{from_email}', $cpgn->from_email, $footer);
+
+            $msg = _escape($cpgn->html);
+            $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+            $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . $id . '/">' . _t('View this email in your browser') . '</a>', $msg);
+            $msg = str_replace('{first_name}', $sub->fname, $msg);
+            $msg = str_replace('{last_name}', $sub->lname, $msg);
+            $msg = str_replace('{email}', $sub->email, $msg);
+            $msg = str_replace('{address1}', $sub->address1, $msg);
+            $msg = str_replace('{address2}', $sub->address2, $msg);
+            $msg = str_replace('{city}', $sub->city, $msg);
+            $msg = str_replace('{state}', $sub->state, $msg);
+            $msg = str_replace('{postal_code}', $sub->postal_code, $msg);
+            $msg = str_replace('{country}', $sub->country, $msg);
+            $msg .= $footer;
+            $headers = "From: $site <auto-reply@$domain>\r\n";
+            if (_h(get_option('tc_smtp_status')) == 0) {
+                $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
+                $headers .= "MIME-Version: 1.0" . "\r\n";
+            }
+            try {
+                // send email
+                _tc_email()->tc_mail(
+                    $sub->email, $cpgn->subject, $msg, $headers
+                );
+                _tc_flash()->success(_t('Test email sent.'), $app->req->server['HTTP_REFERER']);
+            } catch (phpmailerException $e) {
+                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            }
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    });
+
+    $app->get('/(\d+)/report/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+        $count = $app->db->tracking()
+            ->where('tracking.cid = ?', $id)->_and_()
+            ->whereNotNull('tracking.first_open')
+            ->count();
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count($cpgn->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('datatables');
+            tc_register_script('datatables');
+
+            $app->view->display('campaign/report', [
+                'title' => $cpgn->subject,
+                'cpgn' => $cpgn,
+                'count' => $count
+                ]
+            );
         }
     });
 
@@ -305,7 +405,7 @@ $app->group('/campaign', function() use ($app) {
         try {
             _mkdir($app->config('file.savepath') . get_userdata('uname') . '/');
         } catch (\app\src\Exception\IOException $e) {
-            Cascade\Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
+            Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
         }
         $opts = [
             // 'debug' => true,
@@ -378,6 +478,44 @@ $app->group('/campaign', function() use ($app) {
             'title' => 'elfinder 2.0'
             ]
         );
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/(\d+)/d/', function() {
+        if (!hasPermission('delete_campaign')) {
+            _tc_flash()->error(_t('You lack the proper permission to delete a campaign.'), get_base_url() . 'campaign' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/d/', function ($id) use($app) {
+        $cpgn = get_campaign_by_id($id);
+
+        try {
+            $msg = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id);
+
+            try {
+                Node::remove($cpgn->node);
+            } catch (NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+
+            $msg->reset()->findOne($id)->delete();
+            tc_cache_delete($id, 'campaign');
+            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
     });
 });
 

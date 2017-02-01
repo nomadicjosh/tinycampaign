@@ -725,13 +725,12 @@ function dashboard_subscriber_count()
 {
     $app = \Liten\Liten::getInstance();
 
-    // Number of overall active subscribers
+    // Number of overall subscribers
     try {
         $subs = $app->db->subscriber_list()
             ->_join('list', 'subscriber_list.lid = list.id')
             ->where('list.owner = ?', get_userdata('id'))->_and_()
-            ->where('subscriber_list.confirmed = "1"')->_and_()
-            ->where('subscriber_list.unsubscribe = "0"')
+            ->where('subscriber_list.confirmed = "1"')
             ->groupBy('subscriber_list.lid')
             ->count('subscriber_list.lid');
     } catch (NotFoundException $e) {
@@ -746,7 +745,7 @@ function dashboard_subscriber_count()
     $count .= '<div class="small-box bg-yellow">';
     $count .= '<div class="inner">';
     $count .= '<h3>' . _h($subs) . '</h3>';
-    $count .= '<p>' . _t('Subscribers') . '</p>';
+    $count .= '<p>' . _t('Active Subscribers') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-ios-people"></i></div>';
     $count .= '<a href="' . get_base_url() . 'subscriber/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
@@ -765,7 +764,8 @@ function dashboard_email_sent_count()
 
     try {
         $emails = $app->db->campaign()
-            ->where('campaign.owner = ?', get_userdata('id'))
+            ->where('campaign.owner = ?', get_userdata('id'))->_and_()
+            ->whereNotNull('campaign.sendfinish')
             ->groupBy('campaign.id')
             ->count('campaign.recipients');
     } catch (NotFoundException $e) {
@@ -1123,17 +1123,17 @@ function get_logo_large()
  * Generates tracking code.
  * 
  * @since 2.0.0
- * @param mixed $cid Campaign id.
+ * @param mixed $message Queue message object.
  * @return mixed
  */
-function campaign_tracking_code($cid)
+function campaign_tracking_code($message)
 {
     $app = \Liten\Liten::getInstance();
 
     $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
-    $div .= '<div id="logo-track"><img src="http://localhost:8888/tiny/static/assets/img/tinyC-Logo.png" /></div>';
+    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $message->mid . '/sid/' . $message->sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
     $div .= '</div>';
-    return $app->hook->apply_filter('tracking_code', $div, $cid);
+    return $app->hook->apply_filter('tracking_code', $div, $message);
 }
 
 function tc_smtp($tcMailer)
@@ -1162,7 +1162,8 @@ function tc_smtp($tcMailer)
             $tcMailer->Mailer = "smtp";
             $tcMailer->ContentType = "text/html";
             $tcMailer->CharSet = "UTF-8";
-            $tcMailer->XMailer = 'tinyCampaign '.CURRENT_RELEASE;
+            $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
+            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h(get_option("system_email")) : _h(get_option('tc_bmh_username')));
             $tcMailer->From = _h(get_option("system_email"));
             $tcMailer->FromName = _h(get_option("system_name"));
             $tcMailer->Sender = $tcMailer->From; // Return-Path
@@ -1170,7 +1171,7 @@ function tc_smtp($tcMailer)
             $tcMailer->Host = _h(get_option("tc_smtp_host"));
             $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
             $tcMailer->Port = _h(get_option("tc_smtp_port"));
-            $tcMailer->SMTPAuth = TRUE;
+            $tcMailer->SMTPAuth = true;
             $tcMailer->isHTML(true);
             $tcMailer->Username = _h(get_option("tc_smtp_username"));
             $tcMailer->Password = $password;
@@ -1182,9 +1183,7 @@ function tc_smtp($tcMailer)
     }
 }
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
-//$app->hook->{'add_action'}('tc_dashboard_head', 'tc_notify_style', 2);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
-//$app->hook->{'add_action'}('tc_dashboard_footer', 'tc_notify_script', 5);
 $app->hook->{'add_action'}('release', 'foot_release', 5);
 $app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_email_list_count', 5);
 $app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_campaign_count', 5);

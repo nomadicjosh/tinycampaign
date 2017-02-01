@@ -1,9 +1,13 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use Respect\Validation\Validator as v;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
+use Cascade\Cascade;
 
 /**
  * Before route check.
@@ -55,6 +59,11 @@ $app->group('/user', function() use ($app) {
     $app->match('GET|POST', '/add/', function () use($app) {
 
         if ($app->req->isPost()) {
+            if (!v::email()->validate($app->req->post['email'])) {
+                _tc_flash()->error(_t('Invalid email address.'));
+                exit();
+            }
+
             try {
                 $pass = $app->req->post['password'];
 
@@ -242,6 +251,182 @@ $app->group('/user', function() use ($app) {
         );
     });
 
+    $app->match('GET|POST', '/(\d+)/perm/', function ($id) use($app) {
+
+        $user = get_user_by('id', $id);
+
+        if ($app->req->isPost()) {
+            try {
+                if (count($app->req->post['permission']) > 0) {
+                    $q = $app->db->query(sprintf("REPLACE INTO user_perms SET userID = %u, permission = '%s'", $id, maybe_serialize($app->req->post['permission'])));
+                } else {
+                    $q = $app->db->query(sprintf("DELETE FROM user_perms WHERE userID = %u", $id));
+                }
+                if ($q) {
+                    _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'user/' . $id . '/perm/');
+                } else {
+                    _tc_flash()->error(_tc_flash()->notice(409));
+                }
+            } catch (NotFoundException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (ORMException $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($user == false) {
+
+            $app->view->display('error/404', [
+                'title' => '404 Error'
+            ]);
+        } /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($user) == true) {
+
+            $app->view->display('error/404', [
+                'title' => '404 Error'
+            ]);
+        } /**
+         * If data is zero, 404 not found.
+         */ elseif ($user->id <= 0) {
+
+            $app->view->display('error/404', [
+                'title' => '404 Error'
+            ]);
+        } /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('select2');
+            tc_register_style('iCheck');
+            tc_register_script('select2');
+            tc_register_script('iCheck');
+
+            $app->view->display('user/perm', [
+                'title' => get_name($id) . ' Permissions',
+                'user' => $user
+            ]);
+        }
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/(\d+)/switch-to/', function() use($app) {
+        if (!hasPermission('switch_user')) {
+            _tc_flash()->error(_t("You don't have permission to switch users."), $app->req->server['HTTP_REFERER']);
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/switch-to/', function ($id) use($app) {
+
+        if (isset($_COOKIE['TC_COOKIENAME'])) {
+            $switch_cookie = [
+                'key' => 'SWITCH_USERBACK',
+                'id' => get_userdata('id'),
+                'uname' => get_userdata('uname'),
+                'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+                'exp' => _h(get_option('cookieexpire')) + time()
+            ];
+            $app->cookies->setSecureCookie($switch_cookie);
+        }
+
+        $vars = [];
+        parse_str($app->cookies->get('TC_COOKIENAME'), $vars);
+        /**
+         * Checks to see if the cookie is exists on the server.
+         * It it exists, we need to delete it.
+         */
+        $file = $app->config('cookies.savepath') . 'cookies.' . $vars['data'];
+        try {
+            if (tc_file_exists($file)) {
+                unlink($file);
+            }
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
+        }
+
+        /**
+         * Delete the old cookie.
+         */
+        $app->cookies->remove("TC_COOKIENAME");
+
+        $auth_cookie = [
+            'key' => 'TC_COOKIENAME',
+            'id' => $id,
+            'uname' => get_user_value($id, 'uname'),
+            'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+            'exp' => _h(get_option('cookieexpire')) + time()
+        ];
+
+        $app->cookies->setSecureCookie($auth_cookie);
+
+        redirect(get_base_url() . 'dashboard' . '/');
+    });
+
+    $app->get('/(\d+)/switch-back/', function ($id) use($app) {
+        $vars1 = [];
+        parse_str($app->cookies->get('TC_COOKIENAME'), $vars1);
+        /**
+         * Checks to see if the cookie is exists on the server.
+         * It it exists, we need to delete it.
+         */
+        $file1 = $app->config('cookies.savepath') . 'cookies.' . $vars1['data'];
+        try {
+            if (tc_file_exists($file1)) {
+                unlink($file1);
+            }
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
+        }
+
+        $app->cookies->remove("TC_COOKIENAME");
+
+        $vars2 = [];
+        parse_str($app->cookies->get('SWITCH_USERBACK'), $vars2);
+        /**
+         * Checks to see if the cookie is exists on the server.
+         * It it exists, we need to delete it.
+         */
+        $file2 = $app->config('cookies.savepath') . 'cookies.' . $vars2['data'];
+        try {
+            if (tc_file_exists($file2)) {
+                unlink($file2);
+            }
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->error(sprintf('FILESTATE[%s]: File not found: %s', $e->getCode(), $e->getMessage()));
+        }
+
+        $app->cookies->remove("SWITCH_USERBACK");
+
+        /**
+         * After the login as user cookies have been
+         * removed from the server and the browser,
+         * we need to set fresh cookies for the
+         * original logged in user.
+         */
+        $switch_cookie = [
+            'key' => 'TC_COOKIENAME',
+            'id' => $id,
+            'uname' => get_user_value($id, 'uname'),
+            'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+            'exp' => _h(get_option('cookieexpire')) + time()
+        ];
+        $app->cookies->setSecureCookie($switch_cookie);
+        redirect(get_base_url() . 'dashboard' . '/');
+    });
+
     /**
      * Before route check.
      */
@@ -259,12 +444,29 @@ $app->group('/user', function() use ($app) {
         }
 
         try {
-            $list = $app->db->subscriber()
-                ->where('owner = ?', get_userdata('id'))->_and_()
-                ->where('id = ?', $id);
-            $list->delete();
-            
-            tc_cache_delete($id, 'list');
+            $app->db->user()
+                ->where('id = ?', $id)->_and_()
+                ->where('id <> ?', get_userdata('id'))
+                ->reset()
+                ->findOne($id)
+                ->delete();
+
+            $cpgns = $app->db->campaign()
+                ->where('owner = ?', $id)
+                ->find();
+            foreach ($cpgns as $cpgn) {
+                try {
+                    Node::remove($cpgn->node);
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (Exception $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
+            }
+
+            tc_cache_delete($id, 'user');
+            tc_cache_flush_namespace('list');
+            tc_cache_flush_namespace('subscriber');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);

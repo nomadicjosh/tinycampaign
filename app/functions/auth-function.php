@@ -25,6 +25,20 @@ function hasPermission($perm)
     }
 }
 
+function ae($perm)
+{
+    if (!hasPermission($perm)) {
+        return ' style="display:none !important;"';
+    }
+}
+
+function ie($perm)
+{
+    if (hasPermission($perm)) {
+        return ' style="display:none !important;"';
+    }
+}
+
 function get_userdata($field)
 {
     $app = \Liten\Liten::getInstance();

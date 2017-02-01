@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'cron');
-define('SCREEN', 'cron');
+define('SCREEN_PARENT', 'handler');
+define('SCREEN', 'handlers');
 
 ?>        
 
@@ -43,7 +43,7 @@ define('SCREEN', 'cron');
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="<?= get_base_url(); ?>cron/" data-toggle="tab"><?= _t('Handler Dashboard'); ?></a></li>
-                    <li><a href="<?= get_base_url(); ?>cron/new/"><?= _t('New Cronjob Handler'); ?></a></li>
+                    <li><a href="<?= get_base_url(); ?>cron/create/"><?= _t('New Cronjob Handler'); ?></a></li>
                     <li><a href="<?= get_base_url(); ?>cron/setting/"><?= _t('Settings'); ?></a></li>
                 </ul>
             </div>

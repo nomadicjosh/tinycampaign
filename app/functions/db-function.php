@@ -268,7 +268,7 @@ function get_campaign_list_id($id)
 
     $a = [];
     foreach ($q as $r) {
-        $a[] = $r['cid'];
+        $a[] = $r['lid'];
     }
     return $a;
 }

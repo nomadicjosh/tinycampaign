@@ -47,20 +47,20 @@ define('SCREEN', 'clist');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('List Name'); ?></label>
-                                <input type="text" class="form-control" name="name" required>
+                                <input type="text" class="form-control" name="name" value="<?=(_h($app->req->post['name']) != '' ? _h($app->req->post['name']) : '');?>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Short Description'); ?></label>
-                                <textarea class="form-control" rows="3" name="description"></textarea>
+                                <textarea class="form-control" rows="3" name="description"><?=(_h($app->req->post['description']) != '' ? _h($app->req->post['description']) : '');?></textarea>
                             </div>
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>
                                 <select class="form-control select2" name="status" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="open"><?=_t('Open');?></option>
-                                    <option value="closed"><?=_t('Closed');?></option>
+                                    <option value="open"<?=selected('open',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Open');?></option>
+                                    <option value="closed"<?=selected('closed',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Closed');?></option>
                                 </select>
                                 <p class="help-block"><?=_t('If Closed, no one will be able to subscribe to the list.');?></p>
                             </div>
@@ -71,13 +71,13 @@ define('SCREEN', 'clist');
                             
                              <div class="form-group">
                                 <label><?= _t('Redirect Success'); ?></label>
-                                <input type="text" class="form-control" name="redirect_success">
+                                <input type="text" class="form-control" name="redirect_success" value="<?=(_h($app->req->post['redirect_success']) != '' ? _h($app->req->post['redirect_success']) : '');?>" />
                                 <p class="help-block"><?=_t('Override the default with your custom url success message.');?></p>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Redirect Error'); ?></label>
-                                <input type="text" class="form-control" name="redirect_unsuccess">
+                                <input type="text" class="form-control" name="redirect_unsuccess" value="<?=(_h($app->req->post['redirect_unsuccess']) != '' ? _h($app->req->post['redirect_unsuccess']) : '');?>" />
                                 <p class="help-block"><?=_t('Override the default with your custom url unsuccess message.');?></p>
                             </div>
                             
@@ -85,8 +85,8 @@ define('SCREEN', 'clist');
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"><?=_t('Yes');?></option>
-                                    <option value="0"><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1',(_h($app->req->post['optin']) != '' ? _h($app->req->post['optin']) : ''),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',(_h($app->req->post['optin']) != '' ? _h($app->req->post['optin']) : ''),false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -97,8 +97,6 @@ define('SCREEN', 'clist');
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <input type="hidden" name="created" value="<?=Jenssegers\Date\Date::now();?>">
-                <input type="hidden" name="owner" value="<?=get_userdata('id');?>">
                 <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
             </div>
         </form>

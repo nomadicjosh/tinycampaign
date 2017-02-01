@@ -43,44 +43,44 @@ define('SCREEN', 'auser');
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Username'); ?></label>
-                                <input type="text" class="form-control" name="uname" value="<?=_h($app->req->post['uname']);?>" required>
+                                <input type="text" class="form-control" name="uname" value="<?=(_h($app->req->post['uname']) != '' ? _h($app->req->post['uname']) : '');?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('First Name'); ?></label>
-                                <input type="text" class="form-control" name="fname" value="<?=_h($app->req->post['fname']);?>" required>
+                                <input type="text" class="form-control" name="fname" value="<?=(_h($app->req->post['fname']) != '' ? _h($app->req->post['fname']) : '') ;?>" required/>
                             </div>
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Last Name'); ?></label>
-                                <input type="text" class="form-control" name="lname" value="<?=_h($app->req->post['lname']);?>" required>
+                                <input type="text" class="form-control" name="lname" value="<?=(_h($app->req->post['lname']) != '' ? _h($app->req->post['lname']) : '');?>" required/>
                             </div>
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email'); ?></label>
-                                <input type="text" class="form-control" name="email" value="<?=_h($app->req->post['email']);?>" required>
+                                <input type="text" class="form-control" name="email" value="<?=(_h($app->req->post['email']) != '' ? _h($app->req->post['email']) : '');?>" required/>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Address1'); ?></label>
-                                <input type="text" class="form-control" name="address1" value="<?=_h($app->req->post['address1']);?>" >
+                                <input type="text" class="form-control" name="address1" value="<?=(_h($app->req->post['address1']) != '' ? _h($app->req->post['address1']) : '');?>" />
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Address2'); ?></label>
-                                <input type="text" class="form-control" name="address2" value="<?=_h($app->req->post['address2']);?>" >
+                                <input type="text" class="form-control" name="address2" value="<?=(_h($app->req->post['address2']) != '' ? _h($app->req->post['address2']) : '');?>" >
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('City'); ?></label>
-                                <input type="text" class="form-control" name="city" value="<?=_h($app->req->post['city']);?>" >
+                                <input type="text" class="form-control" name="city" value="<?=(_h($app->req->post['city']) != '' ? _h($app->req->post['city']) : '');?>" >
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
                                     <option>&nbsp;</option>
-                                    <?php table_dropdown('state',null,'code','code','name',_h($app->req->post['state'])); ?>
+                                    <?php table_dropdown('state',null,'code','code','name',(_h($app->req->post['state']) != '' ? _h($app->req->post['state']) : '')); ?>
                                 </select>
                             </div>
                             
@@ -90,14 +90,14 @@ define('SCREEN', 'auser');
                             
                             <div class="form-group">
                                 <label><?= _t('Postal Code'); ?></label>
-                                <input type="text" class="form-control" name="postal_code" value="<?=_h($app->req->post['postal_code']);?>" >
+                                <input type="text" class="form-control" name="postal_code" value="<?=(_h($app->req->post['postal_code']) != '' ? _h($app->req->post['postal_code']) : '');?>" >
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Country'); ?></label>
                                 <select class="form-control select2" name="country" style="width: 100%;">
                                     <option>&nbsp;</option>
-                                    <?php table_dropdown('country',null,'iso2','iso2','short_name',_h($app->req->post['country'])); ?>
+                                    <?php table_dropdown('country',null,'iso2','iso2','short_name',(_h($app->req->post['country']) != '' ? _h($app->req->post['country']) : '')); ?>
                                 </select>
                             </div>
                             
@@ -105,7 +105,7 @@ define('SCREEN', 'auser');
                                 <label><font color="red">*</font> <?= _t('Role'); ?></label>
                                 <select class="form-control select2" name="roleID" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <?php get_user_roles(_h($app->req->post['roleID'])); ?>
+                                    <?php get_user_roles((_h($app->req->post['roleID']) != '' ? _h($app->req->post['roleID']) : '')); ?>
                                 </select>
                             </div>
                             
@@ -113,8 +113,8 @@ define('SCREEN', 'auser');
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>
                                 <select class="form-control select2" name="status" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',_h($app->req->post['status']),false);?>><?=_t('Active');?></option>
-                                    <option value="0"<?=selected('0',_h($app->req->post['status']),false);?>><?=_t('Inactive');?></option>
+                                    <option value="1"<?=selected('1',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Active');?></option>
+                                    <option value="0"<?=selected('0',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Inactive');?></option>
                                 </select>
                                 <p class="help-block"><?=_t('If the account is Inactive, the user will be incapable of logging into the system.');?></p>
                             </div>

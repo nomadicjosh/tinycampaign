@@ -215,7 +215,7 @@ define('SCREEN', $list->code);
                 </div>
             <!-- /.box-body -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button<?=ie('email_list_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
             </div>
         </form>
         <!-- form end -->

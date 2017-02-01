@@ -392,7 +392,7 @@ class tc_Email
         $message = process_email_html($message, _t("New Account"));
         $headers = "From: $site <auto-reply@$domain>\r\n";
         if (_h(get_option('tc_smtp_status')) == 0) {
-            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE."\r\n";
             $headers .= "MIME-Version: 1.0" . "\r\n";
         }
 

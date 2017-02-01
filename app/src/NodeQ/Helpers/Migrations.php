@@ -95,6 +95,16 @@ class Migrations
             $q->running = (boolean) false;
             $q->runned = (int) 0;
             $q->save();
+            
+            $q->name = 'Run NodeQ';
+            $q->url = (string) $url . 'cron/runNodeQ/';
+            $q->time = (string) '';
+            $q->each = (int) 300;
+            $q->eachtime = (string) '';
+            $q->lastrun = (string) '';
+            $q->running = (boolean) false;
+            $q->runned = (int) 0;
+            $q->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
@@ -115,6 +125,22 @@ class Migrations
             $q->key = (string) $key->saveToAsciiSafeString();
             $q->created_at = (string) \Jenssegers\Date\Date::now();
             $q->save();
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
+    public static function queued_campaign()
+    {
+        try {
+            Node::create('queued_campaign', [
+                'node' => 'string',
+                'mid' => 'integer',
+                'sendstart' => 'string',
+                'complete' => 'integer'
+            ]);
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {

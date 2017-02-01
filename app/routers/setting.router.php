@@ -25,7 +25,7 @@ $app->match('GET|POST', '/setting/', function () use($app) {
                 'system_name', 'system_email', 'mail_throttle',
                 'cookieexpire', 'cookiepath', 'backend_skin',
                 'tc_core_locale', 'system_timezone', 'api_key',
-                'mailing_address'
+                'mailing_address', 'collapse_sidebar'
             ];
 
             foreach ($options as $option_name) {

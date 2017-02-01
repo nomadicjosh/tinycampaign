@@ -1,6 +1,7 @@
 <?php $app = \Liten\Liten::getInstance();
 ob_start();
 ob_implicit_flush(0);
+$cookie = get_secure_cookie_data('SWITCH_USERBACK');
 ?>
 <!DOCTYPE html>
 <html>
@@ -31,7 +32,7 @@ ob_implicit_flush(0);
      folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="static/assets/css/skins/_all-skins.min.css">
 </head>
-<body class="hold-transition <?=_h(get_option('backend_skin'));?> sidebar-mini">
+<body class="hold-transition <?=_h(get_option('backend_skin'));?> <?=(_h(get_option('collapse_sidebar')) == 'yes' ? 'sidebar-collapse ' : '');?>sidebar-mini">
 <div class="wrapper">
 
   <header class="main-header">
@@ -72,8 +73,13 @@ ob_implicit_flush(0);
                 <div class="pull-left">
                   <a href="<?=get_base_url();?>user/profile/" class="btn btn-default btn-flat"><?=_t('Profile');?></a>
                 </div>
+                <?php if (isset($_COOKIE['SWITCH_USERBACK'])) : ?>
+                <div class="pull-left">
+                  <a href="<?=get_base_url();?>user/<?=$cookie->id;?>/switch-back/" class="btn btn-default btn-flat"><?=_t('Switch to');?> <?=$cookie->uname;?></a>
+                </div>
+                <?php endif; ?>
                 <div class="pull-right">
-                  <a href="<?=get_base_url();?>logout/" class="btn btn-default btn-flat"><?=_t('Sign out');?></a>
+                  <a href="<?=get_base_url();?>logout/" class="btn btn-default btn-flat"><?=_t('Logout');?></a>
                 </div>
               </li>
             </ul>
@@ -106,10 +112,24 @@ ob_implicit_flush(0);
             <i class="fa fa-dashboard"></i> <span><?=_t('Dashboard');?></span>
           </a>
         </li>
-        <li class="treeview">
+        <li<?=ae('access_settings_screen');?> class="treeview">
           <a href="<?=get_base_url();?>dashboard/flushCache/">
             <i class="fa fa-database"></i> <span><?=_t('Flush Cache');?></span>
           </a>
+        </li>
+        <li<?=ae('access_settings_screen');?> class="treeview<?=(SCREEN_PARENT === 'handler' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-clock-o"></i>
+            <span><?=_t('Cronjob Handlers');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'hset' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>cron/setting/"><i class="fa fa-circle-o"></i> <?=_t('Settings');?></a></li>
+            <li<?=(SCREEN === 'hnew' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>cron/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Handler');?></a></li>
+            <li<?=(SCREEN === 'handlers' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>cron/"><i class="fa fa-circle-o"></i> <?=_t('Handlers');?></a></li>
+          </ul>
         </li>
         <li class="treeview<?=(SCREEN_PARENT === 'admin') ? ' active' : '';?>">
           <a href="#">
@@ -122,13 +142,27 @@ ob_implicit_flush(0);
           <ul class="treeview-menu">
             <li<?=(SCREEN === 'general' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/"><i class="fa fa-circle-o"></i> <?=_t('General Settings');?></a></li>
             <li<?=(SCREEN === 'smtp' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/smtp/"><i class="fa fa-circle-o"></i> <?=_t('SMTP Settings');?></a></li>
-            <li<?=(SCREEN === 'bounce' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/bounce/"><i class="fa fa-circle-o"></i> <?=_t('Email Bounce Settings');?></a></li>
+            <li<?=(SCREEN === 'bounce' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/bounce/"><i class="fa fa-circle-o"></i> <?=_t('Bounce Email Settings');?></a></li>
             <li<?=(SCREEN === 'perm' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>permission/"><i class="fa fa-circle-o"></i> <?=_t('Permissions');?></a></li>
             <li<?=(SCREEN === 'aperm' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>permission/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Permission');?></a></li>
             <li<?=(SCREEN === 'role' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>role/"><i class="fa fa-circle-o"></i> <?=_t('Roles');?></a></li>
             <li<?=(SCREEN === 'arole' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>role/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Role');?></a></li>
             <li<?=(SCREEN === 'error' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>error/"><i class="fa fa-circle-o"></i> <?=_t('Error Logs');?></a></li>
             <li<?=(SCREEN === 'audit' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>audit-trail/"><i class="fa fa-circle-o"></i> <?=_t('Audit Trail');?></a></li>
+          </ul>
+        </li>
+        <li<?=ae('manage_plugins');?> class="treeview<?=(SCREEN_PARENT === 'plugins' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-cog"></i>
+            <span><?=_t('Plugins');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'plugins' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>plugins/"><i class="fa fa-circle-o"></i> <?=_t('Plugins List');?></a></li>
+            <li<?=(SCREEN === 'pinstall' ? ' class="active"' : '');?><?=ae('install_plugins');?>><a href="<?=get_base_url();?>plugins/install/"><i class="fa fa-circle-o"></i> <?=_t('Install Plugin');?></a></li>
+            <?php $app->hook->{'list_plugin_admin_pages'}(); ?>
           </ul>
         </li>
         <li class="treeview<?=(SCREEN_PARENT === 'list' ? ' active' : '');?>">

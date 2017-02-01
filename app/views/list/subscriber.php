@@ -43,7 +43,8 @@ define('SCREEN', 'lists');
                             <th class="text-center"><?= _t('Email'); ?></th>
                             <th class="text-center"><?= _t('First Name'); ?></th>
                             <th class="text-center"><?= _t('Last Name'); ?></th>
-                            <th class="text-center"><?= _t('Join Date'); ?></th>
+                            <th class="text-center"><?= _t('Add Date'); ?></th>
+                            <th class="text-center"><?= _t('Status'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>
                     </thead>
@@ -54,18 +55,10 @@ define('SCREEN', 'lists');
                                 <td class="text-center"><?= _h($sub->fname); ?></td>
                                 <td class="text-center"><?= _h($sub->lname); ?></td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($sub->addDate))->format('M. d, Y @ h:s A'); ?></td>
+                                <td class="text-center"><?=(_h($sub->unsubscribe) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?></td>
                                 <td class="text-center">
-                                    <div class="btn-group dropdown">
-                                        <button class="btn btn-default btn-xs" type="button"><?= _t('Actions'); ?></button>
-                                        <button data-toggle="dropdown" class="btn btn-xs btn-primary dropdown-toggle" type="button">
-                                            <span class="caret"></span>
-                                            <span class="sr-only"><?= _t('Toggle Dropdown'); ?></span>
-                                        </button>
-                                        <ul role="menu" class="dropdown-menu dropup-text pull-right">
-                                            <li><a href="<?= get_base_url(); ?>subscriber/<?= _h($sub->id); ?>/"><?= _t('View'); ?></a></li>
-                                            <li><a href="#" data-toggle="modal" data-target="#delete-<?= _h($sub->id); ?>"><?= _t('Delete'); ?></a></li>
-                                        </ul>
-                                    </div>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= _h($sub->id); ?>">
                                         <div class="modal-dialog">
@@ -97,7 +90,8 @@ define('SCREEN', 'lists');
                             <th class="text-center"><?= _t('Email'); ?></th>
                             <th class="text-center"><?= _t('First Name'); ?></th>
                             <th class="text-center"><?= _t('Last Name'); ?></th>
-                            <th class="text-center"><?= _t('Join Date'); ?></th>
+                            <th class="text-center"><?= _t('Add Date'); ?></th>
+                            <th class="text-center"><?= _t('Status'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>
                     </tfoot>

@@ -16,28 +16,45 @@ use PDOException as ORMException;
  */
 $app = \Liten\Liten::getInstance();
 
-function rolePerm($id)
+function role_perm($id = null)
 {
     $app = \Liten\Liten::getInstance();
 
     try {
         $role = $app->db->role()
             ->select('role.permission')
-            ->where('role.id = ?', $id)
-            ->findOne();
+            ->where('role.id = ?', $id);
+        $q1 = $role->find(function ($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
+        $a = [];
+        foreach($q1 as $r1) {
+            $a[] = $r1;
+        }
         
-        $q = $app->db->permission()->find();
+        $permission = $app->db->permission();
+        $q2 = $permission->find(function ($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
         
-        foreach ($q as $r) {
-            $perm = maybe_unserialize($role->permission);
+        foreach ($q2 as $r2) {
+            $perm = maybe_unserialize($r1['permission']);
             echo '
 				<tr>
-					<td>' . $r->permName . '</td>
+					<td>' . $r2['permName'] . '</td>
 					<td class="text-center">';
-            if (in_array($r->permKey, $perm)) {
-                echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r->permKey . '" checked="checked" />';
+            if (in_array($r2['permKey'], $perm)) {
+                echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r2['permKey'] . '" checked="checked" />';
             } else {
-                echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r->permKey . '" />';
+                echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r2['permKey'] . '" />';
             }
             echo '</td>
             </tr>';
@@ -51,13 +68,13 @@ function rolePerm($id)
     }
 }
 
-function userPerm($id)
+function user_permission($id = null)
 {
     $app = \Liten\Liten::getInstance();
 
     try {
         $array = [];
-        $pp = $app->db->query("SELECT permission FROM user_perms WHERE id = ?", [
+        $pp = $app->db->query("SELECT permission FROM user_perms WHERE userID = ?", [
             $id
         ]);
         $q = $pp->find(function ($data) {
@@ -73,10 +90,10 @@ function userPerm($id)
         $userPerm = maybe_unserialize($r['permission']);
         /**
          * Select the role(s) of the user who's
-         * id = $id
+         * userID = $id
          */
         $array1 = [];
-        $pr = $app->db->query("SELECT roleID from user_roles WHERE id = ?", [
+        $pr = $app->db->query("SELECT roleID from user WHERE id = ?", [
             $id
         ]);
         $q1 = $pr->find(function ($data) {
@@ -122,11 +139,11 @@ function userPerm($id)
                 <td>' . $row['permName'] . '</td>
                 <td class="text-center">';
             if (in_array($row['permKey'], $perm)) {
-                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" checked="checked" disabled="disabled" />';
+                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" class="minimal" checked="checked" disabled="disabled" />';
             } elseif ($userPerm != '' && in_array($row['permKey'], $userPerm)) {
-                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" checked="checked" />';
+                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" class="minimal" checked="checked" />';
             } else {
-                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" />';
+                echo '<input type="checkbox" name="permission[]" value="' . $row['permKey'] . '" class="minimal" />';
             }
             echo '</td>
             </tr>';

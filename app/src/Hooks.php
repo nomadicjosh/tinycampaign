@@ -682,13 +682,13 @@ class Hooks
     /**
      * Display list of links to plugin admin pages, if any
      */
-    public function list_plugin_admin_pages($url)
+    public function list_plugin_admin_pages()
     {
         if (! property_exists($this->app->hook, 'plugin_pages') || ! $this->app->hook->plugin_pages)
             return;
         
         foreach ((array) $this->app->hook->plugin_pages as $page) {
-            echo '<li><a href="' . $url . '?page=' . $page['slug'] . '">' . $page['title'] . '</a></li>' . "\n";
+            echo '<li'.(SCREEN === $page['slug'] ? ' class="active"' : '').'><a href="'.get_base_url().'plugins/options/?page='.$page['slug'].'"><i class="fa fa-circle-o"></i> '.$page['title'].'</a></li>';
         }
     }
 

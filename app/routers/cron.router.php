@@ -2,6 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
 use app\src\NodeQ\Helpers\Validate as Validate;
 use Cascade\Cascade;
 use app\src\Exception\NotFoundException;
@@ -65,9 +66,19 @@ foreach ($regions as $name => $mask) {
     }
 }
 
-$email = _tc_email();
+$app->group('/cron', function () use($app, $css, $js) {
 
-$app->group('/cron', function () use($app, $css, $js, $email) {
+    try {
+        if (!Validate::table('cronjob_setting')->exists()) {
+            Node::dispense('cronjob_setting');
+        }
+
+        if (!Validate::table('cronjob_handler')->exists()) {
+            Node::dispense('cronjob_handler');
+        }
+    } catch (NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 
     /**
      * Before route checks to make sure the logged in user
@@ -82,22 +93,22 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
     $app->match('GET|POST', '/', function () use($app, $css, $js) {
 
         if ($app->req->isPost()) {
-            foreach ($_POST['cronjobs'] as $job) {
-                Node::table('cronjob_handler')->find($job)->delete();
+            foreach ($app->req->post['cronjobs'] as $job) {
+                try {
+                    Node::table('cronjob_handler')->find($job)->delete();
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
             }
             redirect($app->req->server['HTTP_REFERER']);
         }
 
-        if (!Validate::table('cronjob_setting')->exists()) {
-            Node::dispense('cronjob_setting');
+        try {
+            $set = Node::table('cronjob_setting')->findAll();
+            $jobs = Node::table('cronjob_handler')->findAll();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
         }
-
-        if (!Validate::table('cronjob_handler')->exists()) {
-            Node::dispense('cronjob_handler');
-        }
-
-        $set = Node::table('cronjob_setting')->findAll();
-        $jobs = Node::table('cronjob_handler')->findAll();
 
         tc_register_style('datatables');
         tc_register_style('iCheck');
@@ -111,12 +122,17 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         ]);
     });
 
-    $app->match('GET|POST', '/new/', function () use($app, $css, $js) {
+    $app->match('GET|POST', '/create/', function () use($app, $css, $js) {
         if ($app->req->isPost()) {
-            if (filter_var($_POST['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
-                $url = Node::table('cronjob_handler')
-                    ->where('url', '=', $app->req->_post('url'))
-                    ->find();
+            if (filter_var($app->req->post['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
+                try {
+                    $url = Node::table('cronjob_handler')
+                        ->where('url', '=', $app->req->_post('url'))
+                        ->find();
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
+                    exit();
+                }
 
                 $found = false;
                 if ($url->count() > 0) {
@@ -125,35 +141,35 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
 
                 if ($found == false) {
                     if ($app->req->_post('each') == '') {
-                        _tc_flash()->error(_t('Time setting missing, please add time settings.'));
+                        _tc_flash()->error(_t('Time setting missing, please add time settings.'), redirect(get_base_url() . 'cron/'));
                     } else {
 
-                        $cron = Node::table('cronjob_handler');
-                        $cron->name = (string) $app->req->_post('name');
-                        $cron->url = (string) $app->req->_post('url');
-                        $cron->each = (int) $app->req->_post('each');
-                        $cron->eachtime = ((isset($_POST['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $_POST['eachtime'])) ? $_POST['eachtime'] : '');
-                        $cron->save();
+                        try {
+                            $cron = Node::table('cronjob_handler');
+                            $cron->name = (string) $app->req->_post('name');
+                            $cron->url = (string) $app->req->_post('url');
+                            $cron->each = (int) $app->req->_post('each');
+                            $cron->eachtime = ((isset($app->req->post['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $app->req->post['eachtime'])) ? $app->req->post['eachtime'] : '');
+                            $cron->save();
 
-                        if ($cron) {
-                            _tc_flash()->success(_tc_flash()->notice(200));
-                        } else {
-                            _tc_flash()->error(_tc_flash()->notice(409));
+                            _tc_flash()->success(_tc_flash()->notice(200), redirect(get_base_url() . 'cron/'));
+                        } catch (NodeQException $e) {
+                            _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
                         }
                     }
                 } else {
-                    _tc_flash()->error(_t('Cronjob handler already exists in the system.'));
+                    _tc_flash()->error(_t('Cronjob handler already exists in the system.'), redirect(get_base_url() . 'cron/'));
                 }
             } else {
-                _tc_flash()->error(_t('Cronjob URL is wrong.'));
+                _tc_flash()->error(_t('Cronjob URL is wrong.'), redirect(get_base_url() . 'cron/'));
             }
-            redirect(get_base_url() . 'cron/');
         }
 
-        $app->view->display('cron/new', [
-            'title' => 'New Cronjob Handler',
-            'cssArray' => $css,
-            'jsArray' => $js
+        tc_register_style('select2');
+        tc_register_script('select2');
+
+        $app->view->display('cron/create', [
+            'title' => 'New Cronjob Handler'
         ]);
     });
 
@@ -162,7 +178,7 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         if ($app->req->isPost()) {
             $good = true;
 
-            if (strlen(trim($_POST['cronjobpassword'])) < 2) {
+            if (strlen(trim($app->req->post['cronjobpassword'])) < 2) {
                 _tc_flash()->error(_t('Cronjobs cannot run without a password. Your cronjob password contains wrong characters, minimum of 4 letters and numbers.'));
                 $good = false;
             }
@@ -171,26 +187,27 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
                 try {
                     $cron = Node::table('cronjob_setting')->find(1);
                     $cron->cronjobpassword = (string) $app->req->_post('cronjobpassword');
-                    $cron->timeout = (isset($_POST['timeout']) && is_numeric($_POST['timeout']) ? (int) $app->req->_post('timeout') : 30);
+                    $cron->timeout = (isset($app->req->post['timeout']) && is_numeric($app->req->post['timeout']) ? (int) $app->req->_post('timeout') : 30);
                     $cron->save();
 
-                    if ($cron) {
-                        _tc_flash()->success(_tc_flash()->notice(200));
-                    } else {
-                        _tc_flash()->error(_tc_flash()->notice(409));
-                    }
-                } catch (Exception $e) {
-                    
+                    _tc_flash()->success(_tc_flash()->notice(200));
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
                 }
             }
         }
 
-        $set = Node::table('cronjob_setting')->find(1);
+        try {
+            $set = Node::table('cronjob_setting')->find(1);
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        tc_register_style('select2');
+        tc_register_script('select2');
 
         $app->view->display('cron/setting', [
             'title' => 'Cronjob Handler Settings',
-            'cssArray' => $css,
-            'jsArray' => $js,
             'data' => $set
         ]);
     });
@@ -207,26 +224,30 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
 
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app, $css, $js) {
         if ($app->req->isPost()) {
-            if (filter_var($_POST['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
+            if (filter_var($app->req->post['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
 
-                $cron = Node::table('cronjob_handler')->find($id);
-                $cron->name = (string) $app->req->_post('name');
-                $cron->url = (string) $app->req->_post('url');
-                $cron->each = (int) $app->req->_post('each');
-                $cron->eachtime = ((isset($_POST['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $_POST['eachtime'])) ? $_POST['eachtime'] : '');
-                $cron->save();
+                try {
+                    $cron = Node::table('cronjob_handler')->find($id);
+                    $cron->name = (string) $app->req->_post('name');
+                    $cron->url = (string) $app->req->_post('url');
+                    $cron->each = (int) $app->req->_post('each');
+                    $cron->eachtime = ((isset($app->req->post['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $app->req->post['eachtime'])) ? $app->req->post['eachtime'] : '');
+                    $cron->save();
 
-                if ($cron) {
                     _tc_flash()->success(_tc_flash()->notice(200));
-                } else {
-                    _tc_flash()->error(_tc_flash()->notice(409));
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
                 }
             } else {
                 _tc_flash()->error(_t('Current URL is not correct; must begin with http(s):// and followed with a path.'));
             }
         }
 
-        $sql = Node::table('cronjob_handler')->find($id);
+        try {
+            $sql = Node::table('cronjob_handler')->find($id);
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -267,10 +288,14 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         }
     });
 
-    $app->get('/cronjob/', function () use($app, $email) {
+    $app->get('/cronjob/', function () use($app) {
 
-        $setting = Node::table('cronjob_setting')->find(1);
-        $cron = Node::table('cronjob_handler')->findAll();
+        try {
+            $setting = Node::table('cronjob_setting')->find(1);
+            $cron = Node::table('cronjob_handler')->findAll();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         if (!isset($_GET['password']) && !isset($argv[1])) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
@@ -325,10 +350,14 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
                     // save as executed
                     echo _t('Running: ') . $job->url . PHP_EOL . PHP_EOL;
 
-                    $upd = Node::table('cronjob_handler')->find($job->id);
-                    $upd->lastrun = $d->format('Y-m-d H:i:s');
-                    $upd->runned ++;
-                    $upd->save();
+                    try {
+                        $upd = Node::table('cronjob_handler')->find($job->id);
+                        $upd->lastrun = $d->format('Y-m-d H:i:s');
+                        $upd->runned ++;
+                        $upd->save();
+                    } catch (NodeQException $e) {
+                        _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
+                    }
 
                     echo _t('Connecting to cronjob') . PHP_EOL . PHP_EOL;
 
@@ -404,38 +433,97 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         }
     });
 
-    $app->get('/runEmailQueue/', function () use($app, $email) {
-        // instantiate the message queue
-        $queue = new \app\src\tc_Queue();
+    $app->get('/runEmailQueue/', function () use($app) {
+        $domain = get_domain_name();
+        $site = _h(get_option('system_name'));
 
-        $last = Node::table($queue->getNode())->orderBy('id', 'DESC')->limit(1)->findAll();
+        try {
+            $cpgn = $app->db->campaign()
+                ->where('campaign.status = "processing"')
+                ->findOne();
+            
+            if ($cpgn->id > 0) {
 
-        // get messages from the queue
-        $messages = $queue->getEmails();
+                try {
+                    // instantiate the message queue
+                    $queue = new \app\src\tc_Queue();
+                    $queue->node = $cpgn->node;
 
-        $numItems = $queue->getUnsentEmailCount();
-        $i = 0;
+                    // get messages from the queue
+                    $messages = $queue->getEmails();
+                    // iterate messages
+                    $numItems = $queue->getUnsentEmailCount();
+                    $i = 0;
+                    $last = Node::table($cpgn->node)->where('id', '=', $numItems)->find();
+                    foreach ($messages as $message) {
+                        $sub = get_subscriber_by('email', $message->getToEmail());
+                        $slist = $app->db->subscriber_list()
+                            ->where('subscriber_list.lid = ?', $message->getListId())->_and_()
+                            ->where('subscriber_list.sid = ?', $message->getSubscriberId())
+                            ->findOne();
 
-        // iterate messages
-        foreach ($messages as $message) {
-            // send email
-            $email->tc_mail(
-                $message->getToEmail(), $message->getSubject(), $message->getMessageHtml(), $message->getHeaders()
-            );
+                        $footer = _escape($cpgn->footer);
+                        $footer = str_replace('{email}', $sub->email, $footer);
+                        $footer = str_replace('{from_email}', $cpgn->from_email, $footer);
+                        $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . $sub->code . '/subscriber/' . $sub->id . '/', $footer);
+                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . $slist->code . '/lid/' . $slist->lid . '/sid/' . $slist->sid . '/', $footer);
 
-            $q = $app->db->campaign();
-            $q->recipients = +1;
-            if (++$i === 1) {
-                $q->sendfinish = $last->timestamp_to_send;
+                        $msg = _escape($cpgn->html);
+                        $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+                        $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . $cpgn->id . '/">' . _t('View this email in your browser') . '</a>', $msg);
+                        $msg = str_replace('{first_name}', $sub->fname, $msg);
+                        $msg = str_replace('{last_name}', $sub->lname, $msg);
+                        $msg = str_replace('{email}', $sub->email, $msg);
+                        $msg = str_replace('{address1}', $sub->address1, $msg);
+                        $msg = str_replace('{address2}', $sub->address2, $msg);
+                        $msg = str_replace('{city}', $sub->city, $msg);
+                        $msg = str_replace('{state}', $sub->state, $msg);
+                        $msg = str_replace('{postal_code}', $sub->postal_code, $msg);
+                        $msg = str_replace('{country}', $sub->country, $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . $slist->code . '/lid/' . $slist->lid . '/sid/' . $slist->sid . '/">'._t('unsubscribe').'</a>', $msg);
+                        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . $sub->code . '/subscriber/' . $sub->id . '/">'._t('preferences page').'</a>', $msg);
+                        $msg .= $footer;
+                        $msg .= campaign_tracking_code($message);
+                        $headers = "From: $site <auto-reply@$domain>\r\n";
+                        $headers .= "Return-Path: " . (_h(get_option('tc_bmh_username')) == '' ? _h(get_option('system_email')) : _h(get_option('tc_bmh_username'))) . "\r\n";
+                        if (_h(get_option('tc_smtp_status')) == 0) {
+                            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
+                            $headers .= "MIME-Version: 1.0" . "\r\n";
+                        }
+                        // send email
+                        _tc_email()->tc_mail(
+                            $message->getToEmail(), $cpgn->subject, $msg, $headers
+                        );
+
+                        $q = $app->db->campaign()
+                            ->where('node = ?', $queue->getNode())
+                            ->findOne();
+                        $q->recipients = $q->recipients + 1;
+                        if (++$i === 1) {
+                            $q->sendfinish = $last->timestamp_to_send;
+                        }
+                        if (++$i === $numItems) {
+                            $q->status = 'sent';
+                        }
+                        $q->update();
+
+                        // remove message from the queue by updating is_sent value
+                        $queue->setMessageIsSent($message);
+                    }
+                } catch (NodeQException $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+                } catch (InvalidArgumentException $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+                } catch (Exception $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+                }
             }
-            if (++$i === $numItems) {
-                $q->status = 'sent';
-            }
-            $q->where('node = ?', $queue->getNode())
-                ->update();
-
-            // remove message from the queue by updating is_sent value
-            $queue->setMessageIsSent($message);
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
         }
     });
 
@@ -455,15 +543,15 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
         /*
          * for remote mailbox
          */
-        $bmh->mailhost = get_option('tc_bmh_host'); // your mail server
-        $bmh->mailbox_username = get_option('tc_bmh_username'); // your mailbox username
-        $bmh->mailbox_password = get_option('tc_bmh_password'); // your mailbox password
-        $bmh->port = get_option('tc_bmh_port'); // the port to access your mailbox, default is 143
-        $bmh->service = get_option('tc_bmh_service'); // the service to use (imap or pop3), default is 'imap'
-        $bmh->service_option = get_option('tc_bmh_service_option'); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
-        $bmh->boxname = (get_option('tc_bmh_mailbox') == '' ? 'INBOX' : get_option('tc_bmh_mailbox')); // the mailbox to access, default is 'INBOX'
+        $bmh->mailhost = _h(get_option('tc_bmh_host')); // your mail server
+        $bmh->mailbox_username = _h(get_option('tc_bmh_username')); // your mailbox username
+        $bmh->mailbox_password = _h(get_option('tc_bmh_password')); // your mailbox password
+        $bmh->port = _h(get_option('tc_bmh_port')); // the port to access your mailbox, default is 143
+        $bmh->service = _h(get_option('tc_bmh_service')); // the service to use (imap or pop3), default is 'imap'
+        $bmh->service_option = _h(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
+        $bmh->boxname = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))); // the mailbox to access, default is 'INBOX'
         $bmh->moveHard = true; // default is false
-        $bmh->hardMailbox = (get_option('tc_bmh_mailbox') == '' ? 'INBOX' : get_option('tc_bmh_mailbox')) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
+        $bmh->hardMailbox = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
         $bmh->moveSoft = false; // default is false
         $bmh->softMailbox = ''; // default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
         $bmh->deleteMsgDate = Jenssegers\Date\Date::now()->format('yyyy-mm-dd H:i:s'); // format must be as 'yyyy-mm-dd'
@@ -477,8 +565,10 @@ $app->group('/cron', function () use($app, $css, $js, $email) {
     });
 
     $app->get('/runNodeQ/', function () {
+        process_queued_campaign();
         send_confirm_email();
         send_subscribe_email();
+        send_unsubscribe_email();
     });
 });
 

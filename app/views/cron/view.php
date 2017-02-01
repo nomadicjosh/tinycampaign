@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'cron');
-define('SCREEN', 'Cron');
+define('SCREEN_PARENT', 'handler');
+define('SCREEN', 'handlers');
 $options = [
                  30        => '30 seconds',
                  60        => 'Minute',
@@ -44,7 +44,7 @@ $options = [
         <h1><?= _t('View/Edit Cronjob Handler'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>cron/"><i class="fa fa-group"></i> <?= _t('Cronjob Handlers'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>cron/"><i class="fa fa-clock-o"></i> <?= _t('Cronjob Handlers'); ?></a></li>
             <li class="active"><?= _t('View/Edit Cronjob Handler'); ?></li>
         </ol>
     </section>
@@ -56,20 +56,33 @@ $options = [
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
+            
+            <div class="break"></div>
+
+            <!-- Tabs Heading -->            
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="<?= get_base_url(); ?>cron/"><?= _t('Handler Dashboard'); ?></a></li>
+                    <li><a href="<?= get_base_url(); ?>cron/new/"><?= _t('New Cronjob Handler'); ?></a></li>
+                    <li><a href="<?= get_base_url(); ?>cron/setting/"><?= _t('Settings'); ?></a></li>
+                </ul>
+            </div>
+            <!-- // Tabs Heading END -->
+            
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>cron/<?=$cron->id;?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>cron/<?=_h($cron->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Handler Name'); ?></label>
-                                <input type="text" class="form-control" name="name" value="<?=$cron->name;?>" required>
+                                <input type="text" class="form-control" name="name" value="<?=_h($cron->name);?>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Cronjob URL'); ?></label>
-                                <input type="text" class="form-control" name="url" value="<?=$cron->url;?>" required>
+                                <input type="text" class="form-control" name="url" value="<?=_h($cron->url);?>" required>
                             </div>
                             
                         </div>
@@ -82,7 +95,7 @@ $options = [
                                     <option>&nbsp;</option>
                                     <?php 
                                     foreach ($options as $each => $key) {
-                                        $s = ($cron->each == $each) ? ' selected="selected"' : '';
+                                        $s = (_h($cron->each) == $each) ? ' selected="selected"' : '';
                                     ?>
                                     <option value="<?=$each;?>"<?=$s;?>><?=$key; ?></option>
                                     <?php } ?>
@@ -97,7 +110,7 @@ $options = [
                                     for ($y = 0; $y < 4; $y++) {
                                         $time = ((strlen($x) == 1) ? '0' . $x : $x) . ':' . (($y == 0) ? '00' : ($y * 15));
 
-                                        $s = ($cron->eachtime == $time) ? ' selected="selected"' : '';
+                                        $s = (_h($cron->eachtime) == $time) ? ' selected="selected"' : '';
                                 ?>
                                 <option value="<?=$time;?>"<?=$s;?>><?=$time;?></option>
                                 <?php } } ?>
@@ -122,6 +135,29 @@ $options = [
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="each">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Each / Time' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t("Set the time in seconds (Each) of how often the cronjob should run (i.e. 2 minute, Hour or every Day / 07:00.)");?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

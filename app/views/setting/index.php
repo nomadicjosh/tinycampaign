@@ -117,6 +117,15 @@ define('SCREEN', 'general');
                                 <input type="text" class="form-control" name="api_key" value="<?= _h(get_option('api_key')); ?>" required/>
                             </div>
                             
+                            <div class="form-group">
+                                <label><?= _t('Collapse Sidebar'); ?></label>
+                                <select class="form-control select2" name="collapse_sidebar" style="width: 100%;">
+                                    <option>&nbsp;</option>
+                                    <option value="yes"<?=selected('yes',_h(get_option('collapse_sidebar')),false);?>><?=_t('Yes');?></option>
+                                    <option value="no"<?=selected('no',_h(get_option('collapse_sidebar')),false);?>><?=_t('No');?></option>
+                                </select>
+                            </div>
+                            
                         </div>
                         <!-- /.col -->
                     </div>
