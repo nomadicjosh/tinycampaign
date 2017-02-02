@@ -429,27 +429,27 @@ $app->before('GET|POST', '/subscribe/', function() use($app) {
     }
 
     if ($app->req->isPost()) {
-        if ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
-            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
-            exit();
-        }
-
-        if ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
-            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
-            exit();
-        }
+        $app->hook->{'do_action'}('validation_check', $app->req->post);
     }
 });
 
 $app->post('/subscribe/', function () use($app) {
 
+    /**
+     * Check list code is valid.
+     */
     $list = get_list_by('code', $app->req->post['code']);
+    /**
+     * Check if subscriber exists.
+     */
     $sub = get_subscriber_by('email', $app->req->post['email']);
     if ($sub->id > 0) {
         _tc_flash()->error(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
         exit();
     }
-
+    /**
+     * Checks if email is valid.
+     */
     if (!v::email()->validate($app->req->post['email'])) {
         _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
         exit();
