@@ -19,3 +19,4 @@ phpunit
 composer.json
 composer.lock
 phinx.php
+.htaccess
