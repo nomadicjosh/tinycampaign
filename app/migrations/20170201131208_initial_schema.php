@@ -20,9 +20,6 @@ class InitialSchema extends AbstractMigration
         // disable foreign key checks to ensure all tables can be initially created
         $this->execute('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `activity`;");
-
         // CREATE table string for table: "activity"
         $this->execute("
             CREATE TABLE `activity` (
@@ -36,9 +33,6 @@ class InitialSchema extends AbstractMigration
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `campaign`;");
 
         // CREATE table string for table: "campaign"
         $this->execute("
@@ -69,9 +63,6 @@ class InitialSchema extends AbstractMigration
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `campaign_list`;");
-
         // CREATE table string for table: "campaign_list"
         $this->execute("
             CREATE TABLE `campaign_list` (
@@ -85,9 +76,6 @@ class InitialSchema extends AbstractMigration
               CONSTRAINT `campaign_list_ibfk_2` FOREIGN KEY (`lid`) REFERENCES `list` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `country`;");
 
         // CREATE table string for table: "country"
         $this->execute("
@@ -359,9 +347,6 @@ INSERT INTO `country` VALUES(249, 'ZM', 'Zambia', 'Republic of Zambia', 'ZMB', '
 INSERT INTO `country` VALUES(250, 'ZW', 'Zimbabwe', 'Republic of Zimbabwe', 'ZWE', '716', 'yes', '263', '.zw');
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `error`;");
-
         // CREATE table string for table: "error"
         $this->execute("
             CREATE TABLE `error` (
@@ -375,9 +360,6 @@ INSERT INTO `country` VALUES(250, 'ZW', 'Zimbabwe', 'Republic of Zimbabwe', 'ZWE
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `list`;");
 
         // CREATE table string for table: "list"
         $this->execute("
@@ -399,9 +381,6 @@ INSERT INTO `country` VALUES(250, 'ZW', 'Zimbabwe', 'Republic of Zimbabwe', 'ZWE
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `options`;");
 
         // CREATE table string for table: "options"
         $this->execute("
@@ -441,9 +420,6 @@ INSERT INTO `options` VALUES(22, 'tc_bmh_service', '');
 INSERT INTO `options` VALUES(23, 'tc_bmh_service_option', '');
 INSERT INTO `options` VALUES(24, 'collapse_sidebar', 'no');
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `permission`;");
 
         // CREATE table string for table: "permission"
         $this->execute("
@@ -489,9 +465,6 @@ INSERT INTO `permission` VALUES(28, 'activate_deactivate_plugins', 'Activate/Dea
 INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `plugin`;");
-
         // CREATE table string for table: "plugin"
         $this->execute("
             CREATE TABLE `plugin` (
@@ -500,9 +473,6 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `role`;");
 
         // CREATE table string for table: "role"
         $this->execute("
@@ -520,9 +490,6 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
             INSERT INTO `role` VALUES(1, 'Super Admin', 'a:25:{i:0;s:24:\"access_permission_screen\";i:1;s:18:\"access_role_screen\";i:2;s:16:\"access_dashboard\";i:3;s:22:\"access_settings_screen\";i:4;s:17:\"create_email_list\";i:5;s:18:\"manage_email_lists\";i:6;s:16:\"manage_campaigns\";i:7;s:15:\"create_campaign\";i:8;s:12:\"manage_users\";i:9;s:9:\"edit_user\";i:10;s:11:\"delete_user\";i:11;s:11:\"create_user\";i:12;s:13:\"edit_campaign\";i:13;s:15:\"delete_campaign\";i:14;s:15:\"edit_email_list\";i:15;s:17:\"delete_email_list\";i:16;s:18:\"manage_subscribers\";i:17;s:14:\"add_subscriber\";i:18;s:15:\"edit_subscriber\";i:19;s:17:\"delete_subscriber\";i:20;s:21:\"access_cronjob_screen\";i:21;s:14:\"manage_plugins\";i:22;s:15:\"install_plugins\";i:23;s:27:\"activate_deactivate_plugins\";i:24;s:11:\"switch_user\";}');
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `role_perms`;");
-
         // CREATE table string for table: "role_perms"
         $this->execute("
             CREATE TABLE `role_perms` (
@@ -535,9 +502,6 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
               UNIQUE KEY `roleID` (`roleID`,`permID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `state`;");
 
         // CREATE table string for table: "state"
         $this->execute("
@@ -618,9 +582,6 @@ INSERT INTO `state` VALUES(63, 'SK', 'Saskatchewan');
 INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `subscriber`;");
-
         // CREATE table string for table: "subscriber"
         $this->execute("
             CREATE TABLE `subscriber` (
@@ -648,9 +609,6 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `subscriber_list`;");
-
         // CREATE table string for table: "subscriber_list"
         $this->execute("
             CREATE TABLE `subscriber_list` (
@@ -670,9 +628,6 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `tracking`;");
-
         // CREATE table string for table: "tracking"
         $this->execute("
             CREATE TABLE `tracking` (
@@ -689,9 +644,6 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               CONSTRAINT `tracking_ibfk_2` FOREIGN KEY (`sid`) REFERENCES `subscriber` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `user`;");
 
         // CREATE table string for table: "user"
         $this->execute("
@@ -724,9 +676,6 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
             INSERT INTO `user` VALUES(1, 'Tiny', 'Campaign', 'tinyc', 'joshmac3@icloud.com', '', '', 'Boston', 'MA', '02108', 'US', '$2a$08$0S4AFqozF/OXQtzkiR8/U.MJdaQmfUNVjR3fBJ3RqGWCxLkdIp1N2', '', '1', 1, '" . $NOW . "', '2017-02-01 08:27:29', '2017-01-31 03:32:25');
         ");
 
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `user_perms`;");
-
         // CREATE table string for table: "user_perms"
         $this->execute("
             CREATE TABLE `user_perms` (
@@ -739,9 +688,6 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               CONSTRAINT `user_perms_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
         ");
-
-        // Drop table if it already exists
-        $this->execute("DROP TABLE IF EXISTS `user_roles`;");
 
         // CREATE table string for table: "user_roles"
         $this->execute("
