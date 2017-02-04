@@ -673,7 +673,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
 
         // INSERT data string for table: "user"
         $this->execute("
-            INSERT INTO `user` VALUES(1, 'Tiny', 'Campaign', 'tinyc', 'joshmac3@icloud.com', '', '', 'Boston', 'MA', '02108', 'US', '$2a$08$0S4AFqozF/OXQtzkiR8/U.MJdaQmfUNVjR3fBJ3RqGWCxLkdIp1N2', '', '1', 1, '" . $NOW . "', '2017-02-01 08:27:29', '2017-01-31 03:32:25');
+            INSERT INTO `user` VALUES(1, 'Tiny', 'Campaign', 'tinyc', 'tinyc@tc.com', '', '', 'Boston', 'MA', '02108', 'US', '$2a$08$0S4AFqozF/OXQtzkiR8/U.MJdaQmfUNVjR3fBJ3RqGWCxLkdIp1N2', '', '1', 1, '" . $NOW . "', '2017-02-01 08:27:29', '2017-01-31 03:32:25');
         ");
 
         // CREATE table string for table: "user_perms"
