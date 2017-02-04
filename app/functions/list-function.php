@@ -330,11 +330,11 @@ function tinyc_email($server, $to, $subject, $message)
             $tcMailer->ContentType = "text/html";
             $tcMailer->CharSet = "UTF-8";
             $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
-            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h(get_option("system_email")) : _h(get_option('tc_bmh_username')));
+            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h($server->remail) : _h(get_option('tc_bmh_username')));
             $tcMailer->From = _h($server->femail);
             $tcMailer->FromName = _h($server->fname);
             $tcMailer->Sender = $tcMailer->From; // Return-Path
-            $tcMailer->AddReplyTo($server->remail, $server->rname); // Reply-To
+            $tcMailer->AddReplyTo(_h($server->remail), _h($server->rname)); // Reply-To
             $tcMailer->addAddress($to);
             $tcMailer->Subject = $subject;
             $tcMailer->Body = $message;
