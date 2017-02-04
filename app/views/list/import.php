@@ -2,7 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 /**
- * Subscribers View
+ * Import Subscribers View
  *  
  * @license GPLv3
  * 
@@ -25,6 +25,7 @@ define('SCREEN', 'lists');
         <h1><?= _h($list->name); ?>: <?= _t('Import Subscribers'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>list/"><i class="ion ion-ios-list"></i> <?= _t('Email Lists'); ?></a></li>
             <li class="active"><?= _t('Import Subscribers'); ?></li>
         </ol>
     </section>
@@ -73,8 +74,8 @@ define('SCREEN', 'lists');
                 </div>
                 <!-- /.box-body -->
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary"><?= _t('Submit'); ?></button>
-                        <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>list/download/?f=tinyCampaign.csv'"><?= _t('Download Template'); ?></button>
+                        <button<?=ie('email_list_inquiry_only');?> type="submit" class="btn btn-primary"><?= _t('Submit'); ?></button>
+                        <button<?=ie('email_list_inquiry_only');?> type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>list/download/?f=tinyCampaign.csv'"><?= _t('Download Template'); ?></button>
                         <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>list/'"><?= _t('Cancel'); ?></button>
                     </div>
             </form>

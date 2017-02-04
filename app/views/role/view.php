@@ -2,7 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 /**
- * Add Role View
+ * Edit Role View
  *  
  * @license GPLv3
  * 
@@ -27,7 +27,7 @@ define('SCREEN', 'role');
         <h1><?= _t('Edit Role'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>role/"><i class="fa fa-key"></i> <?= _t('Roles'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>role/"><i class="fa fa-user-circle"></i> <?= _t('Roles'); ?></a></li>
             <li class="active"><?= _t('Edit Role'); ?></li>
         </ol>
     </section> 

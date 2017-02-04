@@ -118,7 +118,7 @@ define('SCREEN', 'cpgn');
             }
         });
         return false;
-    }
+    };
 </script>
 
 <!-- Content Wrapper. Contains page content -->
@@ -128,6 +128,7 @@ define('SCREEN', 'cpgn');
         <h1><?= _t('View/Edit Campaign'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
             <li class="active"><?= _t('View/Edit Campaign'); ?></li>
         </ol>
     </section>
@@ -139,7 +140,7 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -210,7 +211,7 @@ define('SCREEN', 'cpgn');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('HTML Message'); ?></label>
-                                <textarea class="form-control template" rows="3" name="html" required><?=_h($cpgn->html);?></textarea>
+                                <textarea id="template" class="form-control template" rows="3" name="html" required><?=_h($cpgn->html);?></textarea>
                             </div>
                             
                         </div>

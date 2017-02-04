@@ -2,7 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 /**
- * Create Email List View
+ * Edit Email List View
  *  
  * @license GPLv3
  * 
@@ -80,6 +80,7 @@ define('SCREEN', $list->code);
         <h1><?= _t('View/Edit Email List'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>list/"><i class="ion ion-ios-list"></i> <?= _t('Email Lists'); ?></a></li>
             <li class="active"><?= _t('View/Edit Email List'); ?></li>
         </ol>
     </section>
@@ -143,6 +144,14 @@ define('SCREEN', $list->code);
                                     <option>&nbsp;</option>
                                     <option value="1"<?=selected('1', _h($list->optin), false);?>><?=_t('Yes');?></option>
                                     <option value="0"<?=selected('0', _h($list->optin), false);?>><?=_t('No');?></option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('SMTP Server'); ?></label>
+                                <select class="form-control select2" name="server" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <?php get_user_servers(_h($list->server));?>
                                 </select>
                             </div>
                             
@@ -216,6 +225,7 @@ define('SCREEN', $list->code);
             <!-- /.box-body -->
             <div class="box-footer">
                 <button<?=ie('email_list_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
         <!-- form end -->

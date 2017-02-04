@@ -1145,14 +1145,13 @@ function get_logo_large()
  * @param mixed $message Queue message object.
  * @return mixed
  */
-function campaign_tracking_code($message)
+function campaign_tracking_code($cid, $sid)
 {
     $app = \Liten\Liten::getInstance();
-
     $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
-    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $message->mid . '/sid/' . $message->sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
+    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $cid . '/sid/' . $sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
     $div .= '</div>';
-    return $app->hook->apply_filter('tracking_code', $div, $message);
+    return $app->hook->apply_filter('tracking_code', $div, $cid, $sid);
 }
 
 function tc_smtp($tcMailer)

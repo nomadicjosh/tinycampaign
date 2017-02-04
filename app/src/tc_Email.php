@@ -395,8 +395,12 @@ class tc_Email
             $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE."\r\n";
             $headers .= "MIME-Version: 1.0" . "\r\n";
         }
-
-        $this->tc_mail($user->email, _t('New Account'), $message, $headers);
+        try {
+            $this->tc_mail($user->email, _t('New Account'), $message, $headers);
+        } catch (\phpmailerException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+        
         return $this->app->hook->{'apply_filter'}('new_user_email', $message, $headers);
     }
 }

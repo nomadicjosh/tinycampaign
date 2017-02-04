@@ -58,7 +58,7 @@ define('SCREEN', 'user');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email'); ?></label>
-                                <input type="text" class="form-control" name="email" value="<?=_h($user->email);?>" required>
+                                <input type="email" class="form-control" name="email" value="<?=_h($user->email);?>" required>
                             </div>
                             
                             <div class="form-group">
@@ -79,8 +79,8 @@ define('SCREEN', 'user');
                             <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('state',null,'code','code','name',_h($user->state)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('state','code <> "NULL"','code','code','name',_h($user->state)); ?>
                                 </select>
                             </div>
                             
@@ -96,8 +96,8 @@ define('SCREEN', 'user');
                             <div class="form-group">
                                 <label><?= _t('Country'); ?></label>
                                 <select class="form-control select2" name="country" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('country',null,'iso2','iso2','short_name',_h($user->country)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('country','iso2 <> "NULL"','iso2','iso2','short_name',_h($user->country)); ?>
                                 </select>
                             </div>
                             

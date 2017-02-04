@@ -13,7 +13,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.6 -->
-  <link rel="stylesheet" href="static/assets/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="static/assets/css/bootstrap/lumen-bootstrap.min.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Ionicons -->
@@ -75,7 +75,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
                 </div>
                 <?php if (isset($_COOKIE['SWITCH_USERBACK'])) : ?>
                 <div class="pull-left">
-                  <a href="<?=get_base_url();?>user/<?=$cookie->id;?>/switch-back/" class="btn btn-default btn-flat"><?=_t('Switch to');?> <?=$cookie->uname;?></a>
+                  <a href="<?=get_base_url();?>user/<?=$cookie->id;?>/switch-back/" class="btn btn-default btn-flat"><?=_t('Switch back');?></a>
                 </div>
                 <?php endif; ?>
                 <div class="pull-right">
@@ -140,16 +140,16 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             </span>
           </a>
           <ul class="treeview-menu">
-            <li<?=(SCREEN === 'general' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/"><i class="fa fa-circle-o"></i> <?=_t('General Settings');?></a></li>
-            <li<?=(SCREEN === 'snapshot' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>dashboard/system-snapshot/"><i class="fa fa-circle-o"></i> <?=_t('System Snapshot Report');?></a></li>
-            <li<?=(SCREEN === 'smtp' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/smtp/"><i class="fa fa-circle-o"></i> <?=_t('SMTP Settings');?></a></li>
-            <li<?=(SCREEN === 'bounce' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>setting/bounce/"><i class="fa fa-circle-o"></i> <?=_t('Bounce Email Settings');?></a></li>
-            <li<?=(SCREEN === 'perm' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>permission/"><i class="fa fa-circle-o"></i> <?=_t('Permissions');?></a></li>
-            <li<?=(SCREEN === 'aperm' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>permission/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Permission');?></a></li>
-            <li<?=(SCREEN === 'role' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>role/"><i class="fa fa-circle-o"></i> <?=_t('Roles');?></a></li>
-            <li<?=(SCREEN === 'arole' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>role/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Role');?></a></li>
-            <li<?=(SCREEN === 'error' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>error/"><i class="fa fa-circle-o"></i> <?=_t('Error Logs');?></a></li>
-            <li<?=(SCREEN === 'audit' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>audit-trail/"><i class="fa fa-circle-o"></i> <?=_t('Audit Trail');?></a></li>
+            <li<?=(SCREEN === 'general' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>setting/"><i class="fa fa-circle-o"></i> <?=_t('General Settings');?></a></li>
+            <li<?=(SCREEN === 'snapshot' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>dashboard/system-snapshot/"><i class="fa fa-circle-o"></i> <?=_t('System Snapshot Report');?></a></li>
+            <li<?=(SCREEN === 'smtp' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>setting/smtp/"><i class="fa fa-circle-o"></i> <?=_t('SMTP Settings');?></a></li>
+            <li<?=(SCREEN === 'bounce' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>setting/bounce/"><i class="fa fa-circle-o"></i> <?=_t('Bounce Email Settings');?></a></li>
+            <li<?=(SCREEN === 'perm' ? ' class="active"' : '');?><?=ae('access_permission_screen');?>><a href="<?=get_base_url();?>permission/"><i class="fa fa-circle-o"></i> <?=_t('Permissions');?></a></li>
+            <li<?=(SCREEN === 'aperm' ? ' class="active"' : '');?><?=ae('access_permission_screen');?>><a href="<?=get_base_url();?>permission/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Permission');?></a></li>
+            <li<?=(SCREEN === 'role' ? ' class="active"' : '');?><?=ae('access_role_screen');?>><a href="<?=get_base_url();?>role/"><i class="fa fa-circle-o"></i> <?=_t('Roles');?></a></li>
+            <li<?=(SCREEN === 'arole' ? ' class="active"' : '');?><?=ae('access_role_screen');?>><a href="<?=get_base_url();?>role/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Role');?></a></li>
+            <li<?=(SCREEN === 'error' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>error/"><i class="fa fa-circle-o"></i> <?=_t('Error Logs');?></a></li>
+            <li<?=(SCREEN === 'audit' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>><a href="<?=get_base_url();?>audit-trail/"><i class="fa fa-circle-o"></i> <?=_t('Audit Trail');?></a></li>
           </ul>
         </li>
         <li<?=ae('manage_plugins');?> class="treeview<?=(SCREEN_PARENT === 'plugins' ? ' active' : '');?>">
@@ -166,7 +166,20 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             <?php $app->hook->{'list_plugin_admin_pages'}(); ?>
           </ul>
         </li>
-        <li class="treeview<?=(SCREEN_PARENT === 'list' ? ' active' : '');?>">
+        <li<?=ae('manage_campaigns');?> class="treeview<?=(SCREEN_PARENT === 'servers' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-server"></i>
+            <span><?=_t('SMTP Servers');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'cserver' ? ' class="active"' : '');?><?=ae('create_campaign');?>><a href="<?=get_base_url();?>server/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Server');?></a></li>
+            <li<?=(SCREEN === 'server' ? ' class="active"' : '');?><?=ae('manage_campaigns');?>><a href="<?=get_base_url();?>server/"><i class="fa fa-circle-o"></i> <?=_t('Manage Servers');?></a></li>
+          </ul>
+        </li>
+        <li<?=ae('manage_email_lists');?> class="treeview<?=(SCREEN_PARENT === 'list' ? ' active' : '');?>">
           <a href="#">
             <i class="fa fa-list-alt"></i>
             <span><?=_t('Email Lists');?></span>
@@ -175,12 +188,24 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             </span>
           </a>
           <ul class="treeview-menu">
-            <li<?=(SCREEN === 'clist' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>list/create/"><i class="fa fa-circle-o"></i> <?=_t('Create List');?></a></li>
-            <li<?=(SCREEN === 'lists' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>list/"><i class="fa fa-circle-o"></i> <?=_t('Manage Email Lists');?></a></li>
+            <li<?=(SCREEN === 'clist' ? ' class="active"' : '');?><?=ae('create_email_list');?>><a href="<?=get_base_url();?>list/create/"><i class="fa fa-circle-o"></i> <?=_t('Create List');?></a></li>
+            <li<?=(SCREEN === 'lists' ? ' class="active"' : '');?><?=ae('manage_email_lists');?>><a href="<?=get_base_url();?>list/"><i class="fa fa-circle-o"></i> <?=_t('Manage Email Lists');?></a></li>
             <?php get_email_lists(); ?>
           </ul>
         </li>
-        <li class="treeview<?=(SCREEN_PARENT === 'cpgns' ? ' active' : '');?>">
+        <li<?=ae('manage_campaigns');?> class="treeview<?=(SCREEN_PARENT === 'tpls' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-file"></i> <span><?=_t('Templates');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'ctpl' ? ' class="active"' : '');?><?=ae('create_campaign');?>><a href="<?=get_base_url();?>template/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Template');?></a></li>
+            <li<?=(SCREEN === 'tpl' ? ' class="active"' : '');?><?=ae('manage_campaigns');?>><a href="<?=get_base_url();?>template/"><i class="fa fa-circle-o"></i> <?=_t('Manage Templates');?></a></li>
+          </ul>
+        </li>
+        <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'cpgns' ? ' active' : '');?>">
           <a href="#">
             <i class="fa fa-envelope"></i> <span><?=_t('Campaigns');?></span>
             <span class="pull-right-container">
@@ -188,11 +213,11 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             </span>
           </a>
           <ul class="treeview-menu">
-            <li<?=(SCREEN === 'ccpgn' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>campaign/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Campaign');?></a></li>
-            <li<?=(SCREEN === 'cpgn' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>campaign/"><i class="fa fa-circle-o"></i> <?=_t('Manage Campaigns');?></a></li>
+            <li<?=(SCREEN === 'ccpgn' ? ' class="active"' : '');?><?=ae('create_campaign');?>><a href="<?=get_base_url();?>campaign/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Campaign');?></a></li>
+            <li<?=(SCREEN === 'cpgn' ? ' class="active"' : '');?><?=ae('manage_campaigns');?> ><a href="<?=get_base_url();?>campaign/"><i class="fa fa-circle-o"></i> <?=_t('Manage Campaigns');?></a></li>
           </ul>
         </li>
-        <li class="treeview<?=(SCREEN_PARENT === 'subs' ? ' active' : '');?>">
+        <li<?=ae('manage_subscribers');?> class="treeview<?=(SCREEN_PARENT === 'subs' ? ' active' : '');?>">
           <a href="#">
             <i class="fa fa-address-book"></i>
             <span><?=_t('Subscribers');?></span>
@@ -201,8 +226,8 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             </span>
           </a>
           <ul class="treeview-menu">
-            <li<?=(SCREEN === 'asub' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>subscriber/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Subscriber');?></a></li>
-            <li<?=(SCREEN === 'sub' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>subscriber/"><i class="fa fa-circle-o"></i> <?=_t('Manage Subscribers');?></a></li>
+            <li<?=(SCREEN === 'asub' ? ' class="active"' : '');?><?=ae('add_subscriber');?>><a href="<?=get_base_url();?>subscriber/add/"><i class="fa fa-circle-o"></i> <?=_t('Add Subscriber');?></a></li>
+            <li<?=(SCREEN === 'sub' ? ' class="active"' : '');?><?=ae('manage_subscribers');?>><a href="<?=get_base_url();?>subscriber/"><i class="fa fa-circle-o"></i> <?=_t('Manage Subscribers');?></a></li>
           </ul>
         </li>
         <li class="treeview<?=(SCREEN_PARENT === 'users' ? ' active' : '');?>">
@@ -214,12 +239,12 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             </span>
           </a>
           <ul class="treeview-menu">
-            <li<?=(SCREEN === 'auser' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>user/add/"><i class="fa fa-circle-o"></i> <?=_t('Add User');?></a></li>
-            <li<?=(SCREEN === 'user' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>user/"><i class="fa fa-circle-o"></i> <?=_t('Manage Users');?></a></li>
+            <li<?=(SCREEN === 'auser' ? ' class="active"' : '');?><?=ae('create_user');?>><a href="<?=get_base_url();?>user/add/"><i class="fa fa-circle-o"></i> <?=_t('Add User');?></a></li>
+            <li<?=(SCREEN === 'user' ? ' class="active"' : '');?><?=ae('manage_users');?>><a href="<?=get_base_url();?>user/"><i class="fa fa-circle-o"></i> <?=_t('Manage Users');?></a></li>
             <li<?=(SCREEN === 'profile' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>user/profile"><i class="fa fa-circle-o"></i> <?=_t('Your Profile');?></a></li>
           </ul>
         </li>
-        <li<?=(SCREEN === 'support' ? ' class="active"' : '');?>>
+        <li<?=(SCREEN === 'support' ? ' class="active"' : '');?><?=ae('access_settings_screen');?>>
           <a href="<?=get_base_url();?>dashboard/support/">
             <i class="fa fa-ticket"></i> <span><?=_t('Support');?></span>
           </a>

@@ -74,6 +74,15 @@ define('SCREEN', 'smtp');
                                     <option value="ssl"<?= selected('ssl', _h(get_option('tc_smtp_smtpsecure')), false); ?>><?= _t('SSL'); ?></option>
                                 </select>
                             </div>
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Status'); ?></label>
+                                <select class="form-control select2" name="tc_smtp_status" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="1"<?= selected('1', _h(get_option('tc_smtp_status')), false); ?>><?= _t('Active'); ?></option>
+                                    <option value="0"<?= selected('0', _h(get_option('tc_smtp_status')), false); ?>><?= _t('Inactive'); ?></option>
+                                </select>
+                            </div>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -81,7 +90,7 @@ define('SCREEN', 'smtp');
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
                 </div>
             </form>
             <!-- form end -->
@@ -124,7 +133,7 @@ define('SCREEN', 'smtp');
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
                 </div>
             </form>
             <!-- form end -->

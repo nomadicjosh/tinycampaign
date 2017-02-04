@@ -32,7 +32,7 @@ define('SCREEN', 'arole');
         <h1><?= _t('Add Role'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>role/"><i class="fa fa-key"></i> <?= _t('Roles'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>role/"><i class="fa fa-user-circle"></i> <?= _t('Roles'); ?></a></li>
             <li class="active"><?= _t('Add Role'); ?></li>
         </ol>
     </section> 
@@ -59,7 +59,7 @@ define('SCREEN', 'arole');
                         <thead>
                             <tr>
                                 <th><?= _t('Permission'); ?></th>
-                                <th><?= _t('Allow'); ?></th>
+                                <th class="text-center"><?= _t('Allow'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,7 +68,7 @@ define('SCREEN', 'arole');
                         <tfoot>
                             <tr>
                                 <th><?= _t('Permission'); ?></th>
-                                <th><?= _t('Allow'); ?></th>
+                                <th class="text-center"><?= _t('Allow'); ?></th>
                             </tr>
                         </tfoot>
                     </table>

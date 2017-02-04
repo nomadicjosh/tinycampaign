@@ -24,6 +24,7 @@ define('SCREEN', 'clist');
         <h1><?= _t('Create Email List'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>list/"><i class="ion ion-ios-list"></i> <?= _t('Email Lists'); ?></a></li>
             <li class="active"><?= _t('Create Email List'); ?></li>
         </ol>
     </section>
@@ -90,6 +91,14 @@ define('SCREEN', 'clist');
                                 </select>
                             </div>
                             
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('SMTP Server'); ?></label>
+                                <select class="form-control select2" name="server" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <?php get_user_servers();?>
+                                </select>
+                            </div>
+                            
                         </div>
                         <!-- /.col -->
                     </div>
@@ -98,6 +107,7 @@ define('SCREEN', 'clist');
             <!-- /.box-body -->
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
         <!-- form end -->

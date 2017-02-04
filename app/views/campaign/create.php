@@ -37,9 +37,15 @@ define('SCREEN', 'ccpgn');
         plugins: [
             "advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code",
-            "insertdatetime media table contextmenu paste"
+            "insertdatetime media table contextmenu paste",
+            "template"
         ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | placeholder",
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
+        templates: [
+            <?php foreach(get_user_template()as $t) : ?>
+                {"title":"<?=_h($t->name);?>", "description":"<?=_h($t->description);?>", "url":"<?=get_base_url().'campaign'.'/getTemplate/'.$t->id.'/';?>"},
+            <?php endforeach; ?>
+        ],
         file_picker_callback: elFinderBrowser,
         setup: function (editor) {
             editor.addButton('placeholder', {
@@ -119,7 +125,7 @@ define('SCREEN', 'ccpgn');
             }
         });
         return false;
-    }
+    };
 </script>
 
 <!-- Content Wrapper. Contains page content -->
@@ -129,6 +135,7 @@ define('SCREEN', 'ccpgn');
         <h1><?= _t('Create Email Message'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
             <li class="active"><?= _t('Create Email Message'); ?></li>
         </ol>
     </section>
@@ -140,7 +147,7 @@ define('SCREEN', 'ccpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/create/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>campaign/create/" data-toggle="validator" autocomplete="off" id="form">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -157,18 +164,18 @@ define('SCREEN', 'ccpgn');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?=(_h($app->req->post['from_name']) != '' ? _h($app->req->post['from_name']) : _h(get_option('system_name')));?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?=(_h($app->req->post['from_name']) != '' ? _h($app->req->post['from_name']) : '');?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?=(_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : _h(get_option('tc_smtp_username')));?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?=(_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : '');?>" required>
                             </div>
 
                         </div>
                         <!-- /.col -->
                         <div class="col-md-6">
-
+                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Send Start'); ?></label>
                                 <div class='input-group date' id='datetimepicker1'>
@@ -224,6 +231,7 @@ define('SCREEN', 'ccpgn');
                 <!-- /.box-body -->
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary"><?= _t('Submit'); ?></button>
+                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
                 </div>
             </form>
             <!-- form end -->

@@ -8,6 +8,8 @@ use app\src\Exception\Exception;
 use Cascade\Cascade;
 use PDOException as ORMException;
 
+error_reporting(0);
+
 /**
  * tinyCampaign NodeQ Functions
  *
@@ -51,7 +53,7 @@ function process_queued_campaign()
 
         if ($count->count() > 0) {
             try {
-                $campaign = $app->db->campaign_list()
+                $campaign_list = $app->db->campaign_list()
                     ->select('campaign_list.cid, campaign_list.lid')
                     ->where('campaign_list.cid = ?', $node->mid)
                     ->find();
@@ -61,12 +63,11 @@ function process_queued_campaign()
                 $queue = new app\src\tc_Queue();
                 $queue->node = $node->node;
                 $send_date = explode(' ', $node->sendstart);
-                $throttle = _h(get_option('mail_throttle'));
-                foreach ($campaign as $cpgn) {
+                foreach ($campaign_list as $c_list) {
                     $subscriber = $app->db->subscriber()
                         ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                         ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                        ->where('subscriber_list.lid = ?', $cpgn->lid)->_and_()
+                        ->where('subscriber_list.lid = ?', $c_list->lid)->_and_()
                         ->where('subscriber.allowed = "true"')->_and_()
                         ->where('subscriber_list.confirmed = "1"')->_and_()
                         ->where('subscriber_list.unsubscribe = "0"')
@@ -75,18 +76,20 @@ function process_queued_campaign()
                     $numItems = count($subscriber);
                     $i = 0;
                     foreach ($subscriber as $sub) {
-                        $time = date('H:i:s', time());
+                        $list = get_list_by('id', $c_list->lid);
+                        $server = get_server_info($list->server);
+                        $throttle = $server->throttle * ++$i;
                         /**
                          * Create new tc_QueueMessage object.
                          */
                         $new_message = new app\src\tc_QueueMessage();
-                        $new_message->setListId($cpgn->lid);
-                        $new_message->setMessageId($cpgn->cid);
+                        $new_message->setListId($c_list->lid);
+                        $new_message->setMessageId($c_list->cid);
                         $new_message->setSubscriberId($sub->id);
                         $new_message->setToEmail($sub->email);
                         $new_message->setToName($sub->fname . ' ' . $sub->lname);
                         $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
-                        $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$send_date[0] $time + $throttle seconds"));
+                        $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$node->sendstart +$throttle seconds"));
                         /**
                          * Add message to the queue.
                          */
@@ -98,7 +101,7 @@ function process_queued_campaign()
                             $upd->save();
                         }
 
-                        sleep($throttle);
+                        sleep($throttle + 10);
                     }
                 }
             } catch (NotFoundException $e) {

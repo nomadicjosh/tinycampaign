@@ -2,7 +2,7 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 /**
- * Subscribers View
+ * Email List Subscribers View
  *  
  * @license GPLv3
  * 
@@ -25,6 +25,7 @@ define('SCREEN', 'lists');
         <h1><?= _h($list->name); ?> <?= _t('Subscribers'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>list/"><i class="ion ion-ios-list"></i> <?= _t('Email Lists'); ?></a></li>
             <li class="active"><?= _t('Subscribers'); ?></li>
         </ol>
     </section>
@@ -57,7 +58,7 @@ define('SCREEN', 'lists');
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($sub->addDate))->format('M. d, Y @ h:s A'); ?></td>
                                 <td class="text-center"><?=(_h($sub->unsubscribe) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= _h($sub->id); ?>">
