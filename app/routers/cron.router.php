@@ -122,6 +122,16 @@ $app->group('/cron', function () use($app, $css, $js) {
         ]);
     });
 
+    /**
+     * Before route checks to make sure the logged in user
+     * us allowed to manage options/settings.
+     */
+    $app->before('GET', '/create/', function () {
+        if (!hasPermission('access_cronjob_screen')) {
+            _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
     $app->match('GET|POST', '/create/', function () use($app, $css, $js) {
         if ($app->req->isPost()) {
             if (filter_var($app->req->post['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
@@ -171,6 +181,16 @@ $app->group('/cron', function () use($app, $css, $js) {
         $app->view->display('cron/create', [
             'title' => 'New Cronjob Handler'
         ]);
+    });
+
+    /**
+     * Before route checks to make sure the logged in user
+     * us allowed to manage options/settings.
+     */
+    $app->before('GET', '/setting/', function () {
+        if (!hasPermission('access_cronjob_screen')) {
+            _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
+        }
     });
 
     $app->match('GET|POST', '/setting/', function () use($app, $css, $js) {
@@ -434,20 +454,30 @@ $app->group('/cron', function () use($app, $css, $js) {
     });
 
     $app->get('/runEmailQueue/', function () use($app) {
-        $domain = get_domain_name();
-        $site = _h(get_option('system_name'));
-
         try {
             $cpgn = $app->db->campaign()
                 ->where('campaign.status = "processing"')
                 ->findOne();
-            
-            if ($cpgn->id > 0) {
 
+            if ($cpgn != false) {
                 try {
                     // instantiate the message queue
                     $queue = new \app\src\tc_Queue();
                     $queue->node = $cpgn->node;
+
+                    /**
+                     * Checks if any unsent emails are left in the queue.
+                     * If not, mark campaign as `sent`.
+                     */
+                    $sent = Node::table($queue->getNode())->where('is_sent', '=', 'false')->findAll()->count();
+                    if ($sent <= 0 && $cpgn->status != 'sent') {
+                        $complete = $app->db->campaign()
+                            ->where('node = ?', $cpgn->node)->_and_()
+                            ->where('status <> "sent"')
+                            ->findOne();
+                        $complete->status = 'sent';
+                        $complete->update();
+                    }
 
                     // get messages from the queue
                     $messages = $queue->getEmails();
@@ -461,6 +491,9 @@ $app->group('/cron', function () use($app, $css, $js) {
                             ->where('subscriber_list.lid = ?', $message->getListId())->_and_()
                             ->where('subscriber_list.sid = ?', $message->getSubscriberId())
                             ->findOne();
+
+                        $list = get_list_by('id', $message->getListId());
+                        $server = get_server_info($list->server);
 
                         $footer = _escape($cpgn->footer);
                         $footer = str_replace('{email}', $sub->email, $footer);
@@ -480,30 +513,19 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg = str_replace('{state}', $sub->state, $msg);
                         $msg = str_replace('{postal_code}', $sub->postal_code, $msg);
                         $msg = str_replace('{country}', $sub->country, $msg);
-                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . $slist->code . '/lid/' . $slist->lid . '/sid/' . $slist->sid . '/">'._t('unsubscribe').'</a>', $msg);
-                        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . $sub->code . '/subscriber/' . $sub->id . '/">'._t('preferences page').'</a>', $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . $slist->code . '/lid/' . $slist->lid . '/sid/' . $slist->sid . '/">' . _t('unsubscribe') . '</a>', $msg);
+                        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . $sub->code . '/subscriber/' . $sub->id . '/">' . _t('preferences page') . '</a>', $msg);
                         $msg .= $footer;
-                        $msg .= campaign_tracking_code($message);
-                        $headers = "From: $site <auto-reply@$domain>\r\n";
-                        $headers .= "Return-Path: " . (_h(get_option('tc_bmh_username')) == '' ? _h(get_option('system_email')) : _h(get_option('tc_bmh_username'))) . "\r\n";
-                        if (_h(get_option('tc_smtp_status')) == 0) {
-                            $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
-                            $headers .= "MIME-Version: 1.0" . "\r\n";
-                        }
+                        $msg .= campaign_tracking_code($cpgn->id, $sub->id);
                         // send email
-                        _tc_email()->tc_mail(
-                            $message->getToEmail(), $cpgn->subject, $msg, $headers
-                        );
+                        tinyc_email($server, $message->getToEmail(), $cpgn->subject, tc_link_tracking($msg, $cpgn->id, $sub->id));
 
                         $q = $app->db->campaign()
                             ->where('node = ?', $queue->getNode())
                             ->findOne();
                         $q->recipients = $q->recipients + 1;
                         if (++$i === 1) {
-                            $q->sendfinish = $last->timestamp_to_send;
-                        }
-                        if (++$i === $numItems) {
-                            $q->status = 'sent';
+                            $q->sendfinish = $last->timestamp_to_send . ' +10 minutes';
                         }
                         $q->update();
 

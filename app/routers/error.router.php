@@ -80,6 +80,16 @@ $app->get('/audit-trail/', function () use($app) {
     );
 });
 
+/**
+ * Before route check.
+ */
+$app->before('GET', '/error/deleteLog/(\d+)/', function() {
+    if (!hasPermission('access_settings_screen')) {
+        _tc_flash()->error(_t("You don't have permission to delete error logs."), get_base_url() . 'dashboard' . '/');
+        exit();
+    }
+});
+
 $app->get('/error/deleteLog/(\d+)/', function ($id) use($app) {
     try {
         $app->db->error()

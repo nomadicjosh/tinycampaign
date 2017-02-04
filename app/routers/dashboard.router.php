@@ -105,7 +105,8 @@ $app->group('/dashboard', function () use($app) {
                 ->select('COUNT(subscriber_list.sid) AS count')
                 ->_join('subscriber_list', 'list.id = subscriber_list.lid')
                 ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribe <> "1"')
+                ->where('subscriber_list.unsubscribe <> "1"')->_and_()
+                ->where('list.owner = ?', get_userdata('id'))
                 ->groupBy('subscriber_list.lid')
                 ->orderBy('subscriber_list.addDate', 'DESC')
                 ->find();
@@ -131,11 +132,12 @@ $app->group('/dashboard', function () use($app) {
         try {
             $emails = $app->db->campaign()
                 ->select('list.name')
-                ->select('COUNT(campaign.id) AS count')
+                ->select('campaign.recipients AS count')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.status = "sent"')
-                ->groupBy('campaign.id')
+                ->where('campaign.status = "sent"')->_and_()
+                ->where('campaign.owner = ?', get_userdata('id'))
+                ->groupBy('list.id')
                 ->find();
 
             $rows = [];
@@ -155,24 +157,32 @@ $app->group('/dashboard', function () use($app) {
     });
 
     $app->get('/getCpgnList/', function () use($app) {
+        try {
+            $cpgn = $app->db->campaign()
+                ->select('list.name AS List')
+                ->select('COUNT(campaign_list.id) AS count')
+                ->_join('campaign_list', 'campaign.id = campaign_list.cid')
+                ->_join('list', 'campaign_list.lid = list.id')
+                ->where('campaign.owner = ?', get_userdata('id'))
+                ->groupBy('list.name')
+                ->orderBy('campaign.id', 'DESC')
+                ->limit(10)
+                ->find();
 
-        $cpgn = $app->db->campaign()
-            ->select('list.name AS List')
-            ->select('COUNT(campaign_list.id) AS count')
-            ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-            ->_join('list', 'campaign_list.lid = list.id')
-            ->groupBy('list.name')
-            ->orderBy('campaign.id', 'DESC')
-            ->limit(10)
-            ->find();
-
-        $rows = [];
-        foreach ($cpgn as $c) {
-            $row[0] = $c->List;
-            $row[1] = $c->count;
-            array_push($rows, $row);
+            $rows = [];
+            foreach ($cpgn as $c) {
+                $row[0] = $c->List;
+                $row[1] = $c->count;
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
         }
-        print json_encode($rows, JSON_NUMERIC_CHECK);
     });
 
     $app->get('/getBouncedEmail/', function () use($app) {
@@ -183,7 +193,8 @@ $app->group('/dashboard', function () use($app) {
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
                 ->where('campaign.status = "sent"')->_and_()
-                ->where('campaign.bounces > 0')
+                ->where('campaign.bounces > 0')->_and_()
+                ->where('campaign.owner = ?', get_userdata('id'))
                 ->groupBy('campaign.id')
                 ->find();
 

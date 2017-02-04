@@ -85,6 +85,7 @@ $app->group('/campaign', function() use ($app) {
 
                 try {
                     Node::create($app->req->post['node'], [
+                        'lid' => 'integer',
                         'mid' => 'integer',
                         'sid' => 'integer',
                         'to_email' => 'string',
@@ -209,6 +210,16 @@ $app->group('/campaign', function() use ($app) {
             );
         }
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/queue/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
 
     $app->get('/(\d+)/queue/', function ($id) use($app) {
 
@@ -250,6 +261,16 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/pause/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
 
     $app->get('/(\d+)/pause/', function ($id) use($app) {
 
@@ -274,6 +295,16 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/resume/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 
@@ -302,15 +333,21 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/test/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
 
-    $app->get('/(\d+)/test/', function ($id) use($app) {
-
-        $domain = get_domain_name();
-        $site = _h(get_option('system_name'));
-
-        try {
+    $app->post('/(\d+)/test/', function ($id) use($app) {
             $cpgn = get_campaign_by_id($id);
             $sub = get_user_by('id', get_userdata('id'));
+            $server = get_server_info($app->req->post['server']);
 
             $footer = _escape($cpgn->footer);
             $footer = str_replace('{email}', $sub->email, $footer);
@@ -329,36 +366,40 @@ $app->group('/campaign', function() use ($app) {
             $msg = str_replace('{postal_code}', $sub->postal_code, $msg);
             $msg = str_replace('{country}', $sub->country, $msg);
             $msg .= $footer;
-            $headers = "From: $site <auto-reply@$domain>\r\n";
-            if (_h(get_option('tc_smtp_status')) == 0) {
-                $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
-                $headers .= "MIME-Version: 1.0" . "\r\n";
-            }
-            try {
-                // send email
-                _tc_email()->tc_mail(
-                    $sub->email, $cpgn->subject, $msg, $headers
-                );
-                _tc_flash()->success(_t('Test email sent.'), $app->req->server['HTTP_REFERER']);
-            } catch (phpmailerException $e) {
-                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-            }
-        } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-        } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-        } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            tinyc_email($server, $sub->email, $cpgn->subject, $msg);
+            redirect($app->req->server['HTTP_REFERER']);
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/report/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 
     $app->get('/(\d+)/report/', function ($id) use($app) {
 
         $cpgn = get_campaign_by_id($id);
-        $count = $app->db->tracking()
+        $opened = $app->db->tracking()
             ->where('tracking.cid = ?', $id)->_and_()
             ->whereNotNull('tracking.first_open')
-            ->count();
+            ->sum('tracking.viewed');
+        $unique_opens = $app->db->tracking()
+            ->where('tracking.cid = ?', $id)->_and_()
+            ->whereNotNull('tracking.first_open')
+            ->groupBy('tracking.cid')
+            ->count('tracking.id');
+        $clicks = $app->db->tracking_link()
+            ->where('tracking_link.cid = ?', $id)
+            ->groupBy('tracking_link.cid')
+            ->sum('tracking_link.clicked');
+        $unique_clicks = $app->db->tracking_link()
+            ->where('tracking_link.cid = ?', $id)
+            ->groupBy('tracking_link.cid')
+            ->count('tracking_link.id');
 
         /**
          * If the database table doesn't exist, then it
@@ -394,9 +435,142 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/report', [
                 'title' => $cpgn->subject,
                 'cpgn' => $cpgn,
-                'count' => $count
+                'opened' => $opened,
+                'unique_opens' => $unique_opens,
+                'clicks' => $clicks,
+                'unique_clicks' => $unique_clicks
                 ]
             );
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/report/opened/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/report/opened/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+        $opens = $app->db->subscriber()
+            ->select('subscriber.email,tracking.*')
+            ->_join('tracking','tracking.sid = subscriber.id')
+            ->_join('campaign','tracking.cid = campaign.id')
+            ->where('campaign.id = ?', $cpgn->id)
+            ->find();
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count($cpgn->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('datatables');
+            tc_register_script('datatables');
+
+            $app->view->display('campaign/opened', [
+                'title' => $cpgn->subject,
+                'cpgn' => $cpgn,
+                'opens' => $opens
+                ]
+            );
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/report/opened/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/report/clicked/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+        $clicks = $app->db->subscriber()
+            ->select('subscriber.email,tracking_link.*')
+            ->_join('tracking_link','tracking_link.sid = subscriber.id')
+            ->_join('campaign','tracking_link.cid = campaign.id')
+            ->where('campaign.id = ?', $cpgn->id)
+            ->find();
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count($cpgn->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('datatables');
+            tc_register_script('datatables');
+
+            $app->view->display('campaign/clicked', [
+                'title' => $cpgn->subject,
+                'cpgn' => $cpgn,
+                'clicks' => $clicks
+                ]
+            );
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function() {
+        if (!is_user_logged_in()) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 
@@ -469,6 +643,16 @@ $app->group('/campaign', function() use ($app) {
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/elfinder/', function() {
+        if (!is_user_logged_in()) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
 
     $app->match('GET|POST', '/elfinder/', function () use($app) {
 
@@ -479,6 +663,35 @@ $app->group('/campaign', function() use ($app) {
             ]
         );
     });
+    
+        /**
+ * Before route check.
+ */
+$app->before('GET|POST', '/getTemplate/(\d+)/', function() {
+    if (!hasPermission('create_campaign')) {
+        _tc_flash()->{'error'}(_t('You lack the proper permission to create a campaign.'));
+    }
+});
+
+$app->get('/getTemplate/(\d+)/', function($id) use($app) {
+    try {
+            $template = $app->db->template()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+            ->find();
+            
+            foreach($template as $tpl) {
+                echo $tpl->content;
+            }
+
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+});
 
     /**
      * Before route check.
