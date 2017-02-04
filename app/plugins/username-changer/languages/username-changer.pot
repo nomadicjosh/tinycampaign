@@ -18,34 +18,34 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: username-changer.plugin.php:71 username-changer.plugin.php:78
+#: username-changer.plugin.php:73 username-changer.plugin.php:80
 msgid "Username Updated"
 msgstr ""
 
-#: username-changer.plugin.php:128 username-changer.plugin.php:132
+#: username-changer.plugin.php:130 username-changer.plugin.php:134
 msgid "You are here"
 msgstr ""
 
-#: username-changer.plugin.php:130
+#: username-changer.plugin.php:132
 msgid "Dashboard"
 msgstr ""
 
-#: username-changer.plugin.php:131
+#: username-changer.plugin.php:133
 msgid "Plugins List"
 msgstr ""
 
-#: username-changer.plugin.php:151
+#: username-changer.plugin.php:153
 msgid "Current Username"
 msgstr ""
 
-#: username-changer.plugin.php:163
+#: username-changer.plugin.php:165
 msgid "New Username"
 msgstr ""
 
-#: username-changer.plugin.php:175
+#: username-changer.plugin.php:177
 msgid "Submit"
 msgstr ""
 
-#: username-changer.plugin.php:176
+#: username-changer.plugin.php:178
 msgid "Cancel"
 msgstr ""

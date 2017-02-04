@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: eduTrac SIS\n"
 "X-Domain: edutrac-sis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-30 18:37-0500\n"
+"POT-Creation-Date: 2017-02-04 17:22-0500\n"
 "PO-Revision-Date: 2015-11-06 11:48-0500\n"
 "Last-Translator: Joshua Parker <josh@7mediaws.org>\n"
 "Language-Team: 7 Media Web Solutions, LLC <email@7mediaws.org>\n"
@@ -24,66 +24,62 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-4: src/vendor\n"
 "X-Poedit-SearchPathExcluded-5: tmp\n"
 
-#: functions/auth-function.php:113
+#: functions/auth-function.php:127
 msgid "Your account is inactive."
 msgstr ""
 
-#: functions/auth-function.php:146
+#: functions/auth-function.php:160
 #, php-format
 msgid "Login was successful. Welcome <strong>%s</strong> to your dashboard."
 msgstr ""
 
-#: functions/auth-function.php:164
+#: functions/auth-function.php:178
 msgid "<strong>ERROR</strong>: The username/email field is empty."
 msgstr ""
 
-#: functions/auth-function.php:168
+#: functions/auth-function.php:182
 msgid "<strong>ERROR</strong>: The password field is empty."
 msgstr ""
 
-#: functions/auth-function.php:178
+#: functions/auth-function.php:192
 msgid "<strong>ERROR</strong>: Invalid email address."
 msgstr ""
 
-#: functions/auth-function.php:186
+#: functions/auth-function.php:200
 msgid "<strong>ERROR</strong>: Invalid username."
 msgstr ""
 
-#: functions/auth-function.php:193
+#: functions/auth-function.php:207
 msgid "<strong>ERROR</strong>: The password you entered is incorrect."
 msgstr ""
 
-#: functions/auth-function.php:217
+#: functions/auth-function.php:231
 msgid "\"$user\" should be a database object."
 msgstr ""
 
-#: functions/auth-function.php:240 routers/index.router.php:525
-#: routers/index.router.php:555 routers/index.router.php:609
+#: functions/auth-function.php:254 routers/user.router.php:366
+#: routers/user.router.php:396 routers/user.router.php:460
 msgid "no"
 msgstr ""
 
-#: functions/bounce-function.php:1463
+#: functions/bounce-function.php:1338
 msgid "email: "
 msgstr ""
 
-#: functions/bounce-function.php:1464
+#: functions/bounce-function.php:1339
 msgid "Action: "
 msgstr ""
 
-#: functions/bounce-function.php:1465
+#: functions/bounce-function.php:1340
 msgid "Status: "
 msgstr ""
 
-#: functions/bounce-function.php:1466
+#: functions/bounce-function.php:1341
 msgid "Diagnostic-Code: "
 msgstr ""
 
-#: functions/bounce-function.php:1467
+#: functions/bounce-function.php:1342
 msgid "DSN Message:"
-msgstr ""
-
-#: functions/bounce-function.php:1495
-msgid "note: code would have set the database to allowed = 'false'"
 msgstr ""
 
 #: functions/core-function.php:55
@@ -206,25 +202,27 @@ msgstr ""
 msgid "&copy; 2013"
 msgstr ""
 
-#: functions/hook-function.php:675 views/_layouts/dashboard.php:151
+#: functions/hook-function.php:675 views/_layouts/dashboard.php:185
+#: views/list/create.php:27 views/list/import.php:28 views/list/index.php:34
+#: views/list/subscriber.php:28 views/list/view.php:83
 msgid "Email Lists"
 msgstr ""
 
 #: functions/hook-function.php:678 functions/hook-function.php:714
-#: functions/hook-function.php:752 functions/hook-function.php:786
+#: functions/hook-function.php:751 functions/hook-function.php:786
 msgid "More info"
 msgstr ""
 
-#: functions/hook-function.php:711 views/_layouts/dashboard.php:164
-#: views/campaign/index.php:24 views/campaign/index.php:27
+#: functions/hook-function.php:711 views/_layouts/dashboard.php:210
+#: views/campaign/clicked.php:28 views/campaign/create.php:138
+#: views/campaign/index.php:37 views/campaign/index.php:40
+#: views/campaign/opened.php:28 views/campaign/report.php:27
+#: views/campaign/view.php:131
 msgid "Campaigns"
 msgstr ""
 
-#: functions/hook-function.php:749 routers/list.router.php:216
-#: views/_layouts/dashboard.php:177 views/list/index.php:52
-#: views/list/index.php:98 views/list/subscriber.php:25
-#: views/list/subscriber.php:28
-msgid "Subscribers"
+#: functions/hook-function.php:748
+msgid "Active Subscribers"
 msgstr ""
 
 #: functions/hook-function.php:783
@@ -247,39 +245,47 @@ msgstr ""
 msgid "ny"
 msgstr ""
 
-#: functions/hook-function.php:1118
+#: functions/hook-function.php:1118 functions/hook-function.php:1123
+msgid "Spam is not allowed."
+msgstr ""
+
+#: functions/hook-function.php:1137
 msgid "tiny"
 msgstr ""
 
-#: functions/hook-function.php:1118
+#: functions/hook-function.php:1137
 msgid "Campaign"
 msgstr ""
 
-#: functions/list-function.php:52 functions/list-function.php:60
+#: functions/list-function.php:54 functions/list-function.php:62
 #, php-format
 msgid ""
 "You were added to the list <strong>%s</strong>, but you will need to check "
 "your email in a few minutes in order to confirm your subscription."
 msgstr ""
 
-#: functions/list-function.php:56 functions/list-function.php:64
+#: functions/list-function.php:58 functions/list-function.php:66
 #, php-format
 msgid "Thank you for subscribing to the mailing list <strong>%s</strong>."
+msgstr ""
+
+#: functions/list-function.php:349
+msgid "Email Sent."
 msgstr ""
 
 #: functions/logger-function.php:75
 msgid "tinyCampaign System Alert!"
 msgstr ""
 
-#: functions/nodeq-function.php:145
+#: functions/nodeq-function.php:153
 msgid "Confirm Subscription for"
 msgstr ""
 
-#: functions/nodeq-function.php:190
+#: functions/nodeq-function.php:200
 msgid "Welcome to"
 msgstr ""
 
-#: functions/nodeq-function.php:233
+#: functions/nodeq-function.php:246
 msgid "Confirm Removal from"
 msgstr ""
 
@@ -310,117 +316,158 @@ msgstr ""
 msgid "Update Preferences"
 msgstr ""
 
-#: functions/user-function.php:154
+#: functions/user-function.php:171
 msgid "Invalid user id: empty id given."
 msgstr ""
 
-#: functions/user-function.php:160
+#: functions/user-function.php:177
 msgid "Invalid user id: user id must be numeric."
 msgstr ""
 
-#: functions/user-function.php:184
+#: functions/user-function.php:201
 msgid "Invalid user ID: empty ID given."
 msgstr ""
 
-#: functions/user-function.php:190
+#: functions/user-function.php:207
 msgid "Invalid user ID: user id must be numeric."
 msgstr ""
 
-#: routers/campaign.router.php:20 routers/campaign.router.php:45
-#: routers/campaign.router.php:123 routers/campaign.router.php:208
+#: routers/campaign.router.php:20 routers/campaign.router.php:54
+#: routers/campaign.router.php:134 routers/campaign.router.php:219
+#: routers/campaign.router.php:270 routers/campaign.router.php:306
+#: routers/campaign.router.php:342 routers/campaign.router.php:378
+#: routers/campaign.router.php:452 routers/campaign.router.php:512
+#: routers/campaign.router.php:572 routers/campaign.router.php:652
 msgid "You lack the proper permission to access the requested screen."
 msgstr ""
 
-#: routers/campaign.router.php:34
+#: routers/campaign.router.php:43
 msgid "My Campaigns"
 msgstr ""
 
-#: routers/campaign.router.php:113 views/_layouts/dashboard.php:170
+#: routers/campaign.router.php:124 views/_layouts/dashboard.php:216
 msgid "Create Campaign"
 msgstr ""
 
-#: routers/campaign.router.php:196 views/campaign/view.php:128
-#: views/campaign/view.php:131
+#: routers/campaign.router.php:207 views/campaign/view.php:128
+#: views/campaign/view.php:132
 msgid "View/Edit Campaign"
 msgstr ""
 
-#: routers/campaign.router.php:243
+#: routers/campaign.router.php:228
 msgid "Message is already queued."
 msgstr ""
 
-#: routers/campaign.router.php:272
+#: routers/campaign.router.php:257
 msgid "Campaign was successfully sent to the queue."
 msgstr ""
 
-#: routers/cron.router.php:89 routers/cron.router.php:221
+#: routers/campaign.router.php:279
+msgid "Message is already paused."
+msgstr ""
+
+#: routers/campaign.router.php:291
+msgid "Campaign was successfully paused."
+msgstr ""
+
+#: routers/campaign.router.php:315
+msgid "Message is already processing."
+msgstr ""
+
+#: routers/campaign.router.php:327
+msgid "Campaign was successfully resumed."
+msgstr ""
+
+#: routers/campaign.router.php:358 routers/cron.router.php:506
+msgid "View this email in your browser"
+msgstr ""
+
+#: routers/campaign.router.php:672
+msgid "You lack the proper permission to create a campaign."
+msgstr ""
+
+#: routers/campaign.router.php:701
+msgid "You lack the proper permission to delete a campaign."
+msgstr ""
+
+#: routers/cron.router.php:89 routers/cron.router.php:131
+#: routers/cron.router.php:192 routers/cron.router.php:241
 msgid "You don't have permission to view the Cronjob Handler screen."
 msgstr ""
 
-#: routers/cron.router.php:144
+#: routers/cron.router.php:154
 msgid "Time setting missing, please add time settings."
 msgstr ""
 
-#: routers/cron.router.php:161
+#: routers/cron.router.php:171
 msgid "Cronjob handler already exists in the system."
 msgstr ""
 
-#: routers/cron.router.php:164
+#: routers/cron.router.php:174
 msgid "Cronjob URL is wrong."
 msgstr ""
 
-#: routers/cron.router.php:182
+#: routers/cron.router.php:202
 msgid ""
 "Cronjobs cannot run without a password. Your cronjob password contains wrong "
 "characters, minimum of 4 letters and numbers."
 msgstr ""
 
-#: routers/cron.router.php:242
+#: routers/cron.router.php:262
 msgid ""
 "Current URL is not correct; must begin with http(s):// and followed with a "
 "path."
 msgstr ""
 
-#: routers/cron.router.php:301
+#: routers/cron.router.php:321
 msgid "No cronjob password found, use cronjob?password=<yourpassword>."
 msgstr ""
 
-#: routers/cron.router.php:302
+#: routers/cron.router.php:322
 msgid "No cronjob handler password found, use cronjob?password=<yourpassword>."
 msgstr ""
 
-#: routers/cron.router.php:304 routers/cron.router.php:305
+#: routers/cron.router.php:324 routers/cron.router.php:325
 msgid "Invalid $_GET password"
 msgstr ""
 
-#: routers/cron.router.php:307 routers/cron.router.php:308
+#: routers/cron.router.php:327 routers/cron.router.php:328
 msgid "Cronjob handler password needs to be changed."
 msgstr ""
 
-#: routers/cron.router.php:310 routers/cron.router.php:311
+#: routers/cron.router.php:330 routers/cron.router.php:331
 msgid "Invalid argument password (password=yourpassword)"
 msgstr ""
 
-#: routers/cron.router.php:315
+#: routers/cron.router.php:335
 msgid "Cronjob already running"
 msgstr ""
 
-#: routers/cron.router.php:351
+#: routers/cron.router.php:371
 msgid "Running: "
 msgstr ""
 
-#: routers/cron.router.php:362
+#: routers/cron.router.php:382
 msgid "Connecting to cronjob"
 msgstr ""
 
-#: routers/cron.router.php:375
+#: routers/cron.router.php:395
 msgid "Cronjob error: "
 msgstr ""
 
-#: routers/cron.router.php:377
+#: routers/cron.router.php:397
 msgid "Cronjob data loaded"
 msgstr ""
 
-#: routers/cron.router.php:549
+#: routers/cron.router.php:516
+msgid "unsubscribe"
+msgstr ""
+
+#: routers/cron.router.php:517
+msgid "preferences page"
+msgstr ""
+
+#: routers/cron.router.php:586
 msgid "Seconds to process: "
 msgstr ""
 
@@ -428,11 +475,11 @@ msgstr ""
 msgid "You don't have permission to view the System Snapshot Report screen."
 msgstr ""
 
-#: routers/dashboard.router.php:76
+#: routers/dashboard.router.php:90
 msgid "You are not allowed to flush the cache."
 msgstr ""
 
-#: routers/dashboard.router.php:83
+#: routers/dashboard.router.php:97
 msgid "Cache was flushed successfully."
 msgstr ""
 
@@ -444,113 +491,296 @@ msgstr ""
 msgid "You don't have permission to view the Audit Trail screen."
 msgstr ""
 
-#: routers/index.router.php:50
+#: routers/error.router.php:88
+msgid "You don't have permission to delete error logs."
+msgstr ""
+
+#: routers/index.router.php:56
 msgid "You don't have permission to access the Permission screen."
 msgstr ""
 
-#: routers/index.router.php:166
+#: routers/index.router.php:172
 msgid "You don't have permission to access the Role screen."
 msgstr ""
 
-#: routers/index.router.php:300
+#: routers/index.router.php:299
+msgid "You don't have permission to access the Templates screen."
+msgstr ""
+
+#: routers/index.router.php:334
+msgid "You don't have permission to edit templates."
+msgstr ""
+
+#: routers/index.router.php:421
+msgid "You don't have permission to create templates."
+msgstr ""
+
+#: routers/index.router.php:466
+msgid "You don't have permission to delete templates."
+msgstr ""
+
+#: routers/index.router.php:495
+msgid "You don't have permission to access the Servers screen."
+msgstr ""
+
+#: routers/index.router.php:530
+msgid "You don't have permission to edit servers."
+msgstr ""
+
+#: routers/index.router.php:638
+msgid "You don't have permission to create servers."
+msgstr ""
+
+#: routers/index.router.php:701
+msgid "You don't have permission to send from an SMTP server."
+msgstr ""
+
+#: routers/index.router.php:716
+msgid "You don't have permission to delete a server."
+msgstr ""
+
+#: routers/index.router.php:820
 #, php-format
 msgid "Your subscription to <strong>%s</strong> has already been confirmed."
 msgstr ""
 
-#: routers/index.router.php:336
+#: routers/index.router.php:856
 #, php-format
 msgid "Your subscription to <strong>%s</strong> has been confirmed. Thank you."
 msgstr ""
 
-#: routers/index.router.php:362 routers/index.router.php:367
-msgid "Spam is not allowed."
+#: routers/index.router.php:898
+msgid "Your email is already in the system."
 msgstr ""
 
-#: routers/index.router.php:435
+#: routers/index.router.php:905 routers/subscriber.router.php:57
+#: routers/user.router.php:63
+msgid "Invalid email address."
+msgstr ""
+
+#: routers/index.router.php:976
 #, php-format
 msgid ""
 "You have already been removed from the mailing list <strong>%s</strong>."
 msgstr ""
 
-#: routers/index.router.php:471
+#: routers/index.router.php:1012
 #, php-format
 msgid "Unsubscribing to mailing list <strong>%s</strong> was successful."
 msgstr ""
 
-#: routers/index.router.php:525 routers/index.router.php:555
-#: routers/index.router.php:609
-msgid "yes"
+#: routers/index.router.php:1308
+msgid "The email you entered does not exist."
 msgstr ""
 
-#: routers/list.router.php:14
-msgid "You don't have permission to access the Email List route"
+#: routers/index.router.php:1325 views/index/index.php:60
+msgid "Reset Password"
 msgstr ""
 
-#: routers/list.router.php:25
+#: routers/index.router.php:1334
+msgid "Password Reset"
+msgstr ""
+
+#: routers/index.router.php:1339
+msgid "Please check your email for instructions on changing your password."
+msgstr ""
+
+#: routers/index.router.php:1365
+msgid "Passwords did not match."
+msgstr ""
+
+#: routers/index.router.php:1393 views/index/password.php:20
+msgid "New Password"
+msgstr ""
+
+#: routers/index.router.php:1398
+msgid "Your password was updated successfully."
+msgstr ""
+
+#: routers/list.router.php:13
+msgid "You don't have permission to access the Email Lists."
+msgstr ""
+
+#: routers/list.router.php:24
 msgid "You don't have permission to access the Manage Email List screen"
 msgstr ""
 
-#: routers/list.router.php:46 views/list/index.php:31 views/list/index.php:34
+#: routers/list.router.php:45 views/list/index.php:31 views/list/index.php:35
 msgid "My Email Lists"
 msgstr ""
 
-#: routers/list.router.php:57
+#: routers/list.router.php:56
+msgid "You don't have the proper permission."
+msgstr ""
+
+#: routers/list.router.php:103
 msgid "You don't have permission to create email lists."
 msgstr ""
 
-#: routers/list.router.php:99 views/list/create.php:24 views/list/create.php:27
+#: routers/list.router.php:143 views/list/create.php:24
+#: views/list/create.php:28
 msgid "Create Email List"
 msgstr ""
 
-#: routers/list.router.php:109
-msgid "You don't have permission to access create/edit email lists."
+#: routers/list.router.php:153
+msgid "You don't have permission to access edit Email Lists."
 msgstr ""
 
-#: routers/list.router.php:180 views/list/view.php:80 views/list/view.php:83
+#: routers/list.router.php:222 views/list/view.php:80 views/list/view.php:84
 msgid "View/Edit Email List"
 msgstr ""
 
-#: routers/setting.router.php:16
+#: routers/list.router.php:234
+msgid "You don't have permission to access subscribers."
+msgstr ""
+
+#: routers/list.router.php:296 views/_layouts/dashboard.php:223
+#: views/list/index.php:53 views/list/index.php:101
+#: views/list/subscriber.php:25 views/list/subscriber.php:29
+#: views/subscriber/add.php:27 views/subscriber/view.php:27
+msgid "Subscribers"
+msgstr ""
+
+#: routers/list.router.php:309
+msgid "You don't have permission to import subscribers."
+msgstr ""
+
+#: routers/list.router.php:347
+msgid "Subscribers were imported successfully."
+msgstr ""
+
+#: routers/list.router.php:349
+msgid "Your .csv file was empty or missing."
+msgstr ""
+
+#: routers/list.router.php:406 views/list/import.php:25
+#: views/list/import.php:29
+msgid "Import Subscribers"
+msgstr ""
+
+#: routers/list.router.php:418
+msgid "You don't have permission to export subscribers."
+msgstr ""
+
+#: routers/list.router.php:559
+msgid "You lack the proper permission to delete an email list."
+msgstr ""
+
+#: routers/plugins.router.php:18
+msgid "Permission denied to view requested screen."
+msgstr ""
+
+#: routers/plugins.router.php:37 views/_layouts/dashboard.php:158
+#: views/plugins/index.php:25 views/plugins/index.php:28
+msgid "Plugins"
+msgstr ""
+
+#: routers/plugins.router.php:43
+msgid "Permission denied to activate a plugin."
+msgstr ""
+
+#: routers/plugins.router.php:63
+msgid "The plugin generated unexpected output."
+msgstr ""
+
+#: routers/plugins.router.php:73
+msgid "Permission denied to deactivate a plugin."
+msgstr ""
+
+#: routers/plugins.router.php:134
+msgid "Plugin Options"
+msgstr ""
+
+#: routers/plugins.router.php:143
+msgid "Permission denied to install plugins."
+msgstr ""
+
+#: routers/plugins.router.php:169
+msgid ""
+"The file you are trying to upload is not the accepted file type (.zip). "
+"Please try again."
+msgstr ""
+
+#: routers/plugins.router.php:180
+msgid "Your plugin was uploaded and installed properly."
+msgstr ""
+
+#: routers/plugins.router.php:182
+msgid ""
+"There was a problem uploading your plugin. Please try again or check the "
+"plugin package."
+msgstr ""
+
+#: routers/plugins.router.php:197
+msgid "Install Plugins"
+msgstr ""
+
+#: routers/setting.router.php:17
 msgid "You don't have permission to access the General Settings screen."
 msgstr ""
 
-#: routers/setting.router.php:64
+#: routers/setting.router.php:65
 msgid "You don't have permission to access the SMTP Settings screen."
 msgstr ""
 
-#: routers/setting.router.php:157
+#: routers/setting.router.php:159
 msgid "You don't have permission to access the Bounce Mail Handler screen."
 msgstr ""
 
-#: routers/subscriber.router.php:13
+#: routers/subscriber.router.php:14
 msgid "You don't have permission to access the Manage Subscribers screen."
 msgstr ""
 
-#: routers/subscriber.router.php:48
+#: routers/subscriber.router.php:49
 msgid "You don't have permission to access the Add Subscriber screen."
 msgstr ""
 
-#: routers/subscriber.router.php:217
+#: routers/subscriber.router.php:118
+msgid "You don't have permission to access the Edit Subscriber screen."
+msgstr ""
+
+#: routers/subscriber.router.php:232
 msgid "You don't have permission to delete subscribers."
 msgstr ""
 
-#: routers/user.router.php:13
+#: routers/user.router.php:17
 msgid "You don't have permission to access the Manage Users screen."
 msgstr ""
 
-#: routers/user.router.php:51
+#: routers/user.router.php:55
 msgid "You don't have permission to access the Create User screen."
 msgstr ""
 
-#: routers/user.router.php:114
+#: routers/user.router.php:125
+msgid "You don't have permission to access the Edit User screen."
+msgstr ""
+
+#: routers/user.router.php:132
 msgid "You are not allowed to edit the super administrator account."
 msgstr ""
 
-#: routers/user.router.php:250
+#: routers/user.router.php:211
+msgid "You must be logged in to edit your profile."
+msgstr ""
+
+#: routers/user.router.php:277
+msgid "You don't have permission to access the Edit User Permission screen."
+msgstr ""
+
+#: routers/user.router.php:354 routers/user.router.php:410
+msgid "You don't have permission to switch users."
+msgstr ""
+
+#: routers/user.router.php:366 routers/user.router.php:396
+#: routers/user.router.php:460
+msgid "yes"
+msgstr ""
+
+#: routers/user.router.php:472
 msgid "You don't have permission to delete users."
 msgstr ""
 
-#: routers/user.router.php:257
+#: routers/user.router.php:479
 msgid "You are not allowed to delete the super administrator account."
 msgstr ""
 
@@ -680,317 +910,485 @@ msgid ""
 "Could not resolve message as instance of tc_Email or a callable returning it"
 msgstr ""
 
-#: views/_layouts/dashboard.php:49
+#: views/_layouts/dashboard.php:50
 msgid "Toggle navigation"
 msgstr ""
 
-#: views/_layouts/dashboard.php:67
+#: views/_layouts/dashboard.php:68
 msgid "Member since"
 msgstr ""
 
-#: views/_layouts/dashboard.php:73
+#: views/_layouts/dashboard.php:74
 msgid "Profile"
 msgstr ""
 
-#: views/_layouts/dashboard.php:76
-msgid "Sign out"
+#: views/_layouts/dashboard.php:78
+msgid "Switch back"
 msgstr ""
 
-#: views/_layouts/dashboard.php:98
+#: views/_layouts/dashboard.php:82
+msgid "Logout"
+msgstr ""
+
+#: views/_layouts/dashboard.php:104
 msgid "Online"
 msgstr ""
 
-#: views/_layouts/dashboard.php:103
+#: views/_layouts/dashboard.php:109
 msgid "MAIN NAVIGATION"
 msgstr ""
 
-#: views/_layouts/dashboard.php:106 views/campaign/create.php:131
-#: views/campaign/index.php:26 views/campaign/view.php:130
-#: views/cron/create.php:46 views/cron/index.php:27 views/cron/setting.php:26
-#: views/cron/view.php:46 views/dashboard/support.php:25
+#: views/_layouts/dashboard.php:112 views/campaign/clicked.php:27
+#: views/campaign/create.php:137 views/campaign/index.php:39
+#: views/campaign/opened.php:27 views/campaign/report.php:26
+#: views/campaign/view.php:130 views/cron/create.php:46 views/cron/index.php:27
+#: views/cron/setting.php:26 views/cron/view.php:46
+#: views/dashboard/index.php:25 views/dashboard/index.php:30
+#: views/dashboard/support.php:25 views/dashboard/system-snapshot.php:26
 #: views/error/audit.php:29 views/error/index.php:28 views/list/create.php:26
-#: views/list/index.php:33 views/list/subscriber.php:27 views/list/view.php:82
+#: views/list/import.php:27 views/list/index.php:33
+#: views/list/subscriber.php:27 views/list/view.php:82
 #: views/permission/add.php:30 views/permission/index.php:27
-#: views/permission/view.php:26 views/role/add.php:34 views/role/index.php:28
-#: views/role/view.php:29 views/setting/bounce.php:27
-#: views/setting/index.php:26 views/setting/smtp.php:30
+#: views/permission/view.php:26 views/plugins/index.php:27
+#: views/plugins/install.php:27 views/role/add.php:34 views/role/index.php:28
+#: views/role/view.php:29 views/server/create.php:28 views/server/index.php:33
+#: views/server/view.php:28 views/setting/bounce.php:27
+#: views/setting/index.php:26 views/setting/smtp.php:28
 #: views/subscriber/add.php:26 views/subscriber/index.php:33
-#: views/subscriber/view.php:26 views/user/add.php:26 views/user/index.php:27
+#: views/subscriber/view.php:26 views/template/create.php:131
+#: views/template/index.php:27 views/template/view.php:131
+#: views/user/add.php:26 views/user/index.php:27 views/user/perm.php:27
 #: views/user/profile.php:26 views/user/view.php:26
 msgid "Dashboard"
 msgstr ""
 
-#: views/_layouts/dashboard.php:111
+#: views/_layouts/dashboard.php:117
 msgid "Flush Cache"
 msgstr ""
 
-#: views/_layouts/dashboard.php:117 views/cron/create.php:47
+#: views/_layouts/dashboard.php:123 views/cron/create.php:47
 #: views/cron/index.php:25 views/cron/index.php:28 views/cron/setting.php:27
 #: views/cron/view.php:47
 msgid "Cronjob Handlers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:123 views/cron/create.php:67
+#: views/_layouts/dashboard.php:129 views/cron/create.php:67
 #: views/cron/index.php:47 views/cron/setting.php:47 views/cron/view.php:67
 msgid "Settings"
 msgstr ""
 
-#: views/_layouts/dashboard.php:124
+#: views/_layouts/dashboard.php:130
 msgid "Create Handler"
 msgstr ""
 
-#: views/_layouts/dashboard.php:125
+#: views/_layouts/dashboard.php:131
 msgid "Handlers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:131
+#: views/_layouts/dashboard.php:137
 msgid "Admin"
 msgstr ""
 
-#: views/_layouts/dashboard.php:137 views/setting/index.php:24
+#: views/_layouts/dashboard.php:143 views/setting/index.php:24
 #: views/setting/index.php:27
 msgid "General Settings"
 msgstr ""
 
-#: views/_layouts/dashboard.php:138 views/setting/smtp.php:28
-#: views/setting/smtp.php:31
+#: views/_layouts/dashboard.php:144 views/dashboard/system-snapshot.php:24
+#: views/dashboard/system-snapshot.php:27
+msgid "System Snapshot Report"
+msgstr ""
+
+#: views/_layouts/dashboard.php:145 views/setting/smtp.php:26
+#: views/setting/smtp.php:29
 msgid "SMTP Settings"
 msgstr ""
 
-#: views/_layouts/dashboard.php:139
-msgid "Email Bounce Settings"
+#: views/_layouts/dashboard.php:146 views/setting/bounce.php:25
+#: views/setting/bounce.php:28
+msgid "Bounce Email Settings"
 msgstr ""
 
-#: views/_layouts/dashboard.php:140 views/permission/add.php:31
+#: views/_layouts/dashboard.php:147 views/permission/add.php:31
 #: views/permission/index.php:25 views/permission/index.php:28
 #: views/permission/view.php:27
 msgid "Permissions"
 msgstr ""
 
-#: views/_layouts/dashboard.php:141 views/permission/add.php:28
+#: views/_layouts/dashboard.php:148 views/permission/add.php:28
 #: views/permission/add.php:32
 msgid "Add Permission"
 msgstr ""
 
-#: views/_layouts/dashboard.php:142 views/role/add.php:35
+#: views/_layouts/dashboard.php:149 views/role/add.php:35
 #: views/role/index.php:26 views/role/index.php:29 views/role/view.php:30
 msgid "Roles"
 msgstr ""
 
-#: views/_layouts/dashboard.php:143 views/role/add.php:32 views/role/add.php:36
+#: views/_layouts/dashboard.php:150 views/role/add.php:32 views/role/add.php:36
 msgid "Add Role"
 msgstr ""
 
-#: views/_layouts/dashboard.php:144
+#: views/_layouts/dashboard.php:151
 msgid "Error Logs"
 msgstr ""
 
-#: views/_layouts/dashboard.php:145 views/error/audit.php:27
+#: views/_layouts/dashboard.php:152 views/error/audit.php:27
 #: views/error/audit.php:30
 msgid "Audit Trail"
 msgstr ""
 
-#: views/_layouts/dashboard.php:157
+#: views/_layouts/dashboard.php:164
+msgid "Plugins List"
+msgstr ""
+
+#: views/_layouts/dashboard.php:165 views/plugins/install.php:25
+#: views/plugins/install.php:28
+msgid "Install Plugin"
+msgstr ""
+
+#: views/_layouts/dashboard.php:172
+msgid "SMTP Servers"
+msgstr ""
+
+#: views/_layouts/dashboard.php:178 views/server/create.php:26
+#: views/server/create.php:30
+msgid "Create Server"
+msgstr ""
+
+#: views/_layouts/dashboard.php:179
+msgid "Manage Servers"
+msgstr ""
+
+#: views/_layouts/dashboard.php:191
 msgid "Create List"
 msgstr ""
 
-#: views/_layouts/dashboard.php:158
+#: views/_layouts/dashboard.php:192
 msgid "Manage Email Lists"
 msgstr ""
 
-#: views/_layouts/dashboard.php:171
+#: views/_layouts/dashboard.php:198 views/template/create.php:132
+#: views/template/index.php:25 views/template/index.php:28
+#: views/template/view.php:132
+msgid "Templates"
+msgstr ""
+
+#: views/_layouts/dashboard.php:204 views/template/create.php:129
+#: views/template/create.php:133 views/template/view.php:129
+#: views/template/view.php:133
+msgid "Create Template"
+msgstr ""
+
+#: views/_layouts/dashboard.php:205
+msgid "Manage Templates"
+msgstr ""
+
+#: views/_layouts/dashboard.php:217
 msgid "Manage Campaigns"
 msgstr ""
 
-#: views/_layouts/dashboard.php:183 views/subscriber/add.php:24
-#: views/subscriber/add.php:27
+#: views/_layouts/dashboard.php:229 views/subscriber/add.php:24
+#: views/subscriber/add.php:28
 msgid "Add Subscriber"
 msgstr ""
 
-#: views/_layouts/dashboard.php:184
+#: views/_layouts/dashboard.php:230
 msgid "Manage Subscribers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:190 views/user/add.php:27
-#: views/user/profile.php:27 views/user/view.php:27
+#: views/_layouts/dashboard.php:236 views/user/add.php:27
+#: views/user/perm.php:28 views/user/profile.php:27 views/user/view.php:27
 msgid "Users"
 msgstr ""
 
-#: views/_layouts/dashboard.php:196
+#: views/_layouts/dashboard.php:242
 msgid "Add User"
 msgstr ""
 
-#: views/_layouts/dashboard.php:197 views/user/index.php:25
+#: views/_layouts/dashboard.php:243 views/user/index.php:25
 #: views/user/index.php:28
 msgid "Manage Users"
 msgstr ""
 
-#: views/_layouts/dashboard.php:198
+#: views/_layouts/dashboard.php:244
 msgid "Your Profile"
 msgstr ""
 
-#: views/_layouts/dashboard.php:203 views/dashboard/support.php:23
+#: views/_layouts/dashboard.php:249 views/dashboard/support.php:23
 #: views/dashboard/support.php:26
 msgid "Support"
 msgstr ""
 
-#: views/_layouts/dashboard.php:215 views/_layouts/index.php:76
+#: views/_layouts/dashboard.php:261 views/_layouts/index.php:76
 msgid "Release"
 msgstr ""
 
-#: views/_layouts/dashboard.php:217 views/_layouts/index.php:78
+#: views/_layouts/dashboard.php:263 views/_layouts/index.php:78
 msgid "tinyCampaign"
-msgstr ""
-
-#: views/_layouts/index.php:23
-msgid "Subscribe"
 msgstr ""
 
 #: views/_layouts/login.php:10
 msgid "Login"
 msgstr ""
 
-#: views/campaign/create.php:129 views/campaign/create.php:132
+#: views/campaign/clicked.php:25 views/campaign/clicked.php:30
+msgid "URLs Clicked Campaign Report"
+msgstr ""
+
+#: views/campaign/clicked.php:29 views/campaign/opened.php:29
+msgid "Campaign Report"
+msgstr ""
+
+#: views/campaign/clicked.php:45 views/campaign/clicked.php:65
+msgid "URL"
+msgstr ""
+
+#: views/campaign/clicked.php:46 views/campaign/clicked.php:66
+#: views/campaign/opened.php:45 views/campaign/opened.php:63
+msgid "Subscriber"
+msgstr ""
+
+#: views/campaign/clicked.php:47 views/campaign/clicked.php:67
+msgid "First Clicked"
+msgstr ""
+
+#: views/campaign/clicked.php:48 views/campaign/clicked.php:68
+msgid "Times Clicked"
+msgstr ""
+
+#: views/campaign/clicked.php:49 views/campaign/clicked.php:69
+msgid "Last Clicked"
+msgstr ""
+
+#: views/campaign/clicked.php:77 views/campaign/create.php:234
+#: views/campaign/opened.php:74 views/campaign/report.php:93
+#: views/campaign/view.php:236 views/cron/create.php:129
+#: views/cron/setting.php:81 views/cron/view.php:129 views/list/create.php:110
+#: views/list/import.php:79 views/list/subscriber.php:101
+#: views/list/view.php:228 views/permission/add.php:68
+#: views/permission/view.php:68 views/role/add.php:80 views/role/view.php:77
+#: views/server/create.php:116 views/server/view.php:127
+#: views/server/view.php:171 views/subscriber/add.php:112
+#: views/subscriber/view.php:112 views/template/create.php:187
+#: views/template/view.php:187 views/user/add.php:142 views/user/perm.php:64
+#: views/user/profile.php:134 views/user/view.php:146
+msgid "Cancel"
+msgstr ""
+
+#: views/campaign/create.php:135 views/campaign/create.php:139
 msgid "Create Email Message"
 msgstr ""
 
-#: views/campaign/create.php:149 views/campaign/view.php:147
+#: views/campaign/create.php:156 views/campaign/view.php:148
 msgid "Node"
 msgstr ""
 
-#: views/campaign/create.php:154 views/campaign/view.php:152
+#: views/campaign/create.php:161 views/campaign/view.php:153
 msgid "Email Subject"
 msgstr ""
 
-#: views/campaign/create.php:159 views/campaign/view.php:157
+#: views/campaign/create.php:166 views/campaign/view.php:158
 msgid "From Name"
 msgstr ""
 
-#: views/campaign/create.php:164 views/campaign/view.php:162
+#: views/campaign/create.php:171 views/campaign/view.php:163
 msgid "From Email"
 msgstr ""
 
-#: views/campaign/create.php:173 views/campaign/index.php:43
-#: views/campaign/index.php:94 views/campaign/view.php:167
+#: views/campaign/create.php:180 views/campaign/index.php:56
+#: views/campaign/index.php:165 views/campaign/view.php:168
 msgid "Send Start"
 msgstr ""
 
-#: views/campaign/create.php:180 views/campaign/view.php:174
+#: views/campaign/create.php:187 views/campaign/view.php:175
 msgid ""
 "Start data and time of the campaign. Editing it later will not update the "
 "queue once it starts."
 msgstr ""
 
-#: views/campaign/create.php:184 views/campaign/view.php:182
+#: views/campaign/create.php:191 views/campaign/view.php:183
 msgid "Archive?"
 msgstr ""
 
-#: views/campaign/create.php:187 views/campaign/view.php:185
-#: views/list/create.php:88 views/list/view.php:144
-#: views/subscriber/view.php:102
+#: views/campaign/create.php:194 views/campaign/view.php:186
+#: views/dashboard/system-snapshot.php:46
+#: views/dashboard/system-snapshot.php:72 views/list/create.php:89
+#: views/list/view.php:145 views/setting/index.php:124
 msgid "Yes"
 msgstr ""
 
-#: views/campaign/create.php:188 views/campaign/view.php:186
-#: views/list/create.php:89 views/list/view.php:145
-#: views/subscriber/view.php:103
+#: views/campaign/create.php:195 views/campaign/view.php:187
+#: views/dashboard/system-snapshot.php:46
+#: views/dashboard/system-snapshot.php:72 views/list/create.php:90
+#: views/list/view.php:146 views/setting/index.php:125
 msgid "No"
 msgstr ""
 
-#: views/campaign/create.php:190 views/campaign/view.php:188
+#: views/campaign/create.php:197 views/campaign/view.php:189
 msgid "Should this campaign be available in the online archives?"
 msgstr ""
 
-#: views/campaign/create.php:194 views/campaign/view.php:192
-#: views/index/preferences.php:91 views/subscriber/add.php:99
-#: views/subscriber/view.php:108
+#: views/campaign/create.php:201 views/campaign/view.php:193
+#: views/index/preferences.php:91 views/subscriber/add.php:100
+#: views/subscriber/view.php:100
 msgid "Lists"
 msgstr ""
 
-#: views/campaign/create.php:204 views/campaign/view.php:212
+#: views/campaign/create.php:211 views/campaign/view.php:213
+#: views/template/create.php:174 views/template/view.php:174
 msgid "HTML Message"
 msgstr ""
 
-#: views/campaign/create.php:214
+#: views/campaign/create.php:221
 msgid "Footer"
 msgstr ""
 
-#: views/campaign/create.php:226 views/campaign/view.php:234
-#: views/dashboard/support.php:98 views/list/create.php:102
-#: views/list/view.php:218 views/setting/bounce.php:97
-#: views/setting/index.php:127 views/subscriber/add.php:110
-#: views/subscriber/view.php:119 views/user/add.php:141
+#: views/campaign/create.php:233 views/campaign/view.php:235
+#: views/dashboard/support.php:98 views/index/index.php:80
+#: views/list/create.php:109 views/list/import.php:77 views/list/view.php:227
+#: views/plugins/install.php:49 views/server/create.php:115
+#: views/server/view.php:126 views/server/view.php:170
+#: views/setting/bounce.php:97 views/setting/index.php:136
+#: views/setting/smtp.php:93 views/setting/smtp.php:136
+#: views/subscriber/add.php:111 views/subscriber/view.php:111
+#: views/template/create.php:186 views/template/view.php:186
+#: views/user/add.php:141
 msgid "Submit"
 msgstr ""
 
-#: views/campaign/index.php:41 views/campaign/index.php:92
-#: views/setting/smtp.php:104
+#: views/campaign/index.php:54 views/campaign/index.php:163
+#: views/campaign/report.php:42 views/server/view.php:145
+#: views/setting/smtp.php:111
 msgid "Subject"
 msgstr ""
 
-#: views/campaign/index.php:42 views/campaign/index.php:93
-#: views/index/status.php:20 views/list/create.php:59 views/list/index.php:51
-#: views/list/index.php:97 views/list/view.php:115
-#: views/subscriber/index.php:51 views/subscriber/index.php:95
-#: views/user/add.php:113 views/user/index.php:46 views/user/index.php:104
-#: views/user/view.php:113
+#: views/campaign/index.php:55 views/campaign/index.php:164
+#: views/index/status.php:20 views/list/create.php:60 views/list/index.php:52
+#: views/list/index.php:100 views/list/subscriber.php:48
+#: views/list/subscriber.php:95 views/list/view.php:116
+#: views/setting/smtp.php:79 views/user/add.php:113 views/user/index.php:46
+#: views/user/index.php:99 views/user/view.php:113
 msgid "Status"
 msgstr ""
 
-#: views/campaign/index.php:44 views/campaign/index.php:95
+#: views/campaign/index.php:57 views/campaign/index.php:166
 msgid "Send Finish"
 msgstr ""
 
-#: views/campaign/index.php:45 views/campaign/index.php:96
+#: views/campaign/index.php:58 views/campaign/index.php:167
 msgid "Recipients"
 msgstr ""
 
-#: views/campaign/index.php:46 views/campaign/index.php:97
+#: views/campaign/index.php:59 views/campaign/index.php:168
 #: views/error/audit.php:45 views/error/audit.php:67 views/error/index.php:48
-#: views/error/index.php:70 views/list/index.php:53 views/list/index.php:99
-#: views/list/subscriber.php:47 views/list/subscriber.php:101
-#: views/subscriber/index.php:52 views/subscriber/index.php:96
-#: views/user/index.php:48 views/user/index.php:106
+#: views/error/index.php:70 views/list/index.php:54 views/list/index.php:102
+#: views/list/subscriber.php:49 views/list/subscriber.php:96
+#: views/plugins/index.php:45 views/plugins/index.php:78
+#: views/server/index.php:51 views/server/index.php:93
+#: views/subscriber/index.php:53 views/subscriber/index.php:99
+#: views/template/index.php:44 views/template/index.php:108
+#: views/user/index.php:48 views/user/index.php:101
 msgid "Action"
 msgstr ""
 
-#: views/campaign/index.php:74
+#: views/campaign/index.php:117
 msgid "Are you sure you want to delete this campaign?"
 msgstr ""
 
-#: views/campaign/index.php:77 views/cron/create.php:152
-#: views/cron/setting.php:104 views/cron/setting.php:126
-#: views/cron/view.php:152 views/list/index.php:80 views/list/subscriber.php:82
-#: views/subscriber/index.php:78 views/user/index.php:86
+#: views/campaign/index.php:120 views/campaign/index.php:146
+#: views/cron/create.php:152 views/cron/setting.php:104
+#: views/cron/setting.php:126 views/cron/view.php:152 views/index/index.php:79
+#: views/list/index.php:83 views/list/subscriber.php:76
+#: views/server/index.php:76 views/subscriber/index.php:80
+#: views/template/index.php:70 views/template/index.php:91
+#: views/user/index.php:81
 msgid "Close"
 msgstr ""
 
-#: views/campaign/index.php:78 views/list/index.php:81
-#: views/list/subscriber.php:83 views/subscriber/index.php:79
-#: views/user/index.php:87
+#: views/campaign/index.php:121 views/list/index.php:84
+#: views/list/subscriber.php:77 views/server/index.php:77
+#: views/subscriber/index.php:81 views/template/index.php:92
+#: views/user/index.php:82
 msgid "Confirm"
 msgstr ""
 
-#: views/campaign/view.php:197 views/list/view.php:150
+#: views/campaign/index.php:137
+msgid "Choose Server"
+msgstr ""
+
+#: views/campaign/index.php:147
+msgid "Send"
+msgstr ""
+
+#: views/campaign/opened.php:25 views/campaign/opened.php:30
+msgid "Opened Campaign Report"
+msgstr ""
+
+#: views/campaign/opened.php:46 views/campaign/opened.php:64
+msgid "First Viewed"
+msgstr ""
+
+#: views/campaign/opened.php:47 views/campaign/opened.php:65
+msgid "Times Viewed"
+msgstr ""
+
+#: views/campaign/opened.php:48 views/campaign/opened.php:66
+msgid "Last Viewed"
+msgstr ""
+
+#: views/campaign/report.php:24 views/campaign/report.php:28
+msgid "Report"
+msgstr ""
+
+#: views/campaign/report.php:47
+msgid "Date Entered"
+msgstr ""
+
+#: views/campaign/report.php:52
+msgid "Date Sent"
+msgstr ""
+
+#: views/campaign/report.php:57
+msgid "Date Finished"
+msgstr ""
+
+#: views/campaign/report.php:62
+msgid "Sent"
+msgstr ""
+
+#: views/campaign/report.php:67
+msgid "Bounces"
+msgstr ""
+
+#: views/campaign/report.php:72
+msgid "Opened"
+msgstr ""
+
+#: views/campaign/report.php:77
+msgid "% Opened"
+msgstr ""
+
+#: views/campaign/report.php:82
+msgid "Clicked"
+msgstr ""
+
+#: views/campaign/report.php:87
+msgid "% Clicked"
+msgstr ""
+
+#: views/campaign/view.php:198 views/list/view.php:159
 msgid "Owner"
 msgstr ""
 
-#: views/campaign/view.php:202 views/list/view.php:155
+#: views/campaign/view.php:203 views/list/view.php:164
+#: views/server/view.php:116 views/template/view.php:164
 #: views/user/profile.php:121 views/user/view.php:133
 msgid "Modified"
 msgstr ""
 
-#: views/campaign/view.php:222
+#: views/campaign/view.php:223
 msgid "Message Footer"
-msgstr ""
-
-#: views/campaign/view.php:235 views/cron/create.php:129
-#: views/cron/setting.php:81 views/cron/view.php:129
-#: views/list/subscriber.php:106 views/permission/add.php:68
-#: views/permission/view.php:68 views/role/add.php:80 views/role/view.php:77
-#: views/subscriber/view.php:120 views/user/add.php:142
-#: views/user/profile.php:134 views/user/view.php:146
-msgid "Cancel"
 msgstr ""
 
 #: views/cron/create.php:44 views/cron/create.php:48
@@ -1025,8 +1423,9 @@ msgid "Each / Time"
 msgstr ""
 
 #: views/cron/create.php:128 views/cron/setting.php:80 views/cron/view.php:128
-#: views/index/preferences.php:113 views/role/add.php:79
-#: views/user/profile.php:133 views/user/view.php:145
+#: views/index/password.php:57 views/index/preferences.php:113
+#: views/role/add.php:79 views/user/perm.php:63 views/user/profile.php:133
+#: views/user/view.php:145
 msgid "Save"
 msgstr ""
 
@@ -1090,6 +1489,14 @@ msgstr ""
 msgid "View/Edit Cronjob Handler"
 msgstr ""
 
+#: views/dashboard/index.php:26
+msgid "Control panel"
+msgstr ""
+
+#: views/dashboard/index.php:29 views/error/404.php:23
+msgid "Home"
+msgstr ""
+
 #: views/dashboard/index.php:52
 msgid "Subscribers / List"
 msgstr ""
@@ -1122,11 +1529,15 @@ msgstr ""
 msgid "Email Address"
 msgstr ""
 
-#: views/dashboard/support.php:54 views/list/index.php:50
-#: views/list/index.php:96 views/permission/add.php:49
+#: views/dashboard/support.php:54 views/list/index.php:51
+#: views/list/index.php:99 views/permission/add.php:49
 #: views/permission/index.php:44 views/permission/index.php:66
 #: views/permission/view.php:46 views/role/index.php:44 views/role/index.php:68
-#: views/subscriber/index.php:49 views/subscriber/index.php:93
+#: views/server/create.php:46 views/server/index.php:49
+#: views/server/index.php:91 views/server/view.php:46
+#: views/subscriber/index.php:49 views/subscriber/index.php:95
+#: views/template/create.php:150 views/template/index.php:42
+#: views/template/index.php:106 views/template/view.php:150
 msgid "Name"
 msgstr ""
 
@@ -1158,12 +1569,16 @@ msgstr ""
 msgid "Attachment"
 msgstr ""
 
-#: views/error/404.php:21
-msgid "404 Error Page"
+#: views/dashboard/system-snapshot.php:50
+msgid "Production"
 msgstr ""
 
-#: views/error/404.php:23
-msgid "Home"
+#: views/dashboard/system-snapshot.php:50
+msgid "Development"
+msgstr ""
+
+#: views/error/404.php:21
+msgid "404 Error Page"
 msgstr ""
 
 #: views/error/404.php:24
@@ -1186,9 +1601,10 @@ msgstr ""
 msgid "Record"
 msgstr ""
 
-#: views/error/audit.php:48 views/error/audit.php:70
-#: views/setting/bounce.php:49 views/user/add.php:45 views/user/index.php:43
-#: views/user/index.php:101 views/user/profile.php:45 views/user/view.php:45
+#: views/error/audit.php:48 views/error/audit.php:70 views/server/create.php:55
+#: views/server/view.php:55 views/setting/bounce.php:49 views/user/add.php:45
+#: views/user/index.php:43 views/user/index.php:96 views/user/profile.php:45
+#: views/user/view.php:45
 msgid "Username"
 msgstr ""
 
@@ -1232,51 +1648,45 @@ msgstr ""
 msgid "Sign In"
 msgstr ""
 
-#: views/index/index.php:60
-msgid "Reset Password"
+#: views/index/index.php:70
+msgid "Enter Email"
 msgstr ""
 
-#: views/index/password.php:27
-msgid "Change Password"
+#: views/index/index.php:74 views/index/preferences.php:46
+#: views/list/subscriber.php:44 views/list/subscriber.php:91
+#: views/subscriber/add.php:55 views/subscriber/index.php:50
+#: views/subscriber/index.php:96 views/subscriber/view.php:55
+#: views/user/add.php:60 views/user/add.php:128 views/user/profile.php:60
+#: views/user/view.php:60
+msgid "Email"
 msgstr ""
 
-#: views/index/password.php:41
-msgid "Current Password"
+#: views/index/password.php:36 views/server/create.php:60
+#: views/server/view.php:60 views/setting/bounce.php:54 views/user/add.php:123
+#: views/user/profile.php:105
+msgid "Password"
 msgstr ""
 
 #: views/index/password.php:45
-msgid "New Password"
-msgstr ""
-
-#: views/index/password.php:63 views/permission/view.php:67
-#: views/role/view.php:76
-msgid "Update"
+msgid "Confirm Password"
 msgstr ""
 
 #: views/index/preferences.php:20
 msgid "My Preferences"
 msgstr ""
 
-#: views/index/preferences.php:36 views/list/subscriber.php:44
-#: views/list/subscriber.php:98 views/subscriber/add.php:44
-#: views/subscriber/view.php:44 views/user/add.php:50 views/user/index.php:44
-#: views/user/index.php:102 views/user/profile.php:50 views/user/view.php:50
+#: views/index/preferences.php:36 views/list/subscriber.php:45
+#: views/list/subscriber.php:92 views/subscriber/add.php:45
+#: views/subscriber/view.php:45 views/user/add.php:50 views/user/index.php:44
+#: views/user/index.php:97 views/user/profile.php:50 views/user/view.php:50
 msgid "First Name"
 msgstr ""
 
-#: views/index/preferences.php:41 views/list/subscriber.php:45
-#: views/list/subscriber.php:99 views/subscriber/add.php:49
-#: views/subscriber/view.php:49 views/user/add.php:55 views/user/index.php:45
-#: views/user/index.php:103 views/user/profile.php:55 views/user/view.php:55
+#: views/index/preferences.php:41 views/list/subscriber.php:46
+#: views/list/subscriber.php:93 views/subscriber/add.php:50
+#: views/subscriber/view.php:50 views/user/add.php:55 views/user/index.php:45
+#: views/user/index.php:98 views/user/profile.php:55 views/user/view.php:55
 msgid "Last Name"
-msgstr ""
-
-#: views/index/preferences.php:46 views/list/subscriber.php:43
-#: views/list/subscriber.php:97 views/subscriber/add.php:54
-#: views/subscriber/index.php:50 views/subscriber/index.php:94
-#: views/subscriber/view.php:54 views/user/add.php:60 views/user/add.php:128
-#: views/user/profile.php:60 views/user/view.php:60
-msgid "Email"
 msgstr ""
 
 #: views/index/preferences.php:51 views/user/add.php:65
@@ -1289,26 +1699,26 @@ msgstr ""
 msgid "Address2"
 msgstr ""
 
-#: views/index/preferences.php:61 views/subscriber/add.php:69
-#: views/subscriber/view.php:69 views/user/add.php:75 views/user/profile.php:75
+#: views/index/preferences.php:61 views/subscriber/add.php:70
+#: views/subscriber/view.php:70 views/user/add.php:75 views/user/profile.php:75
 #: views/user/view.php:75
 msgid "City"
 msgstr ""
 
-#: views/index/preferences.php:66 views/subscriber/add.php:78
-#: views/subscriber/view.php:74 views/user/add.php:80 views/user/profile.php:80
+#: views/index/preferences.php:66 views/subscriber/add.php:79
+#: views/subscriber/view.php:79 views/user/add.php:80 views/user/profile.php:80
 #: views/user/view.php:80
 msgid "State"
 msgstr ""
 
-#: views/index/preferences.php:78 views/subscriber/add.php:86
-#: views/subscriber/view.php:86 views/user/add.php:92 views/user/profile.php:92
+#: views/index/preferences.php:78 views/subscriber/add.php:87
+#: views/subscriber/view.php:87 views/user/add.php:92 views/user/profile.php:92
 #: views/user/view.php:92
 msgid "Postal Code"
 msgstr ""
 
-#: views/index/preferences.php:83 views/subscriber/add.php:91
-#: views/subscriber/view.php:91 views/user/add.php:97 views/user/profile.php:97
+#: views/index/preferences.php:83 views/subscriber/add.php:92
+#: views/subscriber/view.php:92 views/user/add.php:97 views/user/profile.php:97
 #: views/user/view.php:97
 msgid "Country"
 msgstr ""
@@ -1329,96 +1739,128 @@ msgstr ""
 msgid "We don't allows spammers the ability to apply for admissions."
 msgstr ""
 
-#: views/list/create.php:44 views/list/index.php:49 views/list/index.php:95
-#: views/list/view.php:100
+#: views/list/create.php:45 views/list/index.php:50 views/list/index.php:98
+#: views/list/view.php:101
 msgid "Code"
 msgstr ""
 
-#: views/list/create.php:49 views/list/view.php:105
+#: views/list/create.php:50 views/list/view.php:106
 msgid "List Name"
 msgstr ""
 
-#: views/list/create.php:54 views/list/view.php:110
+#: views/list/create.php:55 views/list/view.php:111
+#: views/template/create.php:155 views/template/view.php:155
 msgid "Short Description"
 msgstr ""
 
-#: views/list/create.php:62 views/list/view.php:118
+#: views/list/create.php:63 views/list/view.php:119
 msgid "Open"
 msgstr ""
 
-#: views/list/create.php:63 views/list/view.php:119
+#: views/list/create.php:64 views/list/view.php:120
 msgid "Closed"
 msgstr ""
 
-#: views/list/create.php:65 views/list/view.php:121
+#: views/list/create.php:66 views/list/import.php:57 views/list/view.php:122
 msgid "If Closed, no one will be able to subscribe to the list."
 msgstr ""
 
-#: views/list/create.php:73 views/list/view.php:125
+#: views/list/create.php:74 views/list/view.php:126
 msgid "Redirect Success"
 msgstr ""
 
-#: views/list/create.php:75 views/list/view.php:127
+#: views/list/create.php:76 views/list/view.php:128
 msgid "Override the default with your custom url success message."
 msgstr ""
 
-#: views/list/create.php:79 views/list/view.php:135
+#: views/list/create.php:80 views/list/view.php:136
 msgid "Redirect Error"
 msgstr ""
 
-#: views/list/create.php:81 views/list/view.php:137
+#: views/list/create.php:82 views/list/view.php:138
 msgid "Override the default with your custom url unsuccess message."
 msgstr ""
 
-#: views/list/create.php:85 views/list/view.php:141
+#: views/list/create.php:86 views/list/view.php:142
 msgid "Double Opt-in?"
 msgstr ""
 
-#: views/list/index.php:77
+#: views/list/create.php:95 views/list/view.php:151
+msgid "SMTP Server"
+msgstr ""
+
+#: views/list/import.php:38
+msgid ""
+"Click \"Download Template\" for import example. Fields in order are first "
+"name, last name, email address."
+msgstr ""
+
+#: views/list/import.php:49
+msgid "Delimiter"
+msgstr ""
+
+#: views/list/import.php:52
+msgid "(Comma)"
+msgstr ""
+
+#: views/list/import.php:53
+msgid "(Semicolon)"
+msgstr ""
+
+#: views/list/import.php:54
+msgid "(Line Break"
+msgstr ""
+
+#: views/list/import.php:55
+msgid "(TAB)"
+msgstr ""
+
+#: views/list/import.php:66 views/plugins/install.php:44
+msgid "File input"
+msgstr ""
+
+#: views/list/import.php:78
+msgid "Download Template"
+msgstr ""
+
+#: views/list/index.php:80
 msgid "Are you sure you want to delete this email list?"
 msgstr ""
 
-#: views/list/subscriber.php:46 views/list/subscriber.php:100
-msgid "Join Date"
+#: views/list/subscriber.php:47 views/list/subscriber.php:94
+#: views/subscriber/index.php:52 views/subscriber/index.php:98
+msgid "Add Date"
 msgstr ""
 
-#: views/list/subscriber.php:59 views/user/index.php:61
-msgid "Actions"
+#: views/list/subscriber.php:59
+msgid "Unsubscribed"
 msgstr ""
 
-#: views/list/subscriber.php:62 views/user/index.php:64
-msgid "Toggle Dropdown"
+#: views/list/subscriber.php:59
+msgid "Subscribed"
 msgstr ""
 
-#: views/list/subscriber.php:65 views/user/index.php:67
-msgid "View"
-msgstr ""
-
-#: views/list/subscriber.php:66 views/user/index.php:69
-msgid "Delete"
-msgstr ""
-
-#: views/list/subscriber.php:79 views/subscriber/index.php:75
+#: views/list/subscriber.php:73 views/subscriber/index.php:77
 msgid "Are you sure you want to delete this subscriber?"
 msgstr ""
 
-#: views/list/view.php:165
+#: views/list/view.php:174
 msgid "Confirm Email Template"
 msgstr ""
 
-#: views/list/view.php:175
+#: views/list/view.php:184
 msgid "Subscribe Email Template"
 msgstr ""
 
-#: views/list/view.php:185
+#: views/list/view.php:194
 msgid "Unsubscribe Email Template"
 msgstr ""
 
-#: views/list/view.php:195
+#: views/list/view.php:204
 msgid "List Subscribe Form"
 msgstr ""
 
-#: views/list/view.php:207
+#: views/list/view.php:216
 msgid "Add this subscribe form to any of your websites to gain subscribers."
 msgstr ""
 
@@ -1437,11 +1879,27 @@ msgid "Edit"
 msgstr ""
 
 #: views/permission/index.php:75
-msgid "New Permision"
+msgid "New Permission"
 msgstr ""
 
 #: views/permission/view.php:24 views/permission/view.php:28
 msgid "Edit Permission"
+msgstr ""
+
+#: views/permission/view.php:67 views/role/view.php:76
+msgid "Update"
+msgstr ""
+
+#: views/plugins/index.php:43 views/plugins/index.php:76
+msgid "Plugin"
+msgstr ""
+
+#: views/plugins/index.php:44 views/plugins/index.php:77
+msgid "Description"
+msgstr ""
+
+#: views/plugins/index.php:63
+msgid "Visit plugin site"
 msgstr ""
 
 #: views/role/add.php:53 views/role/view.php:48
@@ -1449,12 +1907,12 @@ msgid "Role Name"
 msgstr ""
 
 #: views/role/add.php:61 views/role/add.php:70 views/role/view.php:56
-#: views/role/view.php:65
+#: views/role/view.php:65 views/user/perm.php:46 views/user/perm.php:55
 msgid "Permission"
 msgstr ""
 
 #: views/role/add.php:62 views/role/add.php:71 views/role/view.php:57
-#: views/role/view.php:66
+#: views/role/view.php:66 views/user/perm.php:47 views/user/perm.php:56
 msgid "Allow"
 msgstr ""
 
@@ -1466,25 +1924,101 @@ msgstr ""
 msgid "Edit Role"
 msgstr ""
 
-#: views/setting/bounce.php:25 views/setting/bounce.php:28
-msgid "Bounce Email Settings"
+#: views/server/create.php:29 views/server/index.php:31
+#: views/server/index.php:34 views/server/view.php:29
+msgid "Servers"
 msgstr ""
 
+#: views/server/create.php:50 views/server/view.php:50
 #: views/setting/bounce.php:44
 msgid "Host"
 msgstr ""
 
-#: views/setting/bounce.php:54 views/user/add.php:123
-#: views/user/profile.php:105
-msgid "Password"
+#: views/server/create.php:65 views/server/view.php:65
+#: views/setting/bounce.php:67
+msgid "Port"
+msgstr ""
+
+#: views/server/create.php:70 views/server/view.php:70
+msgid "Protocol"
+msgstr ""
+
+#: views/server/create.php:73 views/server/view.php:73
+#: views/setting/bounce.php:84 views/setting/smtp.php:71
+msgid "None"
+msgstr ""
+
+#: views/server/create.php:74 views/server/view.php:74
+#: views/setting/bounce.php:85 views/setting/smtp.php:72
+msgid "TLS"
+msgstr ""
+
+#: views/server/create.php:75 views/server/view.php:75
+#: views/setting/bounce.php:86 views/setting/smtp.php:73
+msgid "NOTLS"
+msgstr ""
+
+#: views/server/create.php:76 views/server/view.php:76
+msgid "STARTTLS"
+msgstr ""
+
+#: views/server/create.php:77 views/server/view.php:77
+#: views/setting/bounce.php:87 views/setting/smtp.php:74
+msgid "SSL"
+msgstr ""
+
+#: views/server/create.php:85 views/server/view.php:82
+msgid "Throttle"
+msgstr ""
+
+#: views/server/create.php:90 views/server/view.php:91
+msgid "Sender Email"
+msgstr ""
+
+#: views/server/create.php:95 views/server/view.php:96
+msgid "Sender Name"
+msgstr ""
+
+#: views/server/create.php:100 views/server/view.php:101
+msgid "Reply Email"
+msgstr ""
+
+#: views/server/create.php:105 views/server/view.php:106
+msgid "Reply Name"
+msgstr ""
+
+#: views/server/index.php:50 views/server/index.php:92
+#: views/template/create.php:164 views/template/index.php:43
+#: views/template/index.php:107
+msgid "Created"
+msgstr ""
+
+#: views/server/index.php:73
+msgid "Are you sure you want to delete this server.?"
+msgstr ""
+
+#: views/server/view.php:26 views/server/view.php:30
+msgid "Edit Server"
+msgstr ""
+
+#: views/server/view.php:111
+msgid "Added"
+msgstr ""
+
+#: views/server/view.php:137 views/setting/smtp.php:103
+msgid "Send Test Email"
+msgstr ""
+
+#: views/server/view.php:152 views/setting/smtp.php:118
+msgid "To Email"
+msgstr ""
+
+#: views/server/view.php:160 views/setting/smtp.php:126
+msgid "Message"
 msgstr ""
 
 #: views/setting/bounce.php:59
 msgid "Mailbox"
-msgstr ""
-
-#: views/setting/bounce.php:67
-msgid "Port"
 msgstr ""
 
 #: views/setting/bounce.php:72
@@ -1501,22 +2035,6 @@ msgstr ""
 
 #: views/setting/bounce.php:81
 msgid "Service Option"
-msgstr ""
-
-#: views/setting/bounce.php:84 views/setting/smtp.php:73
-msgid "None"
-msgstr ""
-
-#: views/setting/bounce.php:85 views/setting/smtp.php:74
-msgid "TLS"
-msgstr ""
-
-#: views/setting/bounce.php:86 views/setting/smtp.php:75
-msgid "NOTLS"
-msgstr ""
-
-#: views/setting/bounce.php:87 views/setting/smtp.php:76
-msgid "SSL"
 msgstr ""
 
 #: views/setting/index.php:43
@@ -1611,43 +2129,45 @@ msgstr ""
 msgid "API Key"
 msgstr ""
 
-#: views/setting/smtp.php:47
+#: views/setting/index.php:121
+msgid "Collapse Sidebar"
+msgstr ""
+
+#: views/setting/smtp.php:45
 msgid "SMTP Host"
 msgstr ""
 
-#: views/setting/smtp.php:52
+#: views/setting/smtp.php:50
 msgid "SMTP Username"
 msgstr ""
 
-#: views/setting/smtp.php:57
+#: views/setting/smtp.php:55
 msgid "SMTP Password"
 msgstr ""
 
-#: views/setting/smtp.php:65
+#: views/setting/smtp.php:63
 msgid "SMTP Port"
 msgstr ""
 
-#: views/setting/smtp.php:70
+#: views/setting/smtp.php:68
 msgid "Secure Connection"
 msgstr ""
 
-#: views/setting/smtp.php:96
-msgid "Send Test Email"
+#: views/setting/smtp.php:82 views/user/add.php:116 views/user/index.php:57
+#: views/user/view.php:116
+msgid "Active"
 msgstr ""
 
-#: views/setting/smtp.php:111
-msgid "To Email"
+#: views/setting/smtp.php:83 views/user/add.php:117 views/user/index.php:57
+#: views/user/view.php:117
+msgid "Inactive"
 msgstr ""
 
-#: views/setting/smtp.php:119
-msgid "Message"
-msgstr ""
-
-#: views/subscriber/add.php:59 views/subscriber/view.php:59
+#: views/subscriber/add.php:60 views/subscriber/view.php:60
 msgid "Address 1"
 msgstr ""
 
-#: views/subscriber/add.php:64 views/subscriber/view.php:64
+#: views/subscriber/add.php:65 views/subscriber/view.php:65
 msgid "Address 2"
 msgstr ""
 
@@ -1655,29 +2175,25 @@ msgstr ""
 msgid "My Subscribers"
 msgstr ""
 
-#: views/subscriber/view.php:24 views/subscriber/view.php:27
+#: views/subscriber/index.php:51 views/subscriber/index.php:97
+msgid "Blacklisted"
+msgstr ""
+
+#: views/subscriber/view.php:24 views/subscriber/view.php:28
 msgid "View/Edit Subscriber"
 msgstr ""
 
-#: views/subscriber/view.php:99
-msgid "Allowed to receive Email?"
+#: views/template/index.php:88
+msgid "Are you sure you want to delete this template?"
 msgstr ""
 
 #: views/user/add.php:24 views/user/add.php:28
 msgid "Add New User"
 msgstr ""
 
-#: views/user/add.php:105 views/user/index.php:47 views/user/index.php:105
+#: views/user/add.php:105 views/user/index.php:47 views/user/index.php:100
 #: views/user/view.php:105
 msgid "Role"
-msgstr ""
-
-#: views/user/add.php:116 views/user/index.php:57 views/user/view.php:116
-msgid "Active"
-msgstr ""
-
-#: views/user/add.php:117 views/user/index.php:57 views/user/view.php:117
-msgid "Inactive"
 msgstr ""
 
 #: views/user/add.php:119 views/user/view.php:119
@@ -1690,8 +2206,16 @@ msgstr ""
 msgid "Check the box if you want the system to send login details to user."
 msgstr ""
 
-#: views/user/index.php:83
+#: views/user/index.php:78
 msgid "Are you sure you want to delete this user?"
+msgstr ""
+
+#: views/user/perm.php:25
+msgid "Manage Permissions for "
+msgstr ""
+
+#: views/user/perm.php:29
+msgid "Manage User Permissions"
 msgstr ""
 
 #: views/user/profile.php:24 views/user/profile.php:28
