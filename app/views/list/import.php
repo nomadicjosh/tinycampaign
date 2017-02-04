@@ -51,7 +51,7 @@ define('SCREEN', 'lists');
                                         <option>&nbsp;</option>
                                         <option value="del1">, <?= _t('(Comma)'); ?></option>
                                         <option value="del2">; <?= _t('(Semicolon)'); ?></option>
-                                        <option value="del3"> <?= _t('(Line Break'); ?></option>
+                                        <option value="del3"> <?= _t('(Line Break)'); ?></option>
                                         <option value="del4"> <?= _t('(TAB)'); ?></option>
                                     </select>
                                     <p class="help-block"><?= _t('If Closed, no one will be able to subscribe to the list.'); ?></p>
