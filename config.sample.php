@@ -80,7 +80,7 @@ defined('DB_PASS') or define('DB_PASS', '{password}');
  * NodeQ noSQL details.
  */
 defined('NODEQ_PATH') or define('NODEQ_PATH', $app->config('cookies.savepath') . 'nodes' . DS);
-defined('TC_NODEQ_PATH') or define('TC_NODEQ_PATH', NODEQ_PATH);
+defined('TC_NODEQ_PATH') or define('TC_NODEQ_PATH', NODEQ_PATH . 'tinyc' . DS);
 
 /**
  * Do not edit anything from this point on.
