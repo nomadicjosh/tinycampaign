@@ -4,11 +4,26 @@ tinyCampaign is a simple system for creating and unlimited number of campaigns o
 
 ## System Requirement
 
-* Minimum of PHP version 5.4
+* Minimum of PHP version 5.6+
+* Minimum of MySQL 5.6+
 * Apache / Nginx
 
 
 ## Features
+
+* Send using SMTP only
+* Create unlimited number of email lists
+* Email Queue
+* Start Queue, Pause Queue, Resume Queue
+* Send Test Email
+* Import subscribers
+* Export Subscribers
+* Subscriber's Preference Page
+* Public Archives
+* Toggle Double opt-in
+* Custom success and error url's
+* Reports
+* and more . . .
 
 
 ## Rewrite
@@ -49,4 +64,4 @@ location /newsletter {
 
 ## Resources.
 
-* User manual: [url] (http://demo.edutrac.net/).
+* User manual: [url] (https://codecanyon.7mediaws.org/article-categories/tinycampaign/).
