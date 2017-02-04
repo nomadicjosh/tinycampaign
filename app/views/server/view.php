@@ -79,7 +79,7 @@ define('SCREEN', 'server');
                             </div>
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Throttle'); ?></label>
+                                <label><font color="red">*</font> <?= _t('Throttle'); ?>  <a href="#throttle" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
                                 <input type="text" class="form-control" name="throttle" value="<?=_h($server->throttle);?>" required/>
                             </div>
                         </div>
@@ -177,6 +177,33 @@ define('SCREEN', 'server');
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="throttle">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Throttle' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Some servers have as stipulation of how many emails can be sent per hour. To determine what the mail throttle should be, use this formular:" );?></p>
+                    <p><em><?=_t('seconds in an hour / # of emails per hour =  throttle');?></em></p>
+                    <p><?=_t('Let’s say that your hosting provider only allows 100 emails to be sent from your account per hour. Then our formula would be:');?></p>
+                    <p><strong><?=_t('3600/100 = 36');?></strong></p>
+                    <p><?=_t('The number you would need to enter into the mail throttle field would be <strong>36</strong>. To give yourself a buffer, you may want to use 40 or 45.');?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 <?php
