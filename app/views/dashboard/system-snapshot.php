@@ -68,6 +68,7 @@ define('SCREEN', 'snapshot');
                     $report	.= 'Secure Cookie TTL:'."\t\t\t\t\t".tc_seconds_to_time(get_option('cookieexpire')).PHP_EOL;
                     $report	.= 'File Save Path:'."\t\t\t\t\t\t".(is_writable($app->config('file.savepath')) ? '<font color="green">'.$app->config('file.savepath').'</font>' : '<font color="red">'.$app->config('file.savepath').'</font>').PHP_EOL;
                     $report	.= 'Nodes Save Path:'."\t\t\t\t\t".(is_writable($app->config('cookies.savepath').'nodes') ? '<font color="green">'.$app->config('cookies.savepath').'nodes/</font>' : '<font color="red">'.$app->config('cookies.savepath').'nodes/</font>') . PHP_EOL;
+                    $report	.= 'tinyC Node:'."\t\t\t\t\t\t".(is_writable($app->config('cookies.savepath').'nodes/tinyc') ? '<font color="green">'.$app->config('cookies.savepath').'nodes/tinyc/</font>' : '<font color="red">'.$app->config('cookies.savepath').'nodes/tinyc/</font>') . PHP_EOL;
                     $report	.= 'cURL Enabled:'."\t\t\t\t\t\t".(function_exists('curl_version') ? '<font color="green">'._t('Yes').'</font>' : '<font color="red">'._t('No').'</font>').PHP_EOL;
                     
                     // add filter for end of report
