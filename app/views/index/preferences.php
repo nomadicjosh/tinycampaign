@@ -65,8 +65,8 @@ $app->view->block('index');
                             <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('state',null,'code','code','name',_h($subscriber->state)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('state','code <> "NULL"','code','code','name',_h($subscriber->state)); ?>
                                 </select>
                             </div>
                             
@@ -82,8 +82,8 @@ $app->view->block('index');
                             <div class="form-group">
                                 <label><?= _t('Country'); ?></label>
                                 <select class="form-control select2" name="country" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('country',null,'iso2','iso2','short_name',_h($subscriber->country)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('country','iso2 <> "NULL"','iso2','iso2','short_name',_h($subscriber->country)); ?>
                                 </select>
                             </div>
                             

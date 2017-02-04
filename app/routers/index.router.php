@@ -5,6 +5,11 @@ use Respect\Validation\Validator as v;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use Cascade\Cascade;
 
 /**
  * Index Router
@@ -61,7 +66,7 @@ $app->match('GET|POST', '/permission/', function () use($app) {
     );
 });
 
-$app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app, $json_url) {
+$app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
     if ($app->req->isPost()) {
         try {
             $perm = $app->db->permission();
@@ -176,7 +181,7 @@ $app->match('GET|POST', '/role/', function () use($app) {
     );
 });
 
-$app->match('GET|POST', '/role/(\d+)/', function ($id) use($app, $json_url) {
+$app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
     try {
         $role = $app->db->role()->where('id = ?', $id)->findOne();
     } catch (NotFoundException $e) {
@@ -284,6 +289,452 @@ $app->post('/role/editRole/', function () use($app) {
     }
 
     redirect($app->req->server['HTTP_REFERER']);
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/template.*', function() {
+    if (!hasPermission('manage_campaigns')) {
+        _tc_flash()->error(_t("You don't have permission to access the Templates screen."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/template/', function () use($app) {
+
+    try {
+        $tpl = $app->db->template()
+            ->where('owner = ?', get_userdata('id'))
+            ->find();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    tc_register_style('datatables');
+    tc_register_style('select2');
+    tc_register_script('select2');
+    tc_register_script('datatables');
+
+    $app->view->display('template/index', [
+        'title' => 'Templates',
+        'templates' => $tpl
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/template/(\d+)/', function() {
+    if (!hasPermission('edit_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to edit templates."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
+
+    if ($app->req->isPost()) {
+        try {
+            $tpl = $app->db->template();
+            $tpl->set([
+                    'name' => $app->req->post['name'],
+                    'description' => $app->req->post['description'],
+                    'content' => $app->req->post['content']
+                ])
+                ->where('id = ?', $id)->_and_()
+                ->where('owner = ?', get_userdata('id'))
+                ->update();
+            tc_logger_activity_log_write('Update Record', 'Template', $app->req->post['name'], get_userdata('uname'));
+            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    }
+
+    try {
+        $tpl = $app->db->template()
+            ->where('id = ?', $id)->_and_()
+            ->where('owner = ?', get_userdata('id'))
+            ->findOne();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    /**
+     * If the database table doesn't exist, then it
+     * is false and a 404 should be sent.
+     */
+    if ($tpl == false) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If the query is legit, but there
+     * is no data in the table, then 404
+     * will be shown.
+     */ elseif (empty($tpl) == true) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If data is zero, 404 not found.
+     */ elseif (count($tpl->id) <= 0) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If we get to this point, the all is well
+     * and it is ok to process the query and print
+     * the results in a html format.
+     */ else {
+
+        tc_register_style('select2');
+        tc_register_style('iCheck');
+        tc_register_script('select2');
+        tc_register_script('iCheck');
+
+        $app->view->display('template/view', [
+            'title' => 'Edit Template',
+            'tpl' => $tpl
+            ]
+        );
+    }
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/template/create/', function() {
+    if (!hasPermission('create_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to create templates."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/template/create/', function () use($app) {
+
+    if ($app->req->isPost()) {
+        try {
+            $tpl = $app->db->template();
+            $tpl->insert([
+                'name' => $app->req->post['name'],
+                'description' => $app->req->post['description'],
+                'content' => $app->req->post['content'],
+                'owner' => get_userdata('id'),
+                'addDate' => \Jenssegers\Date\Date::now()
+            ]);
+            $ID = $tpl->lastInsertId();
+
+            tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'template' . '/' . $ID . '/');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    }
+
+    tc_register_style('select2');
+    tc_register_style('iCheck');
+    tc_register_script('select2');
+    tc_register_script('iCheck');
+
+    $app->view->display('template/create', [
+        'title' => 'Create Template'
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET', '/template/(\d+)/d/', function() use($app) {
+    if (!hasPermission('delete_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to delete templates."), $app->req->server['HTTP_REFERER']);
+        exit();
+    }
+});
+
+$app->get('/template/(\d+)/d/', function ($id) use($app) {
+    try {
+        $app->db->template()
+            ->where('owner = ?', get_userdata('id'))->_and_()
+            ->where('id = ?', $id)
+            ->reset()
+            ->findOne($id)
+            ->delete();
+
+        _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    }
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/server.*', function() {
+    if (!hasPermission('manage_campaigns')) {
+        _tc_flash()->error(_t("You don't have permission to access the Servers screen."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/server/', function () use($app) {
+
+    try {
+        $servers = $app->db->server()
+            ->where('owner = ?', get_userdata('id'))
+            ->find();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    tc_register_style('datatables');
+    tc_register_style('select2');
+    tc_register_script('select2');
+    tc_register_script('datatables');
+
+    $app->view->display('server/index', [
+        'title' => 'Servers',
+        'servers' => $servers
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/server/(\d+)/', function() {
+    if (!hasPermission('edit_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to edit servers."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
+
+    try {
+        $node = Node::table('php_encryption')->find(1);
+    } catch (app\src\NodeQ\NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    if ($app->req->isPost()) {
+        try {
+            $server = $app->db->server();
+            $server->set([
+                    'name' => $app->req->post['name'],
+                    'hname' => $app->req->post['hname'],
+                    'uname' => $app->req->post['uname'],
+                    'password' => Crypto::encrypt($app->req->post['password'], Key::loadFromAsciiSafeString($node->key)),
+                    'port' => $app->req->post['port'],
+                    'protocol' => $app->req->post['protocol'],
+                    'throttle' => $app->req->post['throttle'],
+                    'femail' => $app->req->post['femail'],
+                    'fname' => $app->req->post['fname'],
+                    'remail' => $app->req->post['remail'],
+                    'rname' => $app->req->post['rname']
+                ])
+                ->where('id = ?', $id)->_and_()
+                ->where('owner = ?', get_userdata('id'))
+                ->update();
+            tc_logger_activity_log_write('Update Record', 'Server', $app->req->post['name'], get_userdata('uname'));
+            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    }
+
+    try {
+        $server = $app->db->server()
+            ->where('id = ?', $id)->_and_()
+            ->where('owner = ?', get_userdata('id'))
+            ->findOne();
+
+        $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    /**
+     * If the database table doesn't exist, then it
+     * is false and a 404 should be sent.
+     */
+    if ($server == false) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If the query is legit, but there
+     * is no data in the table, then 404
+     * will be shown.
+     */ elseif (empty($server) == true) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If data is zero, 404 not found.
+     */ elseif (count($server->id) <= 0) {
+
+        $app->view->display('error/404', ['title' => '404 Error']);
+    }
+    /**
+     * If we get to this point, the all is well
+     * and it is ok to process the query and print
+     * the results in a html format.
+     */ else {
+
+        tc_register_style('select2');
+        tc_register_style('iCheck');
+        tc_register_script('select2');
+        tc_register_script('iCheck');
+
+        $app->view->display('server/view', [
+            'title' => 'Edit Server',
+            'server' => $server,
+            'password' => $password
+            ]
+        );
+    }
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/server/create/', function() {
+    if (!hasPermission('create_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to create servers."), get_base_url() . 'dashboard' . '/');
+    }
+});
+
+$app->match('GET|POST', '/server/create/', function () use($app) {
+
+    try {
+        $node = Node::table('php_encryption')->find(1);
+    } catch (app\src\NodeQ\NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    if ($app->req->isPost()) {
+        try {
+            $tpl = $app->db->server();
+            $tpl->insert([
+                'name' => $app->req->post['name'],
+                'hname' => $app->req->post['hname'],
+                'uname' => $app->req->post['uname'],
+                'password' => Crypto::encrypt($app->req->post['password'], Key::loadFromAsciiSafeString($node->key)),
+                'port' => $app->req->post['port'],
+                'protocol' => $app->req->post['protocol'],
+                'throttle' => $app->req->post['throttle'],
+                'femail' => $app->req->post['femail'],
+                'fname' => $app->req->post['fname'],
+                'remail' => $app->req->post['remail'],
+                'rname' => $app->req->post['rname'],
+                'owner' => get_userdata('id'),
+                'addDate' => \Jenssegers\Date\Date::now()
+            ]);
+            $ID = $tpl->lastInsertId();
+
+            tc_logger_activity_log_write('New Record', 'Server', $app->req->post['name'], get_userdata('uname'));
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'server' . '/' . $ID . '/');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    }
+
+    tc_register_style('select2');
+    tc_register_style('iCheck');
+    tc_register_script('select2');
+    tc_register_script('iCheck');
+
+    $app->view->display('server/create', [
+        'title' => 'Create a Server'
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
+    if (!hasPermission('create_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to send from an SMTP server."), $app->req->server['HTTP_REFERER']);
+    }
+});
+
+$app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
+    $server = get_server_info($id);
+    tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
+    redirect($app->req->server['HTTP_REFERER']);
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET', '/server/(\d+)/d/', function() use($app) {
+    if (!hasPermission('delete_campaign')) {
+        _tc_flash()->error(_t("You don't have permission to delete a server."), $app->req->server['HTTP_REFERER']);
+        exit();
+    }
+});
+
+$app->get('/server/(\d+)/d/', function ($id) use($app) {
+    try {
+        $app->db->server()
+            ->where('owner = ?', get_userdata('id'))->_and_()
+            ->where('id = ?', $id)
+            ->reset()
+            ->findOne($id)
+            ->delete();
+
+        _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+    }
 });
 
 /**
@@ -429,27 +880,27 @@ $app->before('GET|POST', '/subscribe/', function() use($app) {
     }
 
     if ($app->req->isPost()) {
-        if ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
-            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
-            exit();
-        }
-
-        if ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
-            _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
-            exit();
-        }
+        $app->hook->{'do_action'}('validation_check', $app->req->post);
     }
 });
 
 $app->post('/subscribe/', function () use($app) {
 
+    /**
+     * Check list code is valid.
+     */
     $list = get_list_by('code', $app->req->post['code']);
+    /**
+     * Check if subscriber exists.
+     */
     $sub = get_subscriber_by('email', $app->req->post['email']);
     if ($sub->id > 0) {
         _tc_flash()->error(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
         exit();
     }
-
+    /**
+     * Checks if email is valid.
+     */
     if (!v::email()->validate($app->req->post['email'])) {
         _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
         exit();
@@ -493,6 +944,15 @@ $app->post('/subscribe/', function () use($app) {
             _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
         }
     }
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/unsubscribe/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
 });
 
 $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
@@ -565,6 +1025,15 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
     );
 });
 
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/tracking/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
+});
+
 $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
 
     try {
@@ -613,6 +1082,47 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
     } catch (ORMException $e) {
         Cascade::getLogger('error')->error($e->getMessage());
     }
+});
+
+$app->get('/lt/', function () use($app) {
+
+    try {
+        $tracking = $app->db->tracking_link()
+            ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
+            ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+            ->where('url = ?', $app->req->get['url'])
+            ->count();
+
+        if ($tracking <= 0) {
+            $track = $app->db->tracking_link();
+            $track->insert([
+                'cid' => $app->req->get['utm_campaign'],
+                'sid' => $app->req->get['utm_term'],
+                'source' => $app->req->get['utm_source'],
+                'medium' => $app->req->get['utm_medium'],
+                'url' => $app->req->get['url'],
+                'clicked' => +1,
+                'addDate' => \Jenssegers\Date\Date::now()
+            ]);
+        } else {
+            $track = $app->db->tracking_link()
+                ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
+                ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+                ->where('url = ?', $app->req->get['url'])
+                ->findOne();
+            $track->set([
+                    'clicked' => $track->clicked + 1
+                ])
+                ->update();
+        }
+    } catch (NotFoundException $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error($e->getMessage());
+    }
+    redirect($app->req->get['url']);
 });
 
 /**
@@ -664,7 +1174,6 @@ $app->get('/logout/', function () {
 });
 
 $app->match('GET|POST', '/preferences/', function () use($app) {
-
     header('Content-Type: application/json');
     $app->res->_format('json', 204);
     exit();

@@ -53,7 +53,7 @@ define('SCREEN', 'perm');
                                 echo '<tr class="gradeX">';
                                 echo '<td class="text-center">' . _h($v['Key']) . '</td>';
                                 echo '<td class="text-center">' . _h($v['Name']) . '</td>';
-                                echo '<td class="text-center"><a href="' . get_base_url() . 'permission/' . _h($v['ID']) . '/" title="Edit Permission" class="btn btn-default"><i class="fa fa-edit"></i></a></td>';
+                                echo '<td class="text-center"><a href="' . get_base_url() . 'permission/' . _h($v['ID']) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit" class="btn bg-yellow"><i class="fa fa-edit"></i></a></td>';
                                 echo '</tr>' . "\n";
                             }
                         }
@@ -72,7 +72,7 @@ define('SCREEN', 'perm');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>permission/add/'"><i></i><?= _t('New Permision'); ?></button>
+                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>permission/add/'"><i></i><?= _t('New Permission'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

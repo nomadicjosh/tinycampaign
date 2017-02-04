@@ -48,7 +48,7 @@ $(document).ready(function(){
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
                             <th class="text-center"><?= _t('Email'); ?></th>
-                            <th class="text-center"><?= _t('Email Status'); ?></th>
+                            <th class="text-center"><?= _t('Blacklisted'); ?></th>
                             <th class="text-center"><?= _t('Add Date'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>
@@ -58,10 +58,10 @@ $(document).ready(function(){
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($subscriber->fname); ?> <?= _h($subscriber->lname); ?></td>
                                 <td class="text-center"><?= _h($subscriber->email); ?></td>
-                                <td class="text-center"><?=(_h($subscriber->allowed) == 'true' ? 'Allowed' : 'Not Allowed'); ?></td>
+                                <td class="text-center"><?=(_h($subscriber->allowed) == 'true' ? 'No' : 'Yes'); ?></td>
                                 <td class="text-center"><?= _h($subscriber->addDate); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($subscriber->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     
                                     <!-- modal -->
@@ -94,7 +94,7 @@ $(document).ready(function(){
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
                             <th class="text-center"><?= _t('Email'); ?></th>
-                            <th class="text-center"><?= _t('Email Status'); ?></th>
+                            <th class="text-center"><?= _t('Blacklisted'); ?></th>
                             <th class="text-center"><?= _t('Add Date'); ?></th>
                             <th class="text-center"><?= _t('Action'); ?></th>
                         </tr>

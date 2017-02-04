@@ -49,7 +49,7 @@ class tc_FlashMessages
     // HTML for the close button
     protected $closeBtn = '<button type="button" class="close" 
                                 data-dismiss="alert" 
-                                aria-label="Close">
+                                aria-label="Close" style="vertical-align:middle !important;">
                                 <span aria-hidden="true">&times;</span>
                             </button>';
     // CSS Classes

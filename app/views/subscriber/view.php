@@ -24,6 +24,7 @@ define('SCREEN', 'sub');
         <h1><?= _t('View/Edit Subscriber'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>subscriber/"><i class="fa fa-group"></i> <?= _t('Subscribers'); ?></a></li>
             <li class="active"><?= _t('View/Edit Subscriber'); ?></li>
         </ol>
     </section>
@@ -52,7 +53,7 @@ define('SCREEN', 'sub');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email'); ?></label>
-                                <input type="text" class="form-control" name="email" value="<?=_h($subscriber->email);?>" required/>
+                                <input type="email" class="form-control" name="email" value="<?=_h($subscriber->email);?>" required/>
                             </div>
                             
                             <div class="form-group">
@@ -77,8 +78,8 @@ define('SCREEN', 'sub');
                             <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('state',null,'code','code','name',_h($subscriber->state)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('state','code <> "NULL"','code','code','name',_h($subscriber->state)); ?>
                                 </select>
                             </div>
                             
@@ -90,8 +91,8 @@ define('SCREEN', 'sub');
                             <div class="form-group">
                                 <label><?= _t('Country'); ?></label>
                                 <select class="form-control select2" name="country" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('country', null, 'iso2', 'iso2', 'short_name', _h($subscriber->country)); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('country', 'iso2 <> "NULL"', 'iso2', 'iso2', 'short_name', _h($subscriber->country)); ?>
                                 </select>
                             </div>
                             

@@ -32,10 +32,10 @@ function role_perm($id = null)
             return $array;
         });
         $a = [];
-        foreach($q1 as $r1) {
+        foreach ($q1 as $r1) {
             $a[] = $r1;
         }
-        
+
         $permission = $app->db->permission();
         $q2 = $permission->find(function ($data) {
             $array = [];
@@ -44,14 +44,14 @@ function role_perm($id = null)
             }
             return $array;
         });
-        
+
         foreach ($q2 as $r2) {
             $perm = maybe_unserialize($r1['permission']);
             echo '
 				<tr>
 					<td>' . $r2['permName'] . '</td>
 					<td class="text-center">';
-            if (in_array($r2['permKey'], $perm)) {
+            if (is_array($perm) && in_array($r2['permKey'], $perm)) {
                 echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r2['permKey'] . '" checked="checked" />';
             } else {
                 echo '<input type="checkbox" name="permission[]" class="minimal" value="' . $r2['permKey'] . '" />';
@@ -249,6 +249,84 @@ function get_perm_roles()
         $role = $app->db->role()->find();
         foreach ($role as $r) {
             echo '<option value="' . _h($r->id) . '">' . _h($r->roleName) . '</option>' . "\n";
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve a list of available user roles.
+ * 
+ * @since 2.0.0
+ * @param type $active
+ */
+function get_user_roles($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $roles = $app->db->role()
+            ->find();
+
+        foreach ($roles as $role) {
+            echo '<option value="' . $role->id . '"' . selected($active, _h($role->id), false) . '>' . _h($role->roleName) . '</option>';
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve email lists of logged in user
+ * to be used for subscribers.
+ * 
+ * @since 2.0.0
+ * @param int $active Subscriber's id.
+ */
+function get_user_lists($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+
+    try {
+        $in = "'" . implode("','", get_subscriber_list_id($active)) . "'";
+        $lists = $app->db->list()
+            ->where('list.owner = ?', get_userdata('id'))->_and_()
+            ->where("(list.status = 'open' OR list.id IN($in))")
+            ->find();
+
+        foreach ($lists as $list) {
+            if (in_array($list->id, get_subscriber_list_id($active))) {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            } else {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            }
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+function get_user_servers($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $servers = $app->db->server()
+            ->where('owner = ?', get_userdata('id'))
+            ->find();
+        foreach ($servers as $server) {
+            echo '<option value="' . $server->id . '"' . selected($active, _h($server->id), false) . '>' . _h($server->name) . '</option>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());

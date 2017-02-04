@@ -41,6 +41,7 @@ $app->group('/plugins', function () use($app) {
     $app->before('GET|POST', '/activate/', function () {
         if (!hasPermission('activate_deactivate_plugins')) {
             _tc_flash()->error(_t('Permission denied to activate a plugin.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 
@@ -70,6 +71,7 @@ $app->group('/plugins', function () use($app) {
     $app->before('GET|POST', '/deactivate/', function () {
         if (!hasPermission('activate_deactivate_plugins')) {
             _tc_flash()->error(_t('Permission denied to deactivate a plugin.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 
@@ -139,6 +141,7 @@ $app->group('/plugins', function () use($app) {
     $app->before('GET|POST', '/install/', function () {
         if (!hasPermission('install_plugins')) {
             _tc_flash()->error(_t('Permission denied to install plugins.'), get_base_url() . 'dashboard' . '/');
+            exit();
         }
     });
 

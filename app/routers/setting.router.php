@@ -6,6 +6,7 @@ use app\src\Exception\Exception;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
 use PDOException as ORMException;
 
 /**
@@ -70,7 +71,7 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
         $node = Node::table('php_encryption')->find(1);
     } catch (app\src\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (NotFoundException $e) {
+    } catch (NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
         _tc_flash()->error($e->getMessage());
@@ -85,6 +86,7 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
             update_option('tc_smtp_service', $app->req->post['tc_smtp_service']);
             update_option('tc_smtp_smtpsecure', $app->req->post['tc_smtp_smtpsecure']);
             update_option('tc_smtp_mailbox', $app->req->post['tc_smtp_mailbox']);
+            update_option('tc_smtp_status', $app->req->post['tc_smtp_status']);
 
             // Update more options here
             $app->hook->do_action('update_smtp_options');
@@ -163,7 +165,7 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
         $node = Node::table('php_encryption')->find(1);
     } catch (app\src\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (NotFoundException $e) {
+    } catch (NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
         _tc_flash()->error($e->getMessage());

@@ -1,9 +1,15 @@
 <?php
-
 use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use app\src\Exception\Exception;
 use app\src\NodeQ\Helpers\Validate as Validate;
 
-
-if (!Validate::table('php_encryption')->exists()) {
-    Node::dispense('php_encryption');
+try {
+    if (!Validate::table('php_encryption')->exists()) {
+        Node::dispense('php_encryption');
+    }
+} catch (NodeQException $e) {
+    Cascade\Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Unable to create Node: %s', $e->getCode(), $e->getMessage()));
+} catch (Exception $e) {
+    Cascade\Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Unable to create Node: %s', $e->getCode(), $e->getMessage()));
 }

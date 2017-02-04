@@ -31,6 +31,7 @@ $(document).ready(function(){
         <h1><?= _t('My Email Lists'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>list/"><i class="ion ion-ios-list"></i> <?= _t('Email Lists'); ?></a></li>
             <li class="active"><?= _t('My Email Lists'); ?></li>
         </ol>
     </section>
@@ -61,7 +62,7 @@ $(document).ready(function(){
                                 <td class="text-center"><?= ucfirst(_h($list->status)); ?></td>
                                 <td class="text-center"><?=get_list_subscribers_count($list->id);?></td>
                                 <td<?=ie('email_list_inquiry_only');?> class="text-center">
-                                    <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button class="btn bg-blue"><i class="fa fa-group"></i></button></a>
                                     <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/import/" data-toggle="tooltip" data-placement="top" title="Import Subscribers"><button class="btn bg-orange"><i class="fa fa-upload"></i></button></a>
                                     <a href="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/export/" data-toggle="tooltip" data-placement="top" title="Export Subscribers"><button class="btn bg-purple"><i class="fa fa-download"></i></button></a>

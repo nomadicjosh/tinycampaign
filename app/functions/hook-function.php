@@ -1107,6 +1107,25 @@ function get_logo_mini()
 }
 
 /**
+ * Checks data to make sure it is a valid request.
+ * 
+ * @since 2.0.1
+ * @param mixed $data
+ */
+function tc_validation_check($data)
+{
+    if ($data['m6qIHt4Z5evV'] != '' || !empty($data['m6qIHt4Z5evV'])) {
+        _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+        exit();
+    }
+
+    if ($data['YgexGyklrgi1'] != '' || !empty($data['YgexGyklrgi1'])) {
+        _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+        exit();
+    }
+}
+
+/**
  * Large logo. Filterable.
  * 
  * @since 2.0.0
@@ -1126,19 +1145,18 @@ function get_logo_large()
  * @param mixed $message Queue message object.
  * @return mixed
  */
-function campaign_tracking_code($message)
+function campaign_tracking_code($cid, $sid)
 {
     $app = \Liten\Liten::getInstance();
-
     $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
-    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $message->mid . '/sid/' . $message->sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
+    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $cid . '/sid/' . $sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
     $div .= '</div>';
-    return $app->hook->apply_filter('tracking_code', $div, $message);
+    return $app->hook->apply_filter('tracking_code', $div, $cid, $sid);
 }
 
 function tc_smtp($tcMailer)
 {
-    if (get_option('tc_smtp_host') && get_option('tc_smtp_host') != '') {
+    if (_h(get_option('tc_smtp_host')) && _h(get_option('tc_smtp_host')) != '' && _h(get_option('tc_smtp_status')) == 1) {
 
         try {
             $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
@@ -1194,5 +1212,6 @@ $app->hook->{'add_action'}('deactivated_plugin', 'tc_plugin_deactivate_message',
 $app->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
 $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
 $app->hook->{'add_action'}('tcMailer_init', 'tc_smtp');
+$app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
 $app->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 $app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

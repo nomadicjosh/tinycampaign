@@ -57,7 +57,7 @@ define('SCREEN', 'user');
                                 <td class="text-center"><?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?></td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-eye"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
                                     <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && _h($user->id) != get_userdata('id')) : ?>
                                     <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h($user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>

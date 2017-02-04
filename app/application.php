@@ -26,7 +26,7 @@ try {
     /**
      * Creates a node directory with proper permissions.
      */
-    _mkdir($app->config('cookies.savepath') . 'nodes' . DS);
+    _mkdir($app->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS);
 } catch (IOException $e) {
     Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
 }

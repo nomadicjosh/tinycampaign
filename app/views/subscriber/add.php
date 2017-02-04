@@ -24,6 +24,7 @@ define('SCREEN', 'asub');
         <h1><?= _t('Add Subscriber'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>subscriber/"><i class="fa fa-group"></i> <?= _t('Subscribers'); ?></a></li>
             <li class="active"><?= _t('Add Subscriber'); ?></li>
         </ol>
     </section>
@@ -52,7 +53,7 @@ define('SCREEN', 'asub');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email'); ?></label>
-                                <input type="text" class="form-control" name="email" value="<?=(_h($app->req->post['email']) != '' ? _h($app->req->post['email']) : '');?>" required/>
+                                <input type="email" class="form-control" name="email" value="<?=(_h($app->req->post['email']) != '' ? _h($app->req->post['email']) : '');?>" required/>
                             </div>
                             
                             <div class="form-group">
@@ -77,8 +78,8 @@ define('SCREEN', 'asub');
                              <div class="form-group">
                                 <label><?= _t('State'); ?></label>
                                 <select class="form-control select2" name="state" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('state',null,'code','code','name',(_h($app->req->post['state']) != '' ? _h($app->req->post['start']) : '')); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('state','code <> "NULL"','code','code','name',(_h($app->req->post['state']) != '' ? _h($app->req->post['start']) : '')); ?>
                                 </select>
                             </div>
                             
@@ -90,8 +91,8 @@ define('SCREEN', 'asub');
                             <div class="form-group">
                                 <label><?= _t('Country'); ?></label>
                                 <select class="form-control select2" name="country" style="width: 100%;">
-                                    <option>&nbsp;</option>
-                                    <?php table_dropdown('country', null, 'iso2', 'iso2', 'short_name',(_h($app->req->post['country']) != '' ? _h($app->req->post['country']) : '')); ?>
+                                    <option value="NULL">&nbsp;</option>
+                                    <?php table_dropdown('country', 'iso2 <> "NULL"', 'iso2', 'iso2', 'short_name',(_h($app->req->post['country']) != '' ? _h($app->req->post['country']) : '')); ?>
                                 </select>
                             </div>
                             
@@ -108,6 +109,7 @@ define('SCREEN', 'asub');
             <!-- /.box-body -->
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>subscriber/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
         <!-- form end -->

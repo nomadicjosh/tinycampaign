@@ -116,6 +116,15 @@ $app->group('/user', function() use ($app) {
             ]
         );
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/', function() {
+        if (!hasPermission('edit_user')) {
+            _tc_flash()->error(_t("You don't have permission to access the Edit User screen."), get_base_url() . 'dashboard' . '/');
+        }
+    });
 
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
@@ -193,6 +202,15 @@ $app->group('/user', function() use ($app) {
             );
         }
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/profile/', function() {
+        if (!is_user_logged_in()) {
+            _tc_flash()->error(_t("You must be logged in to edit your profile."), get_base_url());
+        }
+    });
 
     $app->match('GET|POST', '/profile/', function () use($app) {
 
@@ -249,6 +267,15 @@ $app->group('/user', function() use ($app) {
             'user' => $user
             ]
         );
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/perm/', function() {
+        if (!hasPermission('edit_user')) {
+            _tc_flash()->error(_t("You don't have permission to access the Edit User Permission screen."), get_base_url() . 'dashboard' . '/');
+        }
     });
 
     $app->match('GET|POST', '/(\d+)/perm/', function ($id) use($app) {
@@ -373,6 +400,16 @@ $app->group('/user', function() use ($app) {
         $app->cookies->setSecureCookie($auth_cookie);
 
         redirect(get_base_url() . 'dashboard' . '/');
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/(\d+)/switch-back/', function() use($app) {
+        if (!hasPermission('switch_user')) {
+            _tc_flash()->error(_t("You don't have permission to switch users."), $app->req->server['HTTP_REFERER']);
+            exit();
+        }
     });
 
     $app->get('/(\d+)/switch-back/', function ($id) use($app) {
