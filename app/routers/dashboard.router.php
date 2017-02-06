@@ -105,7 +105,7 @@ $app->group('/dashboard', function () use($app) {
                 ->select('COUNT(subscriber_list.sid) AS count')
                 ->_join('subscriber_list', 'list.id = subscriber_list.lid')
                 ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribe <> "1"')->_and_()
+                ->where('subscriber_list.unsubscribed <> "1"')->_and_()
                 ->where('list.owner = ?', get_userdata('id'))
                 ->groupBy('subscriber_list.lid')
                 ->orderBy('subscriber_list.addDate', 'DESC')

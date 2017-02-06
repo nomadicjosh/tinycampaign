@@ -235,7 +235,7 @@ function tc_link_tracking($body, $cid, $sid)
         } else {
             $url .= '&';
         }
-        $url .= 'utm_source=email' . '&utm_medium=email' . '&utm_term=' . $sid . '&utm_campaign=' . urlencode($cid);
+        $url .= 'utm_source=email' . '&utm_medium=email' . '&utm_term=' . urlencode($sid) . '&utm_campaign=' . urlencode($cid);
         return $match[1] . $link . $url . '&url=' . $match[2] . $match[3];
     }, $body);
 }
@@ -278,7 +278,7 @@ function get_list_subscriber_count($id)
     try {
         $count = $app->db->subscriber_list()
             ->where('confirmed = "1"')->_and_()
-            ->where('unsubscribe = "0"')
+            ->where('unsubscribed = "0"')
             ->where('lid = ?', $id)
             ->count('id');
 

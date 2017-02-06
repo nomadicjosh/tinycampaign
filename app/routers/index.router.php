@@ -967,12 +967,12 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
             ->where('subscriber_list.lid = ?', $lid)->_and_()
             ->where('subscriber_list.sid = ?', $sid)->_and_()
             ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.unsubscribe = "0"')
+            ->where('subscriber_list.unsubscribed = "0"')
             ->findOne();
         /**
          * Check if subscriber has already unsubscribed from list.
          */
-        if ($subscriber->unsubscribe == 1) {
+        if ($subscriber->unsubscribed == 1) {
             _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), $list->name));
         }
         /**
@@ -1002,7 +1002,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
          */ else {
             $sub = $app->db->subscriber_list();
             $sub->set([
-                    'unsubscribe' => (int) 1
+                    'unsubscribed' => (int) 1
                 ])
                 ->where('lid = ?', $lid)->_and_()
                 ->where('sid = ?', $sid)->_and_()
@@ -1036,6 +1036,9 @@ $app->before('GET|POST', '/tracking/', function() use($app) {
 
 $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
 
+    //Begin the header output
+    header( 'Content-Type: image/png' );
+    
     try {
         $tracking = $app->db->tracking()
             ->where('cid = ?', $cid)->_and_()
@@ -1082,6 +1085,24 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
     } catch (ORMException $e) {
         Cascade::getLogger('error')->error($e->getMessage());
     }
+    //Get the http URI to the image
+    $img = get_base_url() .'static/assets/img/blank.png';
+    
+    //Get the filesize of the image for headers
+    $filesize = filesize( BASE_PATH . 'static/assets/img/blank.png' );
+    
+    //Now actually output the image requested, while disregarding if the database was affected
+    header( 'Pragma: public' );
+    header( 'Expires: 0' );
+    header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+    header( 'Cache-Control: private',false );
+    header( 'Content-Disposition: attachment; filename="blank.png"' );
+    header( 'Content-Transfer-Encoding: binary' );
+    header( 'Content-Length: '.$filesize );
+    readfile( $img );
+    
+    //All done, get out!
+    exit();
 });
 
 $app->get('/lt/', function () use($app) {
@@ -1221,7 +1242,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                     $sub_list->set([
                             'lid' => $list,
                             'sid' => $id,
-                            'unsubscribe' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                            'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
                         ])
                         ->where('sid = ?', $id)->_and_()
                         ->where('lid = ?', $list)

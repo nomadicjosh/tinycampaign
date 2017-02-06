@@ -190,7 +190,7 @@ function get_subscriber_list_id($id)
     try {
         $lists = $app->db->subscriber_list()
             ->where('sid = ?', $id)->_and_()
-            ->where('unsubscribe = "0"');
+            ->where('unsubscribed = "0"');
         $q = $lists->find(function ($data) {
             $array = [];
             foreach ($data as $d) {

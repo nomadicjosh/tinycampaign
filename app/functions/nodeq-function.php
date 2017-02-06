@@ -70,7 +70,7 @@ function process_queued_campaign()
                         ->where('subscriber_list.lid = ?', $c_list->lid)->_and_()
                         ->where('subscriber.allowed = "true"')->_and_()
                         ->where('subscriber_list.confirmed = "1"')->_and_()
-                        ->where('subscriber_list.unsubscribe = "0"')
+                        ->where('subscriber_list.unsubscribed = "0"')
                         ->groupBy('subscriber.email')
                         ->find();
                     $numItems = count($subscriber);

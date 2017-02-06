@@ -240,7 +240,7 @@ $app->group('/list', function() use ($app) {
             $subs = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                 ->select('subscriber.addDate,subscriber.id as Subscriber')
-                ->select('subscriber_list.unsubscribe')
+                ->select('subscriber_list.unsubscribed')
                 ->select('list.id as ListID')
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->_join('list', 'subscriber_list.lid = list.id')
@@ -340,7 +340,8 @@ $app->group('/list', function() use ($app) {
                             'sid' => $sid,
                             'addDate' => Jenssegers\Date\Date::now(),
                             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                            'confirmed' => 1
+                            'confirmed' => $data[3],
+                            'unsubscribed' => $data[4]
                         ]);
                     }
                     fclose($handle);

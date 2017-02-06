@@ -163,7 +163,7 @@ $app->group('/subscriber', function() use ($app) {
                         $sub_list->set([
                                 'lid' => $list,
                                 'sid' => $id,
-                                'unsubscribe' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
                             ])
                             ->where('sid = ?', $id)->_and_()
                             ->where('lid = ?', $list)
