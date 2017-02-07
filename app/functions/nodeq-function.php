@@ -8,8 +8,6 @@ use app\src\Exception\Exception;
 use Cascade\Cascade;
 use PDOException as ORMException;
 
-error_reporting(0);
-
 /**
  * tinyCampaign NodeQ Functions
  *
@@ -29,89 +27,6 @@ function set_queued_message_is_sent($node, $id)
         $queue->timestamp_sent = (string) $now;
         $queue->is_sent = (string) 'true';
         $queue->save();
-    } catch (NodeQException $e) {
-        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    } catch (InvalidArgumentException $e) {
-        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
-    } catch (Exception $e) {
-        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    }
-}
-
-function process_queued_campaign()
-{
-    $app = \Liten\Liten::getInstance();
-
-    try {
-        Node::dispense('queued_campaign');
-        $count = Node::table('queued_campaign')->where('complete', '=', 0)->findAll();
-        $node = Node::table('queued_campaign')->where('complete', '=', 0)->find();
-
-        if ($count->count() == 0) {
-            Node::table('queued_campaign')->delete();
-        }
-
-        if ($count->count() > 0) {
-            try {
-                $campaign_list = $app->db->campaign_list()
-                    ->select('campaign_list.cid, campaign_list.lid')
-                    ->where('campaign_list.cid = ?', $node->mid)
-                    ->find();
-                /**
-                 * Instantiate the message queue.
-                 */
-                $queue = new app\src\tc_Queue();
-                $queue->node = $node->node;
-                $send_date = explode(' ', $node->sendstart);
-                foreach ($campaign_list as $c_list) {
-                    $subscriber = $app->db->subscriber()
-                        ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                        ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                        ->where('subscriber_list.lid = ?', $c_list->lid)->_and_()
-                        ->where('subscriber.allowed = "true"')->_and_()
-                        ->where('subscriber_list.confirmed = "1"')->_and_()
-                        ->where('subscriber_list.unsubscribed = "0"')
-                        ->groupBy('subscriber.email')
-                        ->find();
-                    $numItems = count($subscriber);
-                    $i = 0;
-                    foreach ($subscriber as $sub) {
-                        $list = get_list_by('id', $c_list->lid);
-                        $server = get_server_info($list->server);
-                        $throttle = $server->throttle * ++$i;
-                        /**
-                         * Create new tc_QueueMessage object.
-                         */
-                        $new_message = new app\src\tc_QueueMessage();
-                        $new_message->setListId($c_list->lid);
-                        $new_message->setMessageId($c_list->cid);
-                        $new_message->setSubscriberId($sub->id);
-                        $new_message->setToEmail($sub->email);
-                        $new_message->setToName($sub->fname . ' ' . $sub->lname);
-                        $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
-                        $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$node->sendstart +$throttle seconds"));
-                        /**
-                         * Add message to the queue.
-                         */
-                        $queue->addMessage($new_message);
-
-                        if (++$i === $numItems) {
-                            $upd = Node::table('queued_campaign')->find(_h($node->id));
-                            $upd->complete = (int) 1;
-                            $upd->save();
-                        }
-
-                        sleep($throttle + 10);
-                    }
-                }
-            } catch (NotFoundException $e) {
-                Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            } catch (Exception $e) {
-                Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            } catch (ORMException $e) {
-                Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            }
-        }
     } catch (NodeQException $e) {
         Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (InvalidArgumentException $e) {
@@ -235,7 +150,7 @@ function send_unsubscribe_email()
                 $sub = get_subscriber_by('id', $q->sid);
 
                 $message = _escape($list->unsubscribe_email);
-                $message = str_replace('{list_name}', _h(get_option('system_name')), $message);
+                $message = str_replace('{list_name}', $site, $message);
                 $message = str_replace('{personal_preferences}', update_preferences_button($sub), $message);
                 $headers = "From: $site <auto-reply@$domain>\r\n";
                 if (_h(get_option('tc_smtp_status')) == 0) {
@@ -248,6 +163,59 @@ function send_unsubscribe_email()
                     Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
                 $upd = Node::table('unsubscribe_email')->find(_h($q->id));
+                $upd->sent = 1;
+                $upd->save();
+            }
+        }
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (InvalidArgumentException $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+function new_subscriber_notify_email()
+{
+    $domain = get_domain_name();
+    $site = _h(get_option('system_name'));
+
+    try {
+        Node::dispense('new_subscriber_notification');
+
+        $queue = Node::table('new_subscriber_notification')->where('sent', '=', 0)->findAll();
+
+        if ($queue->count() == 0) {
+            Node::table('new_subscriber_notification')->delete();
+        }
+
+        if ($queue->count() > 0) {
+            foreach ($queue as $q) {
+                $list = get_list_by('id', _h($q->lid));
+                $sub = get_subscriber_by('id', _h($q->sid));
+                $user = get_user_by('id', _h($list->owner));
+
+                $message = _file_get_contents(APP_PATH . 'views/setting/tpl/new-subscriber-notification.tpl');
+                $message = str_replace('{system_name}', $site, $message);
+                $message = str_replace('{system_url}', get_base_url(), $message);
+                $message = str_replace('{fname}', (_h($user->fname) != '' ? " "._h($user->fname) : ''), $message);
+                $message = str_replace('{list_name}', _h($list->name), $message);
+                $message = str_replace('{sname}', _h($sub->fname).' '._h($sub->lname), $message);
+                $message = str_replace('{semail}', _h($sub->email), $message);
+                $message = str_replace('{stotal}', get_list_subscriber_count(_h($list->id)), $message);
+                $message = str_replace('{email}', _h($user->email), $message);
+                $headers = "From: $site <auto-reply@$domain>\r\n";
+                if (_h(get_option('tc_smtp_status')) == 0) {
+                    $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE;
+                    $headers .= "MIME-Version: 1.0" . "\r\n";
+                }
+                try {
+                    _tc_email()->tc_mail(_h($user->email), _t('New Subscriber to') . ' ' . _h($list->name), $message, $headers);
+                } catch (phpmailerException $e) {
+                    Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+                $upd = Node::table('new_subscriber_notification')->find(_h($q->id));
                 $upd->sent = 1;
                 $upd->save();
             }
