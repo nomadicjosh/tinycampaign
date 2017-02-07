@@ -412,7 +412,7 @@ a span,
                     <table class="column" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;width: 100%;vertical-align: top;">
                       <tbody>
                         <tr>
-                          <td class="column_cell font_default" align="center" valign="top" style="padding: 16px;font-family: Helvetica, Arial, sans-serif;font-size: 20px;text-align: left;vertical-align: top;color: #ffffff;font-weight: bold;padding-bottom: 0;padding-top: 16px;"><strong>{system_name}</strong></td><!-- /.column_cell -->
+                          <td class="column_cell font_default" align="center" valign="top" style="padding: 16px;font-family: Helvetica, Arial, sans-serif;font-size: 20px;text-align: left;vertical-align: top;color: #ffffff;font-weight: bold;padding-bottom: 0;padding-top: 16px;"><a href="#" style="display: inline-block;text-decoration: none;font-family: Helvetica, Arial, sans-serif;color: #ffffff;"><strong>{system_name}</strong></td><!-- /.column_cell -->
                         </tr>
                       </tbody>
                     </table><!-- /.column -->
@@ -456,20 +456,21 @@ a span,
                       <tbody>
                         <tr>
                           <td class="column_cell font_default" align="center" valign="top" style="padding: 16px;font-family: Helvetica, Arial, sans-serif;font-size: 15px;text-align: center;vertical-align: top;color: #888888;">
-                           <table class="icon_holder icon_primary" width="80" border="0" align="center" cellpadding="0" cellspacing="0" style="border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;width: 48px;margin-left: auto;margin-right: auto;clear: both;">
+                            <table class="icon_holder icon_secondary" width="80" border="0" align="center" cellpadding="0" cellspacing="0" style="border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;width: 48px;margin-left: auto;margin-right: auto;clear: both;">
                               <tbody>
                                 <tr>
                                   <td class="hspace" style="padding: 0;font-size: 0;height: 8px;overflow: hidden;">&nbsp;</td>
                                 </tr>
                                 <tr>
-                                  <td class="icon_cell" style="padding: 8px;font-size: 0;line-height: 1;-webkit-border-radius: 80px;border-radius: 80px;height: 48px;background-color: #2f68b4;"><img src="{system_url}static/assets/img/ic_vpn_key_white_48dp_2x.png" width="48" height="48" alt="Reset Password" style="line-height: 1;outline: none;border: 0;text-decoration: none;-ms-interpolation-mode: bicubic;mso-line-height-rule: exactly;"><i class="fa fa-key" style="line-height: 1;outline: none;border: 0;text-decoration: none;-ms-interpolation-mode: bicubic;mso-line-height-rule: exactly;"></i></td>
+                                  <td class="icon_cell" style="padding: 8px;font-size: 0;line-height: 1;-webkit-border-radius: 80px;border-radius: 80px;height: 48px;background-color: #2f68b4;"><img src="{system_url}static/assets/img/ic_person_white_48dp_2x.png" width="48" height="48" alt="" style="line-height: 1;outline: none;border: 0;text-decoration: none;-ms-interpolation-mode: bicubic;mso-line-height-rule: exactly;"></td>
                                 </tr>
                                 <tr>
                                   <td class="hspace" style="padding: 0;font-size: 0;height: 8px;overflow: hidden;">&nbsp;</td>
                                 </tr>
                               </tbody>
-                            </table><!-- /.icon_holder:icon_primary -->
-                            <h3 style="font-family: Helvetica, Arial, sans-serif;margin-left: 0;margin-right: 0;margin-top: 16px;margin-bottom: 8px;padding: 0;font-size: 22px;line-height: 30px;font-weight: bold;color: #2f68b4;">Password Reset</h3>
+                            </table><!-- /.icon_holder:icon_secondary -->
+                            <h4 style="font-family: Helvetica, Arial, sans-serif;margin-left: 0;margin-right: 0;margin-top: 16px;margin-bottom: 8px;padding: 0;font-size: 22px;line-height: 30px;font-weight: bold;color: #383d42;">Congratulations{fname}!</h4>
+                            <p class="lead" style="font-family: Helvetica, Arial, sans-serif;font-size: 19px;line-height: 27px;margin-top: 16px;margin-bottom: 16px;">You've gained a new subscriber to your mailing list: <br /><strong>{list_name}</strong>.</p>
                           </td><!-- /.column_cell -->
                         </tr>
                       </tbody>
@@ -514,16 +515,13 @@ a span,
                       <tbody>
                         <tr>
                           <td class="column_cell font_default" align="center" valign="top" style="padding: 16px;font-family: Helvetica, Arial, sans-serif;font-size: 15px;text-align: center;vertical-align: top;color: #888888;">
- 
-							<p style="font-family: Helvetica, Arial, sans-serif;font-size: 15px;line-height: 23px;margin-top: 16px;margin-bottom: 24px;">Someone requested that your {system_name} password be reset.</p>
-                            <table class="secondary_btn" align="center" border="0" cellspacing="0" cellpadding="0" style="border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;clear: both;margin: 0 auto;">
-                              <tbody>
-                                <tr>
-                                  <td class="font_default" style="padding: 12px 24px;font-family: Helvetica, Arial, sans-serif;font-size: 16px;mso-line-height-rule: exactly;text-align: center;vertical-align: middle;-webkit-border-radius: 4px;border-radius: 4px;background-color: #2f68b4;">{password_reset}</td>
-                                </tr>
-                              </tbody>
-                            </table><!-- end .secondary_btn -->
-                            <p style="font-family: Helvetica, Arial, sans-serif;font-size: 15px;line-height: 23px;margin-top: 16px;margin-bottom: 24px;"><small style="font-size: 86%;font-weight: normal;">If you didn't request a password reset, please ignore this email.</small></p>
+                            <font style="font-size:1.28em;font-weight: normal;">Here's some useful information.</font>
+                            <p><font style="padding: 3px 7px;font-family: Helvetica, Arial, sans-serif;font-size: 1em;font-weight: bold;text-transform: uppercase;letter-spacing: 2px;-webkit-border-radius: 2px;border-radius: 2px;white-space: nowrap;background-color: #62a9dd;color: #ffffff;">Subscriber Name</font><br>
+                              <font style="color:#666666">{sname}</font></p>
+                            <p><font style="padding: 3px 7px;font-family: Helvetica, Arial, sans-serif;font-size: 1em;font-weight: bold;text-transform: uppercase;letter-spacing: 2px;-webkit-border-radius: 2px;border-radius: 2px;white-space: nowrap;background-color: #8965ad;color: #ffffff;">Subscriber Email</font><br>
+                              <font style="color:#666666">{semail}</font></p>
+                            <p><font style="padding: 3px 7px;font-family: Helvetica, Arial, sans-serif;font-size: 1em;font-weight: bold;text-transform: uppercase;letter-spacing: 2px;-webkit-border-radius: 2px;border-radius: 2px;white-space: nowrap;background-color: #df6164;color: #ffffff;">Total Subscribers</font><br>
+                              <font style="color:#666666">{stotal}</font></p>
                           </td><!-- /.column_cell -->
                         </tr>
                       </tbody>
@@ -569,7 +567,7 @@ a span,
                         <tr>
                           <td class="column_cell font_default" align="center" valign="top" style="padding: 16px;font-family: Helvetica, Arial, sans-serif;font-size: 15px;text-align: left;vertical-align: top;color: #b3b3b5;padding-bottom: 0;padding-top: 16px;">
                           <strong>{system_name}</strong><br>
-                          <small style="font-size: 86%;font-weight: normal;">This email was sent to <a href="mailto:{email}" style="display: inline-block;text-decoration: none;font-family: Helvetica, Arial, sans-serif;color: #7a7a7a;">{email}</a></small></td><!-- /.column_cell -->
+                          <small style="font-size: 86%;font-weight: normal;">This email was sent to <a href="mailto:{email}" style="display: inline-block;text-decoration: none;font-family: Helvetica, Arial, sans-serif;color: #7a7a7a;">{email}</a>.</small></td><!-- /.column_cell -->
                         </tr>
                       </tbody>
                     </table><!-- /.column -->
