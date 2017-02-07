@@ -127,7 +127,7 @@ $app->group('/cron', function () use($app, $css, $js) {
      * Before route checks to make sure the logged in user
      * us allowed to manage options/settings.
      */
-    $app->before('GET', '/create/', function () {
+    $app->before('GET|POST', '/create/', function () {
         if (!hasPermission('access_cronjob_screen')) {
             _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
         }
@@ -141,7 +141,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         ->where('url', '=', $app->req->_post('url'))
                         ->find();
                 } catch (NodeQException $e) {
-                    _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
+                    _tc_flash()->error($e->getMessage(), get_base_url() . 'cron/');
                     exit();
                 }
 
@@ -152,7 +152,7 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                 if ($found == false) {
                     if ($app->req->_post('each') == '') {
-                        _tc_flash()->error(_t('Time setting missing, please add time settings.'), redirect(get_base_url() . 'cron/'));
+                        _tc_flash()->error(_t('Time setting missing, please add time settings.'), get_base_url() . 'cron/');
                     } else {
 
                         try {
@@ -163,16 +163,16 @@ $app->group('/cron', function () use($app, $css, $js) {
                             $cron->eachtime = ((isset($app->req->post['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $app->req->post['eachtime'])) ? $app->req->post['eachtime'] : '');
                             $cron->save();
 
-                            _tc_flash()->success(_tc_flash()->notice(200), redirect(get_base_url() . 'cron/'));
+                            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'cron/');
                         } catch (NodeQException $e) {
-                            _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
+                            _tc_flash()->error($e->getMessage(), get_base_url() . 'cron/');
                         }
                     }
                 } else {
-                    _tc_flash()->error(_t('Cronjob handler already exists in the system.'), redirect(get_base_url() . 'cron/'));
+                    _tc_flash()->error(_t('Cronjob handler already exists in the system.'), get_base_url() . 'cron/');
                 }
             } else {
-                _tc_flash()->error(_t('Cronjob URL is wrong.'), redirect(get_base_url() . 'cron/'));
+                _tc_flash()->error(_t('Cronjob URL is wrong.'), get_base_url() . 'cron/');
             }
         }
 
@@ -188,7 +188,28 @@ $app->group('/cron', function () use($app, $css, $js) {
      * Before route checks to make sure the logged in user
      * us allowed to manage options/settings.
      */
-    $app->before('GET', '/setting/', function () {
+    $app->before('GET', '/(\d+)/reset/', function () {
+        if (!hasPermission('access_cronjob_screen')) {
+            _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/(\d+)/reset/', function ($id) use($app) {
+        try {
+            $reset = Node::table('cronjob_handler')->find($id);
+            $reset->runned = (int) 0;
+            $reset->save();
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'cron' . '/');
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'cron' . '/');
+        }
+    });
+
+    /**
+     * Before route checks to make sure the logged in user
+     * us allowed to manage options/settings.
+     */
+    $app->before('GET|POST', '/setting/', function () {
         if (!hasPermission('access_cronjob_screen')) {
             _tc_flash()->error(_t("You don't have permission to view the Cronjob Handler screen."), get_base_url() . 'dashboard' . '/');
         }
@@ -321,13 +342,13 @@ $app->group('/cron', function () use($app, $css, $js) {
         if (!isset($_GET['password']) && !isset($argv[1])) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
             exit(_t('No cronjob handler password found, use cronjob?password=<yourpassword>.'));
-        } elseif (isset($_GET['password']) && $_GET['password'] != $setting->cronjobpassword) {
+        } elseif (isset($_GET['password']) && $_GET['password'] != _h($setting->cronjobpassword)) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid $_GET password')));
             exit(_t('Invalid $_GET password'));
-        } elseif ($setting->cronjobpassword == 'changeme') {
+        } elseif (_h($setting->cronjobpassword) == 'changeme') {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Cronjob handler password needs to be changed.')));
             exit(_t('Cronjob handler password needs to be changed.'));
-        } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != $setting->cronjobpassword)) {
+        } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != _h($setting->cronjobpassword))) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid argument password (password=yourpassword)')));
             exit(_t('Invalid argument password (password=yourpassword)'));
         }
@@ -377,7 +398,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $upd->runned ++;
                         $upd->save();
                     } catch (NodeQException $e) {
-                        _tc_flash()->error($e->getMessage(), redirect(get_base_url() . 'cron/'));
+                        _tc_flash()->error($e->getMessage(), get_base_url() . 'cron/');
                     }
 
                     echo _t('Connecting to cronjob') . PHP_EOL . PHP_EOL;
@@ -480,7 +501,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $complete->update();
                         return true;
                     }
-                    
+
                     // instantiate the message queue
                     $queue = new \app\src\tc_Queue();
                     $queue->node = _h($cpgn->node);
