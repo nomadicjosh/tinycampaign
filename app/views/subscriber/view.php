@@ -37,7 +37,7 @@ define('SCREEN', 'sub');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>subscriber/<?=(int)_h($subscriber->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>subscriber/<?=_h((int)$subscriber->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -98,7 +98,7 @@ define('SCREEN', 'sub');
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_user_lists((int)_h($subscriber->id)); ?></ul>
+                                <ul><?php get_user_lists(_h((int)$subscriber->id)); ?></ul>
                             </div>
                             
                         </div>

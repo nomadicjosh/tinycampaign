@@ -22,7 +22,7 @@ define('SCREEN', 'user');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('Manage Permissions for '); ?> <?=get_name(_h($user->id));?></h1>
+        <h1><?= _t('Manage Permissions for '); ?> <?=get_name(_h((int)$user->id));?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>user/"><i class="fa fa-group"></i> <?= _t('Users'); ?></a></li>
@@ -38,7 +38,7 @@ define('SCREEN', 'user');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>user/<?=(int)_h($user->id);?>/perm/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>user/<?=_h((int)$user->id);?>/perm/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <table id="example2" class="table table-bordered table-hover">
                         <thead>
@@ -48,7 +48,7 @@ define('SCREEN', 'user');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php user_permission((int)_h($user->id)); ?>
+                            <?php user_permission(_h((int)$user->id)); ?>
                         </tbody>
                         <tfoot>
                             <tr>

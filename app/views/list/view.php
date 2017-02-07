@@ -136,8 +136,8 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
                                 <select class="form-control select2" name="notify_email" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',(int)_h($list->notify_email),false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0',(int)_h($list->notify_email),false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1',_h((int)$list->notify_email),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',_h((int)$list->notify_email),false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -151,8 +151,8 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1', (int)_h($list->optin), false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0', (int)_h($list->optin), false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1', _h((int)$list->optin), false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0', _h((int)$list->optin), false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -160,13 +160,13 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('SMTP Server'); ?></label>
                                 <select class="form-control select2" name="server" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <?php get_user_servers(_h($list->server));?>
+                                    <?php get_user_servers(_h((int)$list->server));?>
                                 </select>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name(_h($list->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name(_h((int)$list->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">

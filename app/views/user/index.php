@@ -57,29 +57,29 @@ define('SCREEN', 'user');
                                 <td class="text-center"><?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?></td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>user/<?= (int)_h($user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>user/<?= (int)_h($user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
-                                    <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && (int)_h($user->id) != get_userdata('id')) : ?>
-                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= (int)_h($user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
+                                    <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && _h((int)$user->id) != get_userdata('id')) : ?>
+                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
                                     <?php endif; ?>
-                                    <?php if($user->id != 1) : ?>
-                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($user->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <?php if(_h((int)$user->id) != 1) : ?>
+                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$user->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     <?php endif; ?>
 
-                                    <div class="modal" id="delete-<?= _h($user->id); ?>">
+                                    <div class="modal" id="delete-<?= _h((int)$user->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span></button>
-                                                    <h4 class="modal-title"><?= get_name((int)_h($user->id)); ?></h4>
+                                                    <h4 class="modal-title"><?= get_name(_h((int)$user->id)); ?></h4>
                                                 </div>
                                                 <div class="modal-body">
                                                     <p><?=_t('Are you sure you want to delete this user?');?></p>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>user/<?= (int)_h($user->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>user/<?= _h((int)$user->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

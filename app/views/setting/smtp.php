@@ -79,8 +79,8 @@ define('SCREEN', 'smtp');
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>
                                 <select class="form-control select2" name="tc_smtp_status" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?= selected('1', (int)_h(get_option('tc_smtp_status')), false); ?>><?= _t('Active'); ?></option>
-                                    <option value="0"<?= selected('0', (int)_h(get_option('tc_smtp_status')), false); ?>><?= _t('Inactive'); ?></option>
+                                    <option value="1"<?= selected('1', _h((int)get_option('tc_smtp_status')), false); ?>><?= _t('Active'); ?></option>
+                                    <option value="0"<?= selected('0', _h((int)get_option('tc_smtp_status')), false); ?>><?= _t('Inactive'); ?></option>
                                 </select>
                             </div>
                         </div>
