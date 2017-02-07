@@ -163,7 +163,8 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
           <ul class="treeview-menu">
             <li<?=(SCREEN === 'plugins' ? ' class="active"' : '');?>><a href="<?=get_base_url();?>plugins/"><i class="fa fa-circle-o"></i> <?=_t('Plugins List');?></a></li>
             <li<?=(SCREEN === 'pinstall' ? ' class="active"' : '');?><?=ae('install_plugins');?>><a href="<?=get_base_url();?>plugins/install/"><i class="fa fa-circle-o"></i> <?=_t('Install Plugin');?></a></li>
-            <?php $app->hook->{'list_plugin_admin_pages'}(); ?>
+            <?php $app->hook->{'do_action'}('plugin_parent_page'); ?>
+            <?php $app->hook->{'do_action'}('plugin_child_page'); ?>
           </ul>
         </li>
         <li<?=ae('manage_campaigns');?> class="treeview<?=(SCREEN_PARENT === 'servers' ? ' active' : '');?>">
