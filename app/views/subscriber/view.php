@@ -98,7 +98,7 @@ define('SCREEN', 'sub');
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_user_lists($subscriber->id); ?></ul>
+                                <ul><?php get_user_lists(_h($subscriber->id)); ?></ul>
                             </div>
                             
                         </div>

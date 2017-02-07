@@ -66,7 +66,7 @@ define('SCREEN', 'hset');
                             
                            <div class="form-group">
                                 <label><font color="red">*</font> <?=_t( "Cronjob Timeout" );?> <a href="#crontimeout" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
-                                <input type="text" class="form-control" id="timeout" name="timeout" value="<?=($data->timeout !== null) ? $data->timeout : 30;?>" required/>
+                                <input type="text" class="form-control" id="timeout" name="timeout" value="<?=(_h($data->timeout) !== null) ? _h($data->timeout) : 30;?>" required/>
                             </div>
                             
                         </div>

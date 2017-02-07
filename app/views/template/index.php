@@ -51,11 +51,11 @@ define('SCREEN', 'tpl');
                                 <td class="text-center"><?= _h($tpl->addDate); ?></td>
                                 <td>
                                     <div class="text-center">
-                                        <a href="<?= get_base_url(); ?>template/<?= _h($tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                        <a href="#" data-toggle="modal" data-target="#preview-<?= _h($tpl->id); ?>" title="Preview"><button class="btn bg-aqua"><i class="fa fa-eye"></i></button></a>
-                                        <a href="#" data-toggle="modal" data-target="#delete-<?= _h($tpl->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                        <a href="<?= get_base_url(); ?>template/<?= (int)_h($tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                        <a href="#" data-toggle="modal" data-target="#preview-<?= (int)_h($tpl->id); ?>" title="Preview"><button class="btn bg-aqua"><i class="fa fa-eye"></i></button></a>
+                                        <a href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($tpl->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     </div>
-                                    <div class="modal" id="preview-<?= _h($tpl->id); ?>">
+                                    <div class="modal" id="preview-<?= (int)_h($tpl->id); ?>">
                                         <div class="modal-dialog" style="width:900px !important;max-height: 800px !important;">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -76,7 +76,7 @@ define('SCREEN', 'tpl');
                                     </div>
                                     <!-- /.modal -->
                                     
-                                    <div class="modal" id="delete-<?= _h($tpl->id); ?>">
+                                    <div class="modal" id="delete-<?= (int)_h($tpl->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -89,7 +89,7 @@ define('SCREEN', 'tpl');
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>template/<?= _h($tpl->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>template/<?= (int)_h($tpl->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

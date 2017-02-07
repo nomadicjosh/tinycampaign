@@ -43,7 +43,7 @@ define('SCREEN', 'cpgn');
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
         templates: [
             <?php foreach (get_user_template()as $t) : ?>
-                {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . $t->id . '/'; ?>"},
+                {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . _h($t->id) . '/'; ?>"},
             <?php endforeach; ?>
         ],
         file_picker_callback: elFinderBrowser,
