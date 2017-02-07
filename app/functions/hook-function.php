@@ -3,6 +3,10 @@ if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
+use app\src\Exception\Exception;
+use PDOException as ORMException;
 
 /**
  * tinyCampaign Hooks Helper & Wrapper
@@ -1139,19 +1143,33 @@ function get_logo_large()
 }
 
 /**
+ * Generates tinyCampaign logo in email footer.
+ * 
+ * @since 2.0.2
+ * @return mixed
+ */
+function tinyc_footer_logo()
+{
+    $app = \Liten\Liten::getInstance();
+    $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
+    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /></div>';
+    $div .= '</div>';
+    return $app->hook->{'apply_filter'}('footer_logo', $div);
+}
+
+/**
  * Generates tracking code.
  * 
- * @since 2.0.0
- * @param mixed $message Queue message object.
+ * @since 2.0.1
+ * @param int $cid Campaign id.
+ * @param int $sid Subscriber id.
  * @return mixed
  */
 function campaign_tracking_code($cid, $sid)
 {
     $app = \Liten\Liten::getInstance();
-    $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
-    $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /><img src="' . get_base_url() . 'tracking/cid/' . $cid . '/sid/' . $sid . '/" width="1" height="1" border="0" alt="tracking" /></div>';
-    $div .= '</div>';
-    return $app->hook->apply_filter('tracking_code', $div, $cid, $sid);
+    $image = '<img src="' . get_base_url() . 'tracking/cid/' . $cid . '/sid/' . $sid . '/" width="1" height="1" border="0" alt="tracking" />';
+    return $app->hook->apply_filter('tracking_code', $image, $cid, $sid);
 }
 
 function tc_smtp($tcMailer)
@@ -1200,6 +1218,99 @@ function tc_smtp($tcMailer)
         }
     }
 }
+
+/**
+ * Sends the campaign to the queue.
+ * 
+ * @since 2.0.2
+ * @param object $cpgn Campaign data object.
+ */
+function send_campaign_to_queue($cpgn)
+{
+    $app = \Liten\Liten::getInstance();
+    
+    try {
+        /**
+         * If it passes the above check, then instantiate the message queue.
+         */
+        $queue = new app\src\tc_Queue();
+        $queue->node = _h($cpgn->node);
+        /**
+         * Retrieve list info based on the unique campaign id.
+         */
+        $campaign_list = $app->db->campaign_list()
+            ->select('campaign_list.lid')
+            ->where('campaign_list.cid = ?', $cpgn->id)
+            ->find();
+        /**
+         * Create a loop to see if how many lists this campaign should
+         * be sent to and grab the list id.
+         */
+        foreach ($campaign_list as $c_list) {
+            /**
+             * Get a list of subscribers that meet the criteria.
+             */
+            $subscriber = $app->db->subscriber()
+                ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                ->where('subscriber.allowed = "true"')->_and_()
+                ->where('subscriber_list.confirmed = "1"')->_and_()
+                ->where('subscriber_list.unsubscribed = "0"')
+                ->groupBy('subscriber.email')
+                ->find();
+            /**
+             * Loop through the above $subscriber query and add each
+             * subscriber to the queue.
+             */
+            $i = 0;
+            foreach ($subscriber as $sub) {
+                $list = get_list_by('id', _h($c_list->lid));
+                $server = get_server_info(_h($list->server));
+                $throttle = _h($server->throttle) * ++$i;
+                $sendstart = _h($cpgn->sendstart);
+                /**
+                 * Create new tc_QueueMessage object.
+                 */
+                $new_message = new app\src\tc_QueueMessage();
+                $new_message->setListId(_h($c_list->lid));
+                $new_message->setMessageId($cpgn->id);
+                $new_message->setSubscriberId(_h($sub->id));
+                $new_message->setToEmail(_h($sub->email));
+                $new_message->setToName(_h($sub->fname) . ' ' . _h($sub->lname));
+                $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
+                $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$sendstart +$throttle seconds"));
+                /**
+                 * Add message to the queue.
+                 */
+                $queue->addMessage($new_message);
+            }
+        }
+
+        try {
+            $upd = $app->db->campaign();
+            $upd->set([
+                    'status' => 'processing'
+                ])
+                ->where('id = ?', _h($cpgn->id))
+                ->update();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+
+        tc_logger_activity_log_write('Update Record', 'Campaign Queued', _h($cpgn->subject), get_userdata('uname'));
+        _tc_flash()->success(_t('Campaign was successfully sent to the queue.'));
+    } catch (NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
 $app->hook->{'add_action'}('release', 'foot_release', 5);
@@ -1213,5 +1324,6 @@ $app->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
 $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
 $app->hook->{'add_action'}('tcMailer_init', 'tc_smtp');
 $app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
+$app->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
 $app->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 $app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);
