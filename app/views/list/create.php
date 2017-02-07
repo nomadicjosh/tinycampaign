@@ -95,8 +95,8 @@ define('SCREEN', 'clist');
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',(_h($app->req->post['optin']) != '' ? _h($app->req->post['optin']) : ''),false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0',(_h($app->req->post['optin']) != '' ? _h($app->req->post['optin']) : ''),false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1',((int)_h($app->req->post['optin']) != '' ? (int)_h($app->req->post['optin']) : ''),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',((int)_h($app->req->post['optin']) != '' ? (int)_h($app->req->post['optin']) : ''),false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             

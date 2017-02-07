@@ -37,14 +37,14 @@ define('SCREEN', 'perm');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?=get_base_url();?>permission/<?=_h($perm->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?=get_base_url();?>permission/<?=(int)_h($perm->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Name'); ?></label>
-                                <input type="text" class="form-control" name="permName" value="<?=$ePerm->getPermNameFromID(_h($perm->id));?>" required>
+                                <input type="text" class="form-control" name="permName" value="<?=$ePerm->getPermNameFromID((int)_h($perm->id));?>" required>
                             </div>
                             
                         </div>
@@ -54,7 +54,7 @@ define('SCREEN', 'perm');
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Key'); ?></label>
-                                <input type="text" class="form-control" name="permKey" value="<?=$ePerm->getPermKeyFromID(_h($perm->id));?>" required>
+                                <input type="text" class="form-control" name="permKey" value="<?=$ePerm->getPermKeyFromID((int)_h($perm->id));?>" required>
                             </div>
                             
                         </div>

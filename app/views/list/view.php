@@ -93,7 +93,7 @@ define('SCREEN', _h($list->code));
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>list/<?=$list->id;?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>list/<?=(int)_h($list->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -136,8 +136,8 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
                                 <select class="form-control select2" name="notify_email" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',_h($list->notify_email),false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0',_h($list->notify_email),false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1',(int)_h($list->notify_email),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',(int)_h($list->notify_email),false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -151,8 +151,8 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1', _h($list->optin), false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0', _h($list->optin), false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1', (int)_h($list->optin), false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0', (int)_h($list->optin), false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             

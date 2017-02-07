@@ -113,8 +113,8 @@ define('SCREEN', 'auser');
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>
                                 <select class="form-control select2" name="status" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Active');?></option>
-                                    <option value="0"<?=selected('0',(_h($app->req->post['status']) != '' ? _h($app->req->post['status']) : ''),false);?>><?=_t('Inactive');?></option>
+                                    <option value="1"<?=selected('1',((int)_h($app->req->post['status']) != '' ? (int)_h($app->req->post['status']) : ''),false);?>><?=_t('Active');?></option>
+                                    <option value="0"<?=selected('0',((int)_h($app->req->post['status']) != '' ? (int)_h($app->req->post['status']) : ''),false);?>><?=_t('Inactive');?></option>
                                 </select>
                                 <p class="help-block"><?=_t('If the account is Inactive, the user will be incapable of logging into the system.');?></p>
                             </div>

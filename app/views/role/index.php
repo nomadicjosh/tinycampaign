@@ -52,7 +52,7 @@ define('SCREEN', 'role');
                             foreach ($listRoles as $k => $v) {
                                 echo '<tr class="gradeX">' . "\n";
                                 echo '<td class="text-center">' . _h($v['Name']) . '</td>' . "\n";
-                                echo '<td class="text-center"><a href="' . get_base_url() . 'role/' . _h($v['ID']) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit" class="btn bg-yellow"><i class="fa fa-edit"></i></a></td>';
+                                echo '<td class="text-center"><a href="' . get_base_url() . 'role/' . (int)_h($v['ID']) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit" class="btn bg-yellow"><i class="fa fa-edit"></i></a></td>';
                                 echo '</tr>';
                             }
                         }
