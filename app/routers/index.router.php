@@ -979,7 +979,7 @@ $app->post('/subscribe/', function () use($app) {
             try {
                 Node::dispense('new_subscriber_notification');
                 $notify = Node::table('new_subscriber_notification');
-                $notify->lid = (int) _h($list->id);
+                $notify->lid = _h((int)$list->id);
                 $notify->sid = (int) $sid;
                 $notify->sent = (int) 0;
                 $notify->save();
