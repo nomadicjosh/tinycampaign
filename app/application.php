@@ -1,7 +1,7 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Core\Exception\IOException;
+use app\src\Exception\IOException;
 use Cascade\Cascade;
 
 /**
