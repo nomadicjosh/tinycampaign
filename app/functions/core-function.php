@@ -1280,3 +1280,19 @@ function get_domain_name()
     }
     return $server_name;
 }
+
+/**
+ * SQL Like operator in PHP.
+ * 
+ * Returns true if match else false.
+ * 
+ * @since 2.0.2
+ * @param string $pattern
+ * @param string $subject
+ * @return bool
+ */
+function php_like($pattern, $subject)
+{
+    $match = str_replace('%', '.*', preg_quote($pattern, '/'));
+    return (bool) preg_match("/^{$match}$/i", $subject);
+}
