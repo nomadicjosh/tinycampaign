@@ -66,6 +66,7 @@ $app->group('/campaign', function() use ($app) {
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
                 $msg->html = $app->req->post['html'];
+                $msg->text = $app->req->post['text'];
                 $msg->footer = $app->req->post['footer'];
                 $msg->status = 'ready';
                 $msg->sendstart = $app->req->post['sendstart'];
@@ -144,13 +145,17 @@ $app->group('/campaign', function() use ($app) {
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
                 $msg->html = $app->req->post['html'];
+                $msg->text = $app->req->post['text'];
                 $msg->footer = $app->req->post['footer'];
+                $msg->status = $app->req->post['status'];
                 $msg->sendstart = $app->req->post['sendstart'];
                 $msg->archive = $app->req->post['archive'];
                 $msg->where('id = ?', $id)->_and_()
                     ->where('owner = ?', get_userdata('id'));
                 $msg->update();
 
+                tc_cache_delete($id, 'cpgn');
+                tc_cache_delete($id, 'clist');
                 tc_logger_activity_log_write('Update Record', 'Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
             } catch (NotFoundException $e) {
@@ -185,7 +190,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($msg->id) <= 0) {
+         */ elseif (count(_h($msg->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -210,7 +215,7 @@ $app->group('/campaign', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -224,44 +229,21 @@ $app->group('/campaign', function() use ($app) {
     $app->get('/(\d+)/queue/', function ($id) use($app) {
 
         $cpgn = get_campaign_by_id($id);
-        if ($cpgn->status == 'processing') {
+        if (_h($cpgn->status) == 'processing') {
             _tc_flash()->error(_t('Message is already queued.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
-
-        try {
-            $node = Node::dispense('queued_campaign');
-            $node->node = (string) $cpgn->node;
-            $node->mid = (int) $cpgn->id;
-            $node->sendstart = (string) $cpgn->sendstart;
-            $node->complete = (int) 0;
-            $node->save();
-
-            try {
-                $upd = $app->db->campaign();
-                $upd->set([
-                        'status' => 'processing'
-                    ])
-                    ->where('id = ?', $cpgn->id)
-                    ->update();
-            } catch (NotFoundException $e) {
-                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-            } catch (Exception $e) {
-                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-            } catch (ORMException $e) {
-                _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-            }
-
-
-            tc_logger_activity_log_write('Update Record', 'Campaign Queued', $cpgn->subject, get_userdata('uname'));
-            _tc_flash()->success(_t('Campaign was successfully sent to the queue.'), $app->req->server['HTTP_REFERER']);
-        } catch (NodeQException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
-        } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        
+        if($cpgn->id <= 0) {
+            _tc_flash()->success(_t('Campaign does not exist.'), $app->req->server['HTTP_REFERER']);
+            exit();
         }
+        
+        $app->hook->{'do_action'}('queue_campaign', $cpgn);
+        
+        redirect($app->req->server['HTTP_REFERER']);
     });
-    
+
     /**
      * Before route check.
      */
@@ -275,7 +257,7 @@ $app->group('/campaign', function() use ($app) {
     $app->get('/(\d+)/pause/', function ($id) use($app) {
 
         $cpgn = get_campaign_by_id($id);
-        if ($cpgn->status == 'paused') {
+        if (_h($cpgn->status) == 'paused') {
             _tc_flash()->error(_t('Message is already paused.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
@@ -285,9 +267,9 @@ $app->group('/campaign', function() use ($app) {
             $upd->set([
                     'status' => 'paused'
                 ])
-                ->where('id = ?', $cpgn->id)
+                ->where('id = ?', _h($cpgn->id))
                 ->update();
-            tc_logger_activity_log_write('Update Record', 'Campaign Paused', $cpgn->subject, get_userdata('uname'));
+            tc_logger_activity_log_write('Update Record', 'Campaign Paused', _h($cpgn->subject), get_userdata('uname'));
             _tc_flash()->success(_t('Campaign was successfully paused.'), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
@@ -297,7 +279,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -311,7 +293,7 @@ $app->group('/campaign', function() use ($app) {
     $app->get('/(\d+)/resume/', function ($id) use($app) {
 
         $cpgn = get_campaign_by_id($id);
-        if ($cpgn->status == 'processing') {
+        if (_h($cpgn->status) == 'processing') {
             _tc_flash()->error(_t('Message is already processing.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
@@ -321,9 +303,9 @@ $app->group('/campaign', function() use ($app) {
             $upd->set([
                     'status' => 'processing'
                 ])
-                ->where('id = ?', $cpgn->id)
+                ->where('id = ?', _h($cpgn->id))
                 ->update();
-            tc_logger_activity_log_write('Update Record', 'Campaign Resumed', $cpgn->subject, get_userdata('uname'));
+            tc_logger_activity_log_write('Update Record', 'Campaign Resumed', _h($cpgn->subject), get_userdata('uname'));
             _tc_flash()->success(_t('Campaign was successfully resumed.'), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
@@ -333,7 +315,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -345,31 +327,31 @@ $app->group('/campaign', function() use ($app) {
     });
 
     $app->post('/(\d+)/test/', function ($id) use($app) {
-            $cpgn = get_campaign_by_id($id);
-            $sub = get_user_by('id', get_userdata('id'));
-            $server = get_server_info($app->req->post['server']);
+        $cpgn = get_campaign_by_id($id);
+        $sub = get_user_by('id', get_userdata('id'));
+        $server = get_server_info($app->req->post['server']);
 
-            $footer = _escape($cpgn->footer);
-            $footer = str_replace('{email}', $sub->email, $footer);
-            $footer = str_replace('{from_email}', $cpgn->from_email, $footer);
+        $footer = _escape($cpgn->footer);
+        $footer = str_replace('{email}', _h($sub->email), $footer);
+        $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
 
-            $msg = _escape($cpgn->html);
-            $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
-            $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . $id . '/">' . _t('View this email in your browser') . '</a>', $msg);
-            $msg = str_replace('{first_name}', $sub->fname, $msg);
-            $msg = str_replace('{last_name}', $sub->lname, $msg);
-            $msg = str_replace('{email}', $sub->email, $msg);
-            $msg = str_replace('{address1}', $sub->address1, $msg);
-            $msg = str_replace('{address2}', $sub->address2, $msg);
-            $msg = str_replace('{city}', $sub->city, $msg);
-            $msg = str_replace('{state}', $sub->state, $msg);
-            $msg = str_replace('{postal_code}', $sub->postal_code, $msg);
-            $msg = str_replace('{country}', $sub->country, $msg);
-            $msg .= $footer;
-            tinyc_email($server, $sub->email, $cpgn->subject, $msg);
-            redirect($app->req->server['HTTP_REFERER']);
+        $msg = _escape($cpgn->html);
+        $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+        $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . $id . '/">' . _t('View this email in your browser') . '</a>', $msg);
+        $msg = str_replace('{first_name}', _h($sub->fname), $msg);
+        $msg = str_replace('{last_name}', _h($sub->lname), $msg);
+        $msg = str_replace('{email}', _h($sub->email), $msg);
+        $msg = str_replace('{address1}', _h($sub->address1), $msg);
+        $msg = str_replace('{address2}', _h($sub->address2), $msg);
+        $msg = str_replace('{city}', _h($sub->city), $msg);
+        $msg = str_replace('{state}', _h($sub->state), $msg);
+        $msg = str_replace('{postal_code}', _h($sub->postal_code), $msg);
+        $msg = str_replace('{country}', _h($sub->country), $msg);
+        $msg .= $footer;
+        tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
+        redirect($app->req->server['HTTP_REFERER']);
     });
-    
+
     /**
      * Before route check.
      */
@@ -398,7 +380,7 @@ $app->group('/campaign', function() use ($app) {
             ->sum('tracking_link.clicked');
         $unique_clicks = $app->db->tracking_link()
             ->where('tracking_link.cid = ?', $id)
-            ->groupBy('tracking_link.cid')
+            ->groupBy('tracking_link.sid')
             ->count('tracking_link.id');
 
         /**
@@ -419,7 +401,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($cpgn->id) <= 0) {
+         */ elseif (count(_h($cpgn->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -433,7 +415,7 @@ $app->group('/campaign', function() use ($app) {
             tc_register_script('datatables');
 
             $app->view->display('campaign/report', [
-                'title' => $cpgn->subject,
+                'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
                 'opened' => $opened,
                 'unique_opens' => $unique_opens,
@@ -443,7 +425,7 @@ $app->group('/campaign', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -459,9 +441,9 @@ $app->group('/campaign', function() use ($app) {
         $cpgn = get_campaign_by_id($id);
         $opens = $app->db->subscriber()
             ->select('subscriber.email,tracking.*')
-            ->_join('tracking','tracking.sid = subscriber.id')
-            ->_join('campaign','tracking.cid = campaign.id')
-            ->where('campaign.id = ?', $cpgn->id)
+            ->_join('tracking', 'tracking.sid = subscriber.id')
+            ->_join('campaign', 'tracking.cid = campaign.id')
+            ->where('campaign.id = ?', _h($cpgn->id))
             ->find();
 
         /**
@@ -482,7 +464,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($cpgn->id) <= 0) {
+         */ elseif (count(_h($cpgn->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -496,14 +478,14 @@ $app->group('/campaign', function() use ($app) {
             tc_register_script('datatables');
 
             $app->view->display('campaign/opened', [
-                'title' => $cpgn->subject,
+                'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
                 'opens' => $opens
                 ]
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -519,9 +501,9 @@ $app->group('/campaign', function() use ($app) {
         $cpgn = get_campaign_by_id($id);
         $clicks = $app->db->subscriber()
             ->select('subscriber.email,tracking_link.*')
-            ->_join('tracking_link','tracking_link.sid = subscriber.id')
-            ->_join('campaign','tracking_link.cid = campaign.id')
-            ->where('campaign.id = ?', $cpgn->id)
+            ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
+            ->_join('campaign', 'tracking_link.cid = campaign.id')
+            ->where('campaign.id = ?', _h($cpgn->id))
             ->find();
 
         /**
@@ -542,7 +524,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($cpgn->id) <= 0) {
+         */ elseif (count(_h($cpgn->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -556,14 +538,14 @@ $app->group('/campaign', function() use ($app) {
             tc_register_script('datatables');
 
             $app->view->display('campaign/clicked', [
-                'title' => $cpgn->subject,
+                'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
                 'clicks' => $clicks
                 ]
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -643,7 +625,7 @@ $app->group('/campaign', function() use ($app) {
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
     });
-    
+
     /**
      * Before route check.
      */
@@ -663,27 +645,26 @@ $app->group('/campaign', function() use ($app) {
             ]
         );
     });
-    
-        /**
- * Before route check.
- */
-$app->before('GET|POST', '/getTemplate/(\d+)/', function() {
-    if (!hasPermission('create_campaign')) {
-        _tc_flash()->{'error'}(_t('You lack the proper permission to create a campaign.'));
-    }
-});
 
-$app->get('/getTemplate/(\d+)/', function($id) use($app) {
-    try {
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/getTemplate/(\d+)/', function() {
+        if (!hasPermission('create_campaign')) {
+            _tc_flash()->{'error'}(_t('You lack the proper permission to create a campaign.'));
+        }
+    });
+
+    $app->get('/getTemplate/(\d+)/', function($id) use($app) {
+        try {
             $template = $app->db->template()
                 ->where('owner = ?', get_userdata('id'))->_and_()
                 ->where('id = ?', $id)
-            ->find();
-            
-            foreach($template as $tpl) {
-                echo $tpl->content;
-            }
+                ->find();
 
+            foreach ($template as $tpl) {
+                echo _escape($tpl->content);
+            }
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -691,7 +672,7 @@ $app->get('/getTemplate/(\d+)/', function($id) use($app) {
         } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage());
         }
-});
+    });
 
     /**
      * Before route check.
@@ -712,7 +693,7 @@ $app->get('/getTemplate/(\d+)/', function($id) use($app) {
                 ->where('id = ?', $id);
 
             try {
-                Node::remove($cpgn->node);
+                Node::remove(_h($cpgn->node));
             } catch (NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
@@ -721,6 +702,8 @@ $app->get('/getTemplate/(\d+)/', function($id) use($app) {
 
             $msg->reset()->findOne($id)->delete();
             tc_cache_delete($id, 'campaign');
+            tc_cache_delete($id, 'cpgn');
+            tc_cache_delete($id, 'clist');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
