@@ -117,7 +117,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         tc_register_script('iCheck');
 
         $app->view->display('cron/index', [
-            'title' => 'Cronjob Handlers',
+            'title' => _t('Cronjob Handlers'),
             'jobs' => $jobs,
             'set' => $set
         ]);
@@ -180,7 +180,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         tc_register_script('select2');
 
         $app->view->display('cron/create', [
-            'title' => 'New Cronjob Handler'
+            'title' => _t('New Cronjob Handler')
         ]);
     });
 
@@ -228,7 +228,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         tc_register_script('select2');
 
         $app->view->display('cron/setting', [
-            'title' => 'Cronjob Handler Settings',
+            'title' => _t('Cronjob Handler Settings'),
             'data' => $set
         ]);
     });
@@ -288,7 +288,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($sql->id) <= 0) {
+         */ elseif (count(_h($sql->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -302,7 +302,7 @@ $app->group('/cron', function () use($app, $css, $js) {
             tc_register_script('select2');
 
             $app->view->display('cron/view', [
-                'title' => 'View Cronjob Handler',
+                'title' => _t('View Cronjob Handler'),
                 'cron' => $sql
                 ]
             );
@@ -343,36 +343,36 @@ $app->group('/cron', function () use($app, $css, $js) {
             // execute only one job and then exit
             foreach ($cron as $job) {
 
-                if (isset($_GET['id']) && $job->id == $_GET['id']) {
+                if (isset($_GET['id']) && _h($job->id) == $_GET['id']) {
                     $run = true;
                 } else {
                     $run = false;
                     if ($job->time != '') {
-                        if (substr($job->lastrun, 0, 10) != $d) {
-                            if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . $job->time)) {
+                        if (substr(_h($job->lastrun), 0, 10) != $d) {
+                            if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . _h($job->time))) {
                                 $run = true;
                             }
                         }
                     } elseif ($job->each > 0) {
-                        if (strtotime($job->lastrun) + $job->each < strtotime($d)) {
+                        if (strtotime(_h($job->lastrun)) + _h($job->each) < strtotime($d)) {
                             $run = true;
                             // if time set, daily after time...
-                            if ($job->each > (60 * 60 * 24) && strlen($job->eachtime) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . $job->eachtime)) {
+                            if (_h($job->each) > (60 * 60 * 24) && strlen(_h($job->eachtime)) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . _h($job->eachtime))) {
                                 // only run 'today' at or after give time.
                                 $run = false;
                             }
                         }
-                    } elseif (substr($job->lastrun, 0, 10) != $d->format('Y-m-d')) {
+                    } elseif (substr(_h($job->lastrun), 0, 10) != $d->format('Y-m-d')) {
                         $run = true;
                     }
                 }
 
                 if ($run == true) {
                     // save as executed
-                    echo _t('Running: ') . $job->url . PHP_EOL . PHP_EOL;
+                    echo _t('Running: ') . _h($job->url) . PHP_EOL . PHP_EOL;
 
                     try {
-                        $upd = Node::table('cronjob_handler')->find($job->id);
+                        $upd = Node::table('cronjob_handler')->find(_h($job->id));
                         $upd->lastrun = $d->format('Y-m-d H:i:s');
                         $upd->runned ++;
                         $upd->save();
@@ -384,7 +384,7 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                     // execute cronjob
                     $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $job->url);
+                    curl_setopt($ch, CURLOPT_URL, _h($job->url));
                     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_TIMEOUT, (!empty($setting->timeout) ? $setting->timeout : 5));

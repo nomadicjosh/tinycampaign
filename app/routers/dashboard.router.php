@@ -31,7 +31,7 @@ $app->group('/dashboard', function () use($app) {
         tc_register_script('dashboard');
 
         $app->view->display('dashboard/index', [
-            'title' => 'Dashboard'
+            'title' => _t('Dashboard')
         ]);
     });
 
@@ -75,7 +75,7 @@ $app->group('/dashboard', function () use($app) {
             _tc_flash()->error($e->getMessage());
         }
         $app->view->display('dashboard/system-snapshot', [
-            'title' => 'System Snapshot Report',
+            'title' => _t('System Snapshot Report'),
             'db' => $db,
             'user' => $user,
             'error' => $error
@@ -113,8 +113,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($lists as $list) {
-                $row[0] = $list->name;
-                $row[1] = $list->count;
+                $row[0] = _h($list->name);
+                $row[1] = _h($list->count);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -142,8 +142,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($emails as $email) {
-                $row[0] = $email->name;
-                $row[1] = $email->count;
+                $row[0] = _h($email->name);
+                $row[1] = _h($email->count);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -171,8 +171,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($cpgn as $c) {
-                $row[0] = $c->List;
-                $row[1] = $c->count;
+                $row[0] = _h($c->List);
+                $row[1] = _h($c->count);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -200,8 +200,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($cpgns as $cpgn) {
-                $row[0] = $cpgn->name;
-                $row[1] = $cpgn->count;
+                $row[0] = _h($cpgn->name);
+                $row[1] = _h($cpgn->count);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);

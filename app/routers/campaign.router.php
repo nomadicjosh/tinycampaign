@@ -234,7 +234,7 @@ $app->group('/campaign', function() use ($app) {
             exit();
         }
 
-        if ($cpgn->id <= 0) {
+        if (_h($cpgn->id) <= 0) {
             _tc_flash()->success(_t('Campaign does not exist.'), $app->req->server['HTTP_REFERER']);
             exit();
         }

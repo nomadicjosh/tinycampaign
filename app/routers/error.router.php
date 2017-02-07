@@ -10,8 +10,8 @@ use PDOException as ORMException;
  *  
  * @license GPLv3
  * 
- * @since       5.0.0
- * @package     eduTrac SIS
+ * @since       2.0.0
+ * @package     tinyCampaign
  * @author      Joshua Parker <joshmac3@icloud.com>
  */
 
@@ -41,7 +41,7 @@ $app->get('/error/', function () use($app) {
     tc_register_script('datatables');
 
     $app->view->display('error/index', [
-        'title' => 'Error Logs',
+        'title' => _t('Error Logs'),
         'errors' => $errors
         ]
     );
@@ -74,7 +74,7 @@ $app->get('/audit-trail/', function () use($app) {
     tc_register_script('datatables');
 
     $app->view->display('error/audit', [
-        'title' => 'Audit Trail',
+        'title' => _t('Audit Trail'),
         'audit' => $audit
         ]
     );

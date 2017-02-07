@@ -210,7 +210,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list->id) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -281,7 +281,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -392,7 +392,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list->id) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -429,9 +429,11 @@ $app->group('/list', function() use ($app) {
             header('Content-Type: text/csv; charset=utf-8');
             header('Content-Disposition: attachment; filename=data.csv');
             $output = fopen("php://output", "w");
-            fputcsv($output, ['ID', 'First Name', 'Last Name', 'Email', 'Add Date']);
+            fputcsv($output, ['ID', 'First Name', 'Last Name', 'Email', 'Add Date', 'Confirmed', 'Unsubscribed']);
             $csv = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email,subscriber.addDate')
+                ->select('CASE WHEN subscriber_list.confirmed = "1" THEN "Yes" ELSE "No" END')
+                ->select('CASE WHEN subscriber_list.unsubscribed = "1" THEN "Yes" ELSE "No" END')
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->where('subscriber_list.lid = ?', $id);
             $q = $csv->find(function ($data) {
@@ -572,19 +574,19 @@ $app->group('/list', function() use ($app) {
                 ->findOne();
 
             $cpgn_list = $app->db->campaign_list()
-                ->where('lid = ?', $list->id)
+                ->where('lid = ?', _h($list->id))
                 ->find();
 
             foreach ($cpgn_list as $cl) {
                 $app->db->campaign()
                     ->reset()
-                    ->findOne($cl->cid)
+                    ->findOne(_h($cl->cid))
                     ->delete();
             }
 
             $app->db->list()
                 ->reset()
-                ->findOne($list->id)
+                ->findOne(_h($list->id))
                 ->delete();
 
             tc_cache_delete($id, 'list');

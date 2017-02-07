@@ -52,7 +52,7 @@ $app->match('GET|POST', '/setting/', function () use($app) {
     tc_register_script('select2');
 
     $app->view->display('setting/index', [
-        'title' => 'General Settings'
+        'title' => _t('General Settings')
         ]
     );
 });
@@ -119,7 +119,7 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
     tc_register_script('select2');
 
     $app->view->display('setting/smtp', [
-        'title' => 'SMTP Settings',
+        'title' => _t('SMTP Settings'),
         'password' => $password
         ]
     );
@@ -212,7 +212,7 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
     tc_register_script('select2');
 
     $app->view->display('setting/bounce', [
-        'title' => 'Bounce Email Settings',
+        'title' => _t('Bounce Email Settings'),
         'password' => $password
         ]
     );

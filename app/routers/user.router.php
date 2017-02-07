@@ -41,7 +41,7 @@ $app->group('/user', function() use ($app) {
         tc_register_script('datatables');
 
         $app->view->display('user/index', [
-            'title' => 'Manage Users',
+            'title' => _t('Manage Users'),
             'users' => $users
             ]
         );
@@ -112,7 +112,7 @@ $app->group('/user', function() use ($app) {
         tc_register_script('iCheck');
 
         $app->view->display('user/add', [
-            'title' => 'Add New User'
+            'title' => _t('Add New User')
             ]
         );
     });
@@ -183,7 +183,7 @@ $app->group('/user', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif ($user->id <= 0) {
+         */ elseif (_h($user->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -196,7 +196,7 @@ $app->group('/user', function() use ($app) {
             tc_register_script('select2');
 
             $app->view->display('user/view', [
-                'title' => 'View/Edit User',
+                'title' => _t('View/Edit User'),
                 'user' => $user
                 ]
             );
@@ -263,7 +263,7 @@ $app->group('/user', function() use ($app) {
         tc_register_script('select2');
 
         $app->view->display('user/profile', [
-            'title' => 'View/Edit Profile',
+            'title' => _t('View/Edit Profile'),
             'user' => $user
             ]
         );
@@ -323,7 +323,7 @@ $app->group('/user', function() use ($app) {
             ]);
         } /**
          * If data is zero, 404 not found.
-         */ elseif ($user->id <= 0) {
+         */ elseif (_h($user->id) <= 0) {
 
             $app->view->display('error/404', [
                 'title' => '404 Error'
@@ -493,7 +493,7 @@ $app->group('/user', function() use ($app) {
                 ->find();
             foreach ($cpgns as $cpgn) {
                 try {
-                    Node::remove($cpgn->node);
+                    Node::remove(_h($cpgn->node));
                 } catch (NodeQException $e) {
                     _tc_flash()->error($e->getMessage());
                 } catch (Exception $e) {
