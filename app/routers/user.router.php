@@ -163,7 +163,7 @@ $app->group('/user', function() use ($app) {
             }
         }
 
-        $user = get_user_by('id', $id);
+        $user = get_user($id);
 
         /**
          * If the database table doesn't exist, then it
@@ -257,7 +257,7 @@ $app->group('/user', function() use ($app) {
             }
         }
 
-        $user = get_user_by('id', get_userdata('id'));
+        $user = get_user(get_userdata('id'));
 
         tc_register_style('select2');
         tc_register_script('select2');

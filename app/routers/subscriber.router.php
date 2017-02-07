@@ -172,6 +172,7 @@ $app->group('/subscriber', function() use ($app) {
                 }
 
                 tc_cache_delete($id, 'subscriber');
+                tc_cache_delete($id, 'slist');
                 tc_logger_activity_log_write('Update Record', 'Subscriber', $sub->fname . ' ' . $sub->lname, get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
             } catch (NotFoundException $e) {
@@ -244,6 +245,7 @@ $app->group('/subscriber', function() use ($app) {
                 ->delete();
 
             tc_cache_delete($id, 'subscriber');
+            tc_cache_delete($id, 'slist');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);

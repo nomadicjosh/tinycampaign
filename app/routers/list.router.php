@@ -119,6 +119,7 @@ $app->group('/list', function() use ($app) {
                 $list->confirm_email = _file_get_contents(APP_PATH . 'views/setting/tpl/confirm_email.tpl');
                 $list->subscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/subscribe_email.tpl');
                 $list->unsubscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/unsubscribe_email.tpl');
+                $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
                 $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);
@@ -166,6 +167,7 @@ $app->group('/list', function() use ($app) {
                 $list->confirm_email = $app->req->_post('confirm_email');
                 $list->subscribe_email = $app->req->_post('subscribe_email');
                 $list->unsubscribe_email = $app->req->_post('unsubscribe_email');
+                $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
                 $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);

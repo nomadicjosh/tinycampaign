@@ -233,14 +233,14 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error(_t('Message is already queued.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
-        
-        if($cpgn->id <= 0) {
+
+        if ($cpgn->id <= 0) {
             _tc_flash()->success(_t('Campaign does not exist.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
-        
+
         $app->hook->{'do_action'}('queue_campaign', $cpgn);
-        
+
         redirect($app->req->server['HTTP_REFERER']);
     });
 
@@ -334,6 +334,8 @@ $app->group('/campaign', function() use ($app) {
         $footer = _escape($cpgn->footer);
         $footer = str_replace('{email}', _h($sub->email), $footer);
         $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
+        $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/', $footer);
+        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/{NOID}/lid/{NOID}/sid/{NOID}/', $footer);
 
         $msg = _escape($cpgn->html);
         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
@@ -347,7 +349,10 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{state}', _h($sub->state), $msg);
         $msg = str_replace('{postal_code}', _h($sub->postal_code), $msg);
         $msg = str_replace('{country}', _h($sub->country), $msg);
+        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/{NOID}/lid/{NOID}/sid/{NOID}/">' . _t('unsubscribe') . '</a>', $msg);
+        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
+        $msg .= tinyc_footer_logo();
         tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
         redirect($app->req->server['HTTP_REFERER']);
     });
