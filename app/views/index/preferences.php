@@ -76,7 +76,7 @@ $app->view->block('index');
                             
                             <div class="form-group">
                                 <label><?= _t('Postal Code'); ?></label>
-                                <input type="text" class="form-control" name="zip" value="<?=_h($subscriber->zip);?>" >
+                                <input type="text" class="form-control" name="postal_code" value="<?=_h($subscriber->postal_code);?>" >
                             </div>
                             
                             <div class="form-group">
