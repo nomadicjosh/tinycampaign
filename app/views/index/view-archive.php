@@ -29,6 +29,9 @@ $app->view->block('index');
 
     </section>
     <!-- /.content -->
+    <div class="box-footer">
+        <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>archive/'"><?=_t( 'Go to Archives' );?></button>
+    </div>
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>
