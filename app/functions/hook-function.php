@@ -876,7 +876,7 @@ function get_user_avatar($email, $s = 80, $class = '', $d = 'mm', $r = 'g', $img
 {
     $app = \Liten\Liten::getInstance();
 
-    if (function_exists('enable_url_ssl')) {
+    if (function_exists('enable_url_ssl') || function_exists('enable_force_url_ssl')) {
         $protocol = 'https://';
     } else {
         $protocol = 'http://';
