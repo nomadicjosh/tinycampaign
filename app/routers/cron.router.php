@@ -582,24 +582,24 @@ $app->group('/cron', function () use($app, $css, $js) {
         $time_start = microtime_float();
 
         $bmh = new app\src\tc_BounceHandler();
-        $bmh->action_function = 'bounce_callback_action'; // default is 'bounce_callback_action'
-        $bmh->verbose = VERBOSE_SIMPLE; //VERBOSE_REPORT; //VERBOSE_DEBUG; //VERBOSE_QUIET; // default is VERBOSE_SIMPLE
-        $bmh->use_fetchstructure = true; // true is default, no need to speficy
-        $bmh->testmode = false; // false is default, no need to specify
-        $bmh->debug_body_rule = false; // false is default, no need to specify
-        $bmh->debug_dsn_rule = false; // false is default, no need to specify
-        $bmh->purge_unprocessed = false; // false is default, no need to specify
-        $bmh->disable_delete = false; // false is default, no need to specify
+        $bmh->actionFunction = 'callbackAction'; // default is 'bounce_callback_action'
+        $bmh->verbose = app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_REPORT; //app\src\tc_BounceHandler::VERBOSE_DEBUG; //app\src\tc_BounceHandler::VERBOSE_QUIET; // default is BounceMailHandler::VERBOSE_SIMPLE
+        //$bmh->useFetchStructure  = true; // true is default, no need to specify
+        //$bmh->testMode           = false; // false is default, no need to specify
+        //$bmh->debugBodyRule      = false; // false is default, no need to specify
+        //$bmh->debugDsnRule       = false; // false is default, no need to specify
+        //$bmh->purgeUnprocessed   = false; // false is default, no need to specify
+        $bmh->disableDelete = true; // false is default, no need to specify
 
         /*
          * for remote mailbox
          */
         $bmh->mailhost = _h(get_option('tc_bmh_host')); // your mail server
-        $bmh->mailbox_username = _h(get_option('tc_bmh_username')); // your mailbox username
-        $bmh->mailbox_password = _h(get_option('tc_bmh_password')); // your mailbox password
+        $bmh->mailboxUserName = _h(get_option('tc_bmh_username')); // your mailbox username
+        $bmh->mailboxPassword = _h(get_option('tc_bmh_password')); // your mailbox password
         $bmh->port = _h(get_option('tc_bmh_port')); // the port to access your mailbox, default is 143
         $bmh->service = _h(get_option('tc_bmh_service')); // the service to use (imap or pop3), default is 'imap'
-        $bmh->service_option = _h(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
+        $bmh->serviceOption = _h(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
         $bmh->boxname = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))); // the mailbox to access, default is 'INBOX'
         $bmh->moveHard = true; // default is false
         $bmh->hardMailbox = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
@@ -612,7 +612,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         $time_end = microtime_float();
         $time = $time_end - $time_start;
 
-        Cascade::getLogger('info')->info('BOUNCES[401]: ' . sprintf(_t('Seconds to process: '), $time));
+        Cascade::getLogger('info')->info('BOUNCES[401]: ' . sprintf(_t('Seconds to process: %s'), $time));
     });
 
     $app->get('/runNodeQ/', function () {
