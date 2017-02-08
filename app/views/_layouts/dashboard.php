@@ -19,6 +19,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Favicon Package -->
   <link rel="apple-touch-icon" sizes="180x180" href="static/assets/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="static/assets/img/favicon-32x32.png" sizes="32x32">
   <link rel="icon" type="image/png" href="static/assets/img/favicon-16x16.png" sizes="16x16">
