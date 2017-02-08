@@ -54,9 +54,9 @@ define('SCREEN', 'cpgn');
                             <tr class="gradeX">
                                 <td class="text-center"><?= tc_url_shorten(_h($clicked->url)); ?></td>
                                 <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=(int)_h($clicked->sid);?>/"><?= _h($clicked->email); ?></a></td>
-                                <td class="text-center"><?= _h($clicked->addDate); ?></td>
-                                <td class="text-center"><?= _h($clicked->clicked); ?></td>
-                                <td class="text-center"><?=_h($clicked->LastUpdate); ?></td>
+                                <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($clicked->addDate))->format('M. d, Y h:i A'); ?></td>
+                                <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= _h($clicked->clicked); ?></span></td>
+                                <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($clicked->LastUpdate))->format('M. d, Y h:i A'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -82,7 +82,9 @@ define('SCREEN', 'cpgn');
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($msg->subject); ?></td>
                                 <td class="text-center">
-                                    <?= ucfirst(_h($msg->status)); ?>
+                                    <span class="label <?=tc_cpgn_status_label(_h($msg->status));?>" style="font-size:1em;font-weight: bold;">
+                                        <?= ucfirst(_h($msg->status)); ?>
+                                    </span>
                                     <?php if($to_send > 0) : ?>
                                     <div class="progress progress-striped active">
                                         <div class="progress-bar" style="width: <?=percent($sent, _h($all));?>%"><?=percent($sent, _h($all));?>%</div>
@@ -92,9 +94,17 @@ define('SCREEN', 'cpgn');
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($msg->sendstart))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center"><?= (_h($msg->sendfinish) != '' ? Jenssegers\Date\Date::parse(_h($msg->sendfinish))->format('M. d, Y @ h:i A') : ''); ?></td>
                                 <?php if ((int)_h($msg->recipients) < Node::table(_h($msg->node))->findAll()->count()) : ?>
-                                    <td class="text-center"><?= (int)_h($msg->recipients); ?> / <?= Node::table(_h($msg->node))->findAll()->count(); ?></td>
+                                <td class="text-center">
+                                    <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
+                                        <?= (int)_h($msg->recipients); ?> / <?= Node::table(_h($msg->node))->findAll()->count(); ?>
+                                    </span>
+                                </td>
                                 <?php else : ?>
-                                    <td class="text-center"><?= (int)_h($msg->recipients); ?></td>
+                                <td class="text-center">
+                                    <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
+                                        <?= (int)_h($msg->recipients); ?>
+                                    </span>
+                                </td>
                                 <?php endif; ?>
                                 <td class="text-center">
                                     <a href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>

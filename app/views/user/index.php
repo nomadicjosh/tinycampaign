@@ -54,7 +54,11 @@ define('SCREEN', 'user');
                                 <td class="text-center"><?= _h($user->uname); ?></td>
                                 <td class="text-center"><?= _h($user->fname); ?></td>
                                 <td class="text-center"><?= _h($user->lname); ?></td>
-                                <td class="text-center"><?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?></td>
+                                <td class="text-center">
+                                    <span class="label <?=tc_user_status_label(_h($user->status));?>" style="font-size:1em;font-weight: bold;">
+                                        <?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?>
+                                    </span>
+                                </td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
                                     <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>

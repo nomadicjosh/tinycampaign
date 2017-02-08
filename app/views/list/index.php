@@ -59,8 +59,16 @@ $(document).ready(function(){
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($list->code); ?></td>
                                 <td class="text-center"><?= _h($list->name); ?></td>
-                                <td class="text-center"><?= ucfirst(_h($list->status)); ?></td>
-                                <td class="text-center"><?=get_list_subscribers_count((int)_h($list->id));?></td>
+                                <td class="text-center">
+                                    <span class="label <?=tc_list_status_label(_h($list->status));?>" style="font-size:1em;font-weight: bold;">
+                                        <?= ucfirst(_h($list->status)); ?>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
+                                        <?=get_list_subscribers_count((int)_h($list->id));?>
+                                    </span>
+                                </td>
                                 <td<?=ie('email_list_inquiry_only');?> class="text-center">
                                     <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button class="btn bg-blue"><i class="fa fa-group"></i></button></a>

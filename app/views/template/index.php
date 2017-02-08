@@ -48,7 +48,7 @@ define('SCREEN', 'tpl');
                         <?php foreach ($templates as $tpl) : ?>
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($tpl->name); ?></td>
-                                <td class="text-center"><?= _h($tpl->addDate); ?></td>
+                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($tpl->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td>
                                     <div class="text-center">
                                         <a href="<?= get_base_url(); ?>template/<?= _h((int)$tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>

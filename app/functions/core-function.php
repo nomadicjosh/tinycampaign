@@ -1317,3 +1317,22 @@ function tc_url_shorten($url, $length = 80)
         return $url;
     }
 }
+
+/**
+ * Adds label to the campaign's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_cpgn_status_label($status)
+{
+    $label = [
+        'ready' => 'label-default',
+        'processing' => 'label-primary',
+        'paused' => 'bg bg-orange',
+        'sent' => 'label-success'
+    ];
+    
+    return $label[$status];
+}

@@ -390,3 +390,20 @@ function get_list($list, $object = true)
 
     return $_list;
 }
+
+/**
+ * Adds label based on status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_list_status_label($status)
+{
+    $label = [
+        'open' => 'label-success',
+        'closed' => 'label-danger'
+    ];
+    
+    return $label[$status];
+}

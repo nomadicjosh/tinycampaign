@@ -58,8 +58,12 @@ $(document).ready(function(){
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($subscriber->fname); ?> <?= _h($subscriber->lname); ?></td>
                                 <td class="text-center"><?= _h($subscriber->email); ?></td>
-                                <td class="text-center"><?=(_h($subscriber->allowed) == 'true' ? 'No' : 'Yes'); ?></td>
-                                <td class="text-center"><?= _h($subscriber->addDate); ?></td>
+                                <td class="text-center">
+                                    <span class="label <?=tc_blacklist_status_label(_h($subscriber->allowed));?>" style="font-size:1em;font-weight: bold;">
+                                        <?=(_h($subscriber->allowed) == 'true' ? 'No' : 'Yes'); ?>
+                                    </span>
+                                </td>
+                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($subscriber->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center">
                                     <a href="<?= get_base_url(); ?>subscriber/<?= _h((int)$subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                     <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$subscriber->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>

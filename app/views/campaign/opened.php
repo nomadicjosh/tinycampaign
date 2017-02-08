@@ -52,9 +52,9 @@ define('SCREEN', 'cpgn');
                         <?php foreach ($opens as $opened) : ?>
                             <tr class="gradeX">
                                 <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=(int)_h($opened->sid);?>/"><?= _h($opened->email); ?></a></td>
-                                <td class="text-center"><?= _h($opened->first_open); ?></td>
-                                <td class="text-center"><?= (int)_h($opened->viewed); ?></td>
-                                <td class="text-center"><?=_h($opened->LastUpdate); ?></td>
+                                <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->first_open))->format('M. d, Y h:i A'); ?></td>
+                                <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= (int)_h($opened->viewed); ?></span></td>
+                                <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->LastUpdate))->format('M. d, Y h:i A'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
