@@ -229,13 +229,12 @@ function tc_link_tracking($body, $cid, $sid)
 {
     $link = get_base_url() . 'lt' . '/';
     return preg_replace_callback('#(<a.*?href=")([^"]*)("[^>]*?>)#i', function($match) use ($cid, $sid, $link) {
-        $old_url = $match[2];
-        if (strpos($old_url, '?') === false) {
+        if (strpos($link, '?') === false) {
             $url = '?';
         } else {
             $url .= '&';
         }
-        $url .= 'utm_source=email' . '&utm_medium=email' . '&utm_term=' . $sid . '&utm_campaign=' . urlencode($cid);
+        $url .= 'utm_source=email' . '&utm_medium=email' . '&utm_term=' . urlencode($sid) . '&utm_campaign=' . urlencode($cid);
         return $match[1] . $link . $url . '&url=' . $match[2] . $match[3];
     }, $body);
 }
@@ -278,7 +277,7 @@ function get_list_subscriber_count($id)
     try {
         $count = $app->db->subscriber_list()
             ->where('confirmed = "1"')->_and_()
-            ->where('unsubscribe = "0"')
+            ->where('unsubscribed = "0"')
             ->where('lid = ?', $id)
             ->count('id');
 
@@ -299,9 +298,10 @@ function get_list_subscriber_count($id)
  * @param object $server Server info.
  * @param string $to Email recipient.
  * @param string $subject Email subject.
- * @param string $message Email message.
+ * @param string $html HTML version of the email message.
+ * @param string $text Text version of the email message.
  */
-function tinyc_email($server, $to, $subject, $message)
+function tinyc_email($server, $to, $subject, $html, $text = '')
 {
     if (is_object($server)) {
         try {
@@ -337,7 +337,8 @@ function tinyc_email($server, $to, $subject, $message)
             $tcMailer->AddReplyTo(_h($server->remail), _h($server->rname)); // Reply-To
             $tcMailer->addAddress($to);
             $tcMailer->Subject = $subject;
-            $tcMailer->Body = $message;
+            $tcMailer->Body = $html;
+            $tcMailer->AltBody = $text;
             $tcMailer->Host = _h($server->hname);
             $tcMailer->SMTPSecure = _h($server->protocol);
             $tcMailer->Port = _h($server->port);
@@ -345,8 +346,9 @@ function tinyc_email($server, $to, $subject, $message)
             $tcMailer->isHTML(true);
             $tcMailer->Username = _h($server->uname);
             $tcMailer->Password = $password;
-            $tcMailer->send();
-            _tc_flash()->success(_t('Email Sent.'));
+            if ($tcMailer->send()) {
+                _tc_flash()->success(_t('Email Sent.'));
+            }
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (\app\src\Exception\Exception $e) {

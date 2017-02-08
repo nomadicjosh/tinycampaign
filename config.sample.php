@@ -109,7 +109,13 @@ require( APP_PATH . 'application.php' );
  * Lazy load the routers. A router is loaded
  * only when it is needed.
  */
-include(APP_PATH . 'routers.php');
+$routers = glob(APP_PATH . 'routers' . DS . '*.php');
+if (is_array($routers)) {
+    foreach ($routers as $router) {
+        if (file_exists($router))
+            include($router);
+    }
+}
 
 /**
  * Set the timezone for the application.

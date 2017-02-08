@@ -5,11 +5,13 @@ ob_implicit_flush(0);
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="<?=get_base_url();?>">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title><?=_t('Login');?></title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <meta name="theme-color" content="#ffffff">
   <!-- Bootstrap 3.3.6 -->
   <link rel="stylesheet" href="static/assets/css/bootstrap/lumen-bootstrap.min.css">
   <!-- Font Awesome -->
@@ -20,6 +22,12 @@ ob_implicit_flush(0);
   <link rel="stylesheet" href="static/assets/css/AdminLTE.min.css">
   <!-- iCheck -->
   <link rel="stylesheet" href="static/assets/css/iCheck/square/blue.css">
+  <!-- Favicon Package -->
+  <link rel="apple-touch-icon" sizes="180x180" href="static/assets/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="static/assets/img/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="static/assets/img/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="static/assets/img/manifest.json">
+  <link rel="mask-icon" href="static/assets/img/safari-pinned-tab.svg" color="#5bbad5">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

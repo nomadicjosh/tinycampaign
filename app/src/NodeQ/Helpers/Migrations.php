@@ -195,4 +195,19 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
+    
+    public static function new_subscriber_notification()
+    {
+        try {
+            Node::create('new_subscriber_notification', [
+                'lid' => 'integer',
+                'sid' => 'integer',
+                'sent' => 'integer'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
 }

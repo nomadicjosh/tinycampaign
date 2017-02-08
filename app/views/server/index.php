@@ -57,11 +57,11 @@ $(document).ready(function(){
                                 <td class="text-center"><?= _h($server->name); ?></td>
                                 <td class="text-center"><?= _h($server->addDate); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>server/<?= _h($server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($server->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>server/<?= (int)_h($server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($server->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     
                                     <!-- modal -->
-                                    <div class="modal" id="delete-<?= _h($server->id); ?>">
+                                    <div class="modal" id="delete-<?= (int)_h($server->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -74,7 +74,7 @@ $(document).ready(function(){
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>server/<?= _h($server->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>server/<?= (int)_h($server->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

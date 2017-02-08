@@ -28,7 +28,7 @@ $app->view->block('index');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>preferences/<?=_h($subscriber->code);?>/subscriber/<?=_h($subscriber->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>preferences/<?=_h($subscriber->code);?>/subscriber/<?=(int)_h($subscriber->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -76,7 +76,7 @@ $app->view->block('index');
                             
                             <div class="form-group">
                                 <label><?= _t('Postal Code'); ?></label>
-                                <input type="text" class="form-control" name="zip" value="<?=_h($subscriber->zip);?>" >
+                                <input type="text" class="form-control" name="postal_code" value="<?=_h($subscriber->postal_code);?>" >
                             </div>
                             
                             <div class="form-group">

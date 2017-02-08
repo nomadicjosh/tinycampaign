@@ -35,7 +35,7 @@ $app->group('/subscriber', function() use ($app) {
         tc_register_script('datatables');
 
         $app->view->display('subscriber/index', [
-            'title' => 'Manage Subscribers',
+            'title' => _t('Manage Subscribers'),
             'subscribers' => $subscribers
             ]
         );
@@ -105,7 +105,7 @@ $app->group('/subscriber', function() use ($app) {
         tc_register_script('iCheck');
 
         $app->view->display('subscriber/add', [
-            'title' => 'Add New Subscriber'
+            'title' => _t('Add New Subscriber')
             ]
         );
     });
@@ -163,7 +163,7 @@ $app->group('/subscriber', function() use ($app) {
                         $sub_list->set([
                                 'lid' => $list,
                                 'sid' => $id,
-                                'unsubscribe' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
                             ])
                             ->where('sid = ?', $id)->_and_()
                             ->where('lid = ?', $list)
@@ -172,7 +172,8 @@ $app->group('/subscriber', function() use ($app) {
                 }
 
                 tc_cache_delete($id, 'subscriber');
-                tc_logger_activity_log_write('Update Record', 'Subscriber', $sub->fname . ' ' . $sub->lname, get_userdata('uname'));
+                tc_cache_delete($id, 'slist');
+                tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
             } catch (NotFoundException $e) {
                 _tc_flash()->error($e->getMessage());
@@ -201,7 +202,7 @@ $app->group('/subscriber', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif ($sub->id <= 0) {
+         */ elseif (_h($sub->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -217,7 +218,7 @@ $app->group('/subscriber', function() use ($app) {
             tc_register_script('iCheck');
 
             $app->view->display('subscriber/view', [
-                'title' => 'View/Edit Subscriber',
+                'title' => _t('View/Edit Subscriber'),
                 'subscriber' => $sub
                 ]
             );
@@ -244,6 +245,7 @@ $app->group('/subscriber', function() use ($app) {
                 ->delete();
 
             tc_cache_delete($id, 'subscriber');
+            tc_cache_delete($id, 'slist');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);

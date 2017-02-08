@@ -119,6 +119,7 @@ $app->group('/list', function() use ($app) {
                 $list->confirm_email = _file_get_contents(APP_PATH . 'views/setting/tpl/confirm_email.tpl');
                 $list->subscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/subscribe_email.tpl');
                 $list->unsubscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/unsubscribe_email.tpl');
+                $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
                 $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);
@@ -166,6 +167,7 @@ $app->group('/list', function() use ($app) {
                 $list->confirm_email = $app->req->_post('confirm_email');
                 $list->subscribe_email = $app->req->_post('subscribe_email');
                 $list->unsubscribe_email = $app->req->_post('unsubscribe_email');
+                $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
                 $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);
@@ -208,7 +210,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list->id) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -240,7 +242,7 @@ $app->group('/list', function() use ($app) {
             $subs = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                 ->select('subscriber.addDate,subscriber.id as Subscriber')
-                ->select('subscriber_list.unsubscribe')
+                ->select('subscriber_list.unsubscribed')
                 ->select('list.id as ListID')
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->_join('list', 'subscriber_list.lid = list.id')
@@ -279,7 +281,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -340,7 +342,8 @@ $app->group('/list', function() use ($app) {
                             'sid' => $sid,
                             'addDate' => Jenssegers\Date\Date::now(),
                             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                            'confirmed' => 1
+                            'confirmed' => $data[3],
+                            'unsubscribed' => $data[4]
                         ]);
                     }
                     fclose($handle);
@@ -389,7 +392,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($list->id) <= 0) {
+         */ elseif (count(_h($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -426,9 +429,11 @@ $app->group('/list', function() use ($app) {
             header('Content-Type: text/csv; charset=utf-8');
             header('Content-Disposition: attachment; filename=data.csv');
             $output = fopen("php://output", "w");
-            fputcsv($output, ['ID', 'First Name', 'Last Name', 'Email', 'Add Date']);
+            fputcsv($output, ['ID', 'First Name', 'Last Name', 'Email', 'Add Date', 'Confirmed', 'Unsubscribed']);
             $csv = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email,subscriber.addDate')
+                ->select('CASE WHEN subscriber_list.confirmed = "1" THEN "Yes" ELSE "No" END')
+                ->select('CASE WHEN subscriber_list.unsubscribed = "1" THEN "Yes" ELSE "No" END')
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->where('subscriber_list.lid = ?', $id);
             $q = $csv->find(function ($data) {
@@ -569,19 +574,19 @@ $app->group('/list', function() use ($app) {
                 ->findOne();
 
             $cpgn_list = $app->db->campaign_list()
-                ->where('lid = ?', $list->id)
+                ->where('lid = ?', _h($list->id))
                 ->find();
 
             foreach ($cpgn_list as $cl) {
                 $app->db->campaign()
                     ->reset()
-                    ->findOne($cl->cid)
+                    ->findOne(_h($cl->cid))
                     ->delete();
             }
 
             $app->db->list()
                 ->reset()
-                ->findOne($list->id)
+                ->findOne(_h($list->id))
                 ->delete();
 
             tc_cache_delete($id, 'list');

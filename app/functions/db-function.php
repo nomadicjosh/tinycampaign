@@ -188,19 +188,24 @@ function get_subscriber_list_id($id)
 {
     $app = \Liten\Liten::getInstance();
     try {
-        $lists = $app->db->subscriber_list()
+        $q = $app->db->subscriber_list()
             ->where('sid = ?', $id)->_and_()
-            ->where('unsubscribe = "0"');
-        $q = $lists->find(function ($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
-            }
-            return $array;
-        });
+            ->where('unsubscribed = "0"');
+
+        $slist = tc_cache_get($id, 'slist');
+        if (empty($slist)) {
+            $slist = $q->find(function ($data) {
+                $array = [];
+                foreach ($data as $d) {
+                    $array[] = $d;
+                }
+                return $array;
+            });
+            tc_cache_add($id, $slist, 'slist');
+        }
 
         $a = [];
-        foreach ($q as $r) {
+        foreach ($slist as $r) {
             $a[] = $r['lid'];
         }
         return $a;
@@ -257,18 +262,23 @@ function get_campaign_list_id($id)
 {
     $app = \Liten\Liten::getInstance();
     try {
-        $lists = $app->db->campaign_list()
+        $q = $app->db->campaign_list()
             ->where('cid = ?', $id);
-        $q = $lists->find(function ($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
-            }
-            return $array;
-        });
+
+        $cpgn = tc_cache_get($id, 'clist');
+        if (empty($cpgn)) {
+            $cpgn = $q->find(function ($data) {
+                $array = [];
+                foreach ($data as $d) {
+                    $array[] = $d;
+                }
+                return $array;
+            });
+            tc_cache_add($id, $cpgn, 'clist');
+        }
 
         $a = [];
-        foreach ($q as $r) {
+        foreach ($cpgn as $r) {
             $a[] = $r['lid'];
         }
         return $a;

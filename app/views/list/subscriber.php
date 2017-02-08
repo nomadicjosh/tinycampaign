@@ -56,12 +56,12 @@ define('SCREEN', 'lists');
                                 <td class="text-center"><?= _h($sub->fname); ?></td>
                                 <td class="text-center"><?= _h($sub->lname); ?></td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($sub->addDate))->format('M. d, Y @ h:s A'); ?></td>
-                                <td class="text-center"><?=(_h($sub->unsubscribe) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?></td>
+                                <td class="text-center"><?=(_h($sub->unsubscribed) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= (int)_h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
-                                    <div class="modal" id="delete-<?= _h($sub->id); ?>">
+                                    <div class="modal" id="delete-<?= (int)_h($sub->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -74,7 +74,7 @@ define('SCREEN', 'lists');
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= _h($sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= (int)_h($sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

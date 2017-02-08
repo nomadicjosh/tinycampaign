@@ -29,6 +29,7 @@ define('SCREEN', 'cpgn');
         mode: 'specific_textareas',
         editor_selector: 'template',
         elements: 'message',
+        extended_valid_elements: 'doctype|html|head|meta|title|link|style|body',
         height: '350',
         autosave_ask_before_unload: false,
         relative_urls: false,
@@ -36,9 +37,15 @@ define('SCREEN', 'cpgn');
         plugins: [
             "advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code",
-            "insertdatetime media table contextmenu paste"
+            "insertdatetime media table contextmenu paste",
+            "template"
         ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | placeholder",
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
+        templates: [
+            <?php foreach (get_user_template()as $t) : ?>
+                {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . _h($t->id) . '/'; ?>"},
+            <?php endforeach; ?>
+        ],
         file_picker_callback: elFinderBrowser,
         setup: function (editor) {
             editor.addButton('placeholder', {
@@ -140,7 +147,7 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
+            <form method="post" action="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -175,10 +182,6 @@ define('SCREEN', 'cpgn');
                                 <p class="help-block"><?=_t('Start data and time of the campaign. Editing it later will not update the queue once it starts.');?></p>
                             </div>
                             
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
-                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Archive?'); ?></label>
                                 <select class="form-control select2" name="archive" style="width: 100%;" required>
@@ -189,14 +192,31 @@ define('SCREEN', 'cpgn');
                                 <p class="help-block"><?=_t('Should this campaign be available in the online archives?');?></p>
                             </div>
                             
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Status'); ?></label>
+                                <select class="form-control select2" name="status" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="ready"<?=selected('ready', _h($cpgn->status), false);?>><?=_t('Ready');?></option>
+                                    <option value="processing"<?=selected('processing', _h($cpgn->status), false);?>><?=_t('Processing');?></option>
+                                    <option value="paused"<?=selected('paused', _h($cpgn->status), false);?>><?=_t('Paused');?></option>
+                                    <option value="processing"<?=selected('processing', _h($cpgn->status), false);?>><?=_t('Resume');?></option>
+                                    <option value="sent"<?=selected('sent', _h($cpgn->status), false);?>><?=_t('Sent');?></option>
+                                </select>
+                                <p class="help-block"><?=_t('Manually set this field is campaign status is not setting properly.');?></p>
+                            </div>
+                            
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_campaign_lists(_h($cpgn->id)); ?></ul>
+                                <ul><?php get_campaign_lists((int)_h($cpgn->id)); ?></ul>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name(_h($cpgn->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name((int)_h($cpgn->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">
@@ -210,8 +230,24 @@ define('SCREEN', 'cpgn');
                         <div class="col-md-12">
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('HTML Message'); ?></label>
-                                <textarea id="template" class="form-control template" rows="3" name="html" required><?=_h($cpgn->html);?></textarea>
+                                <label><font color="red">*</font> <?= _t('Compose Message'); ?></label>
+                                <!-- Custom Tabs -->           
+                                <div class="nav-tabs-custom">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#html-message" data-toggle="tab"><?= _t('HTML'); ?></a></li>
+                                        <li><a href="#text-message" data-toggle="tab"><?= _t('Text'); ?></a></li>
+                                    </ul>
+                                    <!-- // Tabs Heading END -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="html-message">
+                                            <textarea class="form-control template" rows="3" name="html" required><?=_escape($cpgn->html);?></textarea>
+                                        </div>
+                                        <div class="tab-pane" id="text-message">
+                                            <textarea class="form-control" rows="22" name="text"><?=_h($cpgn->text);?></textarea>
+                                        </div>
+                                    </div>
+                                    <!-- // Custom Tabs END -->
+                                </div>
                             </div>
                             
                         </div>

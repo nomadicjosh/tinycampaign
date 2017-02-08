@@ -1280,3 +1280,40 @@ function get_domain_name()
     }
     return $server_name;
 }
+
+/**
+ * SQL Like operator in PHP.
+ * 
+ * Returns true if match else false.
+ * 
+ * @since 2.0.2
+ * @param string $pattern
+ * @param string $subject
+ * @return bool
+ */
+function php_like($pattern, $subject)
+{
+    $match = str_replace('%', '.*', preg_quote($pattern, '/'));
+    return (bool) preg_match("/^{$match}$/i", $subject);
+}
+
+/**
+ * Url shortening function.
+ * 
+ * @since 2.0.2
+ * @param string $url URL
+ * @param int $length Characters to check against.
+ * @return string
+ */
+function tc_url_shorten($url, $length = 80)
+{
+    if (strlen($url) > $length) {
+        $strlen = $length - 30;
+        $first = substr($url, 0, -$strlen);
+        $last = substr($url, -15);
+        $short_url = $first . "[ ... ]" . $last;
+        return $short_url;
+    } else {
+        return $url;
+    }
+}

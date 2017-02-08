@@ -30,6 +30,7 @@ define('SCREEN', 'ccpgn');
         mode: 'specific_textareas',
         editor_selector: 'template',
         elements: 'message',
+        extended_valid_elements: 'doctype|html|head|meta|title|link|style|body',
         height: '350',
         autosave_ask_before_unload: false,
         relative_urls: false,
@@ -42,8 +43,8 @@ define('SCREEN', 'ccpgn');
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
         templates: [
-            <?php foreach(get_user_template()as $t) : ?>
-                {"title":"<?=_h($t->name);?>", "description":"<?=_h($t->description);?>", "url":"<?=get_base_url().'campaign'.'/getTemplate/'.$t->id.'/';?>"},
+            <?php foreach (get_user_template()as $t) : ?>
+                {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . (int)_h($t->id) . '/'; ?>"},
             <?php endforeach; ?>
         ],
         file_picker_callback: elFinderBrowser,
@@ -125,7 +126,8 @@ define('SCREEN', 'ccpgn');
             }
         });
         return false;
-    };
+    }
+    ;
 </script>
 
 <!-- Content Wrapper. Contains page content -->
@@ -143,8 +145,8 @@ define('SCREEN', 'ccpgn');
     <!-- Main content -->
     <section class="content">
 
-        <?= _tc_flash()->showMessage(); ?>
-        
+<?= _tc_flash()->showMessage(); ?>
+
         <div class="box box-default">
             <!-- form start -->
             <form method="post" action="<?= get_base_url(); ?>campaign/create/" data-toggle="validator" autocomplete="off" id="form">
@@ -154,32 +156,32 @@ define('SCREEN', 'ccpgn');
 
                             <div class="form-group">
                                 <label><?= _t('Node'); ?></label>
-                                <input type="text" class="form-control" name="node" value="<?=_random_lib()->generateString(12,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') . '_campaign'; ?>" readonly required>
+                                <input type="text" class="form-control" name="node" value="<?= _random_lib()->generateString(12, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') . '_campaign'; ?>" readonly required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?></label>
-                                <input type="text" class="form-control" name="subject" value="<?=(_h($app->req->post['subject']) != '' ? _h($app->req->post['subject']) : '');?>" required>
+                                <input type="text" class="form-control" name="subject" value="<?= (_h($app->req->post['subject']) != '' ? _h($app->req->post['subject']) : ''); ?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?=(_h($app->req->post['from_name']) != '' ? _h($app->req->post['from_name']) : '');?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?= (_h($app->req->post['from_name']) != '' ? _h($app->req->post['from_name']) : ''); ?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?=(_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : '');?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?= (_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : ''); ?>" required>
                             </div>
 
                         </div>
                         <!-- /.col -->
                         <div class="col-md-6">
-                            
+
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Send Start'); ?></label>
                                 <div class='input-group date' id='datetimepicker1'>
-                                    <input type='text' class="form-control" name="sendstart" value="<?=(_h($app->req->post['sendstart']) != '' ? _h($app->req->post['sendstart']) : '');?>" required/>
+                                    <input type='text' class="form-control" name="sendstart" value="<?= (_h($app->req->post['sendstart']) != '' ? _h($app->req->post['sendstart']) : ''); ?>" required/>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
@@ -191,12 +193,12 @@ define('SCREEN', 'ccpgn');
                                 <label><font color="red">*</font> <?= _t('Archive?'); ?></label>
                                 <select class="form-control select2" name="archive" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',(_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''),false);?>><?= _t('Yes'); ?></option>
-                                    <option value="0"<?=selected('0',(_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''),false);?>><?= _t('No'); ?></option>
+                                    <option value="1"<?= selected('1', (_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''), false); ?>><?= _t('Yes'); ?></option>
+                                    <option value="0"<?= selected('0', (_h($app->req->post['archive']) != '' ? _h($app->req->post['archive']) : ''), false); ?>><?= _t('No'); ?></option>
                                 </select>
                                 <p class="help-block"><?= _t('Should this campaign be available in the online archives?'); ?></p>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
                                 <ul><?php get_campaign_lists(); ?></ul>
@@ -208,8 +210,24 @@ define('SCREEN', 'ccpgn');
                         <div class="col-md-12">
 
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('HTML Message'); ?></label>
-                                <textarea class="form-control template" rows="3" name="html" required><?=(_h($app->req->post['html']) != '' ? _h($app->req->post['html']) : '');?></textarea>
+                                <label><font color="red">*</font> <?= _t('Compose Message'); ?></label>
+                                <!-- Custom Tabs -->           
+                                <div class="nav-tabs-custom">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#html-message" data-toggle="tab"><?= _t('HTML'); ?></a></li>
+                                        <li><a href="#text-message" data-toggle="tab"><?= _t('Text'); ?></a></li>
+                                    </ul>
+                                    <!-- // Tabs Heading END -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="html-message">
+                                            <textarea class="form-control template" rows="3" name="html" required><?= (_h($app->req->post['html']) != '' ? _h($app->req->post['html']) : ''); ?></textarea>
+                                        </div>
+                                        <div class="tab-pane" id="text-message">
+                                            <textarea class="form-control" rows="22" name="text"><?= (_h($app->req->post['text']) != '' ? _h($app->req->post['text']) : ''); ?></textarea>
+                                        </div>
+                                    </div>
+                                    <!-- // Custom Tabs END -->
+                                </div>
                             </div>
 
                         </div>
@@ -219,7 +237,7 @@ define('SCREEN', 'ccpgn');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Footer'); ?></label>
-                                <textarea class="form-control" rows="8" name="footer" required><?=_file_get_contents(APP_PATH . 'views/setting/tpl/email_footer.tpl'); ?></textarea>
+                                <textarea class="form-control" rows="8" name="footer" required><?= _file_get_contents(APP_PATH . 'views/setting/tpl/email_footer.tpl'); ?></textarea>
                             </div>
 
                         </div>
@@ -231,7 +249,7 @@ define('SCREEN', 'ccpgn');
                 <!-- /.box-body -->
                 <div class="box-footer">
                     <button type="submit" class="btn btn-primary"><?= _t('Submit'); ?></button>
-                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
+                    <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/'"><?= _t('Cancel'); ?></button>
                 </div>
             </form>
             <!-- form end -->

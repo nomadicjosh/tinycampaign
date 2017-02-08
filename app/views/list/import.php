@@ -34,13 +34,11 @@ define('SCREEN', 'lists');
     <section class="content">
 
         <?= _tc_flash()->showMessage(); ?>
-        
-        <div class="alert alert-info" style="font-size:1.2em;text-align:center;color:#333333 !important;"><?=_t('Click "Download Template" for import example. Fields in order are first name, last name, email address.');?></div>
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form role="form" method="post" action="<?= get_base_url(); ?>list/<?= _h($list->id); ?>/import/" enctype="multipart/form-data">
+            <form role="form" method="post" action="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/import/" enctype="multipart/form-data">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -51,7 +49,7 @@ define('SCREEN', 'lists');
                                         <option>&nbsp;</option>
                                         <option value="del1">, <?= _t('(Comma)'); ?></option>
                                         <option value="del2">; <?= _t('(Semicolon)'); ?></option>
-                                        <option value="del3"> <?= _t('(Line Break'); ?></option>
+                                        <option value="del3"> <?= _t('(Line Break)'); ?></option>
                                         <option value="del4"> <?= _t('(TAB)'); ?></option>
                                     </select>
                                     <p class="help-block"><?= _t('If Closed, no one will be able to subscribe to the list.'); ?></p>
@@ -63,7 +61,7 @@ define('SCREEN', 'lists');
                         <div class="col-md-6">
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label for="exampleInputFile"><font color="red">*</font> <?= _t('File input'); ?></label>
+                                    <label for="exampleInputFile"><font color="red">*</font> <?= _t('File input'); ?> <a href="#csv" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
                                     <input type="file" name="csv_import" required/>
                                 </div>
                             </div>
@@ -84,6 +82,29 @@ define('SCREEN', 'lists');
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="csv">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'File Input' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Click the 'Download Template' button to download an example import file in .csv format. Fields in order are first name, last name, email address, confirmed (1, 0), and unsubscribed (1, 0). '1' stands for true/yes and '0' stands for false/no." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

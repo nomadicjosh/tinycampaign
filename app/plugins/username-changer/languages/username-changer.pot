@@ -18,34 +18,46 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: username-changer.plugin.php:73 username-changer.plugin.php:80
+#: router/username-changer.router.php:23
+msgid "Permission denied to view requested screen."
+msgstr ""
+
+#: router/username-changer.router.php:57
+msgid "Username was updated which caused you to be logged out automatically."
+msgstr ""
+
+#: router/username-changer.router.php:84 username-changer.plugin.php:66
+msgid "Username Changer"
+msgstr ""
+
+#: username-changer.plugin.php:58
 msgid "Username Updated"
 msgstr ""
 
-#: username-changer.plugin.php:130 username-changer.plugin.php:134
+#: views/index.php:13 views/index.php:17
 msgid "You are here"
 msgstr ""
 
-#: username-changer.plugin.php:132
+#: views/index.php:15
 msgid "Dashboard"
 msgstr ""
 
-#: username-changer.plugin.php:133
+#: views/index.php:16
 msgid "Plugins List"
 msgstr ""
 
-#: username-changer.plugin.php:153
+#: views/index.php:36
 msgid "Current Username"
 msgstr ""
 
-#: username-changer.plugin.php:165
+#: views/index.php:48
 msgid "New Username"
 msgstr ""
 
-#: username-changer.plugin.php:177
+#: views/index.php:60
 msgid "Submit"
 msgstr ""
 
-#: username-changer.plugin.php:178
+#: views/index.php:61
 msgid "Cancel"
 msgstr ""

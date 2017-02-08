@@ -31,7 +31,7 @@ $app->before('GET|POST', '/', function() {
     }
 });
 
-$app->before('GET|POST', '/', function () use($app) {
+$app->match('GET|POST', '/', function () use($app) {
 
     if ($app->req->isPost()) {
         /**
@@ -43,7 +43,7 @@ $app->before('GET|POST', '/', function () use($app) {
     }
 
     $app->view->display('index/index', [
-        'title' => 'Login'
+        'title' => _t('Login')
         ]
     );
 });
@@ -61,7 +61,7 @@ $app->match('GET|POST', '/permission/', function () use($app) {
 
 
     $app->view->display('permission/index', [
-        'title' => 'Manage Permissions'
+        'title' => _t('Manage Permissions')
         ]
     );
 });
@@ -117,7 +117,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count($perm->id) <= 0) {
+     */ elseif (count(_h($perm->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -128,7 +128,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
      */ else {
 
         $app->view->display('permission/view', [
-            'title' => 'Edit Permission',
+            'title' => _t('Edit Permission'),
             'perm' => $perm
             ]
         );
@@ -159,7 +159,7 @@ $app->match('GET|POST', '/permission/add/', function () use($app) {
     }
 
     $app->view->display('permission/add', [
-        'title' => 'Add New Permission'
+        'title' => _t('Add New Permission')
         ]
     );
 });
@@ -176,7 +176,7 @@ $app->before('GET|POST', '/role.*', function() {
 $app->match('GET|POST', '/role/', function () use($app) {
 
     $app->view->display('role/index', [
-        'title' => 'Manage Roles'
+        'title' => _t('Manage Roles')
         ]
     );
 });
@@ -210,7 +210,7 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count($role->id) <= 0) {
+     */ elseif (count(_h($role->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -226,7 +226,7 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
         tc_register_script('iCheck');
 
         $app->view->display('role/view', [
-            'title' => 'Edit Role',
+            'title' => _t('Edit Role'),
             'role' => $role
             ]
         );
@@ -263,7 +263,7 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
     tc_register_script('iCheck');
 
     $app->view->display('role/add', [
-        'title' => 'Add Role'
+        'title' => _t('Add Role')
         ]
     );
 });
@@ -320,7 +320,7 @@ $app->match('GET|POST', '/template/', function () use($app) {
     tc_register_script('datatables');
 
     $app->view->display('template/index', [
-        'title' => 'Templates',
+        'title' => _t('Templates'),
         'templates' => $tpl
         ]
     );
@@ -390,7 +390,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count($tpl->id) <= 0) {
+     */ elseif (count(_h($tpl->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -406,7 +406,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
         tc_register_script('iCheck');
 
         $app->view->display('template/view', [
-            'title' => 'Edit Template',
+            'title' => _t('Edit Template'),
             'tpl' => $tpl
             ]
         );
@@ -453,7 +453,7 @@ $app->match('GET|POST', '/template/create/', function () use($app) {
     tc_register_script('iCheck');
 
     $app->view->display('template/create', [
-        'title' => 'Create Template'
+        'title' => _t('Create Template')
         ]
     );
 });
@@ -516,7 +516,7 @@ $app->match('GET|POST', '/server/', function () use($app) {
     tc_register_script('datatables');
 
     $app->view->display('server/index', [
-        'title' => 'Servers',
+        'title' => _t('Servers'),
         'servers' => $servers
         ]
     );
@@ -606,7 +606,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count($server->id) <= 0) {
+     */ elseif (count(_h($server->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -622,7 +622,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
         tc_register_script('iCheck');
 
         $app->view->display('server/view', [
-            'title' => 'Edit Server',
+            'title' => _t('Edit Server'),
             'server' => $server,
             'password' => $password
             ]
@@ -688,7 +688,7 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
     tc_register_script('iCheck');
 
     $app->view->display('server/create', [
-        'title' => 'Create a Server'
+        'title' => _t('Create a Server')
         ]
     );
 });
@@ -737,16 +737,30 @@ $app->get('/server/(\d+)/d/', function ($id) use($app) {
     }
 });
 
-/**
- * Before route check.
- */
-$app->before('GET|POST', '/archive/', function() use($app) {
-    header('Content-Type: application/json');
-    $app->res->_format('json', 404);
-    exit();
+$app->get('/archive/', function () use($app) {
+    try {
+        $archives = $app->db->campaign()
+            ->where('campaign.archive = "1"')
+            ->find();
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    tc_register_style('datatables');
+    tc_register_script('datatables');
+
+    $app->view->display('index/archives', [
+        'title' => _t('Archived Campaigns'),
+        'archives' => $archives
+        ]
+    );
 });
 
-$app->before('GET|POST', '/archive/(\d+)/', function ($id) use($app) {
+$app->get('/archive/(\d+)/', function ($id) use($app) {
     try {
         $cpgn = $app->db->campaign()
             ->where('campaign.id = ?', $id)->_and_()
@@ -780,7 +794,7 @@ $app->before('GET|POST', '/archive/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count($cpgn->id) <= 0) {
+     */ elseif (count(_h($cpgn->id)) <= 0) {
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
         exit();
@@ -791,15 +805,24 @@ $app->before('GET|POST', '/archive/(\d+)/', function ($id) use($app) {
      * the results in a html format.
      */ else {
 
-        $app->view->display('index/archive', [
-            'title' => 'Archive',
+        $app->view->display('index/view-archive', [
+            'title' => _h($cpgn->subject),
             'cpgn' => $cpgn
             ]
         );
     }
 });
 
-$app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
+/**
+ * Before route check.
+ */
+$app->before('GET', '/confirm/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 404);
+    exit();
+});
+
+$app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
 
     $list = get_list_by('id', $lid);
 
@@ -816,8 +839,8 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
         /**
          * Check if subscriber has already confirmed subscription.
          */
-        if ($subscriber->confirmed == 1) {
-            _tc_flash()->error(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), $list->name));
+        if (_h($subscriber->confirmed) == 1) {
+            _tc_flash()->error(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), _h($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
@@ -836,7 +859,7 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($subscriber->sid) <= 0) {
+         */ elseif (count(_h($subscriber->sid)) <= 0) {
 
             _tc_flash()->error(_tc_flash()->notice(404));
         }
@@ -852,8 +875,25 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
                 ->where('sid = ?', $sid)->_and_()
                 ->where('code = ?', $code)
                 ->update();
-            subscribe_email_node($list->code, $subscriber);
-            _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), $list->name));
+
+            subscribe_email_node(_h($list->code), $subscriber);
+
+            if (_h($list->notify_email) == 1) {
+                try {
+                    Node::dispense('new_subscriber_notification');
+                    $notify = Node::table('new_subscriber_notification');
+                    $notify->lid = (int) $lid;
+                    $notify->sid = (int) $sid;
+                    $notify->sent = (int) 0;
+                    $notify->save();
+                } catch (NodeQException $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                } catch (Exception $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+            }
+
+            _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -864,7 +904,7 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
     }
 
     $app->view->display('index/status', [
-        'title' => 'Email Confirmed'
+        'title' => _t('Email Confirmed')
         ]
     );
 });
@@ -872,7 +912,7 @@ $app->match('GET|POST', '/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, 
 /**
  * Before route check.
  */
-$app->before('GET|POST', '/subscribe/', function() use($app) {
+$app->before('POST', '/subscribe/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
         header('Content-Type: application/json');
         $app->res->_format('json', 204);
@@ -893,8 +933,8 @@ $app->post('/subscribe/', function () use($app) {
     /**
      * Check if subscriber exists.
      */
-    $sub = get_subscriber_by('email', $app->req->post['email']);
-    if ($sub->id > 0) {
+    $get_sub = get_subscriber_by('email', $app->req->post['email']);
+    if (_h($get_sub->id) > 0) {
         _tc_flash()->error(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
         exit();
     }
@@ -906,50 +946,65 @@ $app->post('/subscribe/', function () use($app) {
         exit();
     }
 
-    if ($app->req->isPost()) {
-        try {
-            $subscriber = $app->db->subscriber();
-            $subscriber->insert([
-                'fname' => $app->req->post['fname'],
-                'lname' => $app->req->post['lname'],
-                'email' => $app->req->post['email'],
-                'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                'ip' => $app->req->server['REMOTE_ADDR'],
-                'addedBy' => (int) 1,
-                'addDate' => Jenssegers\Date\Date::now()
-            ]);
-            $sid = $subscriber->lastInsertId();
+    try {
+        $subscriber = $app->db->subscriber();
+        $subscriber->insert([
+            'fname' => $app->req->post['fname'],
+            'lname' => $app->req->post['lname'],
+            'email' => $app->req->post['email'],
+            'state' => 'NULL',
+            'country' => 'NULL',
+            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'ip' => $app->req->server['REMOTE_ADDR'],
+            'addedBy' => (int) 1,
+            'addDate' => Jenssegers\Date\Date::now()
+        ]);
+        $sid = $subscriber->lastInsertId();
 
-            $sub_list = $app->db->subscriber_list();
-            $sub_list->insert([
-                'lid' => $list->id,
-                'sid' => $sid,
-                'addDate' => Jenssegers\Date\Date::now(),
-                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                'confirmed' => ($list->optin == 1 ? 0 : 1)
-            ]);
+        $sub_list = $app->db->subscriber_list();
+        $sub_list->insert([
+            'lid' => _h($list->id),
+            'sid' => $sid,
+            'addDate' => Jenssegers\Date\Date::now(),
+            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+        ]);
 
-            $sub = $app->db->subscriber_list()
-                ->where('lid = ?', $list->id)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->findOne();
+        $sub = $app->db->subscriber_list()
+            ->where('lid = ?', _h($list->id))->_and_()
+            ->where('sid = ?', $sid)->_and_()
+            ->findOne();
 
-            tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
-            check_custom_success_url($app->req->post['code'], $sub);
-        } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
-        } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
-        } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+            try {
+                Node::dispense('new_subscriber_notification');
+                $notify = Node::table('new_subscriber_notification');
+                $notify->lid = _h((int)$list->id);
+                $notify->sid = (int) $sid;
+                $notify->sent = (int) 0;
+                $notify->save();
+            } catch (NodeQException $e) {
+                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            }
         }
+
+        tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
+        check_custom_success_url($app->req->post['code'], $sub);
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
     }
 });
 
 /**
  * Before route check.
  */
-$app->before('GET|POST', '/unsubscribe/', function() use($app) {
+$app->before('GET', '/unsubscribe/', function() use($app) {
     header('Content-Type: application/json');
     $app->res->_format('json', 204);
     exit();
@@ -967,13 +1022,13 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
             ->where('subscriber_list.lid = ?', $lid)->_and_()
             ->where('subscriber_list.sid = ?', $sid)->_and_()
             ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.unsubscribe = "0"')
+            ->where('subscriber_list.unsubscribed = "0"')
             ->findOne();
         /**
          * Check if subscriber has already unsubscribed from list.
          */
-        if ($subscriber->unsubscribe == 1) {
-            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), $list->name));
+        if (_h($subscriber->unsubscribed) == 1) {
+            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
@@ -992,7 +1047,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count($subscriber->sid) <= 0) {
+         */ elseif (count(_h($subscriber->sid)) <= 0) {
 
             _tc_flash()->error(_tc_flash()->notice(404));
         }
@@ -1002,14 +1057,14 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
          */ else {
             $sub = $app->db->subscriber_list();
             $sub->set([
-                    'unsubscribe' => (int) 1
+                    'unsubscribed' => (int) 1
                 ])
                 ->where('lid = ?', $lid)->_and_()
                 ->where('sid = ?', $sid)->_and_()
                 ->where('code = ?', $code)
                 ->update();
-            unsubscribe_email_node($list->code, $subscriber);
-            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), $list->name));
+            unsubscribe_email_node(_h($list->code), $subscriber);
+            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -1020,7 +1075,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
     }
 
     $app->view->display('index/status', [
-        'title' => 'Unsubscribe Confirmed'
+        'title' => _t('Unsubscribe Confirmed')
         ]
     );
 });
@@ -1028,13 +1083,25 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
 /**
  * Before route check.
  */
-$app->before('GET|POST', '/tracking/', function() use($app) {
+$app->before('GET', '/tracking/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET', '/tracking/cid/', function() use($app) {
     header('Content-Type: application/json');
     $app->res->_format('json', 204);
     exit();
 });
 
 $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
+
+    //Begin the header output
+    header('Content-Type: image/png');
 
     try {
         $tracking = $app->db->tracking()
@@ -1063,7 +1130,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('sid = ?', $sid)
                 ->findOne();
             $track->set([
-                    'viewed' => $track->viewed + 1
+                    'viewed' => _h($track->viewed) +1
                 ])
                 ->update();
 
@@ -1071,17 +1138,35 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('id = ?', $cid)
                 ->findOne();
             $cpgn->set([
-                    'viewed' => $cpgn->viewed + 1
+                    'viewed' => _h($cpgn->viewed) +1
                 ])
                 ->update();
         }
     } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
+    //Get the http URI to the image
+    $img = get_base_url() . 'static/assets/img/blank.png';
+
+    //Get the filesize of the image for headers
+    $filesize = filesize(BASE_PATH . 'static/assets/img/blank.png');
+
+    //Now actually output the image requested, while disregarding if the database was affected
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Cache-Control: private', false);
+    header('Content-Disposition: attachment; filename="blank.png"');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . $filesize);
+    readfile($img);
+
+    //All done, get out!
+    exit();
 });
 
 $app->get('/lt/', function () use($app) {
@@ -1111,16 +1196,16 @@ $app->get('/lt/', function () use($app) {
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track->set([
-                    'clicked' => $track->clicked + 1
+                    'clicked' => _h($track->clicked) +1
                 ])
                 ->update();
         }
     } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
-        Cascade::getLogger('error')->error($e->getMessage());
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
     redirect($app->req->get['url']);
 });
@@ -1128,7 +1213,7 @@ $app->get('/lt/', function () use($app) {
 /**
  * Before route check.
  */
-$app->before('GET|POST', '/status/', function() use($app) {
+$app->before('GET', '/status/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
         header('Content-Type: application/json');
         $app->res->_format('json', 204);
@@ -1139,12 +1224,12 @@ $app->before('GET|POST', '/status/', function() use($app) {
 $app->get('/status/', function () use($app) {
 
     $app->view->display('index/status', [
-        'title' => 'Status'
+        'title' => _t('Status')
         ]
     );
 });
 
-$app->before('GET|POST', '/spam/', function() use($app) {
+$app->before('GET', '/spam/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
         header('Content-Type: application/json');
         $app->res->_format('json', 204);
@@ -1155,9 +1240,19 @@ $app->before('GET|POST', '/spam/', function() use($app) {
 $app->get('/spam/', function () use($app) {
 
     $app->view->display('index/status', [
-        'title' => 'No Spamming!'
+        'title' => _t('No Spamming!')
         ]
     );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET|POST', '/logout/', function() {
+    if (!is_user_logged_in()) {
+        _tc_flash()->error(_t('You must first be logged in before you can logout.'), get_base_url());
+        exit();
+    }
 });
 
 $app->get('/logout/', function () {
@@ -1192,7 +1287,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                 'address2' => $app->req->post['address2'],
                 'city' => $app->req->post['city'],
                 'state' => $app->req->post['state'],
-                'zip' => $app->req->post['zip'],
+                'postal_code' => $app->req->post['postal_code'],
                 'country' => $app->req->post['country']
             ]);
             $subscriber->where('id = ?', $id)
@@ -1221,7 +1316,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                     $sub_list->set([
                             'lid' => $list,
                             'sid' => $id,
-                            'unsubscribe' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                            'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
                         ])
                         ->where('sid = ?', $id)->_and_()
                         ->where('lid = ?', $list)
@@ -1275,7 +1370,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif ($get_sub->id <= 0) {
+     */ elseif (_h($get_sub->id) <= 0) {
 
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
@@ -1293,7 +1388,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
         tc_register_script('iCheck');
 
         $app->view->display('index/preferences', [
-            'title' => 'My Preferences',
+            'title' => _t('My Preferences'),
             'subscriber' => $get_sub
             ]
         );
@@ -1304,8 +1399,8 @@ $app->post('/reset-password/', function () use($app) {
 
     $user = get_user_by('email', $app->req->post['email']);
 
-    if ($user->email == '') {
-        _tc_flash()->error(_t('The email you entered does not exist.'), get_base_url());
+    if (_h($user->email) == '') {
+        _tc_flash()->error(_t('A user with that email does not exist.'), get_base_url());
     }
 
     try {
@@ -1314,16 +1409,17 @@ $app->post('/reset-password/', function () use($app) {
         $pass->set([
                 'code' => $code,
             ])
-            ->where('id = ?', $user->id)
+            ->where('id = ?', _h($user->id))
             ->update();
 
         $domain = get_domain_name();
         $site = _h(get_option('system_name'));
         $link = get_base_url() . 'password' . '/' . $code . '/';
-
         $message = _file_get_contents(APP_PATH . 'views/setting/tpl/reset_password.tpl');
-        $message = str_replace('{password_reset}', sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">' . _t('Reset Password') . '</a>', $link), $message);
+        $message = str_replace('{password_reset}', sprintf('<a href="%s" style="display: block;text-decoration: none;font-family: Helvetica, Arial, sans-serif;color: #ffffff;font-weight: bold;text-align: center;"><span style="text-decoration: none;color: #ffffff;text-align: center;display: block;">' . _t('Reset Password') . '</span></a>', $link), $message);
         $message = str_replace('{system_name}', $site, $message);
+        $message = str_replace('{email}', _h($user->email), $message);
+        $message = str_replace('{system_url}', get_base_url(), $message);
         $headers = "From: $site <auto-reply@$domain>\r\n";
         if (_h(get_option('tc_smtp_status')) == 0) {
             $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
@@ -1331,7 +1427,7 @@ $app->post('/reset-password/', function () use($app) {
         }
 
         try {
-            _tc_email()->tc_mail($user->email, get_option('system_name') . ': ' . _t('Password Reset'), $message, $headers);
+            _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('Password Reset'), $message, $headers);
         } catch (phpmailerException $e) {
             _tc_flash()->error($e->getMessage(), get_base_url());
         }
@@ -1374,7 +1470,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
                     'code' => NULL,
                     'password' => tc_hash_password($password)
                 ])
-                ->where('id = ?', $user->id)
+                ->where('id = ?', _h($user->id))
                 ->update();
 
             $domain = get_domain_name();
@@ -1390,7 +1486,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
             }
 
             try {
-                _tc_email()->tc_mail($user->email, get_option('system_name') . ': ' . _t('New Password'), $message, $headers);
+                _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('New Password'), $message, $headers);
             } catch (phpmailerException $e) {
                 _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
             }
@@ -1427,7 +1523,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif ($user->id <= 0) {
+     */ elseif (_h($user->id) <= 0) {
 
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
@@ -1443,7 +1539,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
         tc_register_script('select2');
 
         $app->view->display('index/password', [
-            'title' => 'New Password',
+            'title' => _t('New Password'),
             'user' => $user
             ]
         );

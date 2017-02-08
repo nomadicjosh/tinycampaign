@@ -60,19 +60,22 @@ define('SCREEN', 'handlers');
                                 <th class="text-center"><?= _t('Time/Each'); ?></th>
                                 <th class="text-center"><?= _t('Last Run'); ?></th>
                                 <th class="text-center"><?= _t('# Runs'); ?></th>
-                                <th class="text-center"><?= _t('Logs/Run'); ?></th>
+                                <th class="text-center"><?= _t('Action'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($jobs as $job) { ?>
                                 <tr class="gradeX">
-                                    <td class="text-center"><input type="checkbox" class="minimal" value="<?= $job->id; ?>" name="cronjobs[<?= $job->id; ?>]" /></td>
-                                    <td class="text-center"><a href="<?= get_base_url() . 'cron/' . $job->id . '/'; ?>" title="Edit"><?= $job->name; ?></a></td>
-                                    <td class="text-center"><?= _t('Each'); ?> <?= ($job->time != 0) ? "day on " . $job->time . ' hours' : tc_seconds_to_time($job->each) . (strlen($job->eachtime > 0) ? ' at ' . $job->eachtime : ''); ?></td>
-                                    <td class="text-center"><?= ($job->lastrun !== '') ? date('M d, Y @ h:i A', strtotime($job->lastrun)) : ''; ?></td>
-                                    <td class="text-center"><?= $job->runned; ?></td>
+                                    <td class="text-center"><input type="checkbox" class="minimal" value="<?= (int)_h($job->id); ?>" name="cronjobs[<?= (int)_h($job->id); ?>]" /></td>
+                                    <td class="text-center"><a href="<?= get_base_url() . 'cron/' . (int)_h($job->id) . '/'; ?>" title="Edit"><?= _h($job->name); ?></a></td>
+                                    <td class="text-center"><?= _t('Each'); ?> <?= (_h($job->time) != 0) ? "day on " . _h($job->time) . ' hours' : tc_seconds_to_time(_h($job->each)) . (strlen(_h($job->eachtime) > 0) ? ' at ' . _h($job->eachtime) : ''); ?></td>
+                                    <td class="text-center"><?= (_h($job->lastrun) !== '') ? date('M d, Y @ h:i A', strtotime(_h($job->lastrun))) : ''; ?></td>
+                                    <td class="text-center"><?= (int)_h($job->runned); ?></td>
                                     <?php foreach ($set as $s) : ?>
-                                        <td class="text-center"><?= isset($s) ? '<a target="_blank" href="' . get_base_url() . 'cron/cronjob' . '/' . '?password=' . $s->cronjobpassword . '&id=' . $job->id . '">' . _t('Run') . '</a>' : ''; ?></td>
+                                        <td class="text-center">
+                                        <?= isset($s) ? '<a target="_blank" href="' . get_base_url() . 'cron/cronjob' . '/' . '?password=' . _h($s->cronjobpassword) . '&id=' . (int)_h($job->id) . '" data-toggle="tooltip" data-placement="top" title="Run"><button type="button" class="btn bg-purple"><i class="fa fa-chevron-right"></i></button></a>' : ''; ?>
+                                            <?= isset($s) ? '<a href="' . get_base_url() . 'cron' . '/' . (int)_h($job->id) . '/' . 'reset' . '/" data-toggle="tooltip" data-placement="top" title="Reset Runs"><button type="button" class="btn bg-blue"><i class="fa fa-power-off"></i></button></a>' : ''; ?>
+                                        </td>
                                     <?php endforeach; ?>
                                 </tr>
                             <?php } ?>
@@ -84,7 +87,7 @@ define('SCREEN', 'handlers');
                                 <th class="text-center"><?= _t('Time/Each'); ?></th>
                                 <th class="text-center"><?= _t('Last Run'); ?></th>
                                 <th class="text-center"><?= _t('# Runs'); ?></th>
-                                <th class="text-center"><?= _t('Logs/Run'); ?></th>
+                                <th class="text-center"><?= _t('Action'); ?></th>
                             </tr>
                         </tfoot>
                     </table>

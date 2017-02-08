@@ -14,7 +14,7 @@ $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'list');
-define('SCREEN', $list->code);
+define('SCREEN', _h($list->code));
 ?>
 
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
@@ -93,7 +93,7 @@ define('SCREEN', $list->code);
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>list/<?=$list->id;?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>list/<?=(int)_h($list->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -133,6 +133,15 @@ define('SCREEN', $list->code);
                         <div class="col-md-6">
                             
                             <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <select class="form-control select2" name="notify_email" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="1"<?=selected('1',_h((int)$list->notify_email),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',_h((int)$list->notify_email),false);?>><?=_t('No');?></option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
                                 <label><?= _t('Redirect Error'); ?></label>
                                 <input type="text" class="form-control" name="redirect_unsuccess" value="<?=_h($list->redirect_unsuccess);?>" >
                                 <p class="help-block"><?=_t('Override the default with your custom url unsuccess message.');?></p>
@@ -142,8 +151,8 @@ define('SCREEN', $list->code);
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1', _h($list->optin), false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0', _h($list->optin), false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1', _h((int)$list->optin), false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0', _h((int)$list->optin), false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -151,13 +160,13 @@ define('SCREEN', $list->code);
                                 <label><font color="red">*</font> <?= _t('SMTP Server'); ?></label>
                                 <select class="form-control select2" name="server" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <?php get_user_servers(_h($list->server));?>
+                                    <?php get_user_servers(_h((int)$list->server));?>
                                 </select>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name(_h($list->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name(_h((int)$list->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">
@@ -234,6 +243,29 @@ define('SCREEN', $list->code);
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="notify">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Nofity Email' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Set this option to 'Yes' if you would like to receive email every time someone subscribes to your list." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

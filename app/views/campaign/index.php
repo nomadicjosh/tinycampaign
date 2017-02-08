@@ -91,21 +91,21 @@ define('SCREEN', 'cpgn');
                                 </td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($msg->sendstart))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center"><?= (_h($msg->sendfinish) != '' ? Jenssegers\Date\Date::parse(_h($msg->sendfinish))->format('M. d, Y @ h:i A') : ''); ?></td>
-                                <?php if ($msg->recipients < Node::table($msg->node)->findAll()->count()) : ?>
-                                    <td class="text-center"><?= _h($msg->recipients); ?> / <?= _h(Node::table($msg->node)->findAll()->count()); ?></td>
+                                <?php if ((int)_h($msg->recipients) < Node::table(_h($msg->node))->findAll()->count()) : ?>
+                                    <td class="text-center"><?= (int)_h($msg->recipients); ?> / <?= Node::table(_h($msg->node))->findAll()->count(); ?></td>
                                 <?php else : ?>
-                                    <td class="text-center"><?= _h($msg->recipients); ?></td>
+                                    <td class="text-center"><?= (int)_h($msg->recipients); ?></td>
                                 <?php endif; ?>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?= (is_status_ready($msg->id) == false ? ' style="display:none !important;"' : ''); ?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/queue/" data-toggle="tooltip" data-placement="top" title="Send to Queue"><button class="btn bg-green"><i class="fa fa-arrow-right"></i></button></a>
-                                    <a<?= (is_status_processing($msg->id) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/pause/" data-toggle="tooltip" data-placement="top" title="Pause Queue"><button class="btn bg-orange"><i class="fa fa-pause"></i></button></a>
-                                    <a<?= (is_status_paused($msg->id) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/resume/" data-toggle="tooltip" data-placement="top" title="Resume Queue"><button class="btn bg-orange"><i class="fa fa-play"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/report/" data-toggle="tooltip" data-placement="top" title="Report"><button class="btn bg-blue"><i class="fa fa-area-chart"></i></button></a>
-                                    <a<?= (_h($msg->status) == 'sent' ? ' style="display:none !important;"' : ''); ?> href="#" data-toggle="modal" data-target="#smtp-<?= _h($msg->id); ?>" title="Send Test"><button class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
-                                    <a<?= (is_status_processing($msg->id) == false ? '' : ' style="display:none !important;"'); ?><?= ae('delete_campaign'); ?> href="#" data-toggle="modal" data-target="#delete-<?= _h($msg->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?= (is_status_ready((int)_h($msg->id)) == false ? ' style="display:none !important;"' : ''); ?> href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/queue/" data-toggle="tooltip" data-placement="top" title="Send to Queue"><button class="btn bg-green"><i class="fa fa-arrow-right"></i></button></a>
+                                    <a<?= (is_status_processing((int)_h($msg->id)) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/pause/" data-toggle="tooltip" data-placement="top" title="Pause Queue"><button class="btn bg-orange"><i class="fa fa-pause"></i></button></a>
+                                    <a<?= (is_status_paused((int)_h($msg->id)) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/resume/" data-toggle="tooltip" data-placement="top" title="Resume Queue"><button class="btn bg-orange"><i class="fa fa-play"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/report/" data-toggle="tooltip" data-placement="top" title="Report"><button class="btn bg-blue"><i class="fa fa-area-chart"></i></button></a>
+                                    <a<?= (_h($msg->status) == 'sent' ? ' style="display:none !important;"' : ''); ?> href="#" data-toggle="modal" data-target="#smtp-<?= (int)_h($msg->id); ?>" title="Send Test"><button class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
+                                    <a<?= (is_status_processing((int)_h($msg->id)) == false ? '' : ' style="display:none !important;"'); ?><?= ae('delete_campaign'); ?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($msg->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
-                                    <div class="modal" id="delete-<?= _h($msg->id); ?>">
+                                    <div class="modal" id="delete-<?= (int)_h($msg->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -118,7 +118,7 @@ define('SCREEN', 'cpgn');
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->
@@ -127,8 +127,8 @@ define('SCREEN', 'cpgn');
                                     </div>
                                     <!-- /.modal -->
 
-                                    <div class="modal" id="smtp-<?= _h($msg->id); ?>">
-                                        <form method="post" action="<?= get_base_url(); ?>campaign/<?= _h($msg->id); ?>/test/" data-toggle="validator" autocomplete="off">
+                                    <div class="modal" id="smtp-<?= (int)_h($msg->id); ?>">
+                                        <form method="post" action="<?= get_base_url(); ?>campaign/<?= (int)_h($msg->id); ?>/test/" data-toggle="validator" autocomplete="off">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">

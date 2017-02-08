@@ -26,7 +26,7 @@ define('SCREEN', 'cpgn');
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
             <li class="active"><?= _t('URLs Clicked Campaign Report'); ?></li>
         </ol>
     </section>
@@ -52,8 +52,8 @@ define('SCREEN', 'cpgn');
                     <tbody>
                         <?php foreach ($clicks as $clicked) : ?>
                             <tr class="gradeX">
-                                <td class="text-center"><?= _h($clicked->url); ?></td>
-                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_h($clicked->sid);?>/"><?= _h($clicked->email); ?></a></td>
+                                <td class="text-center"><?= tc_url_shorten(_h($clicked->url)); ?></td>
+                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=(int)_h($clicked->sid);?>/"><?= _h($clicked->email); ?></a></td>
                                 <td class="text-center"><?= _h($clicked->addDate); ?></td>
                                 <td class="text-center"><?= _h($clicked->clicked); ?></td>
                                 <td class="text-center"><?=_h($clicked->LastUpdate); ?></td>
@@ -74,7 +74,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
+                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>
