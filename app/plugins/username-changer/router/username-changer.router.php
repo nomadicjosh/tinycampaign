@@ -12,7 +12,6 @@ use PDOException as ORMException;
  * 
  * @author  Joshua Parker <joshmac3@icloud.com>
  */
-
 require(TC_PLUGIN_DIR . 'username-changer/classes/View.php');
 $view = new View();
 
@@ -54,7 +53,10 @@ $app->match('GET|POST', '/username-changer/', function () use($app, $view) {
                  * Send email
                  */
                 uc_send_email_to_user(_h($email->id));
-                tc_logger_activity_log_write(_t('Update'), _t('Username Changer Plugin'), $app->req->post['old_uname'] . ' => ' . $app->req->post['new_uname'], get_userdata('uname'));
+                if (_h($email->id) == get_userdata('id')) {
+                    _tc_flash()->info(_t('Username was updated which caused you to be logged out automatically.'), get_base_url() . 'logout' . '/');
+                    exit();
+                }
                 _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
             } else {
                 _tc_flash()->error(_tc_flash()->notice(409), $app->req->server['HTTP_REFERER']);
