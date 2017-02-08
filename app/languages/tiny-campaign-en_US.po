@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eduTrac SIS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-07 14:08-0500\n"
-"PO-Revision-Date: 2017-02-07 14:09-0500\n"
+"POT-Creation-Date: 2017-02-07 20:17-0500\n"
+"PO-Revision-Date: 2017-02-07 20:17-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -194,7 +194,7 @@ msgstr ""
 msgid "&copy; 2013"
 msgstr ""
 
-#: functions/hook-function.php:679 views/_layouts/dashboard.php:185
+#: functions/hook-function.php:679 views/_layouts/dashboard.php:193
 #: views/list/create.php:27 views/list/import.php:28 views/list/index.php:34
 #: views/list/subscriber.php:28 views/list/view.php:83
 msgid "Email Lists"
@@ -205,7 +205,7 @@ msgstr ""
 msgid "More info"
 msgstr ""
 
-#: functions/hook-function.php:715 views/_layouts/dashboard.php:210
+#: functions/hook-function.php:715 views/_layouts/dashboard.php:218
 #: views/campaign/clicked.php:28 views/campaign/create.php:140
 #: views/campaign/index.php:37 views/campaign/index.php:40
 #: views/campaign/opened.php:28 views/campaign/report.php:27
@@ -345,7 +345,7 @@ msgstr ""
 msgid "My Campaigns"
 msgstr ""
 
-#: routers/campaign.router.php:125 views/_layouts/dashboard.php:216
+#: routers/campaign.router.php:125 views/_layouts/dashboard.php:224
 msgid "Create Campaign"
 msgstr ""
 
@@ -404,7 +404,7 @@ msgstr ""
 msgid "You don't have permission to view the Cronjob Handler screen."
 msgstr ""
 
-#: routers/cron.router.php:120 views/_layouts/dashboard.php:123
+#: routers/cron.router.php:120 views/_layouts/dashboard.php:130
 #: views/cron/create.php:47 views/cron/index.php:25 views/cron/index.php:28
 #: views/cron/setting.php:27 views/cron/view.php:47
 msgid "Cronjob Handlers"
@@ -492,7 +492,7 @@ msgstr ""
 msgid "Seconds to process: "
 msgstr ""
 
-#: routers/dashboard.router.php:34 views/_layouts/dashboard.php:112
+#: routers/dashboard.router.php:34 views/_layouts/dashboard.php:119
 #: views/campaign/clicked.php:27 views/campaign/create.php:139
 #: views/campaign/index.php:39 views/campaign/opened.php:27
 #: views/campaign/report.php:26 views/campaign/view.php:137
@@ -520,7 +520,7 @@ msgstr ""
 msgid "You don't have permission to view the System Snapshot Report screen."
 msgstr ""
 
-#: routers/dashboard.router.php:78 views/_layouts/dashboard.php:144
+#: routers/dashboard.router.php:78 views/_layouts/dashboard.php:151
 #: views/dashboard/system-snapshot.php:24
 #: views/dashboard/system-snapshot.php:27
 msgid "System Snapshot Report"
@@ -538,7 +538,7 @@ msgstr ""
 msgid "You don't have permission to view the Error Log screen."
 msgstr ""
 
-#: routers/error.router.php:44 views/_layouts/dashboard.php:151
+#: routers/error.router.php:44 views/_layouts/dashboard.php:158
 msgid "Error Logs"
 msgstr ""
 
@@ -546,7 +546,7 @@ msgstr ""
 msgid "You don't have permission to view the Audit Trail screen."
 msgstr ""
 
-#: routers/error.router.php:77 views/_layouts/dashboard.php:152
+#: routers/error.router.php:77 views/_layouts/dashboard.php:159
 #: views/error/audit.php:27 views/error/audit.php:30
 msgid "Audit Trail"
 msgstr ""
@@ -555,7 +555,7 @@ msgstr ""
 msgid "You don't have permission to delete error logs."
 msgstr ""
 
-#: routers/index.router.php:46 views/_layouts/login.php:10
+#: routers/index.router.php:46 views/_layouts/login.php:11
 msgid "Login"
 msgstr ""
 
@@ -588,7 +588,7 @@ msgstr ""
 msgid "Edit Role"
 msgstr ""
 
-#: routers/index.router.php:266 views/_layouts/dashboard.php:150
+#: routers/index.router.php:266 views/_layouts/dashboard.php:157
 #: views/role/add.php:32 views/role/add.php:36
 msgid "Add Role"
 msgstr ""
@@ -597,7 +597,7 @@ msgstr ""
 msgid "You don't have permission to access the Templates screen."
 msgstr ""
 
-#: routers/index.router.php:323 views/_layouts/dashboard.php:198
+#: routers/index.router.php:323 views/_layouts/dashboard.php:206
 #: views/template/create.php:132 views/template/index.php:25
 #: views/template/index.php:28 views/template/view.php:132
 msgid "Templates"
@@ -615,7 +615,7 @@ msgstr ""
 msgid "You don't have permission to create templates."
 msgstr ""
 
-#: routers/index.router.php:456 views/_layouts/dashboard.php:204
+#: routers/index.router.php:456 views/_layouts/dashboard.php:212
 #: views/template/create.php:129 views/template/create.php:133
 #: views/template/view.php:129 views/template/view.php:133
 msgid "Create Template"
@@ -789,7 +789,7 @@ msgstr ""
 msgid "You don't have permission to access subscribers."
 msgstr ""
 
-#: routers/list.router.php:298 views/_layouts/dashboard.php:223
+#: routers/list.router.php:298 views/_layouts/dashboard.php:231
 #: views/list/index.php:53 views/list/index.php:101
 #: views/list/subscriber.php:25 views/list/subscriber.php:29
 #: views/subscriber/add.php:27 views/subscriber/view.php:27
@@ -825,7 +825,7 @@ msgstr ""
 msgid "Permission denied to view requested screen."
 msgstr ""
 
-#: routers/plugins.router.php:37 views/_layouts/dashboard.php:158
+#: routers/plugins.router.php:37 views/_layouts/dashboard.php:165
 #: views/plugins/index.php:25 views/plugins/index.php:28
 msgid "Plugins"
 msgstr ""
@@ -874,7 +874,7 @@ msgstr ""
 msgid "You don't have permission to access the General Settings screen."
 msgstr ""
 
-#: routers/setting.router.php:55 views/_layouts/dashboard.php:143
+#: routers/setting.router.php:55 views/_layouts/dashboard.php:150
 #: views/setting/index.php:24 views/setting/index.php:27
 msgid "General Settings"
 msgstr ""
@@ -883,7 +883,7 @@ msgstr ""
 msgid "You don't have permission to access the SMTP Settings screen."
 msgstr ""
 
-#: routers/setting.router.php:122 views/_layouts/dashboard.php:145
+#: routers/setting.router.php:122 views/_layouts/dashboard.php:152
 #: views/setting/smtp.php:26 views/setting/smtp.php:29
 msgid "SMTP Settings"
 msgstr ""
@@ -892,7 +892,7 @@ msgstr ""
 msgid "You don't have permission to access the Bounce Mail Handler screen."
 msgstr ""
 
-#: routers/setting.router.php:215 views/_layouts/dashboard.php:146
+#: routers/setting.router.php:215 views/_layouts/dashboard.php:153
 #: views/setting/bounce.php:25 views/setting/bounce.php:28
 msgid "Bounce Email Settings"
 msgstr ""
@@ -901,7 +901,7 @@ msgstr ""
 msgid "You don't have permission to access the Manage Subscribers screen."
 msgstr ""
 
-#: routers/subscriber.router.php:38 views/_layouts/dashboard.php:230
+#: routers/subscriber.router.php:38 views/_layouts/dashboard.php:238
 msgid "Manage Subscribers"
 msgstr ""
 
@@ -930,7 +930,7 @@ msgstr ""
 msgid "You don't have permission to access the Manage Users screen."
 msgstr ""
 
-#: routers/user.router.php:44 views/_layouts/dashboard.php:243
+#: routers/user.router.php:44 views/_layouts/dashboard.php:251
 #: views/user/index.php:25 views/user/index.php:28
 msgid "Manage Users"
 msgstr ""
@@ -1111,137 +1111,137 @@ msgid ""
 "Could not resolve message as instance of tc_Email or a callable returning it"
 msgstr ""
 
-#: views/_layouts/dashboard.php:50
+#: views/_layouts/dashboard.php:57
 msgid "Toggle navigation"
 msgstr ""
 
-#: views/_layouts/dashboard.php:68
+#: views/_layouts/dashboard.php:75
 msgid "Member since"
 msgstr ""
 
-#: views/_layouts/dashboard.php:74
+#: views/_layouts/dashboard.php:81
 msgid "Profile"
 msgstr ""
 
-#: views/_layouts/dashboard.php:78
+#: views/_layouts/dashboard.php:85
 msgid "Switch back"
 msgstr ""
 
-#: views/_layouts/dashboard.php:82
+#: views/_layouts/dashboard.php:89
 msgid "Logout"
 msgstr ""
 
-#: views/_layouts/dashboard.php:104
+#: views/_layouts/dashboard.php:111
 msgid "Online"
 msgstr ""
 
-#: views/_layouts/dashboard.php:109
+#: views/_layouts/dashboard.php:116
 msgid "MAIN NAVIGATION"
 msgstr ""
 
-#: views/_layouts/dashboard.php:117
+#: views/_layouts/dashboard.php:124
 msgid "Flush Cache"
 msgstr ""
 
-#: views/_layouts/dashboard.php:129 views/cron/create.php:67
+#: views/_layouts/dashboard.php:136 views/cron/create.php:67
 #: views/cron/index.php:47 views/cron/setting.php:47 views/cron/view.php:67
 msgid "Settings"
 msgstr ""
 
-#: views/_layouts/dashboard.php:130
+#: views/_layouts/dashboard.php:137
 msgid "Create Handler"
 msgstr ""
 
-#: views/_layouts/dashboard.php:131
+#: views/_layouts/dashboard.php:138
 msgid "Handlers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:137
+#: views/_layouts/dashboard.php:144
 msgid "Admin"
 msgstr ""
 
-#: views/_layouts/dashboard.php:147 views/permission/add.php:31
+#: views/_layouts/dashboard.php:154 views/permission/add.php:31
 #: views/permission/index.php:25 views/permission/index.php:28
 #: views/permission/view.php:27
 msgid "Permissions"
 msgstr ""
 
-#: views/_layouts/dashboard.php:148 views/permission/add.php:28
+#: views/_layouts/dashboard.php:155 views/permission/add.php:28
 #: views/permission/add.php:32
 msgid "Add Permission"
 msgstr ""
 
-#: views/_layouts/dashboard.php:149 views/role/add.php:35
+#: views/_layouts/dashboard.php:156 views/role/add.php:35
 #: views/role/index.php:26 views/role/index.php:29 views/role/view.php:30
 msgid "Roles"
 msgstr ""
 
-#: views/_layouts/dashboard.php:164
+#: views/_layouts/dashboard.php:171
 msgid "Plugins List"
 msgstr ""
 
-#: views/_layouts/dashboard.php:165 views/plugins/install.php:25
+#: views/_layouts/dashboard.php:172 views/plugins/install.php:25
 #: views/plugins/install.php:28
 msgid "Install Plugin"
 msgstr ""
 
-#: views/_layouts/dashboard.php:172
+#: views/_layouts/dashboard.php:180
 msgid "SMTP Servers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:178 views/server/create.php:26
+#: views/_layouts/dashboard.php:186 views/server/create.php:26
 #: views/server/create.php:30
 msgid "Create Server"
 msgstr ""
 
-#: views/_layouts/dashboard.php:179
+#: views/_layouts/dashboard.php:187
 msgid "Manage Servers"
 msgstr ""
 
-#: views/_layouts/dashboard.php:191
+#: views/_layouts/dashboard.php:199
 msgid "Create List"
 msgstr ""
 
-#: views/_layouts/dashboard.php:192
+#: views/_layouts/dashboard.php:200
 msgid "Manage Email Lists"
 msgstr ""
 
-#: views/_layouts/dashboard.php:205
+#: views/_layouts/dashboard.php:213
 msgid "Manage Templates"
 msgstr ""
 
-#: views/_layouts/dashboard.php:217
+#: views/_layouts/dashboard.php:225
 msgid "Manage Campaigns"
 msgstr ""
 
-#: views/_layouts/dashboard.php:229 views/subscriber/add.php:24
+#: views/_layouts/dashboard.php:237 views/subscriber/add.php:24
 #: views/subscriber/add.php:28
 msgid "Add Subscriber"
 msgstr ""
 
-#: views/_layouts/dashboard.php:236 views/user/add.php:27
+#: views/_layouts/dashboard.php:244 views/user/add.php:27
 #: views/user/perm.php:28 views/user/profile.php:27 views/user/view.php:27
 msgid "Users"
 msgstr ""
 
-#: views/_layouts/dashboard.php:242
+#: views/_layouts/dashboard.php:250
 msgid "Add User"
 msgstr ""
 
-#: views/_layouts/dashboard.php:244
+#: views/_layouts/dashboard.php:252
 msgid "Your Profile"
 msgstr ""
 
-#: views/_layouts/dashboard.php:249 views/dashboard/support.php:23
+#: views/_layouts/dashboard.php:257 views/dashboard/support.php:23
 #: views/dashboard/support.php:26
 msgid "Support"
 msgstr ""
 
-#: views/_layouts/dashboard.php:261 views/_layouts/index.php:76
+#: views/_layouts/dashboard.php:269 views/_layouts/index.php:83
 msgid "Release"
 msgstr ""
 
-#: views/_layouts/dashboard.php:263 views/_layouts/index.php:78
+#: views/_layouts/dashboard.php:271 views/_layouts/index.php:85
 msgid "tinyCampaign"
 msgstr ""
 
