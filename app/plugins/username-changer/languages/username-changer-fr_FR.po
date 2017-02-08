@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Username Changer\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-01-31 01:46-0500\n"
+"PO-Revision-Date: 2017-02-07 20:16-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -15,35 +15,47 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Domain: username-changer\n"
 
-#: username-changer.plugin.php:71 username-changer.plugin.php:78
+#: router/username-changer.router.php:23
+msgid "Permission denied to view requested screen."
+msgstr ""
+
+#: router/username-changer.router.php:57
+msgid "Username was updated which caused you to be logged out automatically."
+msgstr ""
+
+#: router/username-changer.router.php:84 username-changer.plugin.php:66
+msgid "Username Changer"
+msgstr ""
+
+#: username-changer.plugin.php:58
 msgid "Username Updated"
 msgstr ""
 
-#: username-changer.plugin.php:128 username-changer.plugin.php:132
+#: views/index.php:13 views/index.php:17
 msgid "You are here"
 msgstr "Vous êtes ici"
 
-#: username-changer.plugin.php:130
+#: views/index.php:15
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: username-changer.plugin.php:131
+#: views/index.php:16
 msgid "Plugins List"
 msgstr ""
 
-#: username-changer.plugin.php:151
+#: views/index.php:36
 msgid "Current Username"
 msgstr ""
 
-#: username-changer.plugin.php:163
+#: views/index.php:48
 msgid "New Username"
 msgstr ""
 
-#: username-changer.plugin.php:175
+#: views/index.php:60
 msgid "Submit"
 msgstr "Soumettre"
 
-#: username-changer.plugin.php:176
+#: views/index.php:61
 msgid "Cancel"
 msgstr ""
 
