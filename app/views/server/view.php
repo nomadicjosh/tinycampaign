@@ -79,7 +79,7 @@ define('SCREEN', 'server');
                             </div>
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Throttle'); ?>  <a href="#throttle" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?= _t('Throttle'); ?>  <a href="#throttle" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <input type="text" class="form-control" name="throttle" value="<?=_h($server->throttle);?>" required/>
                             </div>
                         </div>

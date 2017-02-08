@@ -77,7 +77,7 @@ define('SCREEN', 'clist');
                         <div class="col-md-6">
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <select class="form-control select2" name="notify_email" style="width: 100%;" required>
                                     <option>&nbsp;</option>
                                     <option value="1"<?=selected('1',(_h($app->req->post['notify_email']) != '' ? _h($app->req->post['notify_email']) : ''),false);?>><?=_t('Yes');?></option>

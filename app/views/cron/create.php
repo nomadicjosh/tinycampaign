@@ -90,7 +90,7 @@ $options = [
                         <div class="col-md-6">
                             
                             <div class="form-group col-md-4">
-                                <label><?=_t( "Each" );?> <a href="#each" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><?=_t( "Each" );?> <a href="#each" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <select class="form-control select2" name="each" style="width: 100%;">
                                     <option>&nbsp;</option>
                                     <?php 

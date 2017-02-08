@@ -56,7 +56,7 @@ define('SCREEN', 'hset');
                         <div class="col-md-6">
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Cronjob Password'); ?>  <a href="#cronpass" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?= _t('Cronjob Password'); ?>  <a href="#cronpass" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <input type="text" class="form-control" id="cronjobpassword" name="cronjobpassword" value="<?=_h($data->cronjobpassword);?>" required/>
                             </div>
                             
@@ -65,7 +65,7 @@ define('SCREEN', 'hset');
                         <div class="col-md-6">
                             
                            <div class="form-group">
-                                <label><font color="red">*</font> <?=_t( "Cronjob Timeout" );?> <a href="#crontimeout" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?=_t( "Cronjob Timeout" );?> <a href="#crontimeout" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <input type="text" class="form-control" id="timeout" name="timeout" value="<?=(_h($data->timeout) !== null) ? _h($data->timeout) : 30;?>" required/>
                             </div>
                             
