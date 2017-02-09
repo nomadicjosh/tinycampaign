@@ -161,6 +161,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                             $cron->url = (string) $app->req->_post('url');
                             $cron->each = (int) $app->req->_post('each');
                             $cron->eachtime = ((isset($app->req->post['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $app->req->post['eachtime'])) ? $app->req->post['eachtime'] : '');
+                            $cron->status = (int) $app->req->post['status'];
                             $cron->save();
 
                             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'cron/');
@@ -274,6 +275,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                     $cron->url = (string) $app->req->_post('url');
                     $cron->each = (int) $app->req->_post('each');
                     $cron->eachtime = ((isset($app->req->post['eachtime']) && preg_match('/(2[0-3]|[01][0-9]):[0-5][0-9]/', $app->req->post['eachtime'])) ? $app->req->post['eachtime'] : '');
+                    $cron->status = (int) $app->req->post['status'];
                     $cron->save();
 
                     _tc_flash()->success(_tc_flash()->notice(200));
@@ -334,7 +336,7 @@ $app->group('/cron', function () use($app, $css, $js) {
 
         try {
             $setting = Node::table('cronjob_setting')->find(1);
-            $cron = Node::table('cronjob_handler')->findAll();
+            $cron = Node::table('cronjob_handler')->where('status', '=', (int) 1)->findAll();
         } catch (NodeQException $e) {
             _tc_flash()->error($e->getMessage());
         }
