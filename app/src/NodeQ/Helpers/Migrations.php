@@ -20,6 +20,27 @@ class Migrations
         }
         return true;
     }
+    
+    public static function php_encryption()
+    {
+        try {
+            Node::create('php_encryption', [
+                'key' => 'string',
+                'created_at' => 'string'
+            ]);
+            $key = \Defuse\Crypto\Key::createNewRandomKey();
+            $q = Node::table('php_encryption');
+            $q->key = (string) $key->saveToAsciiSafeString();
+            $q->created_at = (string) \Jenssegers\Date\Date::now();
+            $q->save();
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
 
     public static function cronjob_setting()
     {
@@ -112,28 +133,6 @@ class Migrations
             $q->status = (int) 1;
             $q->save();
         } catch (NodeQException $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        }
-    }
-
-    public static function php_encryption()
-    {
-        try {
-            $key = \Defuse\Crypto\Key::createNewRandomKey();
-            Node::create('php_encryption', [
-                'key' => 'string',
-                'created_at' => 'string'
-            ]);
-
-            $q = Node::table('php_encryption');
-            $q->key = (string) $key->saveToAsciiSafeString();
-            $q->created_at = (string) \Jenssegers\Date\Date::now();
-            $q->save();
-        } catch (NodeQException $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
