@@ -1013,108 +1013,159 @@ $app->post('/subscribe/', function () use($app) {
 /**
  * Before route check.
  */
-$app->before('POST', '/api-subscribe/', function() use($app) {
+$app->before('POST', '/asubscribe/', function() use($app) {
     if (!$app->req->server['HTTP_REFERER']) {
-        header('Content-Type: application/json');
-        $app->res->_format('json', 204);
-        exit();
+        $status = _t("error");
+        $message = _t("No referrer.");
+        $valid = false;
+    } elseif ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
+        $status = _t("error");
+        $message = _t("Spam is not allowed.");
+        $valid = false;
+    } elseif ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
+        $status = _t("error");
+        $message = _t("Spam is not allowed.");
+        $valid = false;
     }
+    if (!$valid) {
+        $data = array(
+            'status' => $status,
+            'message' => $message
+        );
 
-    if ($app->req->isPost()) {
-        if ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
-            echo 0;
-            exit();
-        }
-
-        if ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
-            echo 0;
-            exit();
-        }
+        echo json_encode($data);
     }
 });
 
-$app->post('/api-subscribe/', function () use($app) {
+$app->post('/asubscribe/', function () use($app) {
 
     /**
-     * Check list code is valid.
+     * Retrive list info.
      */
     $list = get_list_by('code', $app->req->post['code']);
     /**
-     * Check if subscriber exists.
+     * Retrieve subscriber info.
      */
     $get_sub = get_subscriber_by('email', $app->req->post['email']);
-    if (_h($get_sub->id) > 0) {
-        echo 0;
-        exit();
-    }
-    /**
-     * Checks if email is valid.
-     */
-    if (!v::email()->validate($app->req->post['email'])) {
-        echo 0;
-        exit();
-    }
     /**
      * Set spam tolerance.
      */
     \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
     /**
-     * Check if subscriber is actually a spammer.
+     * Check if email is empty.
      */
-    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
-        echo 0;
-        exit();
+    $email = $app->req->post['email'];
+    if (empty($email)) {
+        $status = _t("error");
+        $message = _t("Email address cannot be blank.");
+        $valid = false;
+    }
+    /**
+     * Check if subscriber exists.
+     */ elseif (_h($get_sub->id) > 0) {
+        $status = _t("error");
+        $message = _t("Your email is already in the system.");
+        $valid = false;
+    }
+    /**
+     * Checks if email is valid.
+     */ elseif (!v::email()->validate($email)) {
+        $status = _t("error");
+        $message = _t("You must enter a valid email.");
+        $valid = false;
+    }
+    /**
+     * Check if subscriber is actually a spammer.
+     */ elseif (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
+        $status = _t("error");
+        $message = _t("Your email address was flagged as spam.");
+        $valid = false;
     }
 
-    try {
-        $subscriber = $app->db->subscriber();
-        $subscriber->insert([
-            'fname' => $app->req->post['fname'],
-            'lname' => $app->req->post['lname'],
-            'email' => $app->req->post['email'],
-            'state' => NULL,
-            'country' => NULL,
-            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            'ip' => $app->req->server['REMOTE_ADDR'],
-            'spammer' => (int) 0,
-            'addedBy' => (int) 1,
-            'addDate' => Jenssegers\Date\Date::now()
-        ]);
-        $sid = $subscriber->lastInsertId();
+    if ($valid) {
+        try {
+            $subscriber = $app->db->subscriber();
+            $subscriber->insert([
+                'email' => $email,
+                'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'ip' => $app->req->server['REMOTE_ADDR'],
+                'spammer' => (int) 0,
+                'addedBy' => (int) 1,
+                'addDate' => Jenssegers\Date\Date::now()
+            ]);
+            $sid = $subscriber->lastInsertId();
 
-        $sub_list = $app->db->subscriber_list();
-        $sub_list->insert([
-            'lid' => _h($list->id),
-            'sid' => $sid,
-            'addDate' => Jenssegers\Date\Date::now(),
-            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
-        ]);
+            $sub_list = $app->db->subscriber_list();
+            $sub_list->insert([
+                'lid' => _h($list->id),
+                'sid' => $sid,
+                'addDate' => Jenssegers\Date\Date::now(),
+                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+            ]);
 
-        if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
-            try {
-                Node::dispense('new_subscriber_notification');
-                $notify = Node::table('new_subscriber_notification');
-                $notify->lid = _h((int) $list->id);
-                $notify->sid = (int) $sid;
-                $notify->sent = (int) 0;
-                $notify->save();
-            } catch (NodeQException $e) {
-                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            } catch (Exception $e) {
-                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+                try {
+                    Node::dispense('new_subscriber_notification');
+                    $notify = Node::table('new_subscriber_notification');
+                    $notify->lid = _h((int) $list->id);
+                    $notify->sid = (int) $sid;
+                    $notify->sent = (int) 0;
+                    $notify->save();
+                } catch (NodeQException $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                } catch (Exception $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
             }
-        }
 
-        tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
-        echo 1;
-    } catch (NotFoundException $e) {
-        echo 0;
-    } catch (Exception $e) {
-        echo 0;
-    } catch (ORMException $e) {
-        echo 0;
+            $status = _t("success");
+            $message = _t("You have been successfully subscribed. Check your email.");
+
+            $data = array(
+                'status' => $status,
+                'message' => $message
+            );
+
+            echo json_encode($data);
+        } catch (NotFoundException $e) {
+            $status = _t("error");
+            $message = _t("Server error.");
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            $data = array(
+                'status' => $status,
+                'message' => $message
+            );
+
+            echo json_encode($data);
+        } catch (Exception $e) {
+            $status = _t("error");
+            $message = _t("Server error.");
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            $data = array(
+                'status' => $status,
+                'message' => $message
+            );
+
+            echo json_encode($data);
+        } catch (ORMException $e) {
+            $status = _t("error");
+            $message = _t("Server error.");
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            $data = array(
+                'status' => $status,
+                'message' => $message
+            );
+
+            echo json_encode($data);
+        }
     }
+    $data = array(
+        'status' => $status,
+        'message' => $message
+    );
+
+    echo json_encode($data);
 });
 
 /**
