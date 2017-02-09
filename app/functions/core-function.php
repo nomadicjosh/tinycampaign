@@ -1336,3 +1336,20 @@ function tc_cpgn_status_label($status)
     
     return $label[$status];
 }
+
+/**
+ * Adds label to the cron's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_cron_status_label($status)
+{
+    $label = [
+        1 => 'label-success',
+        0 => 'label-danger'
+    ];
+    
+    return $label[$status];
+}
