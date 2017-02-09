@@ -12,10 +12,6 @@ if (!defined('BASE_PATH'))
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-define('VERBOSE_QUIET', 0); // means no output at all
-define('VERBOSE_SIMPLE', 1); // means only output simple report
-define('VERBOSE_REPORT', 2); // means output a detail report
-define('VERBOSE_DEBUG', 3); // means output detail report as well as debug info.
 
 class tc_BounceHandler
 {
