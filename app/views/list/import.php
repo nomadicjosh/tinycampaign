@@ -38,7 +38,7 @@ define('SCREEN', 'lists');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form role="form" method="post" action="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/import/" enctype="multipart/form-data">
+            <form role="form" method="post" action="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/import/" enctype="multipart/form-data">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">

@@ -60,32 +60,32 @@ define('SCREEN', 'cpgn');
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Sent');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(int)_h($cpgn->recipients);?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=_h((int)$cpgn->recipients);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Bounces');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(int)_h($cpgn->bounces);?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=_h((int)$cpgn->bounces);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Opened');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=((int)_h($cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'.(int)_h($cpgn->id).'/report/opened/">'.(int)_h($cpgn->viewed).'</a>' : (int)_h($cpgn->viewed));?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h((int)$cpgn->viewed).'</a>' : _h((int)$cpgn->viewed));?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('% Opened');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($opened > 0 ? percent($unique_opens, (int)_h($cpgn->recipients)) : 0);?>%</span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($opened > 0 ? percent($unique_opens, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Clicked');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'.(int)_h($cpgn->id).'/report/clicked/">'._h($clicks).'</a>' : _h($clicks));?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/clicked/">'._h($clicks).'</a>' : _h($clicks));?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('% Clicked');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($clicks > 0 ? percent($unique_clicks, (int)_h($cpgn->recipients)) : 0);?>%</span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($clicks > 0 ? percent($unique_clicks, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                     </tbody>
                 </table>

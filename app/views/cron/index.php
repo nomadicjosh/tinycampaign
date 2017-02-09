@@ -66,20 +66,20 @@ define('SCREEN', 'handlers');
                         <tbody>
                             <?php foreach ($jobs as $job) { ?>
                                 <tr class="gradeX">
-                                    <td class="text-center"><input type="checkbox" class="minimal" value="<?= (int)_h($job->id); ?>" name="cronjobs[<?= (int)_h($job->id); ?>]" /></td>
+                                    <td class="text-center"><input type="checkbox" class="minimal" value="<?= _h((int)$job->id); ?>" name="cronjobs[<?= _h((int)$job->id); ?>]" /></td>
                                     <td class="text-center"><?= _h($job->name); ?></td>
                                     <td class="text-center"><?= _t('Each'); ?> <?= (_h($job->time) != 0) ? "day on " . _h($job->time) . ' hours' : tc_seconds_to_time(_h($job->each)) . (strlen(_h($job->eachtime) > 0) ? ' at ' . _h($job->eachtime) : ''); ?></td>
                                     <td class="text-center"><?= (_h($job->lastrun) !== '' ? Jenssegers\Date\Date::parse(_h($job->lastrun))->format('M. d, Y @ h:i A') : ''); ?></td>
                                     <td class="text-center">
                                         <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
-                                            <?= (int)_h($job->runned); ?>
+                                            <?= _h((int)$job->runned); ?>
                                         </span>
                                     </td>
                                     <?php foreach ($set as $s) : ?>
                                         <td class="text-center">
-                                            <?= isset($s) ? '<a href="' . get_base_url() . 'cron' . '/' . (int)_h($job->id) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>' : ''; ?>
-                                            <?= isset($s) ? '<a target="_blank" href="' . get_base_url() . 'cron/cronjob' . '/' . '?password=' . _h($s->cronjobpassword) . '&id=' . (int)_h($job->id) . '" data-toggle="tooltip" data-placement="top" title="Run"><button type="button" class="btn bg-purple"><i class="fa fa-chevron-right"></i></button></a>' : ''; ?>
-                                            <?= isset($s) ? '<a href="' . get_base_url() . 'cron' . '/' . (int)_h($job->id) . '/' . 'reset' . '/" data-toggle="tooltip" data-placement="top" title="Reset Runs"><button type="button" class="btn bg-blue"><i class="fa fa-refresh"></i></button></a>' : ''; ?>
+                                            <?= isset($s) ? '<a href="' . get_base_url() . 'cron' . '/' . _h((int)$job->id) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>' : ''; ?>
+                                            <?= isset($s) ? '<a target="_blank" href="' . get_base_url() . 'cron/cronjob' . '/' . '?password=' . _h($s->cronjobpassword) . '&id=' . _h((int)$job->id) . '" data-toggle="tooltip" data-placement="top" title="Run"><button type="button" class="btn bg-purple"><i class="fa fa-chevron-right"></i></button></a>' : ''; ?>
+                                            <?= isset($s) ? '<a href="' . get_base_url() . 'cron' . '/' . _h((int)$job->id) . '/' . 'reset' . '/" data-toggle="tooltip" data-placement="top" title="Reset Runs"><button type="button" class="btn bg-blue"><i class="fa fa-refresh"></i></button></a>' : ''; ?>
                                         </td>
                                     <?php endforeach; ?>
                                 </tr>

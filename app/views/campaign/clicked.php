@@ -26,7 +26,7 @@ define('SCREEN', 'cpgn');
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
             <li class="active"><?= _t('URLs Clicked Campaign Report'); ?></li>
         </ol>
     </section>
@@ -53,7 +53,7 @@ define('SCREEN', 'cpgn');
                         <?php foreach ($clicks as $clicked) : ?>
                             <tr class="gradeX">
                                 <td class="text-center"><?= tc_url_shorten(_h($clicked->url)); ?></td>
-                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=(int)_h($clicked->sid);?>/"><?= _h($clicked->email); ?></a></td>
+                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_h((int)$clicked->sid);?>/"><?= _h($clicked->email); ?></a></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($clicked->addDate))->format('M. d, Y h:i A'); ?></td>
                                 <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= _h($clicked->clicked); ?></span></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($clicked->LastUpdate))->format('M. d, Y h:i A'); ?></td>
@@ -74,7 +74,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

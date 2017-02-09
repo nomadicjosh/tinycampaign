@@ -66,17 +66,17 @@ $(document).ready(function(){
                                 </td>
                                 <td class="text-center">
                                     <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
-                                        <?=get_list_subscribers_count((int)_h($list->id));?>
+                                        <?=get_list_subscribers_count(_h((int)$list->id));?>
                                     </span>
                                 </td>
                                 <td<?=ie('email_list_inquiry_only');?> class="text-center">
-                                    <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button type="button" class="btn bg-blue"><i class="fa fa-group"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/import/" data-toggle="tooltip" data-placement="top" title="Import Subscribers"><button type="button" class="btn bg-orange"><i class="fa fa-upload"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>list/<?= (int)_h($list->id); ?>/export/" data-toggle="tooltip" data-placement="top" title="Export Subscribers"><button type="button" class="btn bg-purple"><i class="fa fa-download"></i></button></a>
-                                    <a<?=ae('delete_email_list');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($list->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button type="button" class="btn bg-blue"><i class="fa fa-group"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/import/" data-toggle="tooltip" data-placement="top" title="Import Subscribers"><button type="button" class="btn bg-orange"><i class="fa fa-upload"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/export/" data-toggle="tooltip" data-placement="top" title="Export Subscribers"><button type="button" class="btn bg-purple"><i class="fa fa-download"></i></button></a>
+                                    <a<?=ae('delete_email_list');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$list->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
-                                    <div class="modal" id="delete-<?= (int)_h($list->id); ?>">
+                                    <div class="modal" id="delete-<?= _h((int)$list->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -89,7 +89,7 @@ $(document).ready(function(){
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= (int)_h($list->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= _h((int)$list->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

@@ -147,7 +147,7 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
+            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -211,12 +211,12 @@ define('SCREEN', 'cpgn');
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_campaign_lists((int)_h($cpgn->id)); ?></ul>
+                                <ul><?php get_campaign_lists(_h((int)$cpgn->id)); ?></ul>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name((int)_h($cpgn->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name(_h((int)$cpgn->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">

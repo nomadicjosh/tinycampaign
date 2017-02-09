@@ -26,7 +26,7 @@ define('SCREEN', 'cpgn');
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/report/"><i class="fa fa-flag"></i> <?=_h($cpgn->subject);?> <?= _t('Campaign Report'); ?></a></li>
             <li class="active"><?= _t('Opened Campaign Report'); ?></li>
         </ol>
     </section>
@@ -51,9 +51,9 @@ define('SCREEN', 'cpgn');
                     <tbody>
                         <?php foreach ($opens as $opened) : ?>
                             <tr class="gradeX">
-                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=(int)_h($opened->sid);?>/"><?= _h($opened->email); ?></a></td>
+                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_h((int)$opened->sid);?>/"><?= _h($opened->email); ?></a></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->first_open))->format('M. d, Y h:i A'); ?></td>
-                                <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= (int)_h($opened->viewed); ?></span></td>
+                                <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= _h((int)$opened->viewed); ?></span></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->LastUpdate))->format('M. d, Y h:i A'); ?></td>
                             </tr>
                         <?php endforeach; ?>
@@ -71,7 +71,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

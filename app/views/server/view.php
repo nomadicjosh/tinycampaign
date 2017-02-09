@@ -38,7 +38,7 @@ define('SCREEN', 'server');
 
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>server/<?=(int)_h($server->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>server/<?=_h((int)$server->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -137,7 +137,7 @@ define('SCREEN', 'server');
                 <h3 class="box-title"><?= _t('Send Test Email'); ?></h3>
             </div>
             <!-- form start -->
-            <form method='post' action='<?= get_base_url(); ?>server/<?=(int)_h($server->id);?>/test/'>
+            <form method='post' action='<?= get_base_url(); ?>server/<?=_h((int)$server->id);?>/test/'>
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">

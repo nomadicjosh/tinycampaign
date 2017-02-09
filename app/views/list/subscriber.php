@@ -62,10 +62,10 @@ define('SCREEN', 'lists');
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= (int)_h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($sub->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h((int)$sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$sub->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
-                                    <div class="modal" id="delete-<?= (int)_h($sub->id); ?>">
+                                    <div class="modal" id="delete-<?= _h((int)$sub->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -78,7 +78,7 @@ define('SCREEN', 'lists');
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= (int)_h($sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= _h((int)$sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->
