@@ -704,7 +704,8 @@ $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
 
 $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
     $server = get_server_info($id);
-    tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
+    $app->hook->{'do_action_array'}('tinyc_email_init',[$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
+    //tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
     redirect($app->req->server['HTTP_REFERER']);
 });
 
@@ -945,6 +946,17 @@ $app->post('/subscribe/', function () use($app) {
         _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
         exit();
     }
+    /**
+     * Set spam tolerance.
+     */
+    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    /**
+     * Check if subscriber is actually a spammer.
+     */
+    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+        _tc_flash()->error(_t('Your email address has been flagged as spam and will not be subscribed to the list.'), get_base_url() . 'status' . '/');
+        exit();
+    }
 
     try {
         $subscriber = $app->db->subscriber();
@@ -998,6 +1010,90 @@ $app->post('/subscribe/', function () use($app) {
         _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
     } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+    }
+});
+
+$app->post('/asubscribe/', function () use($app) {
+
+    /**
+     * Check list code is valid.
+     */
+    $list = get_list_by('code', $app->req->post['code']);
+    /**
+     * Check if subscriber exists.
+     */
+    $get_sub = get_subscriber_by('email', $app->req->post['email']);
+    if (_h($get_sub->id) > 0) {
+        echo 0;
+        exit();
+    }
+    /**
+     * Checks if email is valid.
+     */
+    if (!v::email()->validate($app->req->post['email'])) {
+        echo 0;
+        exit();
+    }
+    /**
+     * Set spam tolerance.
+     */
+    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    /**
+     * Check if subscriber is actually a spammer.
+     */
+    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+        echo 0;
+        exit();
+    }
+
+    try {
+        $subscriber = $app->db->subscriber();
+        $subscriber->insert([
+            'fname' => $app->req->post['fname'],
+            'lname' => $app->req->post['lname'],
+            'email' => $app->req->post['email'],
+            'state' => 'NULL',
+            'country' => 'NULL',
+            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'ip' => $app->req->server['REMOTE_ADDR'],
+            'spammer' => (int) 0,
+            'addedBy' => (int) 1,
+            'addDate' => Jenssegers\Date\Date::now()
+        ]);
+        $sid = $subscriber->lastInsertId();
+
+        $sub_list = $app->db->subscriber_list();
+        $sub_list->insert([
+            'lid' => _h($list->id),
+            'sid' => $sid,
+            'addDate' => Jenssegers\Date\Date::now(),
+            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+        ]);
+
+        if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+            try {
+                Node::dispense('new_subscriber_notification');
+                $notify = Node::table('new_subscriber_notification');
+                $notify->lid = _h((int)$list->id);
+                $notify->sid = (int) $sid;
+                $notify->sent = (int) 0;
+                $notify->save();
+            } catch (NodeQException $e) {
+                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            }
+        }
+
+        tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
+        echo 1;
+    } catch (NotFoundException $e) {
+        echo 0;
+    } catch (Exception $e) {
+        echo 0;
+    } catch (ORMException $e) {
+        echo 0;
     }
 });
 

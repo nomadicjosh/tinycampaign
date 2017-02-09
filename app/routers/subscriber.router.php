@@ -51,51 +51,97 @@ $app->group('/subscriber', function() use ($app) {
     });
 
     $app->match('GET|POST', '/add/', function () use($app) {
+        
+        \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
-                _tc_flash()->error(_t('Invalid email address.'));
+                _tc_flash()->error(_t('Invalid email address.'), $app->req->server['HTTP_REFERER']);
                 exit();
             }
 
-            try {
-                $subscriber = $app->db->subscriber();
-                $subscriber->insert([
-                    'fname' => $app->req->post['fname'],
-                    'lname' => $app->req->post['lname'],
-                    'email' => $app->req->post['email'],
-                    'address1' => $app->req->post['address1'],
-                    'address2' => $app->req->post['address2'],
-                    'city' => $app->req->post['city'],
-                    'state' => $app->req->post['state'],
-                    'postal_code' => $app->req->post['postal_code'],
-                    'country' => $app->req->post['country'],
-                    'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                    'ip' => $app->req->server['REMOTE_ADDR'],
-                    'addedBy' => get_userdata('id'),
-                    'addDate' => Jenssegers\Date\Date::now()
-                ]);
-                $id = $subscriber->lastInsertId();
-
-                foreach ($app->req->post['lid'] as $list) {
-                    $sub_list = $app->db->subscriber_list();
-                    $sub_list->insert([
-                        'lid' => $list,
-                        'sid' => $id,
-                        'addDate' => Jenssegers\Date\Date::now(),
-                        'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                        'confirmed' => 1
+            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+                try {
+                    $subscriber = $app->db->subscriber();
+                    $subscriber->insert([
+                        'fname' => $app->req->post['fname'],
+                        'lname' => $app->req->post['lname'],
+                        'email' => $app->req->post['email'],
+                        'address1' => $app->req->post['address1'],
+                        'address2' => $app->req->post['address2'],
+                        'city' => $app->req->post['city'],
+                        'state' => $app->req->post['state'],
+                        'postal_code' => $app->req->post['postal_code'],
+                        'country' => $app->req->post['country'],
+                        'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                        'ip' => $app->req->server['REMOTE_ADDR'],
+                        'spammer' => (int) 1,
+                        'addedBy' => get_userdata('id'),
+                        'addDate' => Jenssegers\Date\Date::now()
                     ]);
-                }
+                    $id = $subscriber->lastInsertId();
 
-                tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
-                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'subscriber' . '/' . $id . '/');
-            } catch (NotFoundException $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (Exception $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (ORMException $e) {
-                _tc_flash()->error($e->getMessage());
+                    foreach ($app->req->post['lid'] as $list) {
+                        $sub_list = $app->db->subscriber_list();
+                        $sub_list->insert([
+                            'lid' => $list,
+                            'sid' => $id,
+                            'addDate' => Jenssegers\Date\Date::now(),
+                            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                            'confirmed' => 1
+                        ]);
+                    }
+
+                    tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
+                    _tc_flash()->warning(_t('Subscriber was added to the list but flagged as spam.'), get_base_url() . 'subscriber' . '/' . $id . '/');
+                } catch (NotFoundException $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (Exception $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (ORMException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
+            } else {
+                try {
+                    $subscriber = $app->db->subscriber();
+                    $subscriber->insert([
+                        'fname' => $app->req->post['fname'],
+                        'lname' => $app->req->post['lname'],
+                        'email' => $app->req->post['email'],
+                        'address1' => $app->req->post['address1'],
+                        'address2' => $app->req->post['address2'],
+                        'city' => $app->req->post['city'],
+                        'state' => $app->req->post['state'],
+                        'postal_code' => $app->req->post['postal_code'],
+                        'country' => $app->req->post['country'],
+                        'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                        'ip' => $app->req->server['REMOTE_ADDR'],
+                        'spammer' => (int) 0,
+                        'addedBy' => get_userdata('id'),
+                        'addDate' => Jenssegers\Date\Date::now()
+                    ]);
+                    $id = $subscriber->lastInsertId();
+
+                    foreach ($app->req->post['lid'] as $list) {
+                        $sub_list = $app->db->subscriber_list();
+                        $sub_list->insert([
+                            'lid' => $list,
+                            'sid' => $id,
+                            'addDate' => Jenssegers\Date\Date::now(),
+                            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                            'confirmed' => 1
+                        ]);
+                    }
+
+                    tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
+                    _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'subscriber' . '/' . $id . '/');
+                } catch (NotFoundException $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (Exception $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (ORMException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
             }
         }
 
@@ -122,65 +168,134 @@ $app->group('/subscriber', function() use ($app) {
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
         $sub = get_subscriber_by('id', $id);
+        \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
-            try {
-                $subscriber = $app->db->subscriber();
-                $subscriber->set([
-                    'fname' => $app->req->post['fname'],
-                    'lname' => $app->req->post['lname'],
-                    'email' => $app->req->post['email'],
-                    'address1' => $app->req->post['address1'],
-                    'address2' => $app->req->post['address2'],
-                    'city' => $app->req->post['city'],
-                    'state' => $app->req->post['state'],
-                    'postal_code' => $app->req->post['postal_code'],
-                    'country' => $app->req->post['country']
-                ]);
-                $subscriber->where('id = ?', $id)
-                    ->update();
+            if (!v::email()->validate($app->req->post['email'])) {
+                _tc_flash()->error(_t('Invalid email address.'), $app->req->server['HTTP_REFERER']);
+                exit();
+            }
 
-                $data = [];
-                $data['lid'] = $app->req->post['lid'];
+            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+                try {
+                    $subscriber = $app->db->subscriber();
+                    $subscriber->set([
+                        'fname' => $app->req->post['fname'],
+                        'lname' => $app->req->post['lname'],
+                        'email' => $app->req->post['email'],
+                        'address1' => $app->req->post['address1'],
+                        'address2' => $app->req->post['address2'],
+                        'city' => $app->req->post['city'],
+                        'state' => $app->req->post['state'],
+                        'postal_code' => $app->req->post['postal_code'],
+                        'country' => $app->req->post['country'],
+                        'spammer' => (int) 1
+                    ]);
+                    $subscriber->where('id = ?', $id)
+                        ->update();
 
-                foreach ($app->req->post['id'] as $list) {
-                    $sub = $app->db->subscriber_list()
-                        ->where('sid = ?', $id)->_and_()
-                        ->where('lid = ?', $list)
-                        ->findOne();
+                    $data = [];
+                    $data['lid'] = $app->req->post['lid'];
 
-                    if ($sub == false && $list == $data['lid'][$list]) {
-                        $sub_list = $app->db->subscriber_list();
-                        $sub_list->insert([
-                            'lid' => $list,
-                            'sid' => $id,
-                            'addDate' => Jenssegers\Date\Date::now(),
-                            'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                            'confirmed' => 1
-                        ]);
-                    } else {
-                        $sub_list = $app->db->subscriber_list();
-                        $sub_list->set([
-                                'lid' => $list,
-                                'sid' => $id,
-                                'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
-                            ])
+                    foreach ($app->req->post['id'] as $list) {
+                        $sub = $app->db->subscriber_list()
                             ->where('sid = ?', $id)->_and_()
                             ->where('lid = ?', $list)
-                            ->update();
-                    }
-                }
+                            ->findOne();
 
-                tc_cache_delete($id, 'subscriber');
-                tc_cache_delete($id, 'slist');
-                tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
-                _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
-            } catch (NotFoundException $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (Exception $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (ORMException $e) {
-                _tc_flash()->error($e->getMessage());
+                        if ($sub == false && $list == $data['lid'][$list]) {
+                            $sub_list = $app->db->subscriber_list();
+                            $sub_list->insert([
+                                'lid' => $list,
+                                'sid' => $id,
+                                'addDate' => Jenssegers\Date\Date::now(),
+                                'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                                'confirmed' => 1
+                            ]);
+                        } else {
+                            $sub_list = $app->db->subscriber_list();
+                            $sub_list->set([
+                                    'lid' => $list,
+                                    'sid' => $id,
+                                    'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                ])
+                                ->where('sid = ?', $id)->_and_()
+                                ->where('lid = ?', $list)
+                                ->update();
+                        }
+                    }
+
+                    tc_cache_delete($id, 'subscriber');
+                    tc_cache_delete($id, 'slist');
+                    tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
+                    _tc_flash()->warning(_t('Subscriber was updated but was flagged as spam.'), $app->req->server['HTTP_REFERER']);
+                } catch (NotFoundException $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (Exception $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (ORMException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
+            } else {
+                try {
+                    $subscriber = $app->db->subscriber();
+                    $subscriber->set([
+                        'fname' => $app->req->post['fname'],
+                        'lname' => $app->req->post['lname'],
+                        'email' => $app->req->post['email'],
+                        'address1' => $app->req->post['address1'],
+                        'address2' => $app->req->post['address2'],
+                        'city' => $app->req->post['city'],
+                        'state' => $app->req->post['state'],
+                        'postal_code' => $app->req->post['postal_code'],
+                        'country' => $app->req->post['country'],
+                        'spammer' => (int) 0
+                    ]);
+                    $subscriber->where('id = ?', $id)
+                        ->update();
+
+                    $data = [];
+                    $data['lid'] = $app->req->post['lid'];
+
+                    foreach ($app->req->post['id'] as $list) {
+                        $sub = $app->db->subscriber_list()
+                            ->where('sid = ?', $id)->_and_()
+                            ->where('lid = ?', $list)
+                            ->findOne();
+
+                        if ($sub == false && $list == $data['lid'][$list]) {
+                            $sub_list = $app->db->subscriber_list();
+                            $sub_list->insert([
+                                'lid' => $list,
+                                'sid' => $id,
+                                'addDate' => Jenssegers\Date\Date::now(),
+                                'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                                'confirmed' => 1
+                            ]);
+                        } else {
+                            $sub_list = $app->db->subscriber_list();
+                            $sub_list->set([
+                                    'lid' => $list,
+                                    'sid' => $id,
+                                    'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                ])
+                                ->where('sid = ?', $id)->_and_()
+                                ->where('lid = ?', $list)
+                                ->update();
+                        }
+                    }
+
+                    tc_cache_delete($id, 'subscriber');
+                    tc_cache_delete($id, 'slist');
+                    tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
+                    _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+                } catch (NotFoundException $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (Exception $e) {
+                    _tc_flash()->error($e->getMessage());
+                } catch (ORMException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
             }
         }
 
