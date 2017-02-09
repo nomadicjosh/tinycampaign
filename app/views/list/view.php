@@ -251,7 +251,7 @@ define('SCREEN', _h($list->code));
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><?=_t( 'Nofity Email' );?></h4>
+                    <h4 class="modal-title"><?=_t( 'Notify Email' );?></h4>
                 </div>
                 <div class="modal-body">
                     <p><?=_t( "Set this option to 'Yes' if you would like to receive email every time someone subscribes to your list." );?></p>

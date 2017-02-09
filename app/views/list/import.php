@@ -61,7 +61,7 @@ define('SCREEN', 'lists');
                         <div class="col-md-6">
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label for="exampleInputFile"><font color="red">*</font> <?= _t('File input'); ?> <a href="#csv" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                    <label for="exampleInputFile"><font color="red">*</font> <?= _t('File input'); ?> <a href="#csv" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                     <input type="file" name="csv_import" required/>
                                 </div>
                             </div>
