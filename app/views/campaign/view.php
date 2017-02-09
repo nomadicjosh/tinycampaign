@@ -269,6 +269,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <div class="box-footer">
                 <button<?=ie('campaign_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <a href="#" data-toggle="modal" data-target="#smtp-<?= _h((int)$cpgn->id); ?>" title="Send Test"><button type="button" class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
                 <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
@@ -278,6 +279,34 @@ define('SCREEN', 'cpgn');
 
     </section>
     <!-- /.content -->
+    
+    <div class="modal" id="smtp-<?= _h((int)$cpgn->id); ?>">
+        <form method="post" action="<?= get_base_url(); ?>campaign/<?= _h((int)$cpgn->id); ?>/test/" data-toggle="validator" autocomplete="off">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><?= _t('Send Test Email (Choose Server)'); ?></h4>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-control select2" name="server" style="width: 100%;" required>
+                            <option>&nbsp;</option>
+                            <?php get_user_servers(); ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                        <button type="submit" class="btn btn-primary"><?= _t('Send'); ?></button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </form>
+    </div>
+    <!-- /.modal -->
+                                    
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

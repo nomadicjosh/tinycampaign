@@ -112,7 +112,6 @@ define('SCREEN', 'cpgn');
                                     <a<?= (is_status_processing(_h((int)$msg->id)) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= _h((int)$msg->id); ?>/pause/" data-toggle="tooltip" data-placement="top" title="Pause Queue"><button type="button" class="btn bg-orange"><i class="fa fa-pause"></i></button></a>
                                     <a<?= (is_status_paused(_h((int)$msg->id)) == true ? '' : ' style="display:none !important;"'); ?> href="<?= get_base_url(); ?>campaign/<?= _h((int)$msg->id); ?>/resume/" data-toggle="tooltip" data-placement="top" title="Resume Queue"><button type="button" class="btn bg-orange"><i class="fa fa-play"></i></button></a>
                                     <a href="<?= get_base_url(); ?>campaign/<?= _h((int)$msg->id); ?>/report/" data-toggle="tooltip" data-placement="top" title="Report"><button type="button" class="btn bg-blue"><i class="fa fa-area-chart"></i></button></a>
-                                    <a<?= (_h($msg->status) == 'sent' ? ' style="display:none !important;"' : ''); ?> href="#" data-toggle="modal" data-target="#smtp-<?= _h((int)$msg->id); ?>" title="Send Test"><button type="button" class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
                                     <a<?= (is_status_processing(_h((int)$msg->id)) == false ? '' : ' style="display:none !important;"'); ?><?= ae('delete_campaign'); ?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$msg->id); ?>" title="Delete"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= _h((int)$msg->id); ?>">
@@ -134,33 +133,6 @@ define('SCREEN', 'cpgn');
                                             <!-- /.modal-content -->
                                         </div>
                                         <!-- /.modal-dialog -->
-                                    </div>
-                                    <!-- /.modal -->
-
-                                    <div class="modal" id="smtp-<?= _h((int)$msg->id); ?>">
-                                        <form method="post" action="<?= get_base_url(); ?>campaign/<?= _h((int)$msg->id); ?>/test/" data-toggle="validator" autocomplete="off">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span></button>
-                                                        <h4 class="modal-title"><?= _t('Choose Server'); ?></h4>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <select class="form-control select2" name="server" style="width: 100%;" required>
-                                                            <option>&nbsp;</option>
-                                                            <?php get_user_servers(); ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                        <button type="submit" class="btn btn-primary"><?= _t('Send'); ?></button>
-                                                    </div>
-                                                </div>
-                                                <!-- /.modal-content -->
-                                            </div>
-                                            <!-- /.modal-dialog -->
-                                        </form>
                                     </div>
                                     <!-- /.modal -->
 
