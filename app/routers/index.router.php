@@ -704,7 +704,7 @@ $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
 
 $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
     $server = get_server_info($id);
-    $app->hook->{'do_action_array'}('tinyc_email_init',[$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
+    $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
     //tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
     redirect($app->req->server['HTTP_REFERER']);
 });
@@ -991,7 +991,7 @@ $app->post('/subscribe/', function () use($app) {
             try {
                 Node::dispense('new_subscriber_notification');
                 $notify = Node::table('new_subscriber_notification');
-                $notify->lid = _h((int)$list->id);
+                $notify->lid = _h((int) $list->id);
                 $notify->sid = (int) $sid;
                 $notify->sent = (int) 0;
                 $notify->save();
@@ -1013,7 +1013,30 @@ $app->post('/subscribe/', function () use($app) {
     }
 });
 
-$app->post('/asubscribe/', function () use($app) {
+/**
+ * Before route check.
+ */
+$app->before('POST', '/api-subscribe/', function() use($app) {
+    if (!$app->req->server['HTTP_REFERER']) {
+        header('Content-Type: application/json');
+        $app->res->_format('json', 204);
+        exit();
+    }
+
+    if ($app->req->isPost()) {
+        if ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
+            echo 0;
+            exit();
+        }
+
+        if ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
+            echo 0;
+            exit();
+        }
+    }
+});
+
+$app->post('/api-subscribe/', function () use($app) {
 
     /**
      * Check list code is valid.
@@ -1075,7 +1098,7 @@ $app->post('/asubscribe/', function () use($app) {
             try {
                 Node::dispense('new_subscriber_notification');
                 $notify = Node::table('new_subscriber_notification');
-                $notify->lid = _h((int)$list->id);
+                $notify->lid = _h((int) $list->id);
                 $notify->sid = (int) $sid;
                 $notify->sent = (int) 0;
                 $notify->save();
@@ -1226,7 +1249,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('sid = ?', $sid)
                 ->findOne();
             $track->set([
-                    'viewed' => _h($track->viewed) +1
+                    'viewed' => _h($track->viewed) + 1
                 ])
                 ->update();
 
@@ -1234,7 +1257,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('id = ?', $cid)
                 ->findOne();
             $cpgn->set([
-                    'viewed' => _h($cpgn->viewed) +1
+                    'viewed' => _h($cpgn->viewed) + 1
                 ])
                 ->update();
         }
@@ -1292,7 +1315,7 @@ $app->get('/lt/', function () use($app) {
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track->set([
-                    'clicked' => _h($track->clicked) +1
+                    'clicked' => _h($track->clicked) + 1
                 ])
                 ->update();
         }
