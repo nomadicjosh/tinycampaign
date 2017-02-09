@@ -74,7 +74,7 @@ define('SCREEN', 'role');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>role/add/'"><i></i><?= _t('New Role'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>role/add/'"><i></i><?= _t('New Role'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

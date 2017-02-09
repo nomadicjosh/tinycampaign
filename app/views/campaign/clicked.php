@@ -74,7 +74,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/report/'"><i></i><?= _t('Cancel'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

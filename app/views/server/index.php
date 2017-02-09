@@ -57,8 +57,8 @@ $(document).ready(function(){
                                 <td class="text-center"><?= _h($server->name); ?></td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($server->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>server/<?= (int)_h($server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($server->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>server/<?= (int)_h($server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($server->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     
                                     <!-- modal -->
                                     <div class="modal" id="delete-<?= (int)_h($server->id); ?>">

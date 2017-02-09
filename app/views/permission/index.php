@@ -72,7 +72,7 @@ define('SCREEN', 'perm');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>permission/add/'"><i></i><?= _t('New Permission'); ?></button>
+                <button type="button" class="btn btn-icon btn-primary glyphicons circle_ok" onclick="window.location = '<?= get_base_url(); ?>permission/add/'"><i></i><?= _t('New Permission'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

@@ -65,8 +65,8 @@ $(document).ready(function(){
                                 </td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($subscriber->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h((int)$subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$subscriber->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h((int)$subscriber->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$subscriber->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     
                                     <!-- modal -->
                                     <div class="modal" id="delete-<?= _h((int)$subscriber->id); ?>">

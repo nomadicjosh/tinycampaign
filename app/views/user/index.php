@@ -61,13 +61,13 @@ define('SCREEN', 'user');
                                 </td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button type="button" class="btn bg-purple"><i class="fa fa-key"></i></button></a>
                                     <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && _h((int)$user->id) != get_userdata('id')) : ?>
-                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
+                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button type="button" class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
                                     <?php endif; ?>
                                     <?php if(_h((int)$user->id) != 1) : ?>
-                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$user->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$user->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     <?php endif; ?>
 
                                     <div class="modal" id="delete-<?= _h((int)$user->id); ?>">

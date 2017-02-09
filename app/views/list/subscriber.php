@@ -62,8 +62,8 @@ define('SCREEN', 'lists');
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= (int)_h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= (int)_h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($sub->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
                                     <div class="modal" id="delete-<?= (int)_h($sub->id); ?>">
                                         <div class="modal-dialog">
@@ -102,8 +102,8 @@ define('SCREEN', 'lists');
                     </tfoot>
                 </table>
                 <div class="box-footer">
-                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
-            </div>
+                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
+                </div>
             </div>
             <!-- /.box-body -->
         </div>
