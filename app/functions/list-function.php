@@ -234,7 +234,7 @@ function tc_link_tracking($body, $cid, $sid)
         } else {
             $url .= '&';
         }
-        $url .= 'utm_source=email' . '&utm_medium=email' . '&utm_term=' . urlencode($sid) . '&utm_campaign=' . urlencode($cid);
+        $url .= 'utm_source=tinyc' . '&utm_medium=email' . '&utm_term=' . urlencode($sid) . '&utm_campaign=' . urlencode($cid);
         return $match[1] . $link . $url . '&url=' . $match[2] . $match[3];
     }, $body);
 }
@@ -288,72 +288,6 @@ function get_list_subscriber_count($id)
         _tc_flash()->error($e->getMessage());
     } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
-    }
-}
-
-/**
- * Function used for multiple sending servers.
- * 
- * @since 2.0.1
- * @param object $server Server info.
- * @param string $to Email recipient.
- * @param string $subject Email subject.
- * @param string $html HTML version of the email message.
- * @param string $text Text version of the email message.
- */
-function tinyc_email($server, $to, $subject, $html, $text = '')
-{
-    if (is_object($server)) {
-        try {
-            $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
-        } catch (app\src\NodeQ\NodeQException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        } catch (NotFoundException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        }
-
-        try {
-            $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
-        } catch (Defuse\Crypto\Exception\BadFormatException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        } catch (app\src\Exception\Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        }
-
-        try {
-            $tcMailer = _tc_phpmailer(true);
-            $tcMailer->Mailer = "smtp";
-            $tcMailer->ContentType = "text/html";
-            $tcMailer->CharSet = "UTF-8";
-            $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
-            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h($server->remail) : _h(get_option('tc_bmh_username')));
-            $tcMailer->From = _h($server->femail);
-            $tcMailer->FromName = _h($server->fname);
-            $tcMailer->Sender = $tcMailer->From; // Return-Path
-            $tcMailer->AddReplyTo(_h($server->remail), _h($server->rname)); // Reply-To
-            $tcMailer->addAddress($to);
-            $tcMailer->Subject = $subject;
-            $tcMailer->Body = $html;
-            $tcMailer->AltBody = $text;
-            $tcMailer->Host = _h($server->hname);
-            $tcMailer->SMTPSecure = _h($server->protocol);
-            $tcMailer->Port = _h($server->port);
-            $tcMailer->SMTPAuth = true;
-            $tcMailer->isHTML(true);
-            $tcMailer->Username = _h($server->uname);
-            $tcMailer->Password = $password;
-            if ($tcMailer->send()) {
-                _tc_flash()->success(_t('Email Sent.'));
-            }
-        } catch (phpmailerException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        } catch (\app\src\Exception\Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
-        }
     }
 }
 
