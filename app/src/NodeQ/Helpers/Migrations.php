@@ -1,5 +1,6 @@
 <?php namespace app\src\NodeQ\Helpers;
 
+use Defuse\Crypto\Key;
 use \app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\NodeQException;
 use app\src\Exception\Exception;
@@ -28,14 +29,14 @@ class Migrations
                 'key' => 'string',
                 'created_at' => 'string'
             ]);
-            $key = \Defuse\Crypto\Key::createNewRandomKey();
+            $key = Key::createNewRandomKey();
             $q = Node::table('php_encryption');
             $q->key = (string) $key->saveToAsciiSafeString();
             $q->created_at = (string) \Jenssegers\Date\Date::now();
             $q->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
+        } catch (\Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
