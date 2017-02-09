@@ -53,7 +53,7 @@ define('SCREEN', 'tpl');
                                     <div class="text-center">
                                         <a href="<?= get_base_url(); ?>template/<?= _h((int)$tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
                                         <a href="#" data-toggle="modal" data-target="#preview-<?= _h((int)$tpl->id); ?>" title="Preview"><button type="button" class="btn bg-aqua"><i class="fa fa-eye"></i></button></a>
-                                        <a href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$tpl->id); ?>" title="Delete"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                        <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$tpl->id); ?>" title="Delete"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     </div>
                                     <div class="modal" id="preview-<?= _h((int)$tpl->id); ?>">
                                         <div class="modal-dialog" style="width:900px !important;max-height: 800px !important;">
