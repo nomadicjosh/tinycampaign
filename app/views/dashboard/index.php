@@ -36,6 +36,8 @@ define('SCREEN', 'dash');
         
         <?= _tc_flash()->showMessage(); ?>
         
+        <?php $app->hook->{'do_action'}('dashboard_info_message'); ?>
+        
         <div class="row">
             <?php dashboard_top_widgets(); ?>
         </div>
