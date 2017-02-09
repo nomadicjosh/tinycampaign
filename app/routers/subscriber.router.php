@@ -227,7 +227,7 @@ $app->group('/subscriber', function() use ($app) {
 
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
-                    tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
+                    tc_logger_activity_log_write('Update Record', 'Subscriber', get_sub_name($id), get_userdata('uname'));
                     _tc_flash()->warning(_t('Subscriber was updated but was flagged as spam.'), $app->req->server['HTTP_REFERER']);
                 } catch (NotFoundException $e) {
                     _tc_flash()->error($e->getMessage());
@@ -287,7 +287,7 @@ $app->group('/subscriber', function() use ($app) {
 
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
-                    tc_logger_activity_log_write('Update Record', 'Subscriber', _h($sub->fname) . ' ' . _h($sub->lname), get_userdata('uname'));
+                    tc_logger_activity_log_write('Update Record', 'Subscriber', get_sub_name($id), get_userdata('uname'));
                     _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
                 } catch (NotFoundException $e) {
                     _tc_flash()->error($e->getMessage());
