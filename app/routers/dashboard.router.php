@@ -188,7 +188,7 @@ $app->group('/dashboard', function () use($app) {
 
         try {
             $cpgns = $app->db->campaign()
-                ->select('COUNT(campaign.bounces) as count,list.name')
+                ->select('campaign.bounces as count,list.name')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
                 ->where('campaign.bounces > 0')->_and_()
