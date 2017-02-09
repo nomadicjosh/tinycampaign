@@ -353,7 +353,8 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
+        //tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
+        $app->hook->{'do_action_array'}('tinyc_email_init',[$server, _h($sub->email), _h($cpgn->subject), $msg, '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
 
