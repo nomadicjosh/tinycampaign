@@ -768,10 +768,9 @@ function dashboard_email_sent_count()
 
     try {
         $emails = $app->db->campaign()
-            ->where('campaign.owner = ?', get_userdata('id'))->_and_()
-            ->whereNotNull('campaign.sendfinish')
+            ->where('campaign.owner = ?', get_userdata('id'))
             ->groupBy('campaign.id')
-            ->count('campaign.recipients');
+            ->sum('campaign.recipients');
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
