@@ -269,17 +269,14 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 });
 
 $app->post('/role/editRole/', function () use($app) {
-    try {
-        $roleID = $app->req->post['roleID'];
-        $roleName = $app->req->post['roleName'];
-        $rolePerm = maybe_serialize($app->req->post['permission']);
-
-        $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
-        if ($strSQL) {
+    try {        
+        $role = $app->db->role();
+        $role->roleName = $app->req->post['roleName'];
+        $role->permission = maybe_serialize($app->req->post['permission']);
+        $role->where('id = ?', $app->req->post['roleID'])
+            ->update();
+        
             _tc_flash()->success(_tc_flash()->notice(200));
-        } else {
-            _tc_flash()->error(_tc_flash()->notice(409));
-        }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
