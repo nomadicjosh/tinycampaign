@@ -89,7 +89,7 @@ class Migrations
             $q->runned = (int) 0;
             $q->status = (int) 1;
             $q->save();
-            
+
             $q->name = 'Run Bounce Handler';
             $q->url = (string) $url . 'cron/runBounceHandler/';
             $q->time = (string) '';
@@ -100,7 +100,7 @@ class Migrations
             $q->runned = (int) 0;
             $q->status = (int) 1;
             $q->save();
-            
+
             $q->name = 'Run NodeQ';
             $q->url = (string) $url . 'cron/runNodeQ/';
             $q->time = (string) '';
@@ -117,11 +117,11 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function php_encryption()
     {
-        $key = \Defuse\Crypto\Key::createNewRandomKey();
         try {
+            $key = \Defuse\Crypto\Key::createNewRandomKey();
             Node::create('php_encryption', [
                 'key' => 'string',
                 'created_at' => 'string'
@@ -133,11 +133,13 @@ class Migrations
             $q->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function queued_campaign()
     {
         try {
@@ -153,7 +155,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function confirm_email()
     {
         try {
@@ -169,7 +171,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function subscribe_email()
     {
         try {
@@ -185,7 +187,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function unsubscribe_email()
     {
         try {
@@ -201,7 +203,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-    
+
     public static function new_subscriber_notification()
     {
         try {
