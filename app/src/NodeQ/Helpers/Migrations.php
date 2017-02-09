@@ -1,6 +1,5 @@
 <?php namespace app\src\NodeQ\Helpers;
 
-use Defuse\Crypto\Key;
 use \app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\NodeQException;
 use app\src\Exception\Exception;
@@ -20,27 +19,6 @@ class Migrations
             return self::$table();
         }
         return true;
-    }
-    
-    public static function php_encryption()
-    {
-        try {
-            Node::create('php_encryption', [
-                'key' => 'string',
-                'created_at' => 'string'
-            ]);
-            $key = Key::createNewRandomKey();
-            $q = Node::table('php_encryption');
-            $q->key = (string) $key->saveToAsciiSafeString();
-            $q->created_at = (string) \Jenssegers\Date\Date::now();
-            $q->save();
-        } catch (NodeQException $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (\Defuse\Crypto\Exception\EnvironmentIsBrokenException $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        }
     }
 
     public static function cronjob_setting()
@@ -111,7 +89,7 @@ class Migrations
             $q->runned = (int) 0;
             $q->status = (int) 1;
             $q->save();
-
+            
             $q->name = 'Run Bounce Handler';
             $q->url = (string) $url . 'cron/runBounceHandler/';
             $q->time = (string) '';
@@ -122,7 +100,7 @@ class Migrations
             $q->runned = (int) 0;
             $q->status = (int) 1;
             $q->save();
-
+            
             $q->name = 'Run NodeQ';
             $q->url = (string) $url . 'cron/runNodeQ/';
             $q->time = (string) '';
@@ -139,7 +117,27 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
+    
+    public static function php_encryption()
+    {
+        $key = \Defuse\Crypto\Key::createNewRandomKey();
+        try {
+            Node::create('php_encryption', [
+                'key' => 'string',
+                'created_at' => 'string'
+            ]);
 
+            $q = Node::table('php_encryption');
+            $q->key = (string) $key->saveToAsciiSafeString();
+            $q->created_at = (string) \Jenssegers\Date\Date::now();
+            $q->save();
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
     public static function queued_campaign()
     {
         try {
@@ -155,7 +153,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-
+    
     public static function confirm_email()
     {
         try {
@@ -171,7 +169,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-
+    
     public static function subscribe_email()
     {
         try {
@@ -187,7 +185,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-
+    
     public static function unsubscribe_email()
     {
         try {
@@ -203,7 +201,7 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
-
+    
     public static function new_subscriber_notification()
     {
         try {
