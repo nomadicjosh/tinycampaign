@@ -237,17 +237,15 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            $roleID = $app->req->post['roleID'];
-            $roleName = $app->req->post['roleName'];
-            $rolePerm = maybe_serialize($app->req->post['permission']);
+            $role = $app->db->role();
+            $role->insert([
+                    'roleName' => $app->req->post['roleName'],
+                    'permission' => maybe_serialize($app->req->post['permission'])
+                ])
+                ->save();
 
-            $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
-            if ($strSQL) {
-                $ID = $strSQL->lastInsertId();
-                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
-            } else {
-                _tc_flash()->error(_tc_flash()->notice(409));
-            }
+            $ID = $role->lastInsertId();
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -269,14 +267,16 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 });
 
 $app->post('/role/editRole/', function () use($app) {
-    try {        
+    try {
         $role = $app->db->role();
-        $role->roleName = $app->req->post['roleName'];
-        $role->permission = maybe_serialize($app->req->post['permission']);
-        $role->where('id = ?', $app->req->post['roleID'])
+        $role->set([
+                'roleName' => $app->req->post['roleName'],
+                'permission' => maybe_serialize($app->req->post['permission'])
+            ])
+            ->where('id = ?', $app->req->post['roleID'])
             ->update();
-        
-            _tc_flash()->success(_tc_flash()->notice(200));
+
+        _tc_flash()->success(_tc_flash()->notice(200));
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
