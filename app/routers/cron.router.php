@@ -9,6 +9,8 @@ use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
 use app\src\Exception\IOException;
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
 
 /**
  * Cron Router
@@ -341,10 +343,10 @@ $app->group('/cron', function () use($app, $css, $js) {
             _tc_flash()->error($e->getMessage());
         }
 
-        if (!isset($_GET['password']) && !isset($argv[1])) {
+        if (!isset($app->req->get['password']) && !isset($argv[1])) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
             exit(_t('No cronjob handler password found, use cronjob?password=<yourpassword>.'));
-        } elseif (isset($_GET['password']) && $_GET['password'] != _h($setting->cronjobpassword)) {
+        } elseif (isset($app->req->get['password']) && $app->req->get['password'] != _h($setting->cronjobpassword)) {
             Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid $_GET password')));
             exit(_t('Invalid $_GET password'));
         } elseif (_h($setting->cronjobpassword) == 'changeme') {
@@ -366,7 +368,7 @@ $app->group('/cron', function () use($app, $css, $js) {
             // execute only one job and then exit
             foreach ($cron as $job) {
 
-                if (isset($_GET['id']) && _h($job->id) == $_GET['id']) {
+                if (isset($app->req->get['id']) && _h($job->id) == $app->req->get['id']) {
                     $run = true;
                 } else {
                     $run = false;
@@ -510,10 +512,9 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                     // get messages from the queue
                     $messages = $queue->getEmails();
-                    // iterate messages
-                    $numItems = $queue->getUnsentEmailCount();
                     $i = 0;
                     $last = Node::table(_h($cpgn->node))->orderBy('id', 'DESC')->limit(1)->find();
+                    // iterate messages
                     foreach ($messages as $message) {
                         $sub = get_subscriber_by('email', $message->getToEmail());
                         $slist = $app->db->subscriber_list()
@@ -548,7 +549,8 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg .= tinyc_footer_logo();
                         $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
                         // send email
-                        tinyc_email($server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text));
+                        //tinyc_email($server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text));
+                        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text)]);
 
                         $q = $app->db->campaign()
                             ->where('node = ?', _h($cpgn->node))
@@ -581,6 +583,25 @@ $app->group('/cron', function () use($app, $css, $js) {
     });
 
     $app->get('/runBounceHandler/', function () {
+        try {
+            $node = Node::table('php_encryption')->find(1);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+        }
+
+        try {
+            $password = Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
+        } catch (Defuse\Crypto\Exception\BadFormatException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('BOUNCESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('BOUNCESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('BOUNCESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        }
         $time_start = microtime_float();
 
         $bmh = new app\src\tc_BounceHandler();
@@ -598,7 +619,7 @@ $app->group('/cron', function () use($app, $css, $js) {
          */
         $bmh->mailhost = _h(get_option('tc_bmh_host')); // your mail server
         $bmh->mailboxUserName = _h(get_option('tc_bmh_username')); // your mailbox username
-        $bmh->mailboxPassword = _h(get_option('tc_bmh_password')); // your mailbox password
+        $bmh->mailboxPassword = $password; // your mailbox password
         $bmh->port = _h(get_option('tc_bmh_port')); // the port to access your mailbox, default is 143
         $bmh->service = _h(get_option('tc_bmh_service')); // the service to use (imap or pop3), default is 'imap'
         $bmh->serviceOption = _h(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
