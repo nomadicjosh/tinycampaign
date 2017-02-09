@@ -60,6 +60,7 @@ define('SCREEN', 'handlers');
                                 <th class="text-center"><?= _t('Time/Each'); ?></th>
                                 <th class="text-center"><?= _t('Last Run'); ?></th>
                                 <th class="text-center"><?= _t('# Runs'); ?></th>
+                                <th class="text-center"><?= _t('Status'); ?></th>
                                 <th class="text-center"><?= _t('Action'); ?></th>
                             </tr>
                         </thead>
@@ -73,6 +74,11 @@ define('SCREEN', 'handlers');
                                     <td class="text-center">
                                         <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
                                             <?= _h((int)$job->runned); ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="label <?=tc_cron_status_label(_h($job->status));?>" style="font-size:1em;font-weight: bold;">
+                                            <?= (_h((int)$job->status) == 1 ? _t('Active') : _t('Inactive')); ?>
                                         </span>
                                     </td>
                                     <?php foreach ($set as $s) : ?>
@@ -92,6 +98,7 @@ define('SCREEN', 'handlers');
                                 <th class="text-center"><?= _t('Time/Each'); ?></th>
                                 <th class="text-center"><?= _t('Last Run'); ?></th>
                                 <th class="text-center"><?= _t('# Runs'); ?></th>
+                                <th class="text-center"><?= _t('Status'); ?></th>
                                 <th class="text-center"><?= _t('Action'); ?></th>
                             </tr>
                         </tfoot>
