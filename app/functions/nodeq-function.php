@@ -213,7 +213,7 @@ function new_subscriber_notify_email()
                 try {
                     _tc_email()->tc_mail(_h($user->email), _t('New Subscriber to') . ' ' . _h($list->name), $message, $headers);
                 } catch (phpmailerException $e) {
-                    Cascade::getLogger('error')->error(sprintf('PHPMailer[%s]: %s', $e->getCode(), $e->getMessage()));
+                    Cascade::getLogger('error')->error(sprintf('PHPMAILER[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
                 $upd = Node::table('new_subscriber_notification')->find(_h($q->id));
                 $upd->sent = 1;
