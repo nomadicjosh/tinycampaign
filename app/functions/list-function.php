@@ -223,19 +223,20 @@ function get_list_subscribers_count($id)
  * @param string $body Campaign message.
  * @param int $cid Campaign id.
  * @param int $sid Subscriber id.
+ * @param string $campaign Slugified version of campaign subject.
  * @return mixed
  */
-function tc_link_tracking($body, $cid, $sid)
+function tc_link_tracking($body, $cid, $sid, $campaign)
 {
-    $link = get_base_url() . 'lt' . '/';
-    return preg_replace_callback('#(<a.*?href=")([^"]*)("[^>]*?>)#i', function($match) use ($cid, $sid, $link) {
+    $link = get_base_url() . 'lt' . '/?cid=' . urlencode($cid) . '&sid=' . urlencode($sid);
+    return preg_replace_callback('#(<a.*?href=")([^"]*)("[^>]*?>)#i', function($match) use ($campaign, $link) {
         if (strpos($link, '?') === false) {
-            $url = '?';
+            $ga = '?';
         } else {
-            $url .= '&';
+            $ga .= '&';
         }
-        $url .= 'utm_source=tinyc' . '&utm_medium=email' . '&utm_term=' . urlencode($sid) . '&utm_campaign=' . urlencode($cid);
-        return $match[1] . $link . $url . '&url=' . $match[2] . $match[3];
+        $ga .= 'utm_source=tinyc' . '&utm_medium=email' . '&utm_campaign=' . urlencode($campaign);
+        return $match[1] . $link . $ga . '&url=' . $match[2] . $match[3];
     }, $body);
 }
 

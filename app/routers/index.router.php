@@ -1318,17 +1318,29 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
 $app->get('/lt/', function () use($app) {
 
     try {
+        if (strpos($app->req->get['utm_campaign'], '_') !== false) {
+            $cid = $app->req->get['cid'];
+        } else {
+            $cid = $app->req->get['utm_campaign'];
+        }
+        
+        if (is_numeric($app->req->get['utm_term']) !== false) {
+            $sid = $app->req->get['utm_term'];
+        } else {
+            $sid = $app->req->get['sid'];
+        }
+
         $tracking = $app->db->tracking_link()
-            ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
-            ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+            ->where('cid = ?', $cid)->_and_()
+            ->where('sid = ?', $sid)->_and_()
             ->where('url = ?', $app->req->get['url'])
             ->count();
 
         if ($tracking <= 0) {
             $track = $app->db->tracking_link();
             $track->insert([
-                'cid' => $app->req->get['utm_campaign'],
-                'sid' => $app->req->get['utm_term'],
+                'cid' => $cid,
+                'sid' => $sid,
                 'source' => $app->req->get['utm_source'],
                 'medium' => $app->req->get['utm_medium'],
                 'url' => $app->req->get['url'],
@@ -1337,12 +1349,12 @@ $app->get('/lt/', function () use($app) {
             ]);
         } else {
             $track = $app->db->tracking_link()
-                ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
-                ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track->set([
-                    'clicked' => _h($track->clicked) + 1
+                    'clicked' => _h($track->clicked) +1
                 ])
                 ->update();
         }

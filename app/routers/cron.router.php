@@ -524,6 +524,8 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                         $list = get_list_by('id', $message->getListId());
                         $server = get_server_info(_h($list->server));
+                        
+                        $slug = _tc_unique_campaign_slug(_h($cpgn->subject));
 
                         $footer = _escape($cpgn->footer);
                         $footer = str_replace('{email}', _h($sub->email), $footer);
@@ -551,7 +553,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
                         // send email
                         //tinyc_email($server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text));
-                        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text)]);
+                        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug), _h($cpgn->text)]);
 
                         $q = $app->db->campaign()
                             ->where('node = ?', _h($cpgn->node))
