@@ -587,6 +587,9 @@ a span,
                       </tbody>
                     </table><!-- /.column -->
                   </div><!-- /.col-1 -->
+                  <div id="wrapper" style="margin:0 auto !important;text-align:center !important;">
+                    <div id="logo-track"><img src="{system_url}static/assets/img/tinyC-Logo.png" /></div>
+                  </div>
                   <!--[if (gte mso 9)|(IE)]>
                         </td>
                       </tr>
