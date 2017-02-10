@@ -1014,6 +1014,7 @@ $app->post('/subscribe/', function () use($app) {
  * Before route check.
  */
 $app->before('POST', '/asubscribe/', function() use($app) {
+    $valid = true;
     if (!$app->req->server['HTTP_REFERER']) {
         $status = _t("error");
         $message = _t("No referrer.");
@@ -1038,7 +1039,11 @@ $app->before('POST', '/asubscribe/', function() use($app) {
 });
 
 $app->post('/asubscribe/', function () use($app) {
-
+    $valid = true;
+    /**
+     * Put email into a variable for use.
+     */
+    $email = $app->req->post['email'];
     /**
      * Retrive list info.
      */
@@ -1046,7 +1051,7 @@ $app->post('/asubscribe/', function () use($app) {
     /**
      * Retrieve subscriber info.
      */
-    $get_sub = get_subscriber_by('email', $app->req->post['email']);
+    $get_sub = get_subscriber_by('email', $email);
     /**
      * Set spam tolerance.
      */
@@ -1054,7 +1059,6 @@ $app->post('/asubscribe/', function () use($app) {
     /**
      * Check if email is empty.
      */
-    $email = $app->req->post['email'];
     if (empty($email)) {
         $status = _t("error");
         $message = _t("Email address cannot be blank.");
@@ -1121,43 +1125,18 @@ $app->post('/asubscribe/', function () use($app) {
 
             $status = _t("success");
             $message = _t("You have been successfully subscribed. Check your email.");
-
-            $data = array(
-                'status' => $status,
-                'message' => $message
-            );
-
-            echo json_encode($data);
         } catch (NotFoundException $e) {
             $status = _t("error");
             $message = _t("Server error.");
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            $data = array(
-                'status' => $status,
-                'message' => $message
-            );
-
-            echo json_encode($data);
         } catch (Exception $e) {
             $status = _t("error");
             $message = _t("Server error.");
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            $data = array(
-                'status' => $status,
-                'message' => $message
-            );
-
-            echo json_encode($data);
         } catch (ORMException $e) {
             $status = _t("error");
             $message = _t("Server error.");
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-            $data = array(
-                'status' => $status,
-                'message' => $message
-            );
-
-            echo json_encode($data);
         }
     }
     $data = array(
