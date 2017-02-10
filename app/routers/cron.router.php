@@ -533,6 +533,7 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+                        $msg = str_replace('{subject}', _h($cpgn->subject), $msg);
                         $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . _h($cpgn->id) . '/">' . _t('View this email in your browser') . '</a>', $msg);
                         $msg = str_replace('{first_name}', _h($sub->fname), $msg);
                         $msg = str_replace('{last_name}', _h($sub->lname), $msg);

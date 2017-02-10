@@ -57,6 +57,9 @@ define('SCREEN', 'ccpgn');
                     {text: 'Date', onclick: function () {
                             editor.insertContent('{todays_date}');
                         }},
+                    {text: 'Campaign Subject', onclick: function () {
+                            editor.insertContent('{subject}');
+                        }},
                     {text: 'View Online', onclick: function () {
                             editor.insertContent('{view_online}');
                         }},
