@@ -35,6 +35,7 @@ ob_implicit_flush(0);
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+<?php tc_dashboard_head(); ?>
 </head>
 <body class="hold-transition login-page">
 
@@ -55,6 +56,7 @@ ob_implicit_flush(0);
     });
   });
 </script>
+<?php tc_dashboard_footer(); ?>
 </body>
 </html>
 <?php print_gzipped_page(); ?>
