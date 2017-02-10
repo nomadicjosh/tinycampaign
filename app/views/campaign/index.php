@@ -20,15 +20,18 @@ define('SCREEN_PARENT', 'cpgns');
 define('SCREEN', 'cpgn');
 
 ?>
-
+<?php if($count > 0) : ?>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         setInterval(function () {
-            $("#example1").load(location.href + " #example1>*", "");
+            <?php foreach($msgs as $j) : ?>
+            $("#msg<?=_h($j->id);?>").load(location.href + " #msg<?=_h($j->id);?>>*", "");
+            <?php endforeach; ?>
         }, 10000);
     });
 </script>
+<?php endif; ?>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -44,7 +47,7 @@ define('SCREEN', 'cpgn');
     <!-- Main content -->
     <section class="content">
 
-<?= _tc_flash()->showMessage(); ?>
+    <?= _tc_flash()->showMessage(); ?>
 
         <div class="box box-default">
             <div class="box-body">
@@ -79,7 +82,7 @@ define('SCREEN', 'cpgn');
                             }
 
                             ?>
-                            <tr class="gradeX">
+                            <tr class="gradeX" id="msg<?=_h($msg->id);?>">
                                 <td class="text-center"><?= _h($msg->subject); ?></td>
                                 <td class="text-center">
                                     <span class="label <?=tc_cpgn_status_label(_h($msg->status));?>" style="font-size:1em;font-weight: bold;">

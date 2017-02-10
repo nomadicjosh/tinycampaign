@@ -28,6 +28,9 @@ $app->group('/campaign', function() use ($app) {
                 ->where('owner = ?', get_userdata('id'))
                 ->orderBy('sendstart', 'ASC')
                 ->find();
+            $count = $app->db->campaign()
+                ->where('status = "processing"')
+                ->count('id');
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -41,7 +44,8 @@ $app->group('/campaign', function() use ($app) {
 
         $app->view->display('campaign/index', [
             'title' => _t('My Campaigns'),
-            'msgs' => $msgs
+            'msgs' => $msgs,
+            'count' => $count
             ]
         );
     });
