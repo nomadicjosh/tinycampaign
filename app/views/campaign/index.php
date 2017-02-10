@@ -25,7 +25,7 @@ define('SCREEN', 'cpgn');
 <script type="text/javascript">
     $(document).ready(function () {
         setInterval(function () {
-            $("#example2").load(location.href + " #example2>*", "");
+            $("#example1").load(location.href + " #example1>*", "");
         }, 10000);
     });
 </script>
@@ -48,7 +48,7 @@ define('SCREEN', 'cpgn');
 
         <div class="box box-default">
             <div class="box-body">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="example1" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th class="text-center"><?= _t('Subject'); ?></th>

@@ -52,7 +52,7 @@ define('SCREEN', 'handlers');
             <!-- form start -->
             <form method="post" action="<?= get_base_url(); ?>cron/" autocomplete="off">
                 <div class="box-body">
-                    <table id="example2" class="table table-bordered table-hover">
+                    <table id="example1" class="table table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th class="text-center"></th>
