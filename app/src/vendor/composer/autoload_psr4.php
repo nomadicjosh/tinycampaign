@@ -28,6 +28,7 @@ return array(
     'Gettext\\' => array($vendorDir . '/gettext/gettext/src'),
     'Desarrolla2\\Test\\Cache\\' => array($vendorDir . '/desarrolla2/cache/test'),
     'Desarrolla2\\Cache\\' => array($vendorDir . '/desarrolla2/cache/src'),
+    'Cocur\\Slugify\\' => array($vendorDir . '/cocur/slugify/src'),
     'Cascade\\' => array($vendorDir . '/theorchard/monolog-cascade/src'),
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
 );

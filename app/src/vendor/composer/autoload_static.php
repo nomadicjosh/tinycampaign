@@ -60,6 +60,7 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         ),
         'C' => 
         array (
+            'Cocur\\Slugify\\' => 14,
             'Cascade\\' => 8,
             'Carbon\\' => 7,
         ),
@@ -153,6 +154,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         'Desarrolla2\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/desarrolla2/cache/src',
+        ),
+        'Cocur\\Slugify\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cocur/slugify/src',
         ),
         'Cascade\\' => 
         array (
