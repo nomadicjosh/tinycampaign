@@ -149,7 +149,7 @@ function confirm_subscription_button($data)
     $list = get_list_by('code', $data->lcode);
 
     $link = get_base_url() . 'confirm' . '/' . $data->scode . '/lid/' . $list->id . '/sid/' . $data->sid . '/';
-    return sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">'._t('Confirm Subscription').'</a>', $link);
+    return sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">' . _t('Confirm Subscription') . '</a>', $link);
 }
 
 /**
@@ -163,7 +163,7 @@ function confirm_subscription_button($data)
 function update_preferences_button($sub)
 {
     $url = get_base_url() . 'preferences' . '/' . $sub->code . '/subscriber/' . $sub->id . '/';
-    return sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">'._t('Update Preferences').'</a>', $url);
+    return sprintf('<a href="%s" class="btn-primary" style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;">' . _t('Update Preferences') . '</a>', $url);
 }
 
 /**
@@ -198,4 +198,38 @@ function get_subscriber($subscriber, $object = true)
     }
 
     return $_subscriber;
+}
+
+/**
+ * Adds label to subscriber's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_subscriber_status_label($status)
+{
+    $label = [
+        0 => 'label-success',
+        1 => 'label-danger'
+    ];
+
+    return $label[$status];
+}
+
+/**
+ * Adds label to subscriber's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_blacklist_status_label($status)
+{
+    $label = [
+        'true' => 'label-success',
+        'false' => 'label-danger'
+    ];
+
+    return $label[$status];
 }

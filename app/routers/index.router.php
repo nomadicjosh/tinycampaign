@@ -237,17 +237,15 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
     if ($app->req->isPost()) {
         try {
-            $roleID = $app->req->post['roleID'];
-            $roleName = $app->req->post['roleName'];
-            $rolePerm = maybe_serialize($app->req->post['permission']);
+            $role = $app->db->role();
+            $role->insert([
+                    'roleName' => $app->req->post['roleName'],
+                    'permission' => maybe_serialize($app->req->post['permission'])
+                ])
+                ->save();
 
-            $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
-            if ($strSQL) {
-                $ID = $strSQL->lastInsertId();
-                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
-            } else {
-                _tc_flash()->error(_tc_flash()->notice(409));
-            }
+            $ID = $role->lastInsertId();
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -270,16 +268,15 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
 $app->post('/role/editRole/', function () use($app) {
     try {
-        $roleID = $app->req->post['roleID'];
-        $roleName = $app->req->post['roleName'];
-        $rolePerm = maybe_serialize($app->req->post['permission']);
+        $role = $app->db->role();
+        $role->set([
+                'roleName' => $app->req->post['roleName'],
+                'permission' => maybe_serialize($app->req->post['permission'])
+            ])
+            ->where('id = ?', $app->req->post['roleID'])
+            ->update();
 
-        $strSQL = $app->db->query(sprintf("REPLACE INTO `role` SET `id` = %u, `roleName` = '%s', `permission` = '%s'", $roleID, $roleName, $rolePerm));
-        if ($strSQL) {
-            _tc_flash()->success(_tc_flash()->notice(200));
-        } else {
-            _tc_flash()->error(_tc_flash()->notice(409));
-        }
+        _tc_flash()->success(_tc_flash()->notice(200));
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
@@ -704,7 +701,8 @@ $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
 
 $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
     $server = get_server_info($id);
-    tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
+    $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
+    //tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
     redirect($app->req->server['HTTP_REFERER']);
 });
 
@@ -945,6 +943,17 @@ $app->post('/subscribe/', function () use($app) {
         _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
         exit();
     }
+    /**
+     * Set spam tolerance.
+     */
+    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    /**
+     * Check if subscriber is actually a spammer.
+     */
+    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+        _tc_flash()->error(_t('Your email address has been flagged as spam and will not be subscribed to the list.'), get_base_url() . 'status' . '/');
+        exit();
+    }
 
     try {
         $subscriber = $app->db->subscriber();
@@ -952,8 +961,8 @@ $app->post('/subscribe/', function () use($app) {
             'fname' => $app->req->post['fname'],
             'lname' => $app->req->post['lname'],
             'email' => $app->req->post['email'],
-            'state' => 'NULL',
-            'country' => 'NULL',
+            'state' => NULL,
+            'country' => NULL,
             'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
             'ip' => $app->req->server['REMOTE_ADDR'],
             'addedBy' => (int) 1,
@@ -965,6 +974,7 @@ $app->post('/subscribe/', function () use($app) {
         $sub_list->insert([
             'lid' => _h($list->id),
             'sid' => $sid,
+            'method' => 'subscribe',
             'addDate' => Jenssegers\Date\Date::now(),
             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
             'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
@@ -979,7 +989,7 @@ $app->post('/subscribe/', function () use($app) {
             try {
                 Node::dispense('new_subscriber_notification');
                 $notify = Node::table('new_subscriber_notification');
-                $notify->lid = _h((int)$list->id);
+                $notify->lid = _h((int) $list->id);
                 $notify->sid = (int) $sid;
                 $notify->sent = (int) 0;
                 $notify->save();
@@ -999,6 +1009,156 @@ $app->post('/subscribe/', function () use($app) {
     } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
     }
+});
+
+/**
+ * Before route check.
+ */
+$app->before('POST', '/asubscribe/', function() use($app) {
+    $valid = true;
+    if (!$app->req->server['HTTP_REFERER']) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("No referrer.").'</font>';
+        $valid = false;
+    } elseif ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
+        $valid = false;
+    } elseif ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
+        $valid = false;
+    }
+    if (!$valid) {
+        $data = array(
+            'status' => $status,
+            'message' => $message
+        );
+
+        echo json_encode($data);
+    }
+});
+
+$app->post('/asubscribe/', function () use($app) {
+    $valid = true;
+    /**
+     * Put email into a variable for use.
+     */
+    $email = $app->req->post['email'];
+    /**
+     * Retrive list info.
+     */
+    $list = get_list_by('code', $app->req->post['code']);
+    /**
+     * Retrieve subscriber info.
+     */
+    $get_sub = get_subscriber_by('email', $email);
+    /**
+     * Set spam tolerance.
+     */
+    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    /**
+     * Check if email is empty.
+     */
+    if (empty($email)) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("Email address cannot be blank.").'</font>';
+        $valid = false;
+    }
+    /**
+     * Check if subscriber exists.
+     */ elseif (_h($get_sub->id) > 0) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("Your email is already in the system.").'</font>';
+        $valid = false;
+    }
+    /**
+     * Checks if email is valid.
+     */ elseif (!v::email()->validate($email)) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("You must enter a valid email.").'</font>';
+        $valid = false;
+    }
+    /**
+     * Check if subscriber is actually a spammer.
+     */ elseif (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
+        $status = _t("error");
+        $message = '<font style="color:#ff0000">'._t("Your email address was flagged as spam.").'</font>';
+        $valid = false;
+    }
+
+    if ($valid) {
+        try {
+            $subscriber = $app->db->subscriber();
+            $subscriber->insert([
+                'email' => $email,
+                'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'ip' => $app->req->server['REMOTE_ADDR'],
+                'spammer' => (int) 0,
+                'addedBy' => (int) 1,
+                'addDate' => Jenssegers\Date\Date::now()
+            ]);
+            $sid = $subscriber->lastInsertId();
+
+            $sub_list = $app->db->subscriber_list();
+            $sub_list->insert([
+                'lid' => _h($list->id),
+                'sid' => $sid,
+                'method' => 'subscribe',
+                'addDate' => Jenssegers\Date\Date::now(),
+                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+            ]);
+
+            if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+                try {
+                    Node::dispense('new_subscriber_notification');
+                    $notify = Node::table('new_subscriber_notification');
+                    $notify->lid = _h((int) $list->id);
+                    $notify->sid = (int) $sid;
+                    $notify->sent = (int) 0;
+                    $notify->save();
+                } catch (NodeQException $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                } catch (Exception $e) {
+                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+            }
+            
+            $new_sub = $app->db->subscriber_list()
+                ->where('sid = ?', $sid)
+                ->findOne();
+
+            if ($list->optin == 1) {
+                // send confirm email and redirect.
+                confirm_email_node($list->code, $new_sub);
+            } elseif ($list->optin == 0) {
+                // send success email and redirect to default success.
+                subscribe_email_node($list->code, $new_sub);
+            }
+
+            $status = _t("success");
+            $message = '<font style="color:#008000">'._t("You have been successfully subscribed. Check your email.").'</font>';
+        } catch (NotFoundException $e) {
+            $status = _t("error");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            $status = _t("error");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            $status = _t("error");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    $data = array(
+        'status' => $status,
+        'message' => $message
+    );
+
+    echo json_encode($data);
 });
 
 /**
@@ -1130,7 +1290,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('sid = ?', $sid)
                 ->findOne();
             $track->set([
-                    'viewed' => _h($track->viewed) +1
+                    'viewed' => _h($track->viewed) + 1
                 ])
                 ->update();
 
@@ -1138,7 +1298,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('id = ?', $cid)
                 ->findOne();
             $cpgn->set([
-                    'viewed' => _h($cpgn->viewed) +1
+                    'viewed' => _h($cpgn->viewed) + 1
                 ])
                 ->update();
         }
@@ -1172,17 +1332,29 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
 $app->get('/lt/', function () use($app) {
 
     try {
+        if (strpos($app->req->get['utm_campaign'], '_') !== false) {
+            $cid = $app->req->get['cid'];
+        } else {
+            $cid = $app->req->get['utm_campaign'];
+        }
+
+        if (is_numeric($app->req->get['utm_term']) !== false) {
+            $sid = $app->req->get['utm_term'];
+        } else {
+            $sid = $app->req->get['sid'];
+        }
+
         $tracking = $app->db->tracking_link()
-            ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
-            ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+            ->where('cid = ?', $cid)->_and_()
+            ->where('sid = ?', $sid)->_and_()
             ->where('url = ?', $app->req->get['url'])
             ->count();
 
         if ($tracking <= 0) {
             $track = $app->db->tracking_link();
             $track->insert([
-                'cid' => $app->req->get['utm_campaign'],
-                'sid' => $app->req->get['utm_term'],
+                'cid' => $cid,
+                'sid' => $sid,
                 'source' => $app->req->get['utm_source'],
                 'medium' => $app->req->get['utm_medium'],
                 'url' => $app->req->get['url'],
@@ -1191,12 +1363,12 @@ $app->get('/lt/', function () use($app) {
             ]);
         } else {
             $track = $app->db->tracking_link()
-                ->where('cid = ?', $app->req->get['utm_campaign'])->_and_()
-                ->where('sid = ?', $app->req->get['utm_term'])->_and_()
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track->set([
-                    'clicked' => _h($track->clicked) +1
+                    'clicked' => _h($track->clicked) + 1
                 ])
                 ->update();
         }

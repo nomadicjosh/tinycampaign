@@ -340,6 +340,7 @@ $app->group('/list', function() use ($app) {
                         $slist->insert([
                             'lid' => $id,
                             'sid' => $sid,
+                            'method' => 'import',
                             'addDate' => Jenssegers\Date\Date::now(),
                             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                             'confirmed' => $data[3],

@@ -324,7 +324,11 @@ $app->asset->registerScriptCollection('moment.js', ['daterangepicker/moment.min.
 $app->asset->registerScriptCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.js','pages/datetime.js']);
 $app->asset->registerScriptCollection('elfinder', ['elfinder/js/elfinder.full.js', 'elfinder/js/tinymce.plugin.js']);
 $app->asset->registerScriptCollection('highcharts', ['Highcharts/highcharts.js', 'Highcharts/modules/exporting.js']);
+$app->asset->registerScriptCollection('highcharts-3d', ['Highcharts/highcharts.js', 'Highcharts/highcharts-3d.js', 'Highcharts/modules/exporting.js']);
 $app->asset->registerScriptCollection('dashboard', ['pages/dashboard.js']);
+$app->asset->registerScriptCollection('campaign-domains', ['pages/campaign-domains.js']);
+$app->asset->registerScriptCollection('campaign-opened', ['pages/campaign-opened.js']);
+$app->asset->registerScriptCollection('campaign-clicked', ['pages/campaign-clicked.js']);
 require( APP_PATH . 'functions' . DS . 'global-function.php' );
 require( APP_PATH . 'functions' . DS . 'db-function.php' );
 require( APP_PATH . 'functions' . DS . 'notify-function.php' );

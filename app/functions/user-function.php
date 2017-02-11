@@ -402,3 +402,20 @@ function email_exists($email)
     }
     return false;
 }
+
+/**
+ * Adds label to user's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_user_status_label($status)
+{
+    $label = [
+        1 => 'label-success',
+        0 => 'label-danger'
+    ];
+
+    return $label[$status];
+}

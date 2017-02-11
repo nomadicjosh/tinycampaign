@@ -28,7 +28,7 @@ $app->view->block('index');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>preferences/<?=_h($subscriber->code);?>/subscriber/<?=(int)_h($subscriber->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>preferences/<?=_h($subscriber->code);?>/subscriber/<?=_h((int)$subscriber->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">

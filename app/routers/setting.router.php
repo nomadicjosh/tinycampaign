@@ -26,7 +26,7 @@ $app->match('GET|POST', '/setting/', function () use($app) {
                 'system_name', 'system_email', 'mail_throttle',
                 'cookieexpire', 'cookiepath', 'backend_skin',
                 'tc_core_locale', 'system_timezone', 'api_key',
-                'mailing_address', 'collapse_sidebar'
+                'mailing_address', 'collapse_sidebar','spam_tolerance'
             ];
 
             foreach ($options as $option_name) {
@@ -140,7 +140,6 @@ $app->post('/setting/smtp/test/', function () use($app) {
         try {
             _tc_email()->tc_mail($app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
             tc_logger_activity_log_write('Update', 'Settings', 'SMTP Settings', get_userdata('uname'));
-            _tc_flash()->success(_tc_flash()->notice(200));
         } catch (\phpmailerException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {

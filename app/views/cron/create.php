@@ -89,8 +89,8 @@ $options = [
                         <!-- /.col -->
                         <div class="col-md-6">
                             
-                            <div class="form-group col-md-4">
-                                <label><?=_t( "Each" );?> <a href="#each" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                            <div class="form-group col-lg-6">
+                                <label><?=_t( "Each" );?> <a href="#each" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <select class="form-control select2" name="each" style="width: 100%;">
                                     <option>&nbsp;</option>
                                     <?php 
@@ -102,7 +102,7 @@ $options = [
                                 </select>
                             </div>
                             
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-lg-6">
                                 <label><?=_t( "Each / Time" );?></label>
                                 <select class="form-control select2" name="eachtime" style="width: 100%;">
                                 <?php 
@@ -114,6 +114,19 @@ $options = [
                                     ?>
                                     <option value="<?=$time;?>"<?=$s;?>><?=$time;?></option>
                                     <?php } } ?>
+                                </select>
+                            </div>
+                            
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?=_t( "Status" );?></label>
+                                <select class="form-control select2" name="status" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="1"><?=_t( "Active" );?></option>
+                                    <option value="0"><?=_t( "Inactive" );?></option>
                                 </select>
                             </div>
                             

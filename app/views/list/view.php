@@ -39,6 +39,7 @@ define('SCREEN', _h($list->code));
             "insertdatetime media table contextmenu paste"
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | gplaceholder | pplaceholder | splaceholder | eplaceholder",
+        invalid_elements: "script,object,embed",
         file_picker_callback: elFinderBrowser
     });
     function elFinderBrowser(callback, value, meta) {
@@ -93,7 +94,7 @@ define('SCREEN', _h($list->code));
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>list/<?=(int)_h($list->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>list/<?=_h((int)$list->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -133,7 +134,7 @@ define('SCREEN', _h($list->code));
                         <div class="col-md-6">
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <select class="form-control select2" name="notify_email" style="width: 100%;" required>
                                     <option>&nbsp;</option>
                                     <option value="1"<?=selected('1',_h((int)$list->notify_email),false);?>><?=_t('Yes');?></option>
@@ -210,7 +211,16 @@ define('SCREEN', _h($list->code));
                         <div class="col-md-12">
                             
                             <div class="form-group">
-                                <label><?= _t('List Subscribe Form'); ?></label>
+                                <label><?= _t('Subscribe Form'); ?></label>
+                                <!-- Custom Tabs -->           
+                                <div class="nav-tabs-custom">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#plain" data-toggle="tab"><?= _t('Regular'); ?></a></li>
+                                        <li><a href="#ajax" data-toggle="tab"><?= _t('Ajax'); ?></a></li>
+                                    </ul>
+                                    <!-- // Tabs Heading END -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="plain">
 <pre>
 &lt;form class="form-campaign" method="post" action="<?=get_base_url();?>subscribe/"&gt;
     &lt;p&gt;&lt;label&gt;First Name: &lt;/label&gt;&lt;input type="text" class="input" name="fname" /&gt;&lt;/p&gt;
@@ -222,7 +232,33 @@ define('SCREEN', _h($list->code));
     &lt;p&gt;&lt;input type="submit" name="submit" id="submit" value="Submit" /&gt;&lt;/p&gt;
 &lt;/form&gt;
 </pre>
-                                <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                            <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                        </div>
+                                        <div class="tab-pane" id="ajax">
+<pre>
+&lt;script type="text/css" src="<?=get_base_url();?>static/assets/css/tinyc/style.css"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="<?=get_base_url();?>static/assets/js/tinyc/magic.js"&gt;&lt;/script&gt;
+&lt;div id="newsletterform"&gt;
+    &lt;div class="wrap"&gt;
+        &lt;form id="newsletter" name="newsletter" method="post" action="<?=get_base_url();?>asubscribe/"&gt;
+            &lt;label for="email"&gt;Subscribe to our newsletter&lt;/label&gt;&lt;br /&gt;
+            &lt;input type="email" id="signup-email" name="email" placeholder="Enter Email" /&gt;&lt;br /&gt;
+            &lt;input type="hidden" name="m6qIHt4Z5evV" /&gt;
+            &lt;input type="hidden" name="YgexGyklrgi1" /&gt;
+            &lt;input type="hidden" name="code" value="<?=_h($list->code);?>" /&gt;
+            &lt;input type="submit" name="signup-button" id="signup-button" value="Subscribe"&gt;
+            &lt;span class="arrow"&gt;&lt;/span&gt;
+        &lt;/form&gt;
+        &lt;div id="response"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+                                            <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                        </div>
+                                    </div>
+                                    <!-- // Custom Tabs END -->
+                                </div>
                             </div>
                             
                         </div>
@@ -251,7 +287,7 @@ define('SCREEN', _h($list->code));
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><?=_t( 'Nofity Email' );?></h4>
+                    <h4 class="modal-title"><?=_t( 'Notify Email' );?></h4>
                 </div>
                 <div class="modal-body">
                     <p><?=_t( "Set this option to 'Yes' if you would like to receive email every time someone subscribes to your list." );?></p>

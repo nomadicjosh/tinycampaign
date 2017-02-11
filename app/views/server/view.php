@@ -38,7 +38,7 @@ define('SCREEN', 'server');
 
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>server/<?=(int)_h($server->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>server/<?=_h((int)$server->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -79,7 +79,7 @@ define('SCREEN', 'server');
                             </div>
                             
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Throttle'); ?>  <a href="#throttle" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
+                                <label><font color="red">*</font> <?= _t('Throttle'); ?>  <a href="#throttle" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <input type="text" class="form-control" name="throttle" value="<?=_h($server->throttle);?>" required/>
                             </div>
                         </div>
@@ -137,7 +137,7 @@ define('SCREEN', 'server');
                 <h3 class="box-title"><?= _t('Send Test Email'); ?></h3>
             </div>
             <!-- form start -->
-            <form method='post' action='<?= get_base_url(); ?>server/<?=(int)_h($server->id);?>/test/'>
+            <form method='post' action='<?= get_base_url(); ?>server/<?=_h((int)$server->id);?>/test/'>
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">

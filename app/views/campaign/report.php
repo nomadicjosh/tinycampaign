@@ -15,7 +15,7 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'cpgns');
 define('SCREEN', 'cpgn');
-?>        
+?>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -36,6 +36,14 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <div class="box-body">
+                <div id="domains"></div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+        
+        <div class="box box-default">
+            <div class="box-body">
                 <table id="example2" class="table table-bordered table-hover">
                     <tbody>
                         <tr class="gradeX">
@@ -45,47 +53,47 @@ define('SCREEN', 'cpgn');
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Date Entered');?></strong></td>
-                            <td class="text-center"><?=_h($cpgn->addDate);?></td>
+                            <td class="text-center"><?=\Jenssegers\Date\Date::parse(_h($cpgn->addDate))->format('M. d, Y h:i A');?></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Date Sent');?></strong></td>
-                            <td class="text-center"><?=_h($cpgn->sendstart);?></td>
+                            <td class="text-center"><?=\Jenssegers\Date\Date::parse(_h($cpgn->sendstart))->format('M. d, Y h:i A');?></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Date Finished');?></strong></td>
-                            <td class="text-center"><?=_h($cpgn->sendfinish);?></td>
+                            <td class="text-center"><?=\Jenssegers\Date\Date::parse(_h($cpgn->sendfinish))->format('M. d, Y h:i A');?></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Sent');?></strong></td>
-                            <td class="text-center"><?=(int)_h($cpgn->recipients);?></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=_h((int)$cpgn->recipients);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Bounces');?></strong></td>
-                            <td class="text-center"><?=(int)_h($cpgn->bounces);?></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=_h((int)$cpgn->bounces);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Opened');?></strong></td>
-                            <td class="text-center"><?=((int)_h($cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'.(int)_h($cpgn->id).'/report/opened/">'.(int)_h($cpgn->viewed).'</a>' : (int)_h($cpgn->viewed));?></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h((int)$cpgn->viewed).'</a>' : _h((int)$cpgn->viewed));?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('% Opened');?></strong></td>
-                            <td class="text-center"><?=($opened > 0 ? percent($unique_opens, (int)_h($cpgn->recipients)) : 0);?>%</td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($opened > 0 ? percent($unique_opens, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Clicked');?></strong></td>
-                            <td class="text-center"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'.(int)_h($cpgn->id).'/report/clicked/">'._h($clicks).'</a>' : _h($clicks));?></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/clicked/">'._h($clicks).'</a>' : _h($clicks));?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('% Clicked');?></strong></td>
-                            <td class="text-center"><?=($clicks > 0 ? percent($unique_clicks, (int)_h($cpgn->recipients)) : 0);?>%</td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($clicks > 0 ? percent($unique_clicks, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -100,5 +108,8 @@ define('SCREEN', 'cpgn');
     </section>
     <!-- /.content -->
 </div>
+<script>
+    var did = '<?=_h($cpgn->id);?>';
+</script>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

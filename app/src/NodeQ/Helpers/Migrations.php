@@ -52,7 +52,8 @@ class Migrations
                 'eachtime' => 'string',
                 'lastrun' => 'string',
                 'running' => 'boolean',
-                'runned' => 'integer'
+                'runned' => 'integer',
+                'status' => 'integer'
             ]);
 
             $q = Node::table('cronjob_handler');
@@ -64,6 +65,7 @@ class Migrations
             $q->lastrun = (string) '';
             $q->running = (boolean) false;
             $q->runned = (int) 0;
+            $q->status = (int) 1;
             $q->save();
 
             $q->name = 'Run Email Queue';
@@ -74,6 +76,7 @@ class Migrations
             $q->lastrun = (string) '';
             $q->running = (boolean) false;
             $q->runned = (int) 0;
+            $q->status = (int) 1;
             $q->save();
 
             $q->name = 'Purge Error Log';
@@ -84,6 +87,7 @@ class Migrations
             $q->lastrun = (string) '';
             $q->running = (boolean) false;
             $q->runned = (int) 0;
+            $q->status = (int) 1;
             $q->save();
             
             $q->name = 'Run Bounce Handler';
@@ -94,6 +98,7 @@ class Migrations
             $q->lastrun = (string) '';
             $q->running = (boolean) false;
             $q->runned = (int) 0;
+            $q->status = (int) 1;
             $q->save();
             
             $q->name = 'Run NodeQ';
@@ -104,6 +109,7 @@ class Migrations
             $q->lastrun = (string) '';
             $q->running = (boolean) false;
             $q->runned = (int) 0;
+            $q->status = (int) 1;
             $q->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
@@ -203,6 +209,27 @@ class Migrations
                 'lid' => 'integer',
                 'sid' => 'integer',
                 'sent' => 'integer'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
+    
+    public static function campaign_bounce()
+    {
+        try {
+            Node::create('campaign_bounce', [
+                'lid' => 'integer',
+                'cid' => 'integer',
+                'sid' => 'integer',
+                'email' => 'string',
+                'msgnum' => 'integer',
+                'type' => 'string',
+                'rule_no' => 'string',
+                'rule_cat' => 'string',
+                'date_added' => 'string'
             ]);
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));

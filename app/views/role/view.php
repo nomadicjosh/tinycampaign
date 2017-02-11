@@ -58,7 +58,7 @@ define('SCREEN', 'role');
                             </tr>
                         </thead>
                         <tbody>
-                            <?php role_perm((int)_h($role->id)); ?>
+                            <?php role_perm(_h((int)$role->id)); ?>
                         </tbody>
                         <tfoot>
                             <tr>
@@ -72,7 +72,7 @@ define('SCREEN', 'role');
                 <!-- Form actions -->
                 <div class="box-footer">
                     <input type="hidden" name="action" value="saveRole" />
-                    <input type="hidden" name="roleID" value="<?= (int)_h($role->id); ?>" />
+                    <input type="hidden" name="roleID" value="<?= _h((int)$role->id); ?>" />
                     <button type="submit" name="Submit" class="btn btn-primary"><i></i><?= _t('Update'); ?></button>
                     <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>role/'"><?= _t('Cancel'); ?></button>
                 </div>

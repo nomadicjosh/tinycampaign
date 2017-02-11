@@ -43,7 +43,7 @@ $(document).ready(function(){
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <div class="box-body">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="example1" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
@@ -55,13 +55,13 @@ $(document).ready(function(){
                         <?php foreach ($servers as $server) : ?>
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($server->name); ?></td>
-                                <td class="text-center"><?= _h($server->addDate); ?></td>
+                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($server->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>server/<?= (int)_h($server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($server->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>server/<?= _h((int)$server->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$server->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     
                                     <!-- modal -->
-                                    <div class="modal" id="delete-<?= (int)_h($server->id); ?>">
+                                    <div class="modal" id="delete-<?= _h((int)$server->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -74,7 +74,7 @@ $(document).ready(function(){
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>server/<?= (int)_h($server->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>server/<?= _h((int)$server->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->

@@ -28,6 +28,9 @@ $app->group('/campaign', function() use ($app) {
                 ->where('owner = ?', get_userdata('id'))
                 ->orderBy('sendstart', 'ASC')
                 ->find();
+            $count = $app->db->campaign()
+                ->where('status = "processing"')
+                ->count('id');
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -41,7 +44,8 @@ $app->group('/campaign', function() use ($app) {
 
         $app->view->display('campaign/index', [
             'title' => _t('My Campaigns'),
-            'msgs' => $msgs
+            'msgs' => $msgs,
+            'count' => $count
             ]
         );
     });
@@ -339,6 +343,7 @@ $app->group('/campaign', function() use ($app) {
 
         $msg = _escape($cpgn->html);
         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+        $msg = str_replace('{subject}', _h($cpgn->subject), $msg);
         $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . $id . '/">' . _t('View this email in your browser') . '</a>', $msg);
         $msg = str_replace('{first_name}', _h($sub->fname), $msg);
         $msg = str_replace('{last_name}', _h($sub->lname), $msg);
@@ -353,7 +358,8 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
+        //tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
+        $app->hook->{'do_action_array'}('tinyc_email_init',[$server, _h($sub->email), _h($cpgn->subject), $msg, '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
 
@@ -415,9 +421,9 @@ $app->group('/campaign', function() use ($app) {
          * and it is ok to process the query and print
          * the results in a html format.
          */ else {
-
-            tc_register_style('datatables');
-            tc_register_script('datatables');
+             
+            tc_register_script('highcharts-3d');
+            tc_register_script('campaign-domains');
 
             $app->view->display('campaign/report', [
                 'title' => _h($cpgn->subject),
@@ -479,8 +485,8 @@ $app->group('/campaign', function() use ($app) {
          * the results in a html format.
          */ else {
 
-            tc_register_style('datatables');
-            tc_register_script('datatables');
+            tc_register_script('highcharts-3d');
+            tc_register_script('campaign-opened');
 
             $app->view->display('campaign/opened', [
                 'title' => _h($cpgn->subject),
@@ -494,7 +500,7 @@ $app->group('/campaign', function() use ($app) {
     /**
      * Before route check.
      */
-    $app->before('GET|POST', '/(\d+)/report/opened/', function() {
+    $app->before('GET|POST', '/(\d+)/report/clicked/', function() {
         if (!hasPermission('manage_campaigns')) {
             _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
             exit();
@@ -539,8 +545,8 @@ $app->group('/campaign', function() use ($app) {
          * the results in a html format.
          */ else {
 
-            tc_register_style('datatables');
-            tc_register_script('datatables');
+            tc_register_script('highcharts-3d');
+            tc_register_script('campaign-clicked');
 
             $app->view->display('campaign/clicked', [
                 'title' => _h($cpgn->subject),
@@ -670,6 +676,140 @@ $app->group('/campaign', function() use ($app) {
             foreach ($template as $tpl) {
                 echo _escape($tpl->content);
             }
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getDomainReport/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to request this source.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/getDomainReport/(\d+)/', function ($id) use($app) {
+
+        try {
+            $q = $app->db->query(
+                "SELECT substring_index(subscriber.email, '@', -1) domain, COUNT(subscriber.email) domain_count "
+                . "FROM campaign_list "
+                . "JOIN campaign ON campaign_list.cid = campaign.id "
+                . "JOIN subscriber_list ON campaign_list.lid = subscriber_list.lid "
+                . "JOIN subscriber ON subscriber_list.sid = subscriber.id "
+                . "WHERE campaign.owner = ? AND campaign_list.cid = ? "
+                . "GROUP BY substring_index(subscriber.email, '@', -1)", [get_userdata('id'),$id]
+            );
+            // Use closure as callback
+        $results = $q->find(function($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
+        // Retrieve data passed from query to closure
+        $rows = [];
+        foreach ($results as $r) {
+            $row[0] = $r['domain'];
+            $row[1] = $r['domain_count'];
+            array_push($rows, $row);
+        }
+        print json_encode($rows, JSON_NUMERIC_CHECK);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getOpenedDayReport/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to request this source.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/getOpenedDayReport/(\d+)/', function ($id) use($app) {
+
+        try {
+            $q = $app->db->query(
+                "SELECT DATE_FORMAT(tracking.first_open, '%W, %M %d, %Y') as open_date, SUM(tracking.viewed) as num_opens "
+                . "FROM tracking "
+                . "JOIN campaign ON tracking.cid = campaign.id "
+                . "WHERE campaign.owner = ? AND campaign.id = ? "
+                . "GROUP BY DATE_FORMAT(tracking.first_open, '%W, %M %d, %Y')", [get_userdata('id'),$id]
+            );
+            // Use closure as callback
+        $results = $q->find(function($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
+        // Retrieve data passed from query to closure
+        $rows = [];
+        foreach ($results as $r) {
+            $row[0] = \Jenssegers\Date\Date::parse($r['open_date'])->format('D d, M Y');
+            $row[1] = $r['num_opens'];
+            array_push($rows, $row);
+        }
+        print json_encode($rows, JSON_NUMERIC_CHECK);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getClickedDayReport/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to request this source.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/getClickedDayReport/(\d+)/', function ($id) use($app) {
+
+        try {
+            $q = $app->db->query(
+                "SELECT DATE_FORMAT(tracking_link.addDate, '%W, %M %d, %Y') as click_date, SUM(tracking_link.clicked) as num_clicks "
+                . "FROM tracking_link "
+                . "JOIN campaign ON tracking_link.cid = campaign.id "
+                . "WHERE campaign.owner = ? AND campaign.id = ? "
+                . "GROUP BY DATE_FORMAT(tracking_link.addDate, '%W, %M %d, %Y')", [get_userdata('id'),$id]
+            );
+            // Use closure as callback
+        $results = $q->find(function($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
+        // Retrieve data passed from query to closure
+        $rows = [];
+        foreach ($results as $r) {
+            $row[0] = \Jenssegers\Date\Date::parse($r['click_date'])->format('D d, M Y');
+            $row[1] = $r['num_clicks'];
+            array_push($rows, $row);
+        }
+        print json_encode($rows, JSON_NUMERIC_CHECK);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {

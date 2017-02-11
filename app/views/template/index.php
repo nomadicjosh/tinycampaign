@@ -36,7 +36,7 @@ define('SCREEN', 'tpl');
         
         <div class="box box-default">
             <div class="box-body">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="example1" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th class="text-center"><?= _t('Name'); ?></th>
@@ -48,12 +48,12 @@ define('SCREEN', 'tpl');
                         <?php foreach ($templates as $tpl) : ?>
                             <tr class="gradeX">
                                 <td class="text-center"><?= _h($tpl->name); ?></td>
-                                <td class="text-center"><?= _h($tpl->addDate); ?></td>
+                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($tpl->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td>
                                     <div class="text-center">
-                                        <a href="<?= get_base_url(); ?>template/<?= _h((int)$tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                        <a href="#" data-toggle="modal" data-target="#preview-<?= _h((int)$tpl->id); ?>" title="Preview"><button class="btn bg-aqua"><i class="fa fa-eye"></i></button></a>
-                                        <a href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$tpl->id); ?>" title="Delete"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                        <a href="<?= get_base_url(); ?>template/<?= _h((int)$tpl->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                        <a href="#" data-toggle="modal" data-target="#preview-<?= _h((int)$tpl->id); ?>" title="Preview"><button type="button" class="btn bg-aqua"><i class="fa fa-eye"></i></button></a>
+                                        <a<?=ae('delete_campaign');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$tpl->id); ?>" title="Delete"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     </div>
                                     <div class="modal" id="preview-<?= _h((int)$tpl->id); ?>">
                                         <div class="modal-dialog" style="width:900px !important;max-height: 800px !important;">

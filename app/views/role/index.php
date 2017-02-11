@@ -52,7 +52,7 @@ define('SCREEN', 'role');
                             foreach ($listRoles as $k => $v) {
                                 echo '<tr class="gradeX">' . "\n";
                                 echo '<td class="text-center">' . _h($v['Name']) . '</td>' . "\n";
-                                echo '<td class="text-center"><a href="' . get_base_url() . 'role/' . (int)_h($v['ID']) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit" class="btn bg-yellow"><i class="fa fa-edit"></i></a></td>';
+                                echo '<td class="text-center"><a href="' . get_base_url() . 'role/' . _h((int)$v['ID']) . '/" data-toggle="tooltip" data-placement="top" title="View/Edit" class="btn bg-yellow"><i class="fa fa-edit"></i></a></td>';
                                 echo '</tr>';
                             }
                         }
@@ -74,7 +74,7 @@ define('SCREEN', 'role');
             <!-- /.box-body -->
             <!-- Form actions -->
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>role/add/'"><i></i><?= _t('New Role'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="window.location = '<?= get_base_url(); ?>role/add/'"><i></i><?= _t('New Role'); ?></button>
             </div>
             <!-- // Form actions END -->
         </div>

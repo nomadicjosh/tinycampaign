@@ -63,14 +63,14 @@ $options = [
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="<?= get_base_url(); ?>cron/"><?= _t('Handler Dashboard'); ?></a></li>
-                    <li><a href="<?= get_base_url(); ?>cron/new/"><?= _t('New Cronjob Handler'); ?></a></li>
+                    <li><a href="<?= get_base_url(); ?>cron/create/"><?= _t('New Cronjob Handler'); ?></a></li>
                     <li><a href="<?= get_base_url(); ?>cron/setting/"><?= _t('Settings'); ?></a></li>
                 </ul>
             </div>
             <!-- // Tabs Heading END -->
             
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>cron/<?=(int)_h($cron->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>cron/<?=_h((int)$cron->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -89,7 +89,7 @@ $options = [
                         <!-- /.col -->
                         <div class="col-md-6">
                             
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-lg-6">
                                 <label><?=_t( "Each" );?> <a href="#each" data-toggle="modal"><img src="<?=get_base_url();?>static/assets/img/help.png" /></a></label>
                                 <select class="form-control select2" name="each" style="width: 100%;">
                                     <option>&nbsp;</option>
@@ -102,7 +102,7 @@ $options = [
                                 </select>
                             </div>
                             
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-lg-6">
                                 <label><?=_t( "Each / Time" );?></label>
                                 <select class="form-control select2" name="eachtime" style="width: 100%;">
                                 <?php 
@@ -114,6 +114,19 @@ $options = [
                                 ?>
                                 <option value="<?=$time;?>"<?=$s;?>><?=$time;?></option>
                                 <?php } } ?>
+                                </select>
+                            </div>
+                            
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?=_t( "Status" );?></label>
+                                <select class="form-control select2" name="status" style="width: 100%;" required>
+                                    <option>&nbsp;</option>
+                                    <option value="1"<?=selected('1', _h($cron->status), false);?>><?=_t( "Active" );?></option>
+                                    <option value="0"<?=selected('0', _h($cron->status), false);?>><?=_t( "Inactive" );?></option>
                                 </select>
                             </div>
                             

@@ -135,7 +135,6 @@ $app->group('/dashboard', function () use($app) {
                 ->select('campaign.recipients AS count')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.status = "sent"')->_and_()
                 ->where('campaign.owner = ?', get_userdata('id'))
                 ->groupBy('list.id')
                 ->find();
@@ -189,10 +188,9 @@ $app->group('/dashboard', function () use($app) {
 
         try {
             $cpgns = $app->db->campaign()
-                ->select('COUNT(campaign.bounces) as count,list.name')
+                ->select('campaign.bounces as count,list.name')
                 ->_join('campaign_list', 'campaign.id = campaign_list.cid')
                 ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.status = "sent"')->_and_()
                 ->where('campaign.bounces > 0')->_and_()
                 ->where('campaign.owner = ?', get_userdata('id'))
                 ->groupBy('campaign.id')

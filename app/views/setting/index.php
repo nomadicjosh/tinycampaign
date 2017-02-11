@@ -92,6 +92,11 @@ define('SCREEN', 'general');
                                 <p class="help-block"><?=_t('Value in seconds between each email to be sent.');?></p>
                             </div>
                             
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('Spam Tolerance'); ?> <a href="#spam" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
+                                <input type="text" class="form-control" name="spam_tolerance" value="<?= _h(get_option('spam_tolerance')); ?>" required/>
+                            </div>
+                            
                         </div>
                         <!-- /.col -->
                         <div class="col-md-6">
@@ -142,6 +147,31 @@ define('SCREEN', 'general');
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="spam">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Spam Tolerance' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Use this option to set the spam tolerance when emails are subscribed to a list. Note that <em>test@example.com</em> has a tolerance of <em>0.39</em>." );?></p>
+                    <p><?=_t( "So, set at <em>15</em>, <em>test@example.com</em> will be seen as valid. However, set at <em>0.3</em>, it will be marked as spam." );?></p>
+                    <p><?=_t( "The higher the value, the higher the tolerance and vice versa." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 <?php

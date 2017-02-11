@@ -40,6 +40,7 @@ define('SCREEN', 'ctpl');
             "insertdatetime media table contextmenu paste"
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | placeholder",
+        invalid_elements: "script,object,embed",
         file_picker_callback: elFinderBrowser,
         setup: function (editor) {
             editor.addButton('placeholder', {

@@ -38,7 +38,7 @@ define('SCREEN', 'lists');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <div class="box-body">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="example1" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th class="text-center"><?= _t('Email'); ?></th>
@@ -55,13 +55,17 @@ define('SCREEN', 'lists');
                                 <td class="text-center"><?= _h($sub->email); ?></td>
                                 <td class="text-center"><?= _h($sub->fname); ?></td>
                                 <td class="text-center"><?= _h($sub->lname); ?></td>
-                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($sub->addDate))->format('M. d, Y @ h:s A'); ?></td>
-                                <td class="text-center"><?=(_h($sub->unsubscribed) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?></td>
+                                <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($sub->addDate))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>subscriber/<?= (int)_h($sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= (int)_h($sub->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <span class="label <?=tc_subscriber_status_label(_h($sub->unsubscribed));?>" style="font-size:1em;font-weight: bold;">
+                                        <?=(_h($sub->unsubscribed) == 1 ? _t('Unsubscribed') : _t('Subscribed')); ?>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="<?= get_base_url(); ?>subscriber/<?= _h((int)$sub->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a<?=ae('delete_subscriber');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$sub->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
 
-                                    <div class="modal" id="delete-<?= (int)_h($sub->id); ?>">
+                                    <div class="modal" id="delete-<?= _h((int)$sub->id); ?>">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -74,7 +78,7 @@ define('SCREEN', 'lists');
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
-                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= (int)_h($sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
+                                                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/<?= _h((int)$sub->id); ?>/d/'"><?= _t('Confirm'); ?></button>
                                                 </div>
                                             </div>
                                             <!-- /.modal-content -->
@@ -98,8 +102,8 @@ define('SCREEN', 'lists');
                     </tfoot>
                 </table>
                 <div class="box-footer">
-                <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
-            </div>
+                    <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>list/'"><?=_t( 'Cancel' );?></button>
+                </div>
             </div>
             <!-- /.box-body -->
         </div>

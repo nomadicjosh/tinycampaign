@@ -116,7 +116,7 @@ $app->group('/user', function() use ($app) {
             ]
         );
     });
-    
+
     /**
      * Before route check.
      */
@@ -134,6 +134,15 @@ $app->group('/user', function() use ($app) {
         }
 
         if ($app->req->isPost()) {
+            /**
+             * Fires before user record is updated.
+             *
+             * @since 2.0.3
+             * @param int $id
+             *            User's id.
+             */
+            $app->hook->{'do_action'}('pre_update_user', $id);
+
             try {
                 $user = $app->db->user();
                 $user->fname = $app->req->post['fname'];
@@ -148,8 +157,25 @@ $app->group('/user', function() use ($app) {
                 $user->status = $app->req->post['status'];
                 $user->roleID = $app->req->post['roleID'];
                 $user->LastUpdate = \Jenssegers\Date\Date::now()->format('Y-m-d h:i:s');
+                /**
+                 * Fires during the saving/updating of a user record.
+                 *
+                 * @since 2.0.3
+                 * @param object $user
+                 *            User data object.
+                 */
+                $app->hook->do_action('update_user_db_table', $user);
                 $user->where('id = ?', $id)
                     ->update();
+
+                /**
+                 * Fires after user record has been updated.
+                 *
+                 * @since 2.0.3
+                 * @param int $id
+                 *            User's id.
+                 */
+                $app->hook->{'do_action'}('post_update_user', $id);
 
                 tc_cache_delete($id, 'user');
                 tc_logger_activity_log_write('Update Record', 'User', get_name($id), get_userdata('uname'));
@@ -202,7 +228,7 @@ $app->group('/user', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -215,6 +241,15 @@ $app->group('/user', function() use ($app) {
     $app->match('GET|POST', '/profile/', function () use($app) {
 
         if ($app->req->isPost()) {
+            /**
+             * Fires before user's profile is updated.
+             *
+             * @since 2.0.3
+             * @param int $id
+             *            User's id.
+             */
+            $app->hook->{'do_action'}('pre_update_profile', get_userdata('id'));
+
             try {
                 $user = $app->db->user();
                 $user->fname = $app->req->post['fname'];
@@ -268,7 +303,7 @@ $app->group('/user', function() use ($app) {
             ]
         );
     });
-    
+
     /**
      * Before route check.
      */
@@ -401,7 +436,7 @@ $app->group('/user', function() use ($app) {
 
         redirect(get_base_url() . 'dashboard' . '/');
     });
-    
+
     /**
      * Before route check.
      */

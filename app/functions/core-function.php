@@ -1317,3 +1317,107 @@ function tc_url_shorten($url, $length = 80)
         return $url;
     }
 }
+
+/**
+ * Adds label to the campaign's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_cpgn_status_label($status)
+{
+    $label = [
+        'ready' => 'label-default',
+        'processing' => 'label-primary',
+        'paused' => 'bg bg-orange',
+        'sent' => 'label-success'
+    ];
+
+    return $label[$status];
+}
+
+/**
+ * Adds label to the cron's status.
+ * 
+ * @since 2.0.3
+ * @param string $status
+ * @return string
+ */
+function tc_cron_status_label($status)
+{
+    $label = [
+        1 => 'label-success',
+        0 => 'label-danger'
+    ];
+
+    return $label[$status];
+}
+
+/**
+ * Retrieves the campaign id from the message header.
+ * 
+ * @since 2.0.3
+ * @param string $text Header
+ * @return int Campaign id
+ */
+function find_x_campaign_id($text)
+{
+    $cpgnId = 0;
+    preg_match('/X-Campaign-Id: (.*)\R/iU', $text, $match);
+    if (is_array($match) && isset($match[1])) {
+        $cpgnId = trim($match[1]);
+    }
+    return $cpgnId;
+}
+
+/**
+ * Retrieves the list id from the message header.
+ * 
+ * @since 2.0.3
+ * @param string $text Header
+ * @return int List id
+ */
+function find_x_list_id($text)
+{
+    $listId = 0;
+    preg_match('/X-List-Id: (.*)\R/iU', $text, $match);
+    if (is_array($match) && isset($match[1])) {
+        $listId = trim($match[1]);
+    }
+    return $listId;
+}
+
+/**
+ * Retrieves the subscriber id from the message header.
+ * 
+ * @since 2.0.3
+ * @param string $text Header
+ * @return int Subscriber id
+ */
+function find_x_subscriber_id($text)
+{
+    $subId = 0;
+    preg_match('/X-Subscriber-Id: (.*)\R/iU', $text, $match);
+    if (is_array($match) && isset($match[1])) {
+        $subId = trim($match[1]);
+    }
+    return $subId;
+}
+
+/**
+ * Retrieves the subscriber email from the message header.
+ * 
+ * @since 2.0.3
+ * @param string $text Header
+ * @return string Subscriber email
+ */
+function find_x_subscriber_email($text)
+{
+    $subEmail = 0;
+    preg_match('/X-Subscriber-Email: (.*)\R/iU', $text, $match);
+    if (is_array($match) && isset($match[1])) {
+        $subEmail = trim($match[1]);
+    }
+    return $subEmail;
+}

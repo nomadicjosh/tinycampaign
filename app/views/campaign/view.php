@@ -41,6 +41,7 @@ define('SCREEN', 'cpgn');
             "template"
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
+        invalid_elements: "script,object,embed",
         templates: [
             <?php foreach (get_user_template()as $t) : ?>
                 {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . _h($t->id) . '/'; ?>"},
@@ -55,6 +56,9 @@ define('SCREEN', 'cpgn');
                 menu: [
                     {text: 'Date', onclick: function () {
                             editor.insertContent('{todays_date}');
+                        }},
+                    {text: 'Campaign Subject', onclick: function () {
+                            editor.insertContent('{subject}');
                         }},
                     {text: 'View Online', onclick: function () {
                             editor.insertContent('{view_online}');
@@ -147,7 +151,7 @@ define('SCREEN', 'cpgn');
         
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>campaign/<?=(int)_h($cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
+            <form method="post" action="<?= get_base_url(); ?>campaign/<?=_h((int)$cpgn->id);?>/" data-toggle="validator" autocomplete="off" id="form">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -211,12 +215,12 @@ define('SCREEN', 'cpgn');
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_campaign_lists((int)_h($cpgn->id)); ?></ul>
+                                <ul><?php get_campaign_lists(_h((int)$cpgn->id)); ?></ul>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name((int)_h($cpgn->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name(_h((int)$cpgn->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">
@@ -269,6 +273,7 @@ define('SCREEN', 'cpgn');
             <!-- /.box-body -->
             <div class="box-footer">
                 <button<?=ie('campaign_inquiry_only');?> type="submit" class="btn btn-primary"><?=_t('Submit');?></button>
+                <a href="#" data-toggle="modal" data-target="#smtp-<?= _h((int)$cpgn->id); ?>" title="Send Test"><button type="button" class="btn bg-purple"><i class="fa fa-paper-plane"></i></button></a>
                 <button type="button" class="btn btn-primary" onclick="window.location='<?=get_base_url();?>campaign/'"><?=_t( 'Cancel' );?></button>
             </div>
         </form>
@@ -278,6 +283,34 @@ define('SCREEN', 'cpgn');
 
     </section>
     <!-- /.content -->
+    
+    <div class="modal" id="smtp-<?= _h((int)$cpgn->id); ?>">
+        <form method="post" action="<?= get_base_url(); ?>campaign/<?= _h((int)$cpgn->id); ?>/test/" data-toggle="validator" autocomplete="off">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><?= _t('Send Test Email (Choose Server)'); ?></h4>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-control select2" name="server" style="width: 100%;" required>
+                            <option>&nbsp;</option>
+                            <?php get_user_servers(); ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                        <button type="submit" class="btn btn-primary"><?= _t('Send'); ?></button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </form>
+    </div>
+    <!-- /.modal -->
+                                    
 </div>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

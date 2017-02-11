@@ -37,7 +37,7 @@ define('SCREEN', 'user');
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <div class="box-body">
-                <table id="example2" class="table table-bordered table-hover">
+                <table id="example1" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th class="text-center"><?= _t('Username'); ?></th>
@@ -54,16 +54,20 @@ define('SCREEN', 'user');
                                 <td class="text-center"><?= _h($user->uname); ?></td>
                                 <td class="text-center"><?= _h($user->fname); ?></td>
                                 <td class="text-center"><?= _h($user->lname); ?></td>
-                                <td class="text-center"><?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?></td>
+                                <td class="text-center">
+                                    <span class="label <?=tc_user_status_label(_h($user->status));?>" style="font-size:1em;font-weight: bold;">
+                                        <?=(_h($user->status) == 1 ? _t('Active') : _t('Inactive')); ?>
+                                    </span>
+                                </td>
                                 <td class="text-center"><?= _h($user->roleName); ?></td>
                                 <td class="text-center">
-                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button class="btn bg-purple"><i class="fa fa-key"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
+                                    <a href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/perm/" data-toggle="tooltip" data-placement="top" title="Edit Permissions"><button type="button" class="btn bg-purple"><i class="fa fa-key"></i></button></a>
                                     <?php if(!isset($_COOKIE['SWITCH_USERBACK']) && _h((int)$user->id) != get_userdata('id')) : ?>
-                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
+                                    <a<?=ae('switch_user');?> href="<?= get_base_url(); ?>user/<?= _h((int)$user->id); ?>/switch-to/" data-toggle="tooltip" data-placement="top" title="Switch to"><button type="button" class="btn bg-blue"><i class="fa fa-exchange"></i></button></a>
                                     <?php endif; ?>
                                     <?php if(_h((int)$user->id) != 1) : ?>
-                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$user->id); ?>"><button class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
+                                    <a<?=ae('delete_user');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$user->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>
                                     <?php endif; ?>
 
                                     <div class="modal" id="delete-<?= _h((int)$user->id); ?>">

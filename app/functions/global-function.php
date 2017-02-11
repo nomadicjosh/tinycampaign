@@ -98,3 +98,10 @@ function _random_lib()
     $generator = $factory->getGenerator(new SecurityLib\Strength(SecurityLib\Strength::MEDIUM));
     return $generator;
 }
+
+function _tc_unique_campaign_slug($campaign)
+{
+    $app = \Liten\Liten::getInstance();
+    $slugify = new Cocur\Slugify\Slugify();
+    return $app->hook->{'apply_filter'}('unique_campaign_slug', $slugify->slugify($campaign, '_'));
+}
