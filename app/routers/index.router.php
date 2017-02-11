@@ -1018,15 +1018,15 @@ $app->before('POST', '/asubscribe/', function() use($app) {
     $valid = true;
     if (!$app->req->server['HTTP_REFERER']) {
         $status = _t("error");
-        $message = _t("No referrer.");
+        $message = '<font style="color:#ff0000">'._t("No referrer.").'</font>';
         $valid = false;
     } elseif ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
         $status = _t("error");
-        $message = _t("Spam is not allowed.");
+        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
         $valid = false;
     } elseif ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
         $status = _t("error");
-        $message = _t("Spam is not allowed.");
+        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
         $valid = false;
     }
     if (!$valid) {
@@ -1062,28 +1062,28 @@ $app->post('/asubscribe/', function () use($app) {
      */
     if (empty($email)) {
         $status = _t("error");
-        $message = _t("Email address cannot be blank.");
+        $message = '<font style="color:#ff0000">'._t("Email address cannot be blank.").'</font>';
         $valid = false;
     }
     /**
      * Check if subscriber exists.
      */ elseif (_h($get_sub->id) > 0) {
         $status = _t("error");
-        $message = _t("Your email is already in the system.");
+        $message = '<font style="color:#ff0000">'._t("Your email is already in the system.").'</font>';
         $valid = false;
     }
     /**
      * Checks if email is valid.
      */ elseif (!v::email()->validate($email)) {
         $status = _t("error");
-        $message = _t("You must enter a valid email.");
+        $message = '<font style="color:#ff0000">'._t("You must enter a valid email.").'</font>';
         $valid = false;
     }
     /**
      * Check if subscriber is actually a spammer.
      */ elseif (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
         $status = _t("error");
-        $message = _t("Your email address was flagged as spam.");
+        $message = '<font style="color:#ff0000">'._t("Your email address was flagged as spam.").'</font>';
         $valid = false;
     }
 
@@ -1124,20 +1124,32 @@ $app->post('/asubscribe/', function () use($app) {
                     Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
             }
+            
+            $new_sub = $app->db->subscriber_list()
+                ->where('sid = ?', $sid)
+                ->findOne();
+
+            if ($list->optin == 1) {
+                // send confirm email and redirect.
+                confirm_email_node($list->code, $new_sub);
+            } elseif ($list->optin == 0) {
+                // send success email and redirect to default success.
+                subscribe_email_node($list->code, $new_sub);
+            }
 
             $status = _t("success");
-            $message = _t("You have been successfully subscribed. Check your email.");
+            $message = '<font style="color:#008000">'._t("You have been successfully subscribed. Check your email.").'</font>';
         } catch (NotFoundException $e) {
             $status = _t("error");
-            $message = _t("Server error.");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             $status = _t("error");
-            $message = _t("Server error.");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
             $status = _t("error");
-            $message = _t("Server error.");
+            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
@@ -1325,7 +1337,7 @@ $app->get('/lt/', function () use($app) {
         } else {
             $cid = $app->req->get['utm_campaign'];
         }
-        
+
         if (is_numeric($app->req->get['utm_term']) !== false) {
             $sid = $app->req->get['utm_term'];
         } else {
@@ -1356,7 +1368,7 @@ $app->get('/lt/', function () use($app) {
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track->set([
-                    'clicked' => _h($track->clicked) +1
+                    'clicked' => _h($track->clicked) + 1
                 ])
                 ->update();
         }

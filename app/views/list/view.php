@@ -210,7 +210,16 @@ define('SCREEN', _h($list->code));
                         <div class="col-md-12">
                             
                             <div class="form-group">
-                                <label><?= _t('List Subscribe Form'); ?></label>
+                                <label><?= _t('Subscribe Form'); ?></label>
+                                <!-- Custom Tabs -->           
+                                <div class="nav-tabs-custom">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#plain" data-toggle="tab"><?= _t('Regular'); ?></a></li>
+                                        <li><a href="#ajax" data-toggle="tab"><?= _t('Ajax'); ?></a></li>
+                                    </ul>
+                                    <!-- // Tabs Heading END -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="plain">
 <pre>
 &lt;form class="form-campaign" method="post" action="<?=get_base_url();?>subscribe/"&gt;
     &lt;p&gt;&lt;label&gt;First Name: &lt;/label&gt;&lt;input type="text" class="input" name="fname" /&gt;&lt;/p&gt;
@@ -222,7 +231,33 @@ define('SCREEN', _h($list->code));
     &lt;p&gt;&lt;input type="submit" name="submit" id="submit" value="Submit" /&gt;&lt;/p&gt;
 &lt;/form&gt;
 </pre>
-                                <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                            <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                        </div>
+                                        <div class="tab-pane" id="ajax">
+<pre>
+&lt;script type="text/css" src="<?=get_base_url();?>static/assets/css/tinyc/style.css"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="<?=get_base_url();?>static/assets/js/tinyc/magic.js"&gt;&lt;/script&gt;
+&lt;div id="newsletterform"&gt;
+    &lt;div class="wrap"&gt;
+        &lt;form id="newsletter" name="newsletter" method="post" action="<?=get_base_url();?>asubscribe/"&gt;
+            &lt;label for="email"&gt;Subscribe to our newsletter&lt;/label&gt;&lt;br /&gt;
+            &lt;input type="email" id="signup-email" name="email" placeholder="Enter Email" /&gt;&lt;br /&gt;
+            &lt;input type="hidden" name="m6qIHt4Z5evV" /&gt;
+            &lt;input type="hidden" name="YgexGyklrgi1" /&gt;
+            &lt;input type="hidden" name="code" value="<?=_h($list->code);?>" /&gt;
+            &lt;input type="submit" name="signup-button" id="signup-button" value="Subscribe"&gt;
+            &lt;span class="arrow"&gt;&lt;/span&gt;
+        &lt;/form&gt;
+        &lt;div id="response"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+                                            <p class="help-block"><?=_t('Add this subscribe form to any of your websites to gain subscribers.');?></p>
+                                        </div>
+                                    </div>
+                                    <!-- // Custom Tabs END -->
+                                </div>
                             </div>
                             
                         </div>
