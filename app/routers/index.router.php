@@ -974,6 +974,7 @@ $app->post('/subscribe/', function () use($app) {
         $sub_list->insert([
             'lid' => _h($list->id),
             'sid' => $sid,
+            'method' => 'subscribe',
             'addDate' => Jenssegers\Date\Date::now(),
             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
             'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
@@ -1103,6 +1104,7 @@ $app->post('/asubscribe/', function () use($app) {
             $sub_list->insert([
                 'lid' => _h($list->id),
                 'sid' => $sid,
+                'method' => 'subscribe',
                 'addDate' => Jenssegers\Date\Date::now(),
                 'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                 'confirmed' => (_h($list->optin) == 1 ? 0 : 1)

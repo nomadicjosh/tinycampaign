@@ -86,6 +86,7 @@ $app->group('/subscriber', function() use ($app) {
                         $sub_list->insert([
                             'lid' => $list,
                             'sid' => $id,
+                            'method' => 'add',
                             'addDate' => Jenssegers\Date\Date::now(),
                             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                             'confirmed' => 1
@@ -127,6 +128,7 @@ $app->group('/subscriber', function() use ($app) {
                         $sub_list->insert([
                             'lid' => $list,
                             'sid' => $id,
+                            'method' => 'add',
                             'addDate' => Jenssegers\Date\Date::now(),
                             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                             'confirmed' => 1
@@ -208,6 +210,7 @@ $app->group('/subscriber', function() use ($app) {
                             $sub_list->insert([
                                 'lid' => $list,
                                 'sid' => $id,
+                                'method' => 'add',
                                 'addDate' => Jenssegers\Date\Date::now(),
                                 'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                                 'confirmed' => 1
@@ -268,6 +271,7 @@ $app->group('/subscriber', function() use ($app) {
                             $sub_list->insert([
                                 'lid' => $list,
                                 'sid' => $id,
+                                'method' => 'add',
                                 'addDate' => Jenssegers\Date\Date::now(),
                                 'code' => _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                                 'confirmed' => 1
