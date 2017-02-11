@@ -34,7 +34,15 @@ define('SCREEN', 'cpgn');
     <!-- Main content -->
     <section class="content">
 
-        <?= _tc_flash()->showMessage(); ?> 
+        <?= _tc_flash()->showMessage(); ?>
+        
+        <div class="box box-default">
+            <div class="box-body">
+                <div id="dayopens"></div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
@@ -80,5 +88,8 @@ define('SCREEN', 'cpgn');
     </section>
     <!-- /.content -->
 </div>
+<script>
+    var did = '<?=_h($cpgn->id);?>';
+</script>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>

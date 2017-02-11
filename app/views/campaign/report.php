@@ -15,7 +15,7 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'cpgns');
 define('SCREEN', 'cpgn');
-?>        
+?>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -33,6 +33,14 @@ define('SCREEN', 'cpgn');
     <section class="content">
 
         <?= _tc_flash()->showMessage(); ?>
+        
+        <div class="box box-default">
+            <div class="box-body">
+                <div id="domains"></div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
         
         <div class="box box-default">
             <div class="box-body">
@@ -100,5 +108,8 @@ define('SCREEN', 'cpgn');
     </section>
     <!-- /.content -->
 </div>
+<script>
+    var did = '<?=_h($cpgn->id);?>';
+</script>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>
