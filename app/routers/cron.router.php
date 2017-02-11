@@ -524,9 +524,20 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                         $list = get_list_by('id', $message->getListId());
                         $server = get_server_info(_h($list->server));
-                        
-                        $slug = _tc_unique_campaign_slug(_h($cpgn->subject));
 
+                        /**
+                         * Generate slug from subject. Useful for Google Analytics.
+                         */
+                        $slug = _tc_unique_campaign_slug(_h($cpgn->subject));
+                        /**
+                         * Create an array to merge later.
+                         */
+                        $custom_headers = [
+                            'xcampaignid' => $message->getMessageId(),
+                            'xlistid' => $message->getListId(),
+                            'xsubscriberid' => $message->getSubscriberId(),
+                            'xsubscriberemail' => $message->getToEmail()
+                        ];
                         $footer = _escape($cpgn->footer);
                         $footer = str_replace('{email}', _h($sub->email), $footer);
                         $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
@@ -551,9 +562,17 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
                         $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
+                        /**
+                         * Turn server object to array, join with another 
+                         * array, and then merge them back into an object.
+                         */
+                        $data = [];
+                        foreach ($server as $k => $v) {
+                            $data[$k] = $v;
+                        }
+                        $obj_merged = (object) array_merge($custom_headers, $data);
                         // send email
-                        //tinyc_email($server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id)), _h($cpgn->text));
-                        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug), _h($cpgn->text)]);
+                        $app->hook->{'do_action_array'}('tinyc_email_init', [$obj_merged, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug), _h($cpgn->text)]);
 
                         $q = $app->db->campaign()
                             ->where('node = ?', _h($cpgn->node))

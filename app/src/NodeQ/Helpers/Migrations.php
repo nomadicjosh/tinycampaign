@@ -216,4 +216,25 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
+    
+    public static function campaign_bounce()
+    {
+        try {
+            Node::create('campaign_bounce', [
+                'lid' => 'integer',
+                'cid' => 'integer',
+                'sid' => 'integer',
+                'email' => 'string',
+                'msgnum' => 'integer',
+                'type' => 'string',
+                'rule_no' => 'string',
+                'rule_cat' => 'string',
+                'date_added' => 'string'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
 }

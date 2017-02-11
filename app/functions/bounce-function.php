@@ -1,6 +1,8 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\NodeQ\tc_NodeQ as Node;
+use app\src\NodeQ\NodeQException;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use Cascade\Cascade;
@@ -24,26 +26,26 @@ $app = \Liten\Liten::getInstance();
  */
 global $rule_categories;
 $rule_categories = array(
-    'antispam'       => array('remove' => 0, 'bounce_type' => 'blocked'),
-    'autoreply'      => array('remove' => 0, 'bounce_type' => 'autoreply'),
-    'concurrent'     => array('remove' => 0, 'bounce_type' => 'soft'),
+    'antispam' => array('remove' => 0, 'bounce_type' => 'blocked'),
+    'autoreply' => array('remove' => 0, 'bounce_type' => 'autoreply'),
+    'concurrent' => array('remove' => 0, 'bounce_type' => 'soft'),
     'content_reject' => array('remove' => 0, 'bounce_type' => 'soft'),
     'command_reject' => array('remove' => 1, 'bounce_type' => 'hard'),
     'internal_error' => array('remove' => 0, 'bounce_type' => 'temporary'),
-    'defer'          => array('remove' => 0, 'bounce_type' => 'soft'),
-    'delayed'        => array('remove' => 0, 'bounce_type' => 'temporary'),
-    'dns_loop'       => array('remove' => 1, 'bounce_type' => 'hard'),
-    'dns_unknown'    => array('remove' => 1, 'bounce_type' => 'hard'),
-    'full'           => array('remove' => 0, 'bounce_type' => 'soft'),
-    'inactive'       => array('remove' => 1, 'bounce_type' => 'hard'),
-    'latin_only'     => array('remove' => 0, 'bounce_type' => 'soft'),
-    'other'          => array('remove' => 1, 'bounce_type' => 'generic'),
-    'oversize'       => array('remove' => 0, 'bounce_type' => 'soft'),
-    'outofoffice'    => array('remove' => 0, 'bounce_type' => 'soft'),
-    'unknown'        => array('remove' => 1, 'bounce_type' => 'hard'),
-    'unrecognized'   => array('remove' => 0, 'bounce_type' => false,),
-    'user_reject'    => array('remove' => 1, 'bounce_type' => 'hard'),
-    'warning'        => array('remove' => 0, 'bounce_type' => 'soft'),
+    'defer' => array('remove' => 0, 'bounce_type' => 'soft'),
+    'delayed' => array('remove' => 0, 'bounce_type' => 'temporary'),
+    'dns_loop' => array('remove' => 1, 'bounce_type' => 'hard'),
+    'dns_unknown' => array('remove' => 1, 'bounce_type' => 'hard'),
+    'full' => array('remove' => 0, 'bounce_type' => 'soft'),
+    'inactive' => array('remove' => 1, 'bounce_type' => 'hard'),
+    'latin_only' => array('remove' => 0, 'bounce_type' => 'soft'),
+    'other' => array('remove' => 1, 'bounce_type' => 'generic'),
+    'oversize' => array('remove' => 0, 'bounce_type' => 'soft'),
+    'outofoffice' => array('remove' => 0, 'bounce_type' => 'soft'),
+    'unknown' => array('remove' => 1, 'bounce_type' => 'hard'),
+    'unrecognized' => array('remove' => 0, 'bounce_type' => false,),
+    'user_reject' => array('remove' => 1, 'bounce_type' => 'hard'),
+    'warning' => array('remove' => 0, 'bounce_type' => 'soft'),
 );
 
 /*
@@ -1466,21 +1468,43 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     $bounces = $app->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
 
+    $cpgnId = find_x_campaign_id($headerFull);
+    $listId = find_x_list_id($headerFull);
+    $subId = find_x_subscriber_id($headerFull);
+    $subEmail = find_x_subscriber_email($headerFull);
+
+    try {
+        Node::dispense('campaign_bounce');
+        $node_bounce = Node::table('campaign_bounce');
+        $node_bounce->lid = (int) $listId;
+        $node_bounce->cid = (int) $cpgnId;
+        $node_bounce->sid = (int) $subId;
+        $node_bounce->email = (string) $subEmail;
+        $node_bounce->msgnum = (int) $msgnum;
+        $node_bounce->type = (string) $bounceType;
+        $node_bounce->rule_no = (string) $ruleNo;
+        $node_bounce->rule_cat = (string) $ruleCat;
+        $node_bounce->date_added = (string) \Jenssegers\Date\Date::now();
+        $node_bounce->save();
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+
     try {
         $sql = $app->db->subscriber()
             ->where('email = ?', $email)->_and_()
             ->where('allowed = "true"')
             ->findOne();
         $sql->set([
-                'bounces' => $sql->bounces + 1
+                'bounces' => $sql->bounces +1
             ])
             ->update();
 
         $cpgn = $app->db->campaign()
-            ->whereLike('subject', "%$subject%")
+            ->where('id = ?', $cpgnId)
             ->findOne();
         $cpgn->set([
-                'bounces' => $cpgn->bounces + 1
+                'bounces' => $cpgn->bounces +1
             ])
             ->update();
     } catch (NotFoundException $e) {
