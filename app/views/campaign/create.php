@@ -42,6 +42,7 @@ define('SCREEN', 'ccpgn');
             "template"
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | template | placeholder",
+        invalid_elements: "script,object,embed",
         templates: [
             <?php foreach (get_user_template()as $t) : ?>
                 {"title": "<?= _h($t->name); ?>", "description": "<?= _h($t->description); ?>", "url": "<?= get_base_url() . 'campaign' . '/getTemplate/' . _h((int)$t->id) . '/'; ?>"},

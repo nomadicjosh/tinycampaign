@@ -39,6 +39,7 @@ define('SCREEN', _h($list->code));
             "insertdatetime media table contextmenu paste"
         ],
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | gplaceholder | pplaceholder | splaceholder | eplaceholder",
+        invalid_elements: "script,object,embed",
         file_picker_callback: elFinderBrowser
     });
     function elFinderBrowser(callback, value, meta) {
