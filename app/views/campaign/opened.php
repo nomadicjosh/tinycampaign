@@ -30,19 +30,36 @@ define('SCREEN', 'cpgn');
             <li class="active"><?= _t('Opened Campaign Report'); ?></li>
         </ol>
     </section>
-
-    <!-- Main content -->
+    
     <section class="content">
 
         <?= _tc_flash()->showMessage(); ?>
         
-        <div class="box box-default">
-            <div class="box-body">
-                <div id="dayopens"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="dayopens"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
             </div>
-            <!-- /.box-body -->
+            
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="houropens"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
         </div>
-        <!-- /.box -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">

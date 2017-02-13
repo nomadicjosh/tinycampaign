@@ -30,19 +30,36 @@ define('SCREEN', 'cpgn');
             <li class="active"><?= _t('URLs Clicked Campaign Report'); ?></li>
         </ol>
     </section>
+    
+    <section class="content">
+
+        <?= _tc_flash()->showMessage(); ?>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="dayclicks"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="hourclicks"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+    </section>
 
     <!-- Main content -->
     <section class="content">
-
-        <?= _tc_flash()->showMessage(); ?> 
-        
-        <div class="box box-default">
-            <div class="box-body">
-                <div id="dayclicks"></div>
-            </div>
-            <!-- /.box-body -->
-        </div>
-        <!-- /.box -->
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
