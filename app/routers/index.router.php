@@ -1297,7 +1297,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
             $campaign = $app->db->campaign()
                 ->where('id = ?', $cid)
                 ->findOne();
-            $cpgn2 = $app->db->campagin();
+            $cpgn2 = $app->db->campaign();
             $cpgn2->viewed = _h((int)$campaign->viewed) +1;
             $cpgn2->where('id = ?', $cid)
                 ->update();
