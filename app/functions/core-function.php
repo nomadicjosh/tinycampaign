@@ -1309,7 +1309,7 @@ function tc_url_shorten($url, $length = 80)
 {
     if (strlen($url) > $length) {
         $strlen = $length - 30;
-        $first = substr($url, 0, -$strlen);
+        $first = substr($url, 0, $strlen);
         $last = substr($url, -15);
         $short_url = $first . "[ ... ]" . $last;
         return $short_url;
