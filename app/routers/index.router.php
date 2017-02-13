@@ -1290,16 +1290,16 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('sid = ?', $sid)
                 ->findOne();
             $track2->set([
-                    'viewed' => _h((int)$track2->viewed) + 1
+                    'viewed' => _h((int)$track2->viewed) +1
                 ])
                 ->update();
 
-            $cpgn2 = $app->db->campaign()
+            $campaign = $app->db->campaign()
                 ->where('id = ?', $cid)
                 ->findOne();
-            $cpgn2->set([
-                    'viewed' => _h((int)$cpgn2->viewed) + 1
-                ])
+            $cpgn2 = $app->db->campagin();
+            $cpgn2->viewed = _h((int)$campaign->viewed) +1;
+            $cpgn2->where('id = ?', $cid)
                 ->update();
         }
         tc_cache_flush_namespace('domain_report');
