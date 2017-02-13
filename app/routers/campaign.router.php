@@ -171,10 +171,18 @@ $app->group('/campaign', function() use ($app) {
             }
         }
 
-        $msg = $app->db->campaign()
-            ->where('owner = ?', get_userdata('id'))->_and_()
-            ->where('id = ?', $id)
-            ->findOne();
+        try {
+            $msg = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->findOne();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -375,24 +383,32 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $opened = $app->db->tracking()
-            ->where('tracking.cid = ?', $id)->_and_()
-            ->whereNotNull('tracking.first_open')
-            ->sum('tracking.viewed');
-        $unique_opens = $app->db->tracking()
-            ->where('tracking.cid = ?', $id)->_and_()
-            ->whereNotNull('tracking.first_open')
-            ->groupBy('tracking.cid')
-            ->count('tracking.id');
-        $clicks = $app->db->tracking_link()
-            ->where('tracking_link.cid = ?', $id)
-            ->groupBy('tracking_link.cid')
-            ->sum('tracking_link.clicked');
-        $unique_clicks = $app->db->tracking_link()
-            ->where('tracking_link.cid = ?', $id)
-            ->groupBy('tracking_link.sid')
-            ->count('tracking_link.id');
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $opened = $app->db->tracking()
+                ->where('tracking.cid = ?', $id)->_and_()
+                ->whereNotNull('tracking.first_open')
+                ->sum('tracking.viewed');
+            $unique_opens = $app->db->tracking()
+                ->where('tracking.cid = ?', $id)->_and_()
+                ->whereNotNull('tracking.first_open')
+                ->groupBy('tracking.cid')
+                ->count('tracking.id');
+            $clicks = $app->db->tracking_link()
+                ->where('tracking_link.cid = ?', $id)
+                ->groupBy('tracking_link.cid')
+                ->sum('tracking_link.clicked');
+            $unique_clicks = $app->db->tracking_link()
+                ->where('tracking_link.cid = ?', $id)
+                ->groupBy('tracking_link.sid')
+                ->count('tracking_link.id');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -449,13 +465,26 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/opened/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $opens = $app->db->subscriber()
-            ->select('subscriber.email,tracking.*')
-            ->_join('tracking', 'tracking.sid = subscriber.id')
-            ->_join('campaign', 'tracking.cid = campaign.id')
-            ->where('campaign.id = ?', _h($cpgn->id))
-            ->find();
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $opens = $app->db->subscriber()
+                ->select('subscriber.email,tracking.*')
+                ->_join('tracking', 'tracking.sid = subscriber.id')
+                ->_join('campaign', 'tracking.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->find();
+
+            $sum = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->sum('viewed');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -491,7 +520,8 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/opened', [
                 'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
-                'opens' => $opens
+                'opens' => $opens,
+                'sum' => $sum
                 ]
             );
         }
@@ -509,13 +539,28 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/clicked/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $clicks = $app->db->subscriber()
-            ->select('subscriber.email,tracking_link.*')
-            ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
-            ->_join('campaign', 'tracking_link.cid = campaign.id')
-            ->where('campaign.id = ?', _h($cpgn->id))
-            ->find();
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $clicks = $app->db->subscriber()
+                ->select('subscriber.email,tracking_link.*')
+                ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
+                ->_join('campaign', 'tracking_link.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->find();
+            
+            $sum = $app->db->subscriber()
+                ->select('subscriber.email,tracking_link.*')
+                ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
+                ->_join('campaign', 'tracking_link.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->sum('tracking_link.clicked');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -551,7 +596,8 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/clicked', [
                 'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
-                'clicks' => $clicks
+                'clicks' => $clicks,
+                'sum' => $sum
                 ]
             );
         }
@@ -784,7 +830,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -882,7 +928,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
