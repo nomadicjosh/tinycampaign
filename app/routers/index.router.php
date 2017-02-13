@@ -1270,38 +1270,41 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
             ->count();
 
         if ($tracking <= 0) {
-            $track = $app->db->tracking();
-            $track->insert([
+            $track1 = $app->db->tracking();
+            $track1->insert([
                 'cid' => $cid,
                 'sid' => $sid,
                 'first_open' => \Jenssegers\Date\Date::now(),
                 'viewed' => +1
             ]);
 
-            $cpgn = $app->db->campaign();
-            $cpgn->set([
+            $cpgn1 = $app->db->campaign();
+            $cpgn1->set([
                     'viewed' => +1
                 ])
                 ->where('id = ?', $cid)
                 ->update();
         } else {
-            $track = $app->db->tracking()
+            $track2 = $app->db->tracking()
                 ->where('cid = ?', $cid)->_and_()
                 ->where('sid = ?', $sid)
                 ->findOne();
-            $track->set([
-                    'viewed' => _h($track->viewed) + 1
+            $track2->set([
+                    'viewed' => _h((int)$track2->viewed) + 1
                 ])
                 ->update();
 
-            $cpgn = $app->db->campaign()
+            $cpgn2 = $app->db->campaign()
                 ->where('id = ?', $cid)
                 ->findOne();
-            $cpgn->set([
-                    'viewed' => _h($cpgn->viewed) + 1
+            $cpgn2->set([
+                    'viewed' => _h((int)$cpgn2->viewed) + 1
                 ])
                 ->update();
         }
+        tc_cache_flush_namespace('domain_report');
+        tc_cache_flush_namespace('opened_report');
+        tc_cache_flush_namespace('clicked_report');
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
@@ -1351,8 +1354,8 @@ $app->get('/lt/', function () use($app) {
             ->count();
 
         if ($tracking <= 0) {
-            $track = $app->db->tracking_link();
-            $track->insert([
+            $track1 = $app->db->tracking_link();
+            $track1->insert([
                 'cid' => $cid,
                 'sid' => $sid,
                 'source' => $app->req->get['utm_source'],
@@ -1362,16 +1365,19 @@ $app->get('/lt/', function () use($app) {
                 'addDate' => \Jenssegers\Date\Date::now()
             ]);
         } else {
-            $track = $app->db->tracking_link()
+            $track2 = $app->db->tracking_link()
                 ->where('cid = ?', $cid)->_and_()
                 ->where('sid = ?', $sid)->_and_()
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
-            $track->set([
-                    'clicked' => _h($track->clicked) + 1
+            $track2->set([
+                    'clicked' => _h((int)$track2->clicked) + 1
                 ])
                 ->update();
         }
+        tc_cache_flush_namespace('domain_report');
+        tc_cache_flush_namespace('opened_report');
+        tc_cache_flush_namespace('clicked_report');
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
