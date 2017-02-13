@@ -1303,8 +1303,10 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->update();
         }
         tc_cache_flush_namespace('domain_report');
-        tc_cache_flush_namespace('opened_report');
-        tc_cache_flush_namespace('clicked_report');
+        tc_cache_flush_namespace('oday_report');
+        tc_cache_flush_namespace('ohour_report');
+        tc_cache_flush_namespace('cday_report');
+        tc_cache_flush_namespace('chour_report');
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
@@ -1376,8 +1378,10 @@ $app->get('/lt/', function () use($app) {
                 ->update();
         }
         tc_cache_flush_namespace('domain_report');
-        tc_cache_flush_namespace('opened_report');
-        tc_cache_flush_namespace('clicked_report');
+        tc_cache_flush_namespace('oday_report');
+        tc_cache_flush_namespace('ohour_report');
+        tc_cache_flush_namespace('cday_report');
+        tc_cache_flush_namespace('chour_report');
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
