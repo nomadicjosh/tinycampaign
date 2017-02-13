@@ -750,7 +750,8 @@ $app->group('/campaign', function() use ($app) {
                 . "JOIN subscriber_list ON campaign_list.lid = subscriber_list.lid "
                 . "JOIN subscriber ON subscriber_list.sid = subscriber.id "
                 . "WHERE campaign.owner = ? AND campaign_list.cid = ? "
-                . "GROUP BY substring_index(subscriber.email, '@', -1)", [get_userdata('id'), $id]
+                . "GROUP BY substring_index(subscriber.email, '@', -1) "
+                . "ORDER BY domain_count DESC", [get_userdata('id'), $id]
             );
             // Use closure as callback
             $results = tc_cache_get($id, 'domain_report');
