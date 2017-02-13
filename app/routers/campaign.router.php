@@ -400,7 +400,7 @@ $app->group('/campaign', function() use ($app) {
                 ->sum('tracking_link.clicked');
             $unique_clicks = $app->db->tracking_link()
                 ->where('tracking_link.cid = ?', $id)
-                ->groupBy('tracking_link.sid')
+                ->groupBy('tracking_link.cid')
                 ->count('tracking_link.id');
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
