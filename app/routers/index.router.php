@@ -1267,40 +1267,44 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
         $tracking = $app->db->tracking()
             ->where('cid = ?', $cid)->_and_()
             ->where('sid = ?', $sid)
-            ->count();
+            ->count('id');
 
         if ($tracking <= 0) {
-            $track1 = $app->db->tracking();
-            $track1->insert([
+            $track = $app->db->tracking();
+            $track->insert([
                 'cid' => $cid,
                 'sid' => $sid,
                 'first_open' => \Jenssegers\Date\Date::now(),
                 'viewed' => +1
             ]);
 
-            $cpgn1 = $app->db->campaign();
-            $cpgn1->set([
-                    'viewed' => +1
-                ])
-                ->where('id = ?', $cid)
-                ->update();
+            $app->db->query(
+                "UPDATE `campaign` "
+                . "SET `viewed` = `viewed` + 1 "
+                . "WHERE `id` = ?", [$cid]
+            );
         } else {
-            $track2 = $app->db->tracking()
+            $track = $app->db->tracking()
                 ->where('cid = ?', $cid)->_and_()
                 ->where('sid = ?', $sid)
                 ->findOne();
-            $track2->set([
-                    'viewed' => _h((int)$track2->viewed) +1
+            $track->set([
+                    'viewed' => _h((int)$track->viewed) +1
                 ])
                 ->update();
 
-            $campaign = $app->db->campaign()
+            /*$campaign = $app->db->campaign()
                 ->where('id = ?', $cid)
-                ->findOne();
-            $cpgn2 = $app->db->campaign();
+                ->findOne();*/
+            $app->db->query(
+                "UPDATE `campaign` "
+                . "SET `viewed` = `viewed` + 1 "
+                . "WHERE `id` = ?", [$cid]
+            );
+            /*$cpgn2 = $app->db->campaign();
             $cpgn2->viewed = _h((int)$campaign->viewed) +1;
             $cpgn2->where('id = ?', $cid)
-                ->update();
+                ->update();*/
         }
         tc_cache_flush_namespace('domain_report');
         tc_cache_flush_namespace('oday_report');
@@ -1353,7 +1357,7 @@ $app->get('/lt/', function () use($app) {
             ->where('cid = ?', $cid)->_and_()
             ->where('sid = ?', $sid)->_and_()
             ->where('url = ?', $app->req->get['url'])
-            ->count();
+            ->count('id');
 
         if ($tracking <= 0) {
             $track1 = $app->db->tracking_link();
