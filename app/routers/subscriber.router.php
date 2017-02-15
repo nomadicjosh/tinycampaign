@@ -51,7 +51,7 @@ $app->group('/subscriber', function() use ($app) {
     });
 
     $app->match('GET|POST', '/add/', function () use($app) {
-        
+
         \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
@@ -76,6 +76,7 @@ $app->group('/subscriber', function() use ($app) {
                         'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                         'ip' => $app->req->server['REMOTE_ADDR'],
                         'spammer' => (int) 1,
+                        'tags' => $app->req->post['tags'],
                         'addedBy' => get_userdata('id'),
                         'addDate' => Jenssegers\Date\Date::now()
                     ]);
@@ -118,6 +119,7 @@ $app->group('/subscriber', function() use ($app) {
                         'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                         'ip' => $app->req->server['REMOTE_ADDR'],
                         'spammer' => (int) 0,
+                        'tags' => $app->req->post['tags'],
                         'addedBy' => get_userdata('id'),
                         'addDate' => Jenssegers\Date\Date::now()
                     ]);
@@ -149,6 +151,7 @@ $app->group('/subscriber', function() use ($app) {
 
         tc_register_style('select2');
         tc_register_style('iCheck');
+        tc_register_style('selectize');
         tc_register_script('select2');
         tc_register_script('iCheck');
 
@@ -191,7 +194,9 @@ $app->group('/subscriber', function() use ($app) {
                         'state' => $app->req->post['state'],
                         'postal_code' => $app->req->post['postal_code'],
                         'country' => $app->req->post['country'],
-                        'spammer' => (int) 1
+                        'spammer' => (int) 1,
+                        'exception' => $app->req->post['exception'],
+                        'tags' => $app->req->post['tags']
                     ]);
                     $subscriber->where('id = ?', $id)
                         ->update();
@@ -252,7 +257,9 @@ $app->group('/subscriber', function() use ($app) {
                         'state' => $app->req->post['state'],
                         'postal_code' => $app->req->post['postal_code'],
                         'country' => $app->req->post['country'],
-                        'spammer' => (int) 0
+                        'spammer' => (int) 0,
+                        'exception' => $app->req->post['exception'],
+                        'tags' => $app->req->post['tags']
                     ]);
                     $subscriber->where('id = ?', $id)
                         ->update();
@@ -333,6 +340,7 @@ $app->group('/subscriber', function() use ($app) {
 
             tc_register_style('select2');
             tc_register_style('iCheck');
+            tc_register_style('selectize');
             tc_register_script('select2');
             tc_register_script('iCheck');
 
@@ -341,6 +349,38 @@ $app->group('/subscriber', function() use ($app) {
                 'subscriber' => $sub
                 ]
             );
+        }
+    });
+
+    $app->get('/getTags/', function () use($app) {
+        try {
+            $tagging = $app->db->subscriber()
+                ->select('tags')
+                ->where('addedBy = ?', get_userdata('id'));
+            $q = $tagging->find(function ($data) {
+                $array = [];
+                foreach ($data as $d) {
+                    $array[] = $d;
+                }
+                return $array;
+            });
+            $tags = [];
+            foreach ($q as $r) {
+                $tags = array_merge($tags, explode(",", _h($r['tags'])));
+            }
+            $tags = array_unique_compact($tags);
+            foreach ($tags as $key => $value) {
+                if ($value == "" || strlen($value) <= 0) {
+                    unset($tags[$key]);
+                }
+            }
+            return $tags;
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
 
@@ -362,6 +402,16 @@ $app->group('/subscriber', function() use ($app) {
                 ->reset()
                 ->findOne($id)
                 ->delete();
+
+            try {
+                app\src\NodeQ\tc_NodeQ::table('campaign_queue')
+                    ->where('sid', '=', $id)
+                    ->delete();
+            } catch (app\src\NodeQ\NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
 
             tc_cache_delete($id, 'subscriber');
             tc_cache_delete($id, 'slist');

@@ -19,11 +19,18 @@ use PDOException as ORMException;
  */
 $app = \Liten\Liten::getInstance();
 
-function set_queued_message_is_sent($node, $id)
+/**
+ * Sets is_sent status to `true` once message is sent.
+ * 
+ * @since 2.0.0
+ * @param object $message
+ */
+function set_queued_message_is_sent($message)
 {
     $now = Jenssegers\Date\Date::now();
     try {
-        $queue = Node::table("$node")->find($id);
+        Node::dispense('campaign_queue');
+        $queue = Node::table('campaign_queue')->find($message->getId());
         $queue->timestamp_sent = (string) $now;
         $queue->is_sent = (string) 'true';
         $queue->save();
@@ -199,9 +206,9 @@ function new_subscriber_notify_email()
                 $message = _file_get_contents(APP_PATH . 'views/setting/tpl/new-subscriber-notification.tpl');
                 $message = str_replace('{system_name}', $site, $message);
                 $message = str_replace('{system_url}', get_base_url(), $message);
-                $message = str_replace('{fname}', (_h($user->fname) != '' ? " "._h($user->fname) : ''), $message);
+                $message = str_replace('{fname}', (_h($user->fname) != '' ? " " . _h($user->fname) : ''), $message);
                 $message = str_replace('{list_name}', _h($list->name), $message);
-                $message = str_replace('{sname}', _h($sub->fname).' '._h($sub->lname), $message);
+                $message = str_replace('{sname}', _h($sub->fname) . ' ' . _h($sub->lname), $message);
                 $message = str_replace('{semail}', _h($sub->email), $message);
                 $message = str_replace('{stotal}', get_list_subscriber_count(_h($list->id)), $message);
                 $message = str_replace('{email}', _h($user->email), $message);
@@ -226,5 +233,51 @@ function new_subscriber_notify_email()
         Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
         Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+function move_old_nodes_to_queue_node()
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $campaign = $app->db->campaign()
+            ->where('status = "sent"')
+            ->find();
+        foreach ($campaign as $c) {
+            $file = $app->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . _h($c->node) . '.data.node';
+            if (file_exists($file)) {
+                try {
+                    Node::dispense('campaign_queue');
+                    $node = Node::table(_h($c->node))->where('is_sent', '=', 'true')->findAll();
+                    foreach ($node as $n) {
+                        $sent = Node::table('campaign_queue');
+                        $sent->lid = (int) _h($n->lid);
+                        $sent->cid = (int) _h($n->mid);
+                        $sent->sid = (int) _h($n->sid);
+                        $sent->to_email = (string) _h($n->to_email);
+                        $sent->to_name = (string) _h($n->to_name);
+                        $sent->timestamp_created = (string) _h($n->timestamp_created);
+                        $sent->timestamp_to_send = (string) _h($n->timestamp_to_send);
+                        $sent->timestamp_sent = (string) _h($n->timestamp_sent);
+                        $sent->is_unsubscribed = (int) 0;
+                        $sent->is_sent = (string) _h($n->is_sent);
+                        $sent->save();
+                    }
+                    Node::remove(_h($c->node));
+                } catch (NodeQException $e) {
+                    Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                } catch (InvalidArgumentException $e) {
+                    Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+                } catch (Exception $e) {
+                    Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                }
+            }
+        }
+    } catch (NotFoundException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }

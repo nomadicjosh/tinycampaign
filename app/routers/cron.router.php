@@ -402,7 +402,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $upd->runned ++;
                         $upd->save();
                     } catch (NodeQException $e) {
-                        _tc_flash()->error($e->getMessage(), get_base_url() . 'cron/');
+                        Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
                     }
 
                     echo _t('Connecting to cronjob') . PHP_EOL . PHP_EOL;
@@ -439,11 +439,11 @@ $app->group('/cron', function () use($app, $css, $js) {
                 ->where('DATE_ADD(error.addDate, INTERVAL 5 DAY) <= ?', Jenssegers\Date\Date::now()->format('Y-m-d'))
                 ->delete();
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         }
 
         tc_logger_error_log_purge();
@@ -495,10 +495,14 @@ $app->group('/cron', function () use($app, $css, $js) {
                      * Checks if any unsent emails are left in the queue.
                      * If not, mark campaign as `sent`.
                      */
-                    $sent = Node::table(_h($cpgn->node))->where('is_sent', '=', 'false')->findAll()->count();
+                    $sent = Node::table('campaign_queue')
+                        ->where('is_sent', '=', 'false')
+                        ->andWhere('cid','=',_h($cpgn->id))
+                        ->findAll()
+                        ->count();
                     if ($sent <= 0 && _h($cpgn->status) != 'sent') {
                         $complete = $app->db->campaign()
-                            ->where('node = ?', _h($cpgn->node))->_and_()
+                            ->where('id = ?', _h($cpgn->id))->_and_()
                             ->where('status <> "sent"')
                             ->findOne();
                         $complete->status = 'sent';
@@ -508,12 +512,11 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                     // instantiate the message queue
                     $queue = new \app\src\tc_Queue();
-                    $queue->node = _h($cpgn->node);
 
                     // get messages from the queue
                     $messages = $queue->getEmails();
                     $i = 0;
-                    $last = Node::table(_h($cpgn->node))->orderBy('id', 'DESC')->limit(1)->find();
+                    $last = Node::table('campaign_queue')->where('cid','=',_h($cpgn->id))->orderBy('id', 'DESC')->limit(1)->find();
                     // iterate messages
                     foreach ($messages as $message) {
                         $sub = get_subscriber_by('email', $message->getToEmail());
@@ -536,13 +539,15 @@ $app->group('/cron', function () use($app, $css, $js) {
                             'xcampaignid' => $message->getMessageId(),
                             'xlistid' => $message->getListId(),
                             'xsubscriberid' => $message->getSubscriberId(),
-                            'xsubscriberemail' => $message->getToEmail()
+                            'xsubscriberemail' => $message->getToEmail(),
+                            'slist_code' => $slist->code,
+                            'uniqueid' => $message->getId()
                         ];
                         $footer = _escape($cpgn->footer);
                         $footer = str_replace('{email}', _h($sub->email), $footer);
                         $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
                         $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/', $footer);
-                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/', $footer);
+                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'cunsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/', $footer);
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
@@ -557,7 +562,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg = str_replace('{state}', _h($sub->state), $msg);
                         $msg = str_replace('{postal_code}', _h($sub->postal_code), $msg);
                         $msg = str_replace('{country}', _h($sub->country), $msg);
-                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/">' . _t('unsubscribe') . '</a>', $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'cunsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
                         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/">' . _t('preferences page') . '</a>', $msg);
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
@@ -575,7 +580,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $app->hook->{'do_action_array'}('tinyc_email_init', [$obj_merged, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug), _h($cpgn->text)]);
 
                         $q = $app->db->campaign()
-                            ->where('node = ?', _h($cpgn->node))
+                            ->where('id = ?', _h($cpgn->id))
                             ->findOne();
                         $q->recipients = $q->recipients + 1;
                         if (++$i === 1) {
@@ -650,9 +655,9 @@ $app->group('/cron', function () use($app, $css, $js) {
         $bmh->hardMailbox = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
         $bmh->moveSoft = false; // default is false
         $bmh->softMailbox = ''; // default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
-        $bmh->deleteMsgDate = Jenssegers\Date\Date::now()->format('yyyy-mm-dd H:i:s'); // format must be as 'yyyy-mm-dd'
         $bmh->openMailbox();
         $bmh->processMailbox();
+        $bmh->deleteMsgDate = Jenssegers\Date\Date::now()->format('yyyy-mm-dd H:i:s'); // format must be as 'yyyy-mm-dd'
 
         $time_end = microtime_float();
         $time = $time_end - $time_start;
@@ -665,6 +670,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         send_subscribe_email();
         send_unsubscribe_email();
         new_subscriber_notify_email();
+        move_old_nodes_to_queue_node();
     });
 });
 

@@ -156,11 +156,6 @@ define('SCREEN', 'cpgn');
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label><?= _t('Node'); ?></label>
-                                <input type="text" class="form-control" value="<?=_h($cpgn->node);?>" readonly required>
-                            </div>
-
-                            <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?></label>
                                 <input type="text" class="form-control" name="subject" value="<?=_h($cpgn->subject);?>" required>
                             </div>

@@ -584,6 +584,16 @@ $app->group('/list', function() use ($app) {
                     ->findOne(_h($cl->cid))
                     ->delete();
             }
+            
+            try {
+                app\src\NodeQ\tc_NodeQ::table('campaign_queue')
+                    ->where('lid','=',$id)
+                    ->delete();
+            } catch (app\src\NodeQ\NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
 
             $app->db->list()
                 ->reset()

@@ -702,7 +702,6 @@ $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
 $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
     $server = get_server_info($id);
     $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
-    //tinyc_email($server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message']);
     redirect($app->req->server['HTTP_REFERER']);
 });
 
@@ -875,6 +874,8 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
                 ->update();
 
             subscribe_email_node(_h($list->code), $subscriber);
+            
+            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
 
             if (_h($list->notify_email) == 1) {
                 try {
@@ -1018,15 +1019,15 @@ $app->before('POST', '/asubscribe/', function() use($app) {
     $valid = true;
     if (!$app->req->server['HTTP_REFERER']) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("No referrer.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("No referrer.") . '</font>';
         $valid = false;
     } elseif ($app->req->post['m6qIHt4Z5evV'] != '' || !empty($app->req->post['m6qIHt4Z5evV'])) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("Spam is not allowed.") . '</font>';
         $valid = false;
     } elseif ($app->req->post['YgexGyklrgi1'] != '' || !empty($app->req->post['YgexGyklrgi1'])) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("Spam is not allowed.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("Spam is not allowed.") . '</font>';
         $valid = false;
     }
     if (!$valid) {
@@ -1062,28 +1063,28 @@ $app->post('/asubscribe/', function () use($app) {
      */
     if (empty($email)) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("Email address cannot be blank.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("Email address cannot be blank.") . '</font>';
         $valid = false;
     }
     /**
      * Check if subscriber exists.
      */ elseif (_h($get_sub->id) > 0) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("Your email is already in the system.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("Your email is already in the system.") . '</font>';
         $valid = false;
     }
     /**
      * Checks if email is valid.
      */ elseif (!v::email()->validate($email)) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("You must enter a valid email.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("You must enter a valid email.") . '</font>';
         $valid = false;
     }
     /**
      * Check if subscriber is actually a spammer.
      */ elseif (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
         $status = _t("error");
-        $message = '<font style="color:#ff0000">'._t("Your email address was flagged as spam.").'</font>';
+        $message = '<font style="color:#ff0000">' . _t("Your email address was flagged as spam.") . '</font>';
         $valid = false;
     }
 
@@ -1124,7 +1125,7 @@ $app->post('/asubscribe/', function () use($app) {
                     Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
             }
-            
+
             $new_sub = $app->db->subscriber_list()
                 ->where('sid = ?', $sid)
                 ->findOne();
@@ -1138,18 +1139,18 @@ $app->post('/asubscribe/', function () use($app) {
             }
 
             $status = _t("success");
-            $message = '<font style="color:#008000">'._t("You have been successfully subscribed. Check your email.").'</font>';
+            $message = '<font style="color:#008000">' . _t("You have been successfully subscribed. Check your email.") . '</font>';
         } catch (NotFoundException $e) {
             $status = _t("error");
-            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             $status = _t("error");
-            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
             $status = _t("error");
-            $message = '<font style="color:#ff0000">'._t("Server error.").'</font>';
+            $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
             Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
@@ -1224,6 +1225,97 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
                 ->where('code = ?', $code)
                 ->update();
             unsubscribe_email_node(_h($list->code), $subscriber);
+            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
+            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
+        }
+    } catch (NotFoundException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+
+    $app->view->display('index/status', [
+        'title' => _t('Unsubscribe Confirmed')
+        ]
+    );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET', '/cunsubscribe/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
+});
+
+$app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, $lid, $sid, $rid) use($app) {
+
+    $list = get_list_by('id', $lid);
+
+    try {
+        $subscriber = $app->db->subscriber_list()
+            ->select('subscriber_list.lid,subscriber_list.sid')
+            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+            ->where('subscriber_list.lid = ?', $lid)->_and_()
+            ->where('subscriber_list.sid = ?', $sid)->_and_()
+            ->where('subscriber_list.code = ?', $code)->_and_()
+            ->where('subscriber_list.unsubscribed = "0"')
+            ->findOne();
+        /**
+         * Check if subscriber has already unsubscribed from list.
+         */
+        if (_h($subscriber->unsubscribed) == 1) {
+            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
+        }
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */ elseif ($subscriber == false) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($subscriber) == true) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count(_h($subscriber->sid)) <= 0) {
+
+            _tc_flash()->error(_tc_flash()->notice(404));
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query.
+         */ else {
+            $sub = $app->db->subscriber_list();
+            $sub->set([
+                    'unsubscribed' => (int) 1
+                ])
+                ->where('lid = ?', $lid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->where('code = ?', $code)
+                ->update();
+            try {
+                $upd = Node::table('campaign_queue')->find($rid);
+                $upd->is_unsubscribed = (int) 1;
+                $upd->timestamp_unsubscribed = Jenssegers\Date\Date::now()->format('Y-m-d H:i:s')
+                    ->save();
+            } catch (NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch(Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+            unsubscribe_email_node(_h($list->code), $subscriber);
+            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
             _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
@@ -1289,22 +1381,22 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                 ->where('sid = ?', $sid)
                 ->findOne();
             $track->set([
-                    'viewed' => _h((int)$track->viewed) +1
+                    'viewed' => _h((int) $track->viewed) + 1
                 ])
                 ->update();
 
-            /*$campaign = $app->db->campaign()
-                ->where('id = ?', $cid)
-                ->findOne();*/
+            /* $campaign = $app->db->campaign()
+              ->where('id = ?', $cid)
+              ->findOne(); */
             $app->db->query(
                 "UPDATE `campaign` "
                 . "SET `viewed` = `viewed` + 1 "
                 . "WHERE `id` = ?", [$cid]
             );
-            /*$cpgn2 = $app->db->campaign();
-            $cpgn2->viewed = _h((int)$campaign->viewed) +1;
-            $cpgn2->where('id = ?', $cid)
-                ->update();*/
+            /* $cpgn2 = $app->db->campaign();
+              $cpgn2->viewed = _h((int)$campaign->viewed) +1;
+              $cpgn2->where('id = ?', $cid)
+              ->update(); */
         }
         tc_cache_flush_namespace('domain_report');
         tc_cache_flush_namespace('oday_report');
@@ -1377,7 +1469,7 @@ $app->get('/lt/', function () use($app) {
                 ->where('url = ?', $app->req->get['url'])
                 ->findOne();
             $track2->set([
-                    'clicked' => _h((int)$track2->clicked) + 1
+                    'clicked' => _h((int) $track2->clicked) + 1
                 ])
                 ->update();
         }

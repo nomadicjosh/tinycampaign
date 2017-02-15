@@ -21,7 +21,6 @@ define('SCREEN', 'cpgn');
 
 ?>
 <?php if($count > 0) : ?>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         setInterval(function () {
@@ -66,15 +65,18 @@ define('SCREEN', 'cpgn');
                         <?php foreach ($msgs as $msg) : ?>
                             <?php
                             try {
-                                $all = Node::table($msg->node)
+                                $all = Node::table('campaign_queue')
+                                    ->where('cid','=',_h($msg->id))
                                     ->findAll()
                                     ->count();
-                                $sent = Node::table($msg->node)
+                                $sent = Node::table('campaign_queue')
                                     ->where('is_sent','=','true')
+                                    ->andWhere('cid','=',_h($msg->id))
                                     ->findAll()
                                     ->count();
-                                $to_send = Node::table($msg->node)
+                                $to_send = Node::table('campaign_queue')
                                     ->where('is_sent','=','false')
+                                    ->andWhere('cid','=',_h($msg->id))
                                     ->findAll()
                                     ->count();
                             } catch (NodeQException $e) {
@@ -96,10 +98,10 @@ define('SCREEN', 'cpgn');
                                 </td>
                                 <td class="text-center"><?= Jenssegers\Date\Date::parse(_h($msg->sendstart))->format('M. d, Y @ h:i A'); ?></td>
                                 <td class="text-center"><?= (_h($msg->sendfinish) != '' ? Jenssegers\Date\Date::parse(_h($msg->sendfinish))->format('M. d, Y @ h:i A') : ''); ?></td>
-                                <?php if (_h((int)$msg->recipients) < Node::table(_h($msg->node))->findAll()->count()) : ?>
+                                <?php if (_h((int)$msg->recipients) < Node::table('campaign_queue')->where('cid','=',_h($msg->id))->findAll()->count()) : ?>
                                 <td class="text-center">
                                     <span class="label bg-gray" style="font-size:1em;font-weight: bold;">
-                                        <?= _h((int)$msg->recipients); ?> / <?= Node::table(_h($msg->node))->findAll()->count(); ?>
+                                        <?= _h((int)$msg->recipients); ?> / <?= Node::table('campaign_queue')->where('cid','=',_h($msg->id))->findAll()->count(); ?>
                                     </span>
                                 </td>
                                 <?php else : ?>

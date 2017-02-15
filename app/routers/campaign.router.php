@@ -65,7 +65,6 @@ $app->group('/campaign', function() use ($app) {
             try {
                 $msg = $app->db->campaign();
                 $msg->owner = get_userdata('id');
-                $msg->node = $app->req->post['node'];
                 $msg->subject = $app->req->post['subject'];
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
@@ -86,25 +85,6 @@ $app->group('/campaign', function() use ($app) {
                         'cid' => $ID,
                         'lid' => $list
                     ]);
-                }
-
-                try {
-                    Node::create($app->req->post['node'], [
-                        'lid' => 'integer',
-                        'mid' => 'integer',
-                        'sid' => 'integer',
-                        'to_email' => 'string',
-                        'to_name' => 'string',
-                        'message_html' => 'string',
-                        'message_plain_text' => 'string',
-                        'timestamp_created' => 'string',
-                        'timestamp_to_send' => 'string',
-                        'timestamp_sent' => 'string',
-                        'is_sent' => 'string',
-                        'serialized_headers' => 'string'
-                    ]);
-                } catch (NodeQException $e) {
-                    _tc_flash()->error($e->getMessage());
                 }
                 tc_logger_activity_log_write('New Record', 'Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'campaign' . '/' . $ID . '/');
@@ -366,7 +346,6 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        //tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
         $app->hook->{'do_action_array'}('tinyc_email_init', [$server, _h($sub->email), _h($cpgn->subject), $msg, '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
@@ -547,7 +526,7 @@ $app->group('/campaign', function() use ($app) {
                 ->_join('campaign', 'tracking_link.cid = campaign.id')
                 ->where('campaign.id = ?', _h($cpgn->id))
                 ->find();
-            
+
             $sum = $app->db->subscriber()
                 ->select('subscriber.email,tracking_link.*')
                 ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
@@ -990,15 +969,15 @@ $app->group('/campaign', function() use ($app) {
     });
 
     $app->get('/(\d+)/d/', function ($id) use($app) {
-        $cpgn = get_campaign_by_id($id);
-
         try {
             $msg = $app->db->campaign()
                 ->where('owner = ?', get_userdata('id'))->_and_()
                 ->where('id = ?', $id);
 
             try {
-                Node::remove(_h($cpgn->node));
+                Node::table('campaign_queue')
+                    ->where('cid', '=', $id)
+                    ->delete();
             } catch (NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
