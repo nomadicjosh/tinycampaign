@@ -69,6 +69,7 @@ define('SCREEN', 'cpgn');
                         <tr>
                             <th class="text-center"><?= _t('Subscriber'); ?></th>
                             <th class="text-center"><?= _t('First Viewed'); ?></th>
+                            <th class="text-center"><?= _t('Response Time'); ?></th>
                             <th class="text-center"><?= _t('Times Viewed'); ?></th>
                             <th class="text-center"><?= _t('Last Viewed'); ?></th>
                         </tr>
@@ -78,6 +79,7 @@ define('SCREEN', 'cpgn');
                             <tr class="gradeX">
                                 <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_h((int)$opened->sid);?>/"><?= _h($opened->email); ?></a></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->first_open))->format('M. d, Y h:i A'); ?></td>
+                                <td class="text-center"><?= tc_response_time(_h((int)$opened->cid), _h((int)$opened->sid), _h($opened->first_open)); ?></td>
                                 <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= _h((int)$opened->viewed); ?></span></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->LastUpdate))->format('M. d, Y h:i A'); ?></td>
                             </tr>
@@ -87,6 +89,7 @@ define('SCREEN', 'cpgn');
                         <tr>
                             <th class="text-center"><?= _t('Subscriber'); ?></th>
                             <th class="text-center"><?= _t('First Viewed'); ?></th>
+                            <th class="text-center"><?= _t('Response Time'); ?></th>
                             <th class="text-center"><?= _t('Times Viewed'); ?></th>
                             <th class="text-center"><?= _t('Last Viewed'); ?></th>
                         </tr>
