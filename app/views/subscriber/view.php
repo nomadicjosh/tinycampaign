@@ -15,6 +15,7 @@ $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'subs');
 define('SCREEN', 'sub');
+$tags = "{tag: '".implode("'},{tag: '", get_subscriber_tag_list())."'}";
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -97,6 +98,11 @@ define('SCREEN', 'sub');
                             </div>
                             
                             <div class="form-group">
+                                <label><?= _t('Tags'); ?></label>
+                                <input type="text" id="input-tags" name="tags" value="<?=_h($subscriber->tags);?>" />
+                            </div>
+                            
+                            <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
                                 <ul><?php get_user_lists(_h((int)$subscriber->id)); ?></ul>
                             </div>
@@ -119,5 +125,38 @@ define('SCREEN', 'sub');
     </section>
     <!-- /.content -->
 </div>
+<script src="static/assets/js/selectize/js/standalone/selectize.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+$('#input-tags').selectize({
+    plugins: ['remove_button','drag_drop'],
+    delimiter: ',',
+    persist: false,
+    maxItems: null,
+    valueField: 'tag',
+    labelField: 'tag',
+    searchField: ['tag'],
+    options: [
+        <?=$tags;?>
+    ],
+    render: {
+        item: function(item, escape) {
+            return '<div>' +
+                (item.tag ? '<span class="tag">' + escape(item.tag) + '</span>' : '') +
+            '</div>';
+        },
+        option: function(item, escape) {
+            var caption = item.tag ? item.tag : null;
+            return '<div>' +
+                (caption ? '<span class="caption">' + escape(caption) + '</span>' : '') +
+            '</div>';
+        }
+    },
+    create: function(input) {
+        return {
+            tag: input
+        };
+    }
+});
+</script>
 <!-- /.content-wrapper -->
 <?php $app->view->stop(); ?>
