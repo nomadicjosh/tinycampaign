@@ -53,7 +53,7 @@ $app->match('GET|POST', '/', function () use($app) {
  */
 $app->before('GET|POST', '/permission.*', function() {
     if (!hasPermission('access_permission_screen')) {
-        _tc_flash()->error(_t("You don't have permission to access the Permission screen."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to access the Permission screen."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -78,25 +78,25 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
                 tc_logger_activity_log_write('Update Record', 'Permission', _filter_input_string(INPUT_POST, 'permName'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200));
             } else {
-                _tc_flash()->error(_tc_flash()->notice(409));
+                _tc_flash()->{'error'}(_tc_flash()->notice(409));
             }
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
     try {
         $perm = $app->db->permission()->where('id = ?', $id)->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -147,14 +147,14 @@ $app->match('GET|POST', '/permission/add/', function () use($app) {
                 tc_logger_activity_log_write('New Record', 'Permission', _filter_input_string(INPUT_POST, 'permName'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'permission' . '/');
             } else {
-                _tc_flash()->error(_tc_flash()->notice(409));
+                _tc_flash()->{'error'}(_tc_flash()->notice(409));
             }
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ $app->match('GET|POST', '/permission/add/', function () use($app) {
  */
 $app->before('GET|POST', '/role.*', function() {
     if (!hasPermission('access_role_screen')) {
-        _tc_flash()->error(_t("You don't have permission to access the Role screen."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to access the Role screen."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -185,11 +185,11 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
     try {
         $role = $app->db->role()->where('id = ?', $id)->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -247,11 +247,11 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
             $ID = $role->lastInsertId();
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -278,11 +278,11 @@ $app->post('/role/editRole/', function () use($app) {
 
         _tc_flash()->success(_tc_flash()->notice(200));
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     redirect($app->req->server['HTTP_REFERER']);
@@ -293,7 +293,7 @@ $app->post('/role/editRole/', function () use($app) {
  */
 $app->before('GET|POST', '/template.*', function() {
     if (!hasPermission('manage_campaigns')) {
-        _tc_flash()->error(_t("You don't have permission to access the Templates screen."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to access the Templates screen."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -304,11 +304,11 @@ $app->match('GET|POST', '/template/', function () use($app) {
             ->where('owner = ?', get_userdata('id'))
             ->find();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     tc_register_style('datatables');
@@ -328,7 +328,7 @@ $app->match('GET|POST', '/template/', function () use($app) {
  */
 $app->before('GET|POST', '/template/(\d+)/', function() {
     if (!hasPermission('edit_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to edit templates."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to edit templates."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -348,11 +348,11 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
             tc_logger_activity_log_write('Update Record', 'Template', $app->req->post['name'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -362,11 +362,11 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
             ->where('owner = ?', get_userdata('id'))
             ->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -415,7 +415,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
  */
 $app->before('GET|POST', '/template/create/', function() {
     if (!hasPermission('create_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to create templates."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to create templates."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -436,11 +436,11 @@ $app->match('GET|POST', '/template/create/', function () use($app) {
             tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'template' . '/' . $ID . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -460,7 +460,7 @@ $app->match('GET|POST', '/template/create/', function () use($app) {
  */
 $app->before('GET', '/template/(\d+)/d/', function() use($app) {
     if (!hasPermission('delete_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to delete templates."), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}(_t("You don't have permission to delete templates."), $app->req->server['HTTP_REFERER']);
         exit();
     }
 });
@@ -476,11 +476,11 @@ $app->get('/template/(\d+)/d/', function ($id) use($app) {
 
         _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     }
 });
 
@@ -489,7 +489,7 @@ $app->get('/template/(\d+)/d/', function ($id) use($app) {
  */
 $app->before('GET|POST', '/server.*', function() {
     if (!hasPermission('manage_campaigns')) {
-        _tc_flash()->error(_t("You don't have permission to access the Servers screen."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to access the Servers screen."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -500,11 +500,11 @@ $app->match('GET|POST', '/server/', function () use($app) {
             ->where('owner = ?', get_userdata('id'))
             ->find();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     tc_register_style('datatables');
@@ -524,7 +524,7 @@ $app->match('GET|POST', '/server/', function () use($app) {
  */
 $app->before('GET|POST', '/server/(\d+)/', function() {
     if (!hasPermission('edit_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to edit servers."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to edit servers."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -533,11 +533,11 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
     } catch (app\src\NodeQ\NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     if ($app->req->isPost()) {
@@ -562,11 +562,11 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
             tc_logger_activity_log_write('Update Record', 'Server', $app->req->post['name'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -576,13 +576,22 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
             ->where('owner = ?', get_userdata('id'))
             ->findOne();
 
-        $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
+        try {
+            $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
+        } catch (Defuse\Crypto\Exception\BadFormatException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        }
+        
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -632,7 +641,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
  */
 $app->before('GET|POST', '/server/create/', function() {
     if (!hasPermission('create_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to create servers."), get_base_url() . 'dashboard' . '/');
+        _tc_flash()->{'error'}(_t("You don't have permission to create servers."), get_base_url() . 'dashboard' . '/');
     }
 });
 
@@ -641,11 +650,11 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
     } catch (app\src\NodeQ\NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     if ($app->req->isPost()) {
@@ -671,11 +680,11 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
             tc_logger_activity_log_write('New Record', 'Server', $app->req->post['name'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'server' . '/' . $ID . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -695,7 +704,7 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
  */
 $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
     if (!hasPermission('create_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to send from an SMTP server."), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}(_t("You don't have permission to send from an SMTP server."), $app->req->server['HTTP_REFERER']);
     }
 });
 
@@ -710,7 +719,7 @@ $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
  */
 $app->before('GET', '/server/(\d+)/d/', function() use($app) {
     if (!hasPermission('delete_campaign')) {
-        _tc_flash()->error(_t("You don't have permission to delete a server."), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}(_t("You don't have permission to delete a server."), $app->req->server['HTTP_REFERER']);
         exit();
     }
 });
@@ -726,11 +735,11 @@ $app->get('/server/(\d+)/d/', function ($id) use($app) {
 
         _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
     }
 });
 
@@ -740,11 +749,11 @@ $app->get('/archive/', function () use($app) {
             ->where('campaign.archive = "1"')
             ->find();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     tc_register_style('datatables');
@@ -764,11 +773,11 @@ $app->get('/archive/(\d+)/', function ($id) use($app) {
             ->where('campaign.archive = "1"')
             ->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -837,14 +846,14 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
          * Check if subscriber has already confirmed subscription.
          */
         if (_h($subscriber->confirmed) == 1) {
-            _tc_flash()->error(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), _h($list->name)));
+            _tc_flash()->{'error'}(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), _h($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
          */ elseif ($subscriber == false) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If the query is legit, but there
@@ -852,13 +861,13 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
          * will be shown.
          */ elseif (empty($subscriber) == true) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If data is zero, 404 not found.
          */ elseif (count(_h($subscriber->sid)) <= 0) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If we get to this point, the all is well
@@ -886,20 +895,20 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
                     $notify->sent = (int) 0;
                     $notify->save();
                 } catch (NodeQException $e) {
-                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                    Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 } catch (Exception $e) {
-                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                    Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
             }
 
             _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $app->view->display('index/status', [
@@ -934,14 +943,14 @@ $app->post('/subscribe/', function () use($app) {
      */
     $get_sub = get_subscriber_by('email', $app->req->post['email']);
     if (_h($get_sub->id) > 0) {
-        _tc_flash()->error(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
         exit();
     }
     /**
      * Checks if email is valid.
      */
     if (!v::email()->validate($app->req->post['email'])) {
-        _tc_flash()->error(_t('Invalid email address.'), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}(_t('Invalid email address.'), get_base_url() . 'status' . '/');
         exit();
     }
     /**
@@ -952,7 +961,7 @@ $app->post('/subscribe/', function () use($app) {
      * Check if subscriber is actually a spammer.
      */
     if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
-        _tc_flash()->error(_t('Your email address has been flagged as spam and will not be subscribed to the list.'), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}(_t('Your email address has been flagged as spam and will not be subscribed to the list.'), get_base_url() . 'status' . '/');
         exit();
     }
 
@@ -995,20 +1004,20 @@ $app->post('/subscribe/', function () use($app) {
                 $notify->sent = (int) 0;
                 $notify->save();
             } catch (NodeQException $e) {
-                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             } catch (Exception $e) {
-                Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             }
         }
 
         tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
         check_custom_success_url($app->req->post['code'], $sub);
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url() . 'status' . '/');
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url() . 'status' . '/');
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url() . 'status' . '/');
     }
 });
 
@@ -1120,9 +1129,9 @@ $app->post('/asubscribe/', function () use($app) {
                     $notify->sent = (int) 0;
                     $notify->save();
                 } catch (NodeQException $e) {
-                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                    Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 } catch (Exception $e) {
-                    Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+                    Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
                 }
             }
 
@@ -1143,15 +1152,15 @@ $app->post('/asubscribe/', function () use($app) {
         } catch (NotFoundException $e) {
             $status = _t("error");
             $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
-            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            Cascade::getLogger('error')->{'error'}(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             $status = _t("error");
             $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
-            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            Cascade::getLogger('error')->{'error'}(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
             $status = _t("error");
             $message = '<font style="color:#ff0000">' . _t("Server error.") . '</font>';
-            Cascade::getLogger('error')->error(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            Cascade::getLogger('error')->{'error'}(sprintf('APISTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
     $data = array(
@@ -1189,14 +1198,14 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
          * Check if subscriber has already unsubscribed from list.
          */
         if (_h($subscriber->unsubscribed) == 1) {
-            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
+            _tc_flash()->{'error'}(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
          */ elseif ($subscriber == false) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If the query is legit, but there
@@ -1204,13 +1213,13 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
          * will be shown.
          */ elseif (empty($subscriber) == true) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If data is zero, 404 not found.
          */ elseif (count(_h($subscriber->sid)) <= 0) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If we get to this point, the all is well
@@ -1229,11 +1238,11 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
             _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $app->view->display('index/status', [
@@ -1269,14 +1278,14 @@ $app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
          * Check if subscriber has already unsubscribed from list.
          */
         if (_h($subscriber->unsubscribed) == 1) {
-            _tc_flash()->error(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
+            _tc_flash()->{'error'}(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
          */ elseif ($subscriber == false) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If the query is legit, but there
@@ -1284,13 +1293,13 @@ $app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
          * will be shown.
          */ elseif (empty($subscriber) == true) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If data is zero, 404 not found.
          */ elseif (count(_h($subscriber->sid)) <= 0) {
 
-            _tc_flash()->error(_tc_flash()->notice(404));
+            _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
         /**
          * If we get to this point, the all is well
@@ -1310,20 +1319,20 @@ $app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
                 $upd->timestamp_unsubscribed = Jenssegers\Date\Date::now()->format('Y-m-d H:i:s')
                     ->save();
             } catch (NodeQException $e) {
-                _tc_flash()->error($e->getMessage());
+                _tc_flash()->{'error'}($e->getMessage());
             } catch(Exception $e) {
-                _tc_flash()->error($e->getMessage());
+                _tc_flash()->{'error'}($e->getMessage());
             }
             unsubscribe_email_node(_h($list->code), $subscriber);
             $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
             _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
         }
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     $app->view->display('index/status', [
@@ -1404,11 +1413,11 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
         tc_cache_flush_namespace('cday_report');
         tc_cache_flush_namespace('chour_report');
     } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
     //Get the http URI to the image
     $img = get_base_url() . 'static/assets/img/blank.png';
@@ -1479,11 +1488,11 @@ $app->get('/lt/', function () use($app) {
         tc_cache_flush_namespace('cday_report');
         tc_cache_flush_namespace('chour_report');
     } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
-        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
     redirect($app->req->get['url']);
 });
@@ -1528,7 +1537,7 @@ $app->get('/spam/', function () use($app) {
  */
 $app->before('GET|POST', '/logout/', function() {
     if (!is_user_logged_in()) {
-        _tc_flash()->error(_t('You must first be logged in before you can logout.'), get_base_url());
+        _tc_flash()->{'error'}(_t('You must first be logged in before you can logout.'), get_base_url());
         exit();
     }
 });
@@ -1605,11 +1614,11 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
             tc_cache_delete($id, 'subscriber');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            _tc_flash()->{'error'}($e->getMessage());
         }
     }
 
@@ -1619,11 +1628,11 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
             ->where('id = ?', $id)
             ->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage());
+        _tc_flash()->{'error'}($e->getMessage());
     }
 
     /**
@@ -1678,7 +1687,7 @@ $app->post('/reset-password/', function () use($app) {
     $user = get_user_by('email', $app->req->post['email']);
 
     if (_h($user->email) == '') {
-        _tc_flash()->error(_t('A user with that email does not exist.'), get_base_url());
+        _tc_flash()->{'error'}(_t('A user with that email does not exist.'), get_base_url());
     }
 
     try {
@@ -1707,16 +1716,16 @@ $app->post('/reset-password/', function () use($app) {
         try {
             _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('Password Reset'), $message, $headers);
         } catch (phpmailerException $e) {
-            _tc_flash()->error($e->getMessage(), get_base_url());
+            _tc_flash()->{'error'}($e->getMessage(), get_base_url());
         }
 
         _tc_flash()->success(_t('Please check your email for instructions on changing your password.'), get_base_url());
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     }
 });
 
@@ -1727,16 +1736,16 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
             ->where('code = ?', $code)
             ->findOne();
     } catch (NotFoundException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     } catch (ORMException $e) {
-        _tc_flash()->error($e->getMessage(), get_base_url());
+        _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     }
 
     if ($app->req->isPost()) {
         if ($app->req->post['password'] != $app->req->post['confirm']) {
-            _tc_flash()->error(_t('Passwords did not match.'), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->{'error'}(_t('Passwords did not match.'), $app->req->server['HTTP_REFERER']);
             exit();
         }
 
@@ -1766,16 +1775,16 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
             try {
                 _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('New Password'), $message, $headers);
             } catch (phpmailerException $e) {
-                _tc_flash()->error($e->getMessage(), get_base_url() . 'status' . '/');
+                _tc_flash()->{'error'}($e->getMessage(), get_base_url() . 'status' . '/');
             }
 
             _tc_flash()->success(_t('Your password was updated successfully.'), get_base_url() . 'status' . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->{'error'}($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     }
 
