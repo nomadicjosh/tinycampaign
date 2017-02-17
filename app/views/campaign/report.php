@@ -78,7 +78,7 @@ define('SCREEN', 'cpgn');
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Opened');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h((int)$cpgn->viewed).'</a>' : _h((int)$cpgn->viewed));?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h($unique_opens).'</a>' : _h((int)$cpgn->viewed));?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
@@ -88,12 +88,21 @@ define('SCREEN', 'cpgn');
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Clicked');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/clicked/">'._h($clicks).'</a>' : _h($clicks));?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($clicks) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/clicked/">'._h($unique_clicks).'</a>' : 0);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('% Clicked');?></strong></td>
                             <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($clicks > 0 ? percent($unique_clicks, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
+                        </tr>
+                        <tr class="gradeX">
+                            <td class="text-center"><strong><?=_t('Unsubscribed');?></strong></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($unique_unsubs) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/unsubscribed/">'._h($unique_unsubs).'</a>' : 0);?></span></td>
+                        </tr>
+                        
+                        <tr class="gradeX">
+                            <td class="text-center"><strong><?=_t('% Unsubscribed');?></strong></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h($unique_unsubs) > 0 ? percent($unique_unsubs, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                     </tbody>
                 </table>

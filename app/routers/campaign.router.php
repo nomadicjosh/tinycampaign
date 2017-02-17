@@ -366,13 +366,10 @@ $app->group('/campaign', function() use ($app) {
         try {
             $cpgn = get_campaign_by_id($id);
             $opened = $app->db->tracking()
-                ->where('tracking.cid = ?', $id)->_and_()
-                ->whereNotNull('tracking.first_open')
+                ->where('tracking.cid = ?', $id)
                 ->sum('tracking.viewed');
             $unique_opens = $app->db->tracking()
-                ->where('tracking.cid = ?', $id)->_and_()
-                ->whereNotNull('tracking.first_open')
-                ->groupBy('tracking.cid')
+                ->where('tracking.cid = ?', $id)
                 ->count('tracking.id');
             $clicks = $app->db->tracking_link()
                 ->where('tracking_link.cid = ?', $id)
@@ -380,14 +377,26 @@ $app->group('/campaign', function() use ($app) {
                 ->sum('tracking_link.clicked');
             $unique_clicks = $app->db->tracking_link()
                 ->where('tracking_link.cid = ?', $id)
-                ->groupBy('tracking_link.cid')
-                ->count('tracking_link.id');
+                ->count('DISTINCT tracking_link.sid');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
+        }
+
+        try {
+            Node::dispense('campaign_queue');
+            $unique_unsubs = Node::table('campaign_queue')
+                ->where('cid', '=', $id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll()
+                ->count();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
         }
 
         /**
@@ -427,7 +436,8 @@ $app->group('/campaign', function() use ($app) {
                 'opened' => $opened,
                 'unique_opens' => $unique_opens,
                 'clicks' => $clicks,
-                'unique_clicks' => $unique_clicks
+                'unique_clicks' => $unique_clicks,
+                'unique_unsubs' => $unique_unsubs
                 ]
             );
         }
@@ -459,11 +469,11 @@ $app->group('/campaign', function() use ($app) {
                 ->where('id = ?', $id)
                 ->sum('viewed');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         }
 
         /**
@@ -535,11 +545,11 @@ $app->group('/campaign', function() use ($app) {
                 ->where('campaign.id = ?', _h($cpgn->id))
                 ->sum('tracking_link.clicked');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage());
         }
 
         /**
@@ -577,6 +587,79 @@ $app->group('/campaign', function() use ($app) {
                 'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
                 'clicks' => $clicks,
+                'sum' => $sum
+                ]
+            );
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/report/unsubscribed/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/report/unsubscribed/', function ($id) use($app) {
+
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $unsubs = Node::table('campaign_queue')
+                ->where('cid','=',$id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll();
+
+            $sum = Node::table('campaign_queue')
+                ->where('cid', '=', $id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll()
+                ->count();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count(_h($cpgn->id)) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            //tc_register_script('highcharts-3d');
+            //tc_register_script('campaign-opened');
+
+            $app->view->display('campaign/unsubscribed', [
+                'title' => _h($cpgn->subject),
+                'cpgn' => $cpgn,
+                'unsubs' => $unsubs,
                 'sum' => $sum
                 ]
             );
