@@ -585,7 +585,6 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
         } catch (Exception $e) {
             _tc_flash()->{'error'}($e->getMessage());
         }
-        
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -883,7 +882,7 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
                 ->update();
 
             subscribe_email_node(_h($list->code), $subscriber);
-            
+
             $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
 
             if (_h($list->notify_email) == 1) {
@@ -1180,7 +1179,7 @@ $app->before('GET', '/unsubscribe/', function() use($app) {
     exit();
 });
 
-$app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) use($app) {
+$app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, $lid, $sid, $rid) use($app) {
 
     $list = get_list_by('id', $lid);
 
@@ -1195,95 +1194,10 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid
             ->where('subscriber_list.unsubscribed = "0"')
             ->findOne();
         /**
-         * Check if subscriber has already unsubscribed from list.
-         */
-        if (_h($subscriber->unsubscribed) == 1) {
-            _tc_flash()->{'error'}(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
-        }
-        /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
-         */ elseif ($subscriber == false) {
-
-            _tc_flash()->{'error'}(_tc_flash()->notice(404));
-        }
-        /**
-         * If the query is legit, but there
-         * is no data in the table, then 404
-         * will be shown.
-         */ elseif (empty($subscriber) == true) {
-
-            _tc_flash()->{'error'}(_tc_flash()->notice(404));
-        }
-        /**
-         * If data is zero, 404 not found.
-         */ elseif (count(_h($subscriber->sid)) <= 0) {
-
-            _tc_flash()->{'error'}(_tc_flash()->notice(404));
-        }
-        /**
-         * If we get to this point, the all is well
-         * and it is ok to process the query.
-         */ else {
-            $sub = $app->db->subscriber_list();
-            $sub->set([
-                    'unsubscribed' => (int) 1
-                ])
-                ->where('lid = ?', $lid)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->where('code = ?', $code)
-                ->update();
-            unsubscribe_email_node(_h($list->code), $subscriber);
-            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
-            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
-        }
-    } catch (NotFoundException $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    }
-
-    $app->view->display('index/status', [
-        'title' => _t('Unsubscribe Confirmed')
-        ]
-    );
-});
-
-/**
- * Before route check.
- */
-$app->before('GET', '/cunsubscribe/', function() use($app) {
-    header('Content-Type: application/json');
-    $app->res->_format('json', 204);
-    exit();
-});
-
-$app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, $lid, $sid, $rid) use($app) {
-
-    $list = get_list_by('id', $lid);
-
-    try {
-        $subscriber = $app->db->subscriber_list()
-            ->select('subscriber_list.lid,subscriber_list.sid')
-            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
-            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
-            ->where('subscriber_list.lid = ?', $lid)->_and_()
-            ->where('subscriber_list.sid = ?', $sid)->_and_()
-            ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.unsubscribed = "0"')
-            ->findOne();
-        /**
-         * Check if subscriber has already unsubscribed from list.
          */
-        if (_h($subscriber->unsubscribed) == 1) {
-            _tc_flash()->{'error'}(sprint(_t("You have already been removed from the mailing list <strong>%s</strong>."), _h($list->name)));
-        }
-        /**
-         * If the database table doesn't exist, then it
-         * is false and a 404 should be sent.
-         */ elseif ($subscriber == false) {
+        if ($subscriber == false) {
 
             _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
@@ -1316,12 +1230,12 @@ $app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
             try {
                 $upd = Node::table('campaign_queue')->find($rid);
                 $upd->is_unsubscribed = (int) 1;
-                $upd->timestamp_unsubscribed = Jenssegers\Date\Date::now()->format('Y-m-d H:i:s')
-                    ->save();
+                $upd->timestamp_unsubscribed = (string) Jenssegers\Date\Date::now()->format('Y-m-d H:i:s');
+                $upd->save();
             } catch (NodeQException $e) {
-                _tc_flash()->{'error'}($e->getMessage());
-            } catch(Exception $e) {
-                _tc_flash()->{'error'}($e->getMessage());
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             }
             unsubscribe_email_node(_h($list->code), $subscriber);
             $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
@@ -1339,6 +1253,91 @@ $app->get('/cunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
         'title' => _t('Unsubscribe Confirmed')
         ]
     );
+});
+
+/**
+ * Before route check.
+ */
+$app->before('GET', '/xunsubscribe/', function() use($app) {
+    header('Content-Type: application/json');
+    $app->res->_format('json', 204);
+    exit();
+});
+
+$app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, $lid, $sid, $rid) use($app) {
+
+    $list = get_list_by('id', $lid);
+
+    try {
+        $subscriber = $app->db->subscriber_list()
+            ->select('subscriber_list.lid,subscriber_list.sid')
+            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+            ->where('subscriber_list.lid = ?', $lid)->_and_()
+            ->where('subscriber_list.sid = ?', $sid)->_and_()
+            ->where('subscriber_list.code = ?', $code)->_and_()
+            ->where('subscriber_list.unsubscribed = "0"')
+            ->findOne();
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($subscriber == false) {
+
+            header('Content-Type: application/json');
+            $app->res->_format('json', 404);
+            exit();
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($subscriber) == true) {
+
+            header('Content-Type: application/json');
+            $app->res->_format('json', 404);
+            exit();
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count(_h($subscriber->sid)) <= 0) {
+
+            header('Content-Type: application/json');
+            $app->res->_format('json', 404);
+            exit();
+        }
+        /**
+         * If we get to this point, then all is well
+         * and it is ok to process the query.
+         */ else {
+            $sub = $app->db->subscriber_list();
+            $sub->set([
+                    'unsubscribed' => (int) 1
+                ])
+                ->where('lid = ?', $lid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->where('code = ?', $code)
+                ->update();
+            try {
+                $upd = Node::table('campaign_queue')->find($rid);
+                $upd->is_unsubscribed = (int) 1;
+                $upd->timestamp_unsubscribed = (string) Jenssegers\Date\Date::now()->format('Y-m-d H:i:s');
+                $upd->save();
+            } catch (NodeQException $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            }
+            unsubscribe_email_node(_h($list->code), $subscriber);
+            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
+        }
+    } catch (NotFoundException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
 });
 
 /**

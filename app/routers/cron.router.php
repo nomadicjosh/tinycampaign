@@ -547,7 +547,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $footer = str_replace('{email}', _h($sub->email), $footer);
                         $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
                         $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/', $footer);
-                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'cunsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/', $footer);
+                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/', $footer);
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
@@ -562,19 +562,19 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg = str_replace('{state}', _h($sub->state), $msg);
                         $msg = str_replace('{postal_code}', _h($sub->postal_code), $msg);
                         $msg = str_replace('{country}', _h($sub->country), $msg);
-                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'cunsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
                         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/">' . _t('preferences page') . '</a>', $msg);
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
                         $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
-                        
+
                         if (++$i === 1) {
-                        $q = $app->db->campaign()
-                            ->where('id = ?', _h($cpgn->id))
-                            ->findOne();
+                            $q = $app->db->campaign()
+                                ->where('id = ?', _h($cpgn->id))
+                                ->findOne();
                             $finish = strtotime($last->timestamp_to_send);
                             $q->sendfinish = date("Y-m-d H:i:s", strtotime('+10 minutes', $finish));
-                        $q->update();
+                            $q->update();
                         }
                         /**
                          * Turn server object to array, join with another 
