@@ -86,9 +86,9 @@ defined('TC_NODEQ_PATH') or define('TC_NODEQ_PATH', NODEQ_PATH . 'tinyc' . DS);
  * Do not edit anything from this point on.
  */
 $app->inst->singleton('db', function () {
-    $pdo = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"]);
+    $pdo = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'"]);
     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-    $pdo->query('SET CHARACTER SET utf8');
+    $pdo->query("SET CHARACTER SET 'utf8mb4'");
     return new \Liten\Orm($pdo);
 });
 
