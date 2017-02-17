@@ -102,7 +102,7 @@ class ServerTable extends AbstractMigration
             `sid` bigint(20) NOT NULL,
             `source` varchar(191) NOT NULL,
             `medium` varchar(191) NOT NULL,
-            `url` varchar(191) NOT NULL,
+            `url` text NOT NULL,
             `clicked` int(11) NOT NULL,
             `addDate` datetime NOT NULL,
             `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -152,7 +152,6 @@ class ServerTable extends AbstractMigration
         
         $this->execute("ALTER TABLE tracking_link ADD CONSTRAINT `tracking_link_cid` FOREIGN KEY (`cid`) REFERENCES `campaign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
         $this->execute("ALTER TABLE tracking_link ADD CONSTRAINT `tracking_link_sid` FOREIGN KEY (`sid`) REFERENCES `subscriber` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
-        $this->execute("ALTER TABLE tracking_link ADD UNIQUE INDEX `tracking_link_item` (`cid`,`sid`,`url`);");
 
         $this->execute("ALTER TABLE user MODIFY COLUMN state CHAR(8) DEFAULT NULL;");
         $this->execute("ALTER TABLE user MODIFY COLUMN country CHAR(8) DEFAULT NULL;");
