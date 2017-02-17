@@ -322,6 +322,7 @@ $app->group('/campaign', function() use ($app) {
         $cpgn = get_campaign_by_id($id);
         $sub = get_user_by('id', get_userdata('id'));
         $server = get_server_info($app->req->post['server']);
+        $send_to = $app->req->post['email'] != '' ? $app->req->post['email'] : _h($sub->email);
 
         $footer = _escape($cpgn->footer);
         $footer = str_replace('{email}', _h($sub->email), $footer);
@@ -346,7 +347,7 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, _h($sub->email), _h($cpgn->subject), $msg, '']);
+        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $send_to, _h($cpgn->subject), $msg, _escape($cpgn->text), '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
 

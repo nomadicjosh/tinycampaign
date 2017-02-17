@@ -497,7 +497,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                      */
                     $sent = Node::table('campaign_queue')
                         ->where('is_sent', '=', 'false')
-                        ->andWhere('cid','=',_h($cpgn->id))
+                        ->andWhere('cid', '=', _h($cpgn->id))
                         ->findAll()
                         ->count();
                     if ($sent <= 0 && _h($cpgn->status) != 'sent') {
@@ -516,7 +516,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                     // get messages from the queue
                     $messages = $queue->getEmails();
                     $i = 0;
-                    $last = Node::table('campaign_queue')->where('cid','=',_h($cpgn->id))->orderBy('id', 'DESC')->limit(1)->find();
+                    $last = Node::table('campaign_queue')->where('cid', '=', _h($cpgn->id))->orderBy('id', 'DESC')->limit(1)->find();
                     // iterate messages
                     foreach ($messages as $message) {
                         $sub = get_subscriber_by('email', $message->getToEmail());
@@ -567,6 +567,15 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
                         $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
+                        
+                        if (++$i === 1) {
+                        $q = $app->db->campaign()
+                            ->where('id = ?', _h($cpgn->id))
+                            ->findOne();
+                            $finish = strtotime($last->timestamp_to_send);
+                            $q->sendfinish = date("Y-m-d H:i:s", strtotime('+10 minutes', $finish));
+                        $q->update();
+                        }
                         /**
                          * Turn server object to array, join with another 
                          * array, and then merge them back into an object.
@@ -577,20 +586,15 @@ $app->group('/cron', function () use($app, $css, $js) {
                         }
                         $obj_merged = (object) array_merge($custom_headers, $data);
                         // send email
-                        $app->hook->{'do_action_array'}('tinyc_email_init', [$obj_merged, $message->getToEmail(), _h($cpgn->subject), tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug), _h($cpgn->text)]);
-
-                        $q = $app->db->campaign()
-                            ->where('id = ?', _h($cpgn->id))
-                            ->findOne();
-                        $q->recipients = $q->recipients + 1;
-                        if (++$i === 1) {
-                            $finish = strtotime($last->timestamp_to_send);
-                            $q->sendfinish = date("Y-m-d H:i:s", strtotime('+10 minutes', $finish));
-                        }
-                        $q->update();
-
-                        // remove message from the queue by updating is_sent value
-                        $queue->setMessageIsSent($message);
+                        $app->hook->{'do_action_array'}('tinyc_email_init', [
+                            $obj_merged,
+                            $message->getToEmail(),
+                            _h($cpgn->subject),
+                            tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug),
+                            tc_link_tracking(_h($cpgn->text), _h($cpgn->id), _h($sub->id), $slug),
+                            $message
+                            ]
+                        );
                     }
                 } catch (NodeQException $e) {
                     Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));

@@ -1227,11 +1227,12 @@ function tc_smtp($tcMailer)
  * @param string $subject Email subject.
  * @param string $html HTML version of the email message.
  * @param string $text Text version of the email message.
+ * @param object $message Object of \app\src\tc_Queue().
  */
-function tinyc_email($data, $to, $subject, $html, $text = '')
+function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
 {
     $app = \Liten\Liten::getInstance();
-    
+
     if (is_object($data)) {
         try {
             $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
@@ -1280,8 +1281,11 @@ function tinyc_email($data, $to, $subject, $html, $text = '')
             $tcMailer->Username = _h($data->uname);
             $tcMailer->Password = $password;
             if ($tcMailer->send()) {
+                $app->hook->{'do_action'}('mark_queued_record_sent', $message);
                 _tc_flash()->{'success'}(_t('Email Sent.'));
             }
+            $tcMailer->ClearAddresses();
+            $tcMailer->ClearAttachments();
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (\app\src\Exception\Exception $e) {
@@ -1384,6 +1388,37 @@ function send_campaign_to_queue($cpgn)
         _tc_flash()->{'error'}($e->getMessage());
     }
 }
+
+/**
+ * Marks the sent message as complete and increments the
+ * recipient field in the campaign table.
+ * 
+ * @since 2.0.4
+ * @param object $message Object of \app\src\tc_Queue().
+ */
+function mark_queued_record_sent($message)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $q = $app->db->campaign()
+            ->where('id = ?', _h($message->getMessageId()))
+            ->findOne();
+        $upd = $app->db->campaign();
+        $upd->recipients = _h($q->recipients) + 1;
+        $upd->where('id = ?', _h($q->id))
+            ->update();
+
+        // remove message from the queue by updating is_sent value
+        $queue = new \app\src\tc_Queue();
+        $queue->setMessageIsSent($message);
+    } catch (NotFoundException $e) {
+        _tc_flash()->{'error'}($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->{'error'}($e->getMessage());
+    } catch (ORMException $e) {
+        _tc_flash()->{'error'}($e->getMessage());
+    }
+}
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
 $app->hook->{'add_action'}('release', 'foot_release', 5);
@@ -1398,8 +1433,9 @@ $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
 $app->hook->{'add_action'}('tcMailer_init', 'tc_smtp', 5, 1);
 $app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
 $app->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
-$app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 5);
+$app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
 $app->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
 $app->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
+$app->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
 $app->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 $app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);
