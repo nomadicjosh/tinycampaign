@@ -29,6 +29,6 @@ class DbTableEdits extends AbstractMigration
     {
         $this->execute("ALTER TABLE `subscriber` ADD COLUMN `exception` ENUM('1','0') DEFAULT '0' NOT NULL AFTER `spammer`;");
         
-        $this->execute("ALTER TABLE `subscriber` ADD COLUMN `tags` VARCHAR(255) DEFAULT NULL AFTER `exception`;");
+        $this->execute("ALTER TABLE `subscriber` ADD COLUMN `tags` VARCHAR(191) DEFAULT NULL AFTER `exception`;");
     }
 }
