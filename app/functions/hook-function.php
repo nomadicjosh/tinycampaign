@@ -7,6 +7,7 @@ use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\NodeQException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign Hooks Helper & Wrapper
@@ -1309,33 +1310,63 @@ function send_campaign_to_queue($cpgn)
          * If it passes the above check, then instantiate the message queue.
          */
         $queue = new app\src\tc_Queue();
-        /**
-         * Retrieve list info based on the unique campaign id.
-         */
-        $campaign_list = $app->db->campaign_list()
-            ->select('campaign_list.lid')
-            ->where('campaign_list.cid = ?', _h($cpgn->id))
-            ->find();
+        try {
+            /**
+             * Retrieve list info based on the unique campaign id.
+             */
+            $campaign_list = $app->db->campaign_list()
+                ->select('campaign_list.lid')
+                ->where('campaign_list.cid = ?', _h($cpgn->id))
+                ->find();
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+
         /**
          * Create a loop to see if how many lists this campaign should
          * be sent to and grab the list id.
          */
         foreach ($campaign_list as $c_list) {
-            /**
-             * Get a list of subscribers that meet the criteria.
-             */
-            $subscriber = $app->db->subscriber()
-                ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
-                ->where('subscriber.allowed = "true"')->_and_()
-                ->where('(subscriber.spammer = "0" AND subscriber.exception = "0")')->_or_()
-                ->where('(subscriber.spammer = "1" AND subscriber.exception = "1")')->_or_()
-                ->where('(subscriber.spammer = "0" AND subscriber.exception = "1")')->_and_()
-                ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribed = "0"')
-                ->groupBy('subscriber.email')
-                ->find();
+            try {
+                /**
+                 * Get a list of subscribers that meet the criteria.
+                 */
+                /* $subscriber = $app->db->subscriber()
+                  ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                  ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                  ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                  ->where('subscriber.allowed = "true"')->_and_()
+                  ->where('(subscriber.spammer = "0" AND subscriber.exception = "0")')->_or_()
+                  ->where('(subscriber.spammer = "1" AND subscriber.exception = "1")')->_or_()
+                  ->where('(subscriber.spammer = "0" AND subscriber.exception = "1")')->_and_()
+                  ->where('subscriber_list.confirmed = "1"')->_and_()
+                  ->where('subscriber_list.unsubscribed = "0"')
+                  ->groupBy('subscriber.email')
+                  ->find(); */
+
+                $subscriber = $app->db->subscriber()
+                    ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                    ->where('subscriber.allowed = "true"')->_and_()
+                    ->where('subscriber.bounces < "3"')->_and_()
+                    ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                    ->where('subscriber_list.confirmed = "1"')->_and_()
+                    ->where('subscriber_list.unsubscribed = "0"')
+                    ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->find();
+            } catch (NotFoundException $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (ORMException $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            }
+
             /**
              * Loop through the above $subscriber query and add each
              * subscriber to the queue.
@@ -1372,20 +1403,20 @@ function send_campaign_to_queue($cpgn)
                 ->where('id = ?', _h($cpgn->id))
                 ->update();
         } catch (NotFoundException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
 
 
         tc_logger_activity_log_write('Update Record', 'Campaign Queued', _h($cpgn->subject), get_userdata('uname'));
         _tc_flash()->{'success'}(_t('Campaign was successfully sent to the queue.'));
     } catch (NodeQException $e) {
-        _tc_flash()->{'error'}($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 
@@ -1401,22 +1432,22 @@ function mark_queued_record_sent($message)
     $app = \Liten\Liten::getInstance();
     try {
         $q = $app->db->campaign()
-            ->where('id = ?', _h($message->getMessageId()))
+            ->where('id = ?', _h((int) $message->getMessageId()))
             ->findOne();
-        $upd = $app->db->campaign();
-        $upd->recipients = _h($q->recipients) + 1;
-        $upd->where('id = ?', _h($q->id))
+        $q->set([
+                'recipients' => _h((int) $q->recipients) + 1
+            ])
             ->update();
 
         // remove message from the queue by updating is_sent value
         $queue = new \app\src\tc_Queue();
         $queue->setMessageIsSent($message);
     } catch (NotFoundException $e) {
-        _tc_flash()->{'error'}($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
-        _tc_flash()->{'error'}($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);

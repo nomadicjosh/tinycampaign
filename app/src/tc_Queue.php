@@ -104,7 +104,7 @@ class tc_Queue
                 $message = new Message();
                 $message->setId($row->id);
                 $message->setListId($row->lid);
-                $message->setMessageId($row->mid);
+                $message->setMessageId($row->cid);
                 $message->setSubscriberId($row->sid);
                 $message->setToEmail($row->to_email);
                 $message->setToName($row->to_name);

@@ -15,7 +15,7 @@ class tc_QueueMessage
 
     private $_id;
     private $_lid;
-    private $_mid;
+    private $_cid;
     private $_sid;
     private $_from_email;
     private $_from_name;
@@ -35,7 +35,7 @@ class tc_QueueMessage
     {
         $this->_id = 0;
         $this->_lid = 0;
-        $this->_mid = 0;
+        $this->_cid = 0;
         $this->_sid = 0;
         $this->_from_email = '';
         $this->_from_name = '';
@@ -75,11 +75,11 @@ class tc_QueueMessage
     /**
      * Sets the campaign id
      * 
-     * @param int $mid id
+     * @param int $cid id
      */
-    public function setMessageId($mid)
+    public function setMessageId($cid)
     {
-        $this->_mid = $mid;
+        $this->_cid = $cid;
     }
     
     /**
@@ -245,11 +245,11 @@ class tc_QueueMessage
     /**
      * returns campaign id
      *
-     * @return int mid
+     * @return int cid
      */
     public function getMessageId()
     {
-        return $this->_mid;
+        return $this->_cid;
     }
     
     /**
