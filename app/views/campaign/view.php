@@ -289,6 +289,9 @@ define('SCREEN', 'cpgn');
                         <h4 class="modal-title"><?= _t('Send Test Email (Choose Server)'); ?></h4>
                     </div>
                     <div class="modal-body">
+                        <input type="text" class="form-control" name="email" value="<?=get_userdata('email');?>" />
+                    </div>
+                    <div class="modal-body">
                         <select class="form-control select2" name="server" style="width: 100%;" required>
                             <option>&nbsp;</option>
                             <?php get_user_servers(); ?>
