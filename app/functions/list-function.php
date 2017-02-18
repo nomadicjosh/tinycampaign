@@ -7,6 +7,7 @@ use app\src\Exception\Exception;
 use PDOException as ORMException;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign List Functions
@@ -339,6 +340,55 @@ function tc_list_status_label($status)
         'open' => 'label-success',
         'closed' => 'label-danger'
     ];
-    
+
     return $label[$status];
+}
+
+/**
+ * Adds custom header called List-Unsubscribe. This allows a user
+ * to unsubscribe from a mailing list right from their email client
+ * if the email client supports it.
+ * 
+ * @since 2.0.4
+ * @param object $tcMailer Object of PHPMailer.
+ * @param object $data Object of merged data.
+ * @return string
+ */
+function list_unsubscribe($tcMailer, $data)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $link = '<' . get_base_url() . 'xunsubscribe/' . _h($data->slist_code) . '/lid/' . _h($data->xlistid) . '/sid/' . _h($data->xsubscriberid) . '/rid/' . _h($data->uniqueid) . '/>';
+    return $app->hook->{'apply_filter'}('list_unsubscribe', $tcMailer->addCustomHeader('List-Unsubscribe', $link));
+}
+
+function mark_subscriber_as_spammer($email)
+{
+    $app = \Liten\Liten::getInstance();
+    /**
+     * Set spam tolerance.
+     */
+    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    /**
+     * Check if subscriber is a spammer.
+     */
+    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
+        try {
+
+            $subscriber = $app->db->subscriber()
+                ->where('email = ?', $email)->_and_()
+                ->where('spammer = "0"')
+                ->findOne();
+            $subscriber->set([
+                    'spammer' => (int) 1
+                ])
+                ->update();
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    }
 }

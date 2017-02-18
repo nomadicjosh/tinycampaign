@@ -22,7 +22,7 @@ define('SCREEN', 'cpgn');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('URLs Clicked Campaign Report'); ?></h1>
+        <h1><?= _t('URLs Clicked Campaign Report'); ?></h1> <br /><span class="label bg-green-gradient" style="font-size:1em;font-weight: bold;"><?=_t('Total Clicks');?>: <?= _h($sum); ?></span>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
@@ -30,19 +30,36 @@ define('SCREEN', 'cpgn');
             <li class="active"><?= _t('URLs Clicked Campaign Report'); ?></li>
         </ol>
     </section>
+    
+    <section class="content">
+
+        <?= _tc_flash()->showMessage(); ?>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="dayclicks"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="hourclicks"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+    </section>
 
     <!-- Main content -->
     <section class="content">
-
-        <?= _tc_flash()->showMessage(); ?> 
-        
-        <div class="box box-default">
-            <div class="box-body">
-                <div id="dayclicks"></div>
-            </div>
-            <!-- /.box-body -->
-        </div>
-        <!-- /.box -->
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">

@@ -65,7 +65,6 @@ $app->group('/campaign', function() use ($app) {
             try {
                 $msg = $app->db->campaign();
                 $msg->owner = get_userdata('id');
-                $msg->node = $app->req->post['node'];
                 $msg->subject = $app->req->post['subject'];
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
@@ -86,25 +85,6 @@ $app->group('/campaign', function() use ($app) {
                         'cid' => $ID,
                         'lid' => $list
                     ]);
-                }
-
-                try {
-                    Node::create($app->req->post['node'], [
-                        'lid' => 'integer',
-                        'mid' => 'integer',
-                        'sid' => 'integer',
-                        'to_email' => 'string',
-                        'to_name' => 'string',
-                        'message_html' => 'string',
-                        'message_plain_text' => 'string',
-                        'timestamp_created' => 'string',
-                        'timestamp_to_send' => 'string',
-                        'timestamp_sent' => 'string',
-                        'is_sent' => 'string',
-                        'serialized_headers' => 'string'
-                    ]);
-                } catch (NodeQException $e) {
-                    _tc_flash()->error($e->getMessage());
                 }
                 tc_logger_activity_log_write('New Record', 'Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
                 _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'campaign' . '/' . $ID . '/');
@@ -171,10 +151,18 @@ $app->group('/campaign', function() use ($app) {
             }
         }
 
-        $msg = $app->db->campaign()
-            ->where('owner = ?', get_userdata('id'))->_and_()
-            ->where('id = ?', $id)
-            ->findOne();
+        try {
+            $msg = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->findOne();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -334,6 +322,7 @@ $app->group('/campaign', function() use ($app) {
         $cpgn = get_campaign_by_id($id);
         $sub = get_user_by('id', get_userdata('id'));
         $server = get_server_info($app->req->post['server']);
+        $send_to = $app->req->post['email'] != '' ? $app->req->post['email'] : _h($sub->email);
 
         $footer = _escape($cpgn->footer);
         $footer = str_replace('{email}', _h($sub->email), $footer);
@@ -358,8 +347,7 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        //tinyc_email($server, _h($sub->email), _h($cpgn->subject), $msg);
-        $app->hook->{'do_action_array'}('tinyc_email_init',[$server, _h($sub->email), _h($cpgn->subject), $msg, '']);
+        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $send_to, _h($cpgn->subject), $msg, _escape($cpgn->text), '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
 
@@ -375,24 +363,41 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $opened = $app->db->tracking()
-            ->where('tracking.cid = ?', $id)->_and_()
-            ->whereNotNull('tracking.first_open')
-            ->sum('tracking.viewed');
-        $unique_opens = $app->db->tracking()
-            ->where('tracking.cid = ?', $id)->_and_()
-            ->whereNotNull('tracking.first_open')
-            ->groupBy('tracking.cid')
-            ->count('tracking.id');
-        $clicks = $app->db->tracking_link()
-            ->where('tracking_link.cid = ?', $id)
-            ->groupBy('tracking_link.cid')
-            ->sum('tracking_link.clicked');
-        $unique_clicks = $app->db->tracking_link()
-            ->where('tracking_link.cid = ?', $id)
-            ->groupBy('tracking_link.sid')
-            ->count('tracking_link.id');
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $opened = $app->db->tracking()
+                ->where('tracking.cid = ?', $id)
+                ->sum('tracking.viewed');
+            $unique_opens = $app->db->tracking()
+                ->where('tracking.cid = ?', $id)
+                ->count('tracking.id');
+            $clicks = $app->db->tracking_link()
+                ->where('tracking_link.cid = ?', $id)
+                ->groupBy('tracking_link.cid')
+                ->sum('tracking_link.clicked');
+            $unique_clicks = $app->db->tracking_link()
+                ->where('tracking_link.cid = ?', $id)
+                ->count('DISTINCT tracking_link.sid');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        try {
+            Node::dispense('campaign_queue');
+            $unique_unsubs = Node::table('campaign_queue')
+                ->where('cid', '=', $id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll()
+                ->count();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -421,7 +426,7 @@ $app->group('/campaign', function() use ($app) {
          * and it is ok to process the query and print
          * the results in a html format.
          */ else {
-             
+
             tc_register_script('highcharts-3d');
             tc_register_script('campaign-domains');
 
@@ -431,7 +436,8 @@ $app->group('/campaign', function() use ($app) {
                 'opened' => $opened,
                 'unique_opens' => $unique_opens,
                 'clicks' => $clicks,
-                'unique_clicks' => $unique_clicks
+                'unique_clicks' => $unique_clicks,
+                'unique_unsubs' => $unique_unsubs
                 ]
             );
         }
@@ -449,13 +455,26 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/opened/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $opens = $app->db->subscriber()
-            ->select('subscriber.email,tracking.*')
-            ->_join('tracking', 'tracking.sid = subscriber.id')
-            ->_join('campaign', 'tracking.cid = campaign.id')
-            ->where('campaign.id = ?', _h($cpgn->id))
-            ->find();
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $opens = $app->db->subscriber()
+                ->select('subscriber.email,tracking.*')
+                ->_join('tracking', 'tracking.sid = subscriber.id')
+                ->_join('campaign', 'tracking.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->find();
+
+            $sum = $app->db->campaign()
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->sum('viewed');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -491,7 +510,8 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/opened', [
                 'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
-                'opens' => $opens
+                'opens' => $opens,
+                'sum' => $sum
                 ]
             );
         }
@@ -509,13 +529,28 @@ $app->group('/campaign', function() use ($app) {
 
     $app->get('/(\d+)/report/clicked/', function ($id) use($app) {
 
-        $cpgn = get_campaign_by_id($id);
-        $clicks = $app->db->subscriber()
-            ->select('subscriber.email,tracking_link.*')
-            ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
-            ->_join('campaign', 'tracking_link.cid = campaign.id')
-            ->where('campaign.id = ?', _h($cpgn->id))
-            ->find();
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $clicks = $app->db->subscriber()
+                ->select('subscriber.email,tracking_link.*')
+                ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
+                ->_join('campaign', 'tracking_link.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->find();
+
+            $sum = $app->db->subscriber()
+                ->select('subscriber.email,tracking_link.*')
+                ->_join('tracking_link', 'tracking_link.sid = subscriber.id')
+                ->_join('campaign', 'tracking_link.cid = campaign.id')
+                ->where('campaign.id = ?', _h($cpgn->id))
+                ->sum('tracking_link.clicked');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
 
         /**
          * If the database table doesn't exist, then it
@@ -551,7 +586,81 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/clicked', [
                 'title' => _h($cpgn->subject),
                 'cpgn' => $cpgn,
-                'clicks' => $clicks
+                'clicks' => $clicks,
+                'sum' => $sum
+                ]
+            );
+        }
+    });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/report/unsubscribed/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/report/unsubscribed/', function ($id) use($app) {
+
+        try {
+            $cpgn = get_campaign_by_id($id);
+            $unsubs = Node::table('campaign_queue')
+                ->where('cid','=',$id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll();
+
+            $sum = Node::table('campaign_queue')
+                ->where('cid', '=', $id)
+                ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll()
+                ->count();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (count(_h($cpgn->id)) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            //tc_register_script('highcharts-3d');
+            //tc_register_script('campaign-opened');
+
+            $app->view->display('campaign/unsubscribed', [
+                'title' => _h($cpgn->subject),
+                'cpgn' => $cpgn,
+                'unsubs' => $unsubs,
+                'sum' => $sum
                 ]
             );
         }
@@ -684,7 +793,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -704,24 +813,30 @@ $app->group('/campaign', function() use ($app) {
                 . "JOIN subscriber_list ON campaign_list.lid = subscriber_list.lid "
                 . "JOIN subscriber ON subscriber_list.sid = subscriber.id "
                 . "WHERE campaign.owner = ? AND campaign_list.cid = ? "
-                . "GROUP BY substring_index(subscriber.email, '@', -1)", [get_userdata('id'),$id]
+                . "GROUP BY substring_index(subscriber.email, '@', -1) "
+                . "ORDER BY domain_count DESC", [get_userdata('id'), $id]
             );
             // Use closure as callback
-        $results = $q->find(function($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
+            $results = tc_cache_get($id, 'domain_report');
+            if (empty($results)) {
+                // Use closure as callback
+                $results = $q->find(function($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($id, $results, 'domain_report');
             }
-            return $array;
-        });
-        // Retrieve data passed from query to closure
-        $rows = [];
-        foreach ($results as $r) {
-            $row[0] = $r['domain'];
-            $row[1] = $r['domain_count'];
-            array_push($rows, $row);
-        }
-        print json_encode($rows, JSON_NUMERIC_CHECK);
+            // Retrieve data passed from query to closure
+            $rows = [];
+            foreach ($results as $r) {
+                $row[0] = _h($r['domain']);
+                $row[1] = _h($r['domain_count']);
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -730,7 +845,7 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -748,24 +863,29 @@ $app->group('/campaign', function() use ($app) {
                 . "FROM tracking "
                 . "JOIN campaign ON tracking.cid = campaign.id "
                 . "WHERE campaign.owner = ? AND campaign.id = ? "
-                . "GROUP BY DATE_FORMAT(tracking.first_open, '%W, %M %d, %Y')", [get_userdata('id'),$id]
+                . "GROUP BY DATE_FORMAT(tracking.first_open, '%W, %M %d, %Y')", [get_userdata('id'), $id]
             );
             // Use closure as callback
-        $results = $q->find(function($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
+            $results = tc_cache_get($id, 'oday_report');
+            if (empty($results)) {
+                // Use closure as callback
+                $results = $q->find(function($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($id, $results, 'oday_report');
             }
-            return $array;
-        });
-        // Retrieve data passed from query to closure
-        $rows = [];
-        foreach ($results as $r) {
-            $row[0] = \Jenssegers\Date\Date::parse($r['open_date'])->format('D d, M Y');
-            $row[1] = $r['num_opens'];
-            array_push($rows, $row);
-        }
-        print json_encode($rows, JSON_NUMERIC_CHECK);
+            // Retrieve data passed from query to closure
+            $rows = [];
+            foreach ($results as $r) {
+                $row[0] = \Jenssegers\Date\Date::parse(_h($r['open_date']))->format('D d, M Y');
+                $row[1] = _h($r['num_opens']);
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -774,7 +894,56 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getOpenedHourReport/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to request this source.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/getOpenedHourReport/(\d+)/', function ($id) use($app) {
+
+        try {
+            $q = $app->db->query(
+                "SELECT tracking.first_open as open_time, COUNT(tracking.id) as opens "
+                . "FROM tracking "
+                . "JOIN campaign ON tracking.cid = campaign.id "
+                . "WHERE campaign.owner = ? AND campaign.id = ? "
+                . "GROUP BY hour(tracking.first_open), day(tracking.first_open)", [get_userdata('id'), $id]
+            );
+            // Use closure as callback
+            $results = tc_cache_get($id, 'ohour_report');
+            if (empty($results)) {
+                // Use closure as callback
+                $results = $q->find(function($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($id, $results, 'ohour_report');
+            }
+            // Retrieve data passed from query to closure
+            $rows = [];
+            foreach ($results as $r) {
+                $row[0] = \Jenssegers\Date\Date::parse(_h($r['open_time']))->format('D d, M Y / h:00 A');
+                $row[1] = _h($r['opens']);
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+    });
+
     /**
      * Before route check.
      */
@@ -792,24 +961,78 @@ $app->group('/campaign', function() use ($app) {
                 . "FROM tracking_link "
                 . "JOIN campaign ON tracking_link.cid = campaign.id "
                 . "WHERE campaign.owner = ? AND campaign.id = ? "
-                . "GROUP BY DATE_FORMAT(tracking_link.addDate, '%W, %M %d, %Y')", [get_userdata('id'),$id]
+                . "GROUP BY DATE_FORMAT(tracking_link.addDate, '%W, %M %d, %Y')", [get_userdata('id'), $id]
             );
-            // Use closure as callback
-        $results = $q->find(function($data) {
-            $array = [];
-            foreach ($data as $d) {
-                $array[] = $d;
+
+            $results = tc_cache_get($id, 'cday_report');
+            if (empty($results)) {
+                // Use closure as callback
+                $results = $q->find(function($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($id, $results, 'cday_report');
             }
-            return $array;
-        });
-        // Retrieve data passed from query to closure
-        $rows = [];
-        foreach ($results as $r) {
-            $row[0] = \Jenssegers\Date\Date::parse($r['click_date'])->format('D d, M Y');
-            $row[1] = $r['num_clicks'];
-            array_push($rows, $row);
+            // Retrieve data passed from query to closure
+            $rows = [];
+            foreach ($results as $r) {
+                $row[0] = \Jenssegers\Date\Date::parse(_h($r['click_date']))->format('D d, M Y');
+                $row[1] = _h($r['num_clicks']);
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
         }
-        print json_encode($rows, JSON_NUMERIC_CHECK);
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getClickedHourReport/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to request this source.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/getClickedHourReport/(\d+)/', function ($id) use($app) {
+
+        try {
+            $q = $app->db->query(
+                "SELECT tracking_link.addDate as click_hour, COUNT(tracking_link.id) as clicks "
+                . "FROM tracking_link "
+                . "JOIN campaign ON tracking_link.cid = campaign.id "
+                . "WHERE campaign.owner = ? AND campaign.id = ? "
+                . "GROUP BY hour(tracking_link.addDate), day(tracking_link.addDate)", [get_userdata('id'), $id]
+            );
+
+            $results = tc_cache_get($id, 'chour_report');
+            if (empty($results)) {
+                // Use closure as callback
+                $results = $q->find(function($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add($id, $results, 'chour_report');
+            }
+            // Retrieve data passed from query to closure
+            $rows = [];
+            foreach ($results as $r) {
+                $row[0] = \Jenssegers\Date\Date::parse(_h($r['click_hour']))->format('D d, M Y / h:00 A');
+                $row[1] = _h($r['clicks']);
+                array_push($rows, $row);
+            }
+            print json_encode($rows, JSON_NUMERIC_CHECK);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -830,15 +1053,15 @@ $app->group('/campaign', function() use ($app) {
     });
 
     $app->get('/(\d+)/d/', function ($id) use($app) {
-        $cpgn = get_campaign_by_id($id);
-
         try {
             $msg = $app->db->campaign()
                 ->where('owner = ?', get_userdata('id'))->_and_()
                 ->where('id = ?', $id);
 
             try {
-                Node::remove(_h($cpgn->node));
+                Node::table('campaign_queue')
+                    ->where('cid', '=', $id)
+                    ->delete();
             } catch (NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {

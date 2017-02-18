@@ -32,7 +32,7 @@ class tc_Queue
      * 
      * @var type 
      */
-    public $node;
+    public $node = 'campaign_queue';
 
     /**
      * 
@@ -104,17 +104,14 @@ class tc_Queue
                 $message = new Message();
                 $message->setId($row->id);
                 $message->setListId($row->lid);
-                $message->setMessageId($row->mid);
+                $message->setMessageId($row->cid);
                 $message->setSubscriberId($row->sid);
                 $message->setToEmail($row->to_email);
                 $message->setToName($row->to_name);
-                $message->setMessageHtml($row->message_html);
-                $message->setMessagePlainText($row->message_plain_text);
                 $message->setTimestampCreated($row->timestamp_created);
                 $message->setTimestampToSend($row->timestamp_to_send);
                 $message->setTimestampSent($row->timestamp_sent);
                 $message->setIsSent(($row->is_sent ? true : false));
-                $message->setSerializedHeaders(maybe_unserialize($row->serialized_headers));
 
                 $result_array[] = $message;
             }
@@ -142,7 +139,7 @@ class tc_Queue
             return false;
         }
 
-        set_queued_message_is_sent($this->getNode(), $message->getId());
+        set_queued_message_is_sent($message);
 
         return true;
     }
@@ -163,19 +160,15 @@ class tc_Queue
         try {
             $node = Node::table($this->getNode());
             $node->lid = (int) $message->getListId();
-            $node->mid = (int) $message->getMessageId();
+            $node->cid = (int) $message->getMessageId();
             $node->sid = (int) $message->getSubscriberId();
             $node->to_email = (string) $message->getToEmail();
             $node->to_name = (string) $message->getToName();
-            //$node->message_html = $message->getMessageHtml();
-            //$node->message_plain_text = $message->getMessagePlainText();
-            $node->message_html = (string) 'true';
-            $node->message_plain_text = (string) 'false';
             $node->timestamp_created = (string) $message->getTimestampCreated();
-            $node->timestamp_sent = (string) $message->getTimestampSent();
             $node->timestamp_to_send = (string) $message->getTimeStampToSend();
+            $node->timestamp_sent = (string) $message->getTimestampSent();
+            $node->is_unsubscribed = (int) 0;
             $node->is_sent = (string) 'false';
-            $node->serialized_headers = (string) $message->getSerializedHeaders();
             $node->save();
         } catch (NodeQException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));

@@ -1,9 +1,11 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
+use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\Exception\Exception;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\IOException;
+use app\src\NodeQ\NodeQException;
 use Cascade\Cascade;
 use Jenssegers\Date\Date;
 
@@ -1137,7 +1139,7 @@ function _escape($t, $C = 1, $S = [])
 /**
  * Converts seconds to time format.
  * 
- * @since 6.2.11
+ * @since 2.0.0
  * @param numeric $seconds
  */
 function tc_seconds_to_time($seconds)
@@ -1147,25 +1149,25 @@ function tc_seconds_to_time($seconds)
     /** get the days */
     $days = intval(intval($seconds) / (3600 * 24));
     if ($days > 0) {
-        $ret .= "$days days ";
+        $ret .= "$days " . _t('days') . " ";
     }
 
     /** get the hours */
     $hours = (intval($seconds) / 3600) % 24;
     if ($hours > 0) {
-        $ret .= "$hours hours ";
+        $ret .= "$hours " . _t('hours') . " ";
     }
 
     /** get the minutes */
     $minutes = (intval($seconds) / 60) % 60;
     if ($minutes > 0) {
-        $ret .= "$minutes minutes ";
+        $ret .= "$minutes " . _t('minutes') . " ";
     }
 
     /** get the seconds */
     $seconds = intval($seconds) % 60;
     if ($seconds > 0) {
-        $ret .= "$seconds seconds";
+        $ret .= "$seconds " . _t('seconds');
     }
 
     return $ret;
@@ -1309,7 +1311,7 @@ function tc_url_shorten($url, $length = 80)
 {
     if (strlen($url) > $length) {
         $strlen = $length - 30;
-        $first = substr($url, 0, -$strlen);
+        $first = substr($url, 0, $strlen);
         $last = substr($url, -15);
         $short_url = $first . "[ ... ]" . $last;
         return $short_url;
@@ -1420,4 +1422,30 @@ function find_x_subscriber_email($text)
         $subEmail = trim($match[1]);
     }
     return $subEmail;
+}
+
+/**
+ * Calculates response time between when the campaign was sent
+ * and when the subscriber first opened his/her email.
+ * 
+ * @since 2.0.4
+ * @param int $cid Campaign id.
+ * @param int $sid Subscriber id.
+ * @param string $left_operand When campaign was first opened by subscriber.
+ * @return string
+ */
+function tc_response_time($cid, $sid, $left_operand)
+{
+    try {
+        $node = Node::table('campaign_queue')
+            ->where('cid', '=', $cid)
+            ->andWhere('sid', '=', $sid)
+            ->find();
+        $seconds = strtotime($left_operand) - strtotime(_h($node->timestamp_sent));
+        return tc_seconds_to_time($seconds);
+    } catch (NodeQException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
 }

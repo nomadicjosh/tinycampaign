@@ -7,6 +7,7 @@ use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\NodeQException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign Hooks Helper & Wrapper
@@ -1118,12 +1119,12 @@ function get_logo_mini()
 function tc_validation_check($data)
 {
     if ($data['m6qIHt4Z5evV'] != '' || !empty($data['m6qIHt4Z5evV'])) {
-        _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+        _tc_flash()->{'error'}(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
         exit();
     }
 
     if ($data['YgexGyklrgi1'] != '' || !empty($data['YgexGyklrgi1'])) {
-        _tc_flash()->error(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
+        _tc_flash()->{'error'}(_t('Spam is not allowed.'), get_base_url() . 'spam' . '/');
         exit();
     }
 }
@@ -1198,10 +1199,9 @@ function tc_smtp($tcMailer)
             $tcMailer->ContentType = "text/html";
             $tcMailer->CharSet = "UTF-8";
             $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
-            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h(get_option("system_email")) : _h(get_option('tc_bmh_username')));
             $tcMailer->From = _h(get_option("system_email"));
             $tcMailer->FromName = _h(get_option("system_name"));
-            $tcMailer->Sender = $tcMailer->From; // Return-Path
+            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
             $tcMailer->AddReplyTo($tcMailer->From, $tcMailer->FromName); // Reply-To
             $tcMailer->Host = _h(get_option("tc_smtp_host"));
             $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
@@ -1210,7 +1210,7 @@ function tc_smtp($tcMailer)
             $tcMailer->isHTML(true);
             $tcMailer->Username = _h(get_option("tc_smtp_username"));
             $tcMailer->Password = $password;
-            _tc_flash()->success(_t('Email Sent.'));
+            _tc_flash()->{'success'}(_t('Email Sent.'));
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (\app\src\Exception\Exception $e) {
@@ -1228,9 +1228,12 @@ function tc_smtp($tcMailer)
  * @param string $subject Email subject.
  * @param string $html HTML version of the email message.
  * @param string $text Text version of the email message.
+ * @param object $message Object of \app\src\tc_Queue().
  */
-function tinyc_email($data, $to, $subject, $html, $text = '')
+function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
 {
+    $app = \Liten\Liten::getInstance();
+
     if (is_object($data)) {
         try {
             $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
@@ -1262,25 +1265,28 @@ function tinyc_email($data, $to, $subject, $html, $text = '')
             $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
-            $tcMailer->ReturnPath = (_h(get_option('tc_bmh_username')) == '' ? _h($data->remail) : _h(get_option('tc_bmh_username')));
+            $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
             $tcMailer->From = _h($data->femail);
             $tcMailer->FromName = _h($data->fname);
-            $tcMailer->Sender = $tcMailer->From; // Return-Path
+            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
             $tcMailer->AddReplyTo(_h($data->remail), _h($data->rname)); // Reply-To
             $tcMailer->addAddress($to);
             $tcMailer->Subject = $subject;
             $tcMailer->Body = $html;
             $tcMailer->AltBody = $text;
+            $tcMailer->isHTML(true);
             $tcMailer->Host = _h($data->hname);
             $tcMailer->SMTPSecure = _h($data->protocol);
             $tcMailer->Port = _h($data->port);
             $tcMailer->SMTPAuth = true;
-            $tcMailer->isHTML(true);
             $tcMailer->Username = _h($data->uname);
             $tcMailer->Password = $password;
             if ($tcMailer->send()) {
-                _tc_flash()->success(_t('Email Sent.'));
+                $app->hook->{'do_action'}('mark_queued_record_sent', $message);
+                _tc_flash()->{'success'}(_t('Email Sent.'));
             }
+            $tcMailer->ClearAddresses();
+            $tcMailer->ClearAttachments();
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (\app\src\Exception\Exception $e) {
@@ -1304,31 +1310,63 @@ function send_campaign_to_queue($cpgn)
          * If it passes the above check, then instantiate the message queue.
          */
         $queue = new app\src\tc_Queue();
-        $queue->node = _h($cpgn->node);
-        /**
-         * Retrieve list info based on the unique campaign id.
-         */
-        $campaign_list = $app->db->campaign_list()
-            ->select('campaign_list.lid')
-            ->where('campaign_list.cid = ?', $cpgn->id)
-            ->find();
+        try {
+            /**
+             * Retrieve list info based on the unique campaign id.
+             */
+            $campaign_list = $app->db->campaign_list()
+                ->select('campaign_list.lid')
+                ->where('campaign_list.cid = ?', _h($cpgn->id))
+                ->find();
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+
         /**
          * Create a loop to see if how many lists this campaign should
          * be sent to and grab the list id.
          */
         foreach ($campaign_list as $c_list) {
-            /**
-             * Get a list of subscribers that meet the criteria.
-             */
-            $subscriber = $app->db->subscriber()
-                ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
-                ->where('subscriber.allowed = "true"')->_and_()
-                ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribed = "0"')
-                ->groupBy('subscriber.email')
-                ->find();
+            try {
+                /**
+                 * Get a list of subscribers that meet the criteria.
+                 */
+                /* $subscriber = $app->db->subscriber()
+                  ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                  ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                  ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                  ->where('subscriber.allowed = "true"')->_and_()
+                  ->where('(subscriber.spammer = "0" AND subscriber.exception = "0")')->_or_()
+                  ->where('(subscriber.spammer = "1" AND subscriber.exception = "1")')->_or_()
+                  ->where('(subscriber.spammer = "0" AND subscriber.exception = "1")')->_and_()
+                  ->where('subscriber_list.confirmed = "1"')->_and_()
+                  ->where('subscriber_list.unsubscribed = "0"')
+                  ->groupBy('subscriber.email')
+                  ->find(); */
+
+                $subscriber = $app->db->subscriber()
+                    ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                    ->where('subscriber.allowed = "true"')->_and_()
+                    ->where('subscriber.bounces < "3"')->_and_()
+                    ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                    ->where('subscriber_list.confirmed = "1"')->_and_()
+                    ->where('subscriber_list.unsubscribed = "0"')
+                    ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->find();
+            } catch (NotFoundException $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (Exception $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            } catch (ORMException $e) {
+                Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+            }
+
             /**
              * Loop through the above $subscriber query and add each
              * subscriber to the queue.
@@ -1365,20 +1403,51 @@ function send_campaign_to_queue($cpgn)
                 ->where('id = ?', _h($cpgn->id))
                 ->update();
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
+            Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
 
 
         tc_logger_activity_log_write('Update Record', 'Campaign Queued', _h($cpgn->subject), get_userdata('uname'));
-        _tc_flash()->success(_t('Campaign was successfully sent to the queue.'));
+        _tc_flash()->{'success'}(_t('Campaign was successfully sent to the queue.'));
     } catch (NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
+        Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+/**
+ * Marks the sent message as complete and increments the
+ * recipient field in the campaign table.
+ * 
+ * @since 2.0.4
+ * @param object $message Object of \app\src\tc_Queue().
+ */
+function mark_queued_record_sent($message)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $q = $app->db->campaign()
+            ->where('id = ?', _h((int) $message->getMessageId()))
+            ->findOne();
+        $q->set([
+                'recipients' => _h((int) $q->recipients) + 1
+            ])
+            ->update();
+
+        // remove message from the queue by updating is_sent value
+        $queue = new \app\src\tc_Queue();
+        $queue->setMessageIsSent($message);
+    } catch (NotFoundException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
@@ -1395,6 +1464,9 @@ $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
 $app->hook->{'add_action'}('tcMailer_init', 'tc_smtp', 5, 1);
 $app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
 $app->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
-$app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 5);
+$app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
+$app->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
+$app->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
+$app->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
 $app->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 $app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

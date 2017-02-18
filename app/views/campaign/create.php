@@ -157,12 +157,6 @@ define('SCREEN', 'ccpgn');
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label><?= _t('Node'); ?></label>
-                                <input type="text" class="form-control" name="node" value="<?= _random_lib()->generateString(12, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') . '_campaign'; ?>" readonly required>
-                            </div>
-
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?></label>
                                 <input type="text" class="form-control" name="subject" value="<?= (_h($app->req->post['subject']) != '' ? _h($app->req->post['subject']) : ''); ?>" required>

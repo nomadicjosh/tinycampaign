@@ -25,6 +25,10 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
   <link rel="icon" type="image/png" href="static/assets/img/favicon-16x16.png" sizes="16x16">
   <link rel="manifest" href="static/assets/img/manifest.json">
   <link rel="mask-icon" href="static/assets/img/safari-pinned-tab.svg" color="#5bbad5">
+<!-- jQuery 2.2.3 -->
+<script src="static/assets/js/jQuery/jquery-2.2.3.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -277,10 +281,6 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
 var basePath = '<?=get_base_url();?>';
 </script>
 
-<!-- jQuery 2.2.3 -->
-<script src="static/assets/js/jQuery/jquery-2.2.3.min.js"></script>
-<!-- jQuery UI 1.11.4 -->
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <!-- Bootstrap 3.3.6 -->
 <script src="static/assets/js/bootstrap/bootstrap.min.js"></script>
 <!-- Bootstrap Validator 0.11.7 -->

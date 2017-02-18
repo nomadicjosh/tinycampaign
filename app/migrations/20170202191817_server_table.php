@@ -37,58 +37,85 @@ class ServerTable extends AbstractMigration
             ->addIndex(['iso3'])
             ->save();
 
-        $this->execute("ALTER TABLE country MODIFY COLUMN iso2 CHAR(4) NOT NULL;");
-        $this->execute("ALTER TABLE country MODIFY COLUMN iso3 CHAR(4) NOT NULL;");
+        $this->execute("ALTER TABLE country MODIFY COLUMN iso2 CHAR(8) NOT NULL;");
+        $this->execute("ALTER TABLE country MODIFY COLUMN iso3 CHAR(8) NOT NULL;");
         $this->execute("INSERT INTO `country` VALUES('', 'NULL', 'Null', 'Null', 'NULL', '000', 'no', '00', '');");
         $this->execute("ALTER TABLE list ADD COLUMN server INT(11) DEFAULT NULL AFTER status;");
         $this->execute("ALTER TABLE user MODIFY COLUMN roleID BIGINT(20) UNSIGNED DEFAULT NULL;");
-        $this->execute("ALTER TABLE state MODIFY COLUMN code CHAR(4) NOT NULL;");
+        $this->execute("ALTER TABLE state MODIFY COLUMN code CHAR(8) NOT NULL;");
         $this->execute("INSERT INTO `state` VALUES('', 'NULL', 'Null');");
         $this->execute("ALTER TABLE subscriber MODIFY COLUMN bounces INT(11) DEFAULT '0';");
         $this->execute("ALTER TABLE user_roles MODIFY COLUMN roleID BIGINT(20) UNSIGNED;");
 
-        $this->execute("DROP TABLE IF EXISTS `server`;");
-
-        $table = $this->table('server', ['id' => true, 'primary_key' => 'id', 'identity' => true]);
-        $table
-            ->addColumn('name', 'string', ['limit' => 80])
-            ->addColumn('hname', 'string', ['limit' => 80])
-            ->addColumn('uname', 'string', ['limit' => 180])
-            ->addColumn('password', 'string', ['limit' => 255])
-            ->addColumn('port', 'integer', ['limit' => 11])
-            ->addColumn('protocol', 'enum', ['values' => ['none','tls','notls','starttls','ssl']])
-            ->addColumn('throttle', 'decimal', ['precision' => 10, 'scale' => 4, 'default' => '0.0000'])
-            ->addColumn('femail', 'string', ['limit' => 180])
-            ->addColumn('fname', 'string', ['limit' => 180])
-            ->addColumn('remail', 'string', ['limit' => 180, 'default' => NULL])
-            ->addColumn('rname', 'string', ['limit' => 180, 'default' => NULL])
-            ->addColumn('owner', 'integer', ['limit' => MysqlAdapter::INT_REGULAR])
-            ->addColumn('addDate', 'datetime', [])
-            ->addColumn('LastUpdate', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
-            ->create();
-
-        $table = $this->table('template', ['id' => true, 'primary_key' => 'id', 'identity' => true]);
-        $table
-            ->addColumn('name', 'string', ['limit' => 80])
-            ->addColumn('description', 'string', ['limit' => 255])
-            ->addColumn('content', 'text', ['limit' => MysqlAdapter::TEXT_LONG])
-            ->addColumn('owner', 'integer', ['limit' => MysqlAdapter::INT_REGULAR])
-            ->addColumn('addDate', 'datetime', [])
-            ->addColumn('LastUpdate', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
-            ->create();
+        $this->execute(
+            "CREATE TABLE `server` (
+            `id` int(11) NOT NULL,
+            `name` varchar(191) NOT NULL,
+            `hname` varchar(191) NOT NULL,
+            `uname` varchar(191) NOT NULL,
+            `password` text NOT NULL,
+            `port` int(11) NOT NULL,
+            `protocol` enum('none','tls','notls','starttls','ssl') NOT NULL,
+            `throttle` decimal(10,4) NOT NULL DEFAULT '0.0000',
+            `femail` varchar(191) NOT NULL,
+            `fname` varchar(191) NOT NULL,
+            `remail` varchar(191) NOT NULL,
+            `rname` varchar(191) NOT NULL,
+            `owner` int(11) NOT NULL,
+            `addDate` datetime NOT NULL,
+            `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        );
+        $this->execute("
+            ALTER TABLE `server`
+            ADD PRIMARY KEY (`id`),
+            ADD KEY `server_owner` (`owner`);
+            
+            ALTER TABLE `server`
+            MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;"
+        );
         
-        $table = $this->table('tracking_link', ['id' => false, 'primary_key' => 'id']);
-        $table
-            ->addColumn('id', 'integer', ['identity' => true, 'limit' => MysqlAdapter::INT_BIG])
-            ->addColumn('cid', 'integer', ['limit' => MysqlAdapter::INT_BIG])
-            ->addColumn('sid', 'integer', ['limit' => MysqlAdapter::INT_BIG])
-            ->addColumn('source', 'string', ['limit' => 180])
-            ->addColumn('medium', 'string', ['limit' => 180])
-            ->addColumn('url', 'string', ['limit' => 255])
-            ->addColumn('clicked', 'integer', ['limit' => MysqlAdapter::INT_REGULAR])
-            ->addColumn('addDate', 'datetime', [])
-            ->addColumn('LastUpdate', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
-            ->create();
+        $this->execute(
+            "CREATE TABLE `template` (
+            `id` int(11) NOT NULL,
+            `name` varchar(191) NOT NULL,
+            `description` varchar(191) NOT NULL,
+            `content` longtext NOT NULL,
+            `owner` int(11) NOT NULL,
+            `addDate` datetime NOT NULL,
+            `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        );
+        $this->execute("
+            ALTER TABLE `template`
+            ADD PRIMARY KEY (`id`),
+            ADD KEY `template_owner` (`owner`);
+            
+            ALTER TABLE `template`
+              MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;"
+        );
+        
+        $this->execute(
+            "CREATE TABLE `tracking_link` (
+            `id` bigint(20) NOT NULL,
+            `cid` bigint(20) NOT NULL,
+            `sid` bigint(20) NOT NULL,
+            `source` varchar(191) NOT NULL,
+            `medium` varchar(191) NOT NULL,
+            `url` text NOT NULL,
+            `clicked` int(11) NOT NULL,
+            `addDate` datetime NOT NULL,
+            `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        );
+        $this->execute("
+            ALTER TABLE `tracking_link`
+            ADD PRIMARY KEY (`id`),
+            ADD KEY `tracking_link_sid` (`sid`);
+            
+            ALTER TABLE `tracking_link`
+            MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;"
+        );
 
         $this->execute("ALTER TABLE campaign DROP INDEX subject;");
         $this->execute("ALTER TABLE campaign DROP FOREIGN KEY `campaign_ibfk_1`;");
@@ -104,8 +131,8 @@ class ServerTable extends AbstractMigration
         
         $this->execute("ALTER TABLE server ADD CONSTRAINT `server_owner` FOREIGN KEY (`owner`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
 
-        $this->execute("ALTER TABLE subscriber MODIFY COLUMN state CHAR(4) DEFAULT NULL;");
-        $this->execute("ALTER TABLE subscriber MODIFY COLUMN country CHAR(4) DEFAULT NULL;");
+        $this->execute("ALTER TABLE subscriber MODIFY COLUMN state CHAR(8) DEFAULT NULL;");
+        $this->execute("ALTER TABLE subscriber MODIFY COLUMN country CHAR(8) DEFAULT NULL;");
         $this->execute("ALTER TABLE subscriber DROP FOREIGN KEY `subscriber_ibfk_1`;");
         $this->execute("ALTER TABLE subscriber ADD CONSTRAINT `subscriber_addedBy` FOREIGN KEY (`addedBy`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
 
@@ -125,10 +152,9 @@ class ServerTable extends AbstractMigration
         
         $this->execute("ALTER TABLE tracking_link ADD CONSTRAINT `tracking_link_cid` FOREIGN KEY (`cid`) REFERENCES `campaign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
         $this->execute("ALTER TABLE tracking_link ADD CONSTRAINT `tracking_link_sid` FOREIGN KEY (`sid`) REFERENCES `subscriber` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
-        $this->execute("ALTER TABLE tracking_link ADD UNIQUE INDEX `tracking_link_item` (`cid`,`sid`,`url`);");
 
-        $this->execute("ALTER TABLE user MODIFY COLUMN state CHAR(4) DEFAULT NULL;");
-        $this->execute("ALTER TABLE user MODIFY COLUMN country CHAR(4) DEFAULT NULL;");
+        $this->execute("ALTER TABLE user MODIFY COLUMN state CHAR(8) DEFAULT NULL;");
+        $this->execute("ALTER TABLE user MODIFY COLUMN country CHAR(8) DEFAULT NULL;");
         $this->execute("ALTER TABLE user ADD CONSTRAINT `user_roleID` FOREIGN KEY (`roleID`) REFERENCES `role` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;");
         $this->execute("ALTER TABLE user ADD CONSTRAINT `user_state` FOREIGN KEY (`state`) REFERENCES `state` (`code`) ON DELETE SET NULL ON UPDATE CASCADE;");
         $this->execute("ALTER TABLE user ADD CONSTRAINT `user_country` FOREIGN KEY (`country`) REFERENCES `country` (`iso2`) ON DELETE SET NULL ON UPDATE CASCADE;");

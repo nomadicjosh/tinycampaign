@@ -24,14 +24,14 @@ class InitialSchema extends AbstractMigration
         $this->execute("
             CREATE TABLE `activity` (
               `id` bigint(20) NOT NULL AUTO_INCREMENT,
-              `action` varchar(50) NOT NULL,
-              `process` varchar(255) NOT NULL,
+              `action` varchar(191) NOT NULL,
+              `process` varchar(191) NOT NULL,
               `record` longtext,
-              `uname` varchar(180) NOT NULL,
+              `uname` varchar(191) NOT NULL,
               `created_at` datetime NOT NULL,
               `expires_at` datetime NOT NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "campaign"
@@ -39,10 +39,10 @@ class InitialSchema extends AbstractMigration
             CREATE TABLE `campaign` (
               `id` bigint(20) NOT NULL AUTO_INCREMENT,
               `owner` int(11) NOT NULL,
-              `node` varchar(80) NOT NULL,
-              `subject` varchar(255) NOT NULL DEFAULT '',
-              `from_name` varchar(255) NOT NULL,
-              `from_email` varchar(150) NOT NULL,
+              `node` varchar(191) NOT NULL,
+              `subject` varchar(191) NOT NULL DEFAULT '',
+              `from_name` varchar(191) NOT NULL,
+              `from_email` varchar(191) NOT NULL,
               `html` text NOT NULL,
               `text` text,
               `footer` text,
@@ -60,7 +60,7 @@ class InitialSchema extends AbstractMigration
               KEY `owner` (`owner`),
               FULLTEXT KEY `subject` (`subject`,`html`),
               CONSTRAINT `campaign_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "campaign_list"
@@ -74,7 +74,7 @@ class InitialSchema extends AbstractMigration
               KEY `lid` (`lid`),
               CONSTRAINT `campaign_list_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `campaign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `campaign_list_ibfk_2` FOREIGN KEY (`lid`) REFERENCES `list` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "country"
@@ -82,15 +82,15 @@ class InitialSchema extends AbstractMigration
             CREATE TABLE `country` (
               `id` int(5) NOT NULL AUTO_INCREMENT,
               `iso2` char(2) DEFAULT NULL,
-              `short_name` varchar(80) NOT NULL DEFAULT '',
-              `long_name` varchar(80) NOT NULL DEFAULT '',
+              `short_name` varchar(191) NOT NULL DEFAULT '',
+              `long_name` varchar(191) NOT NULL DEFAULT '',
               `iso3` char(3) DEFAULT NULL,
-              `numcode` varchar(6) DEFAULT NULL,
-              `un_member` varchar(12) DEFAULT NULL,
-              `calling_code` varchar(8) DEFAULT NULL,
+              `numcode` varchar(12) DEFAULT NULL,
+              `un_member` varchar(24) DEFAULT NULL,
+              `calling_code` varchar(12) DEFAULT NULL,
               `cctld` varchar(5) DEFAULT NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "country"
@@ -353,25 +353,25 @@ INSERT INTO `country` VALUES(250, 'ZW', 'Zimbabwe', 'Republic of Zimbabwe', 'ZWE
               `id` bigint(20) NOT NULL AUTO_INCREMENT,
               `type` int(4) NOT NULL,
               `time` int(10) NOT NULL,
-              `string` varchar(512) NOT NULL,
-              `file` varchar(255) NOT NULL,
+              `string` text NOT NULL,
+              `file` varchar(191) NOT NULL,
               `line` int(6) NOT NULL,
               `addDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "list"
         $this->execute("
             CREATE TABLE `list` (
               `id` bigint(20) NOT NULL AUTO_INCREMENT,
-              `code` varchar(180) NOT NULL,
-              `name` varchar(255) NOT NULL DEFAULT '',
+              `code` varchar(191) NOT NULL,
+              `name` varchar(191) NOT NULL DEFAULT '',
               `description` text NOT NULL,
               `created` datetime NOT NULL,
               `owner` int(11) NOT NULL,
-              `redirect_success` varchar(255) DEFAULT NULL,
-              `redirect_unsuccess` varchar(255) DEFAULT NULL,
+              `redirect_success` varchar(191) DEFAULT NULL,
+              `redirect_unsuccess` varchar(191) DEFAULT NULL,
               `confirm_email` mediumtext NOT NULL,
               `subscribe_email` mediumtext NOT NULL,
               `unsubscribe_email` mediumtext NOT NULL,
@@ -379,18 +379,18 @@ INSERT INTO `country` VALUES(250, 'ZW', 'Zimbabwe', 'Republic of Zimbabwe', 'ZWE
               `status` enum('open','closed') NOT NULL DEFAULT 'open',
               `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "options"
         $this->execute("
             CREATE TABLE `options` (
               `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-              `meta_key` varchar(64) NOT NULL DEFAULT '',
+              `meta_key` varchar(191) NOT NULL DEFAULT '',
               `meta_value` longtext NOT NULL,
               PRIMARY KEY (`meta_id`),
               UNIQUE KEY `option_name` (`meta_key`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "options"
@@ -425,11 +425,11 @@ INSERT INTO `options` VALUES(24, 'collapse_sidebar', 'no');
         $this->execute("
             CREATE TABLE `permission` (
               `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-              `permKey` varchar(30) NOT NULL,
-              `permName` varchar(80) NOT NULL,
+              `permKey` varchar(191) NOT NULL,
+              `permName` varchar(191) NOT NULL,
               PRIMARY KEY (`id`),
               UNIQUE KEY `permKey` (`permKey`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "permission"
@@ -471,18 +471,18 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `location` text NOT NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "role"
         $this->execute("
             CREATE TABLE `role` (
               `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-              `roleName` varchar(20) NOT NULL,
+              `roleName` varchar(80) NOT NULL,
               `permission` longtext NOT NULL,
               PRIMARY KEY (`id`),
               UNIQUE KEY `roleName` (`roleName`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "role"
@@ -500,7 +500,7 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
               `addDate` datetime NOT NULL,
               PRIMARY KEY (`id`),
               UNIQUE KEY `roleID` (`roleID`,`permID`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "state"
@@ -508,10 +508,10 @@ INSERT INTO `permission` VALUES(29, 'switch_user', 'Switch User');
             CREATE TABLE `state` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `code` varchar(2) NOT NULL,
-              `name` varchar(180) NOT NULL,
+              `name` varchar(191) NOT NULL,
               PRIMARY KEY (`id`),
               UNIQUE KEY `code` (`code`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "state"
@@ -586,19 +586,19 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
         $this->execute("
             CREATE TABLE `subscriber` (
               `id` bigint(20) NOT NULL AUTO_INCREMENT,
-              `fname` varchar(180) NOT NULL,
-              `lname` varchar(180) NOT NULL,
-              `email` varchar(180) NOT NULL,
-              `address1` varchar(255) NOT NULL,
-              `address2` varchar(11) NOT NULL,
-              `city` varchar(25) NOT NULL,
+              `fname` varchar(191) NOT NULL,
+              `lname` varchar(191) NOT NULL,
+              `email` varchar(191) NOT NULL,
+              `address1` varchar(191) NOT NULL,
+              `address2` varchar(22) NOT NULL,
+              `city` varchar(80) NOT NULL,
               `state` varchar(5) NOT NULL,
-              `postal_code` varchar(11) NOT NULL,
+              `postal_code` varchar(22) NOT NULL,
               `country` varchar(5) NOT NULL,
               `code` text NOT NULL,
               `allowed` enum('true','false') NOT NULL DEFAULT 'true',
               `bounces` int(11) NOT NULL,
-              `ip` varchar(30) NOT NULL,
+              `ip` varchar(191) NOT NULL,
               `addedBy` int(11) NOT NULL,
               `addDate` datetime NOT NULL,
               `LastUpdate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -606,7 +606,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               UNIQUE KEY `email` (`email`),
               KEY `addedBy` (`addedBy`),
               CONSTRAINT `subscriber_ibfk_1` FOREIGN KEY (`addedBy`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "subscriber_list"
@@ -616,7 +616,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               `lid` bigint(20) NOT NULL,
               `sid` bigint(20) NOT NULL,
               `addDate` datetime NOT NULL,
-              `code` varchar(255) NOT NULL,
+              `code` text NOT NULL,
               `confirmed` enum('1','0') NOT NULL DEFAULT '0',
               `unsubscribe` enum('1','0') NOT NULL DEFAULT '0',
               `LastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -625,7 +625,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               KEY `sid` (`sid`),
               CONSTRAINT `subscriber_list_ibfk_1` FOREIGN KEY (`lid`) REFERENCES `list` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `subscriber_list_ibfk_2` FOREIGN KEY (`sid`) REFERENCES `subscriber` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "tracking"
@@ -642,25 +642,25 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               KEY `sid` (`sid`),
               CONSTRAINT `tracking_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `campaign` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `tracking_ibfk_2` FOREIGN KEY (`sid`) REFERENCES `subscriber` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "user"
         $this->execute("
             CREATE TABLE `user` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
-              `fname` varchar(180) NOT NULL,
-              `lname` varchar(180) NOT NULL,
-              `uname` varchar(180) NOT NULL,
-              `email` varchar(200) NOT NULL,
-              `address1` varchar(180) NOT NULL,
-              `address2` varchar(25) NOT NULL,
-              `city` varchar(80) NOT NULL,
+              `fname` varchar(191) NOT NULL,
+              `lname` varchar(191) NOT NULL,
+              `uname` varchar(191) NOT NULL,
+              `email` varchar(191) NOT NULL,
+              `address1` varchar(191) NOT NULL,
+              `address2` varchar(80) NOT NULL,
+              `city` varchar(191) NOT NULL,
               `state` varchar(2) NOT NULL,
-              `postal_code` varchar(10) NOT NULL,
-              `country` varchar(4) NOT NULL,
-              `password` varchar(200) NOT NULL,
-              `code` varchar(255) NOT NULL,
+              `postal_code` varchar(12) NOT NULL,
+              `country` varchar(12) NOT NULL,
+              `password` varchar(191) NOT NULL,
+              `code` varchar(191) NOT NULL,
               `status` enum('1','0') NOT NULL DEFAULT '1',
               `roleID` int(11) NOT NULL,
               `date_added` datetime NOT NULL,
@@ -668,7 +668,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               `LastUpdate` datetime NOT NULL,
               PRIMARY KEY (`id`),
               UNIQUE KEY `email` (`email`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "user"
@@ -686,7 +686,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               PRIMARY KEY (`id`),
               UNIQUE KEY `userID` (`userID`) USING BTREE,
               CONSTRAINT `user_perms_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // CREATE table string for table: "user_roles"
@@ -699,7 +699,7 @@ INSERT INTO `state` VALUES(64, 'YT', 'Yukon Territory');
               PRIMARY KEY (`id`),
               UNIQUE KEY `userID` (`userID`,`roleID`) USING BTREE,
               CONSTRAINT `user_roles_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
         ");
 
         // INSERT data string for table: "user_roles"

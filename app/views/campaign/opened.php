@@ -22,7 +22,7 @@ define('SCREEN', 'cpgn');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('Opened Campaign Report'); ?></h1>
+        <h1><?= _t('Opened Campaign Report'); ?></h1> <br /><span class="label bg-green-gradient" style="font-size:1em;font-weight: bold;"><?=_t('Total Views');?>: <?= _h($sum); ?></span>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li><a href="<?= get_base_url(); ?>campaign/"><i class="fa fa-envelope"></i> <?= _t('Campaigns'); ?></a></li>
@@ -30,19 +30,36 @@ define('SCREEN', 'cpgn');
             <li class="active"><?= _t('Opened Campaign Report'); ?></li>
         </ol>
     </section>
-
-    <!-- Main content -->
+    
     <section class="content">
 
         <?= _tc_flash()->showMessage(); ?>
         
-        <div class="box box-default">
-            <div class="box-body">
-                <div id="dayopens"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="dayopens"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
             </div>
-            <!-- /.box-body -->
+            
+            <div class="col-md-6">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div id="houropens"></div>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
         </div>
-        <!-- /.box -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
 
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
@@ -52,6 +69,7 @@ define('SCREEN', 'cpgn');
                         <tr>
                             <th class="text-center"><?= _t('Subscriber'); ?></th>
                             <th class="text-center"><?= _t('First Viewed'); ?></th>
+                            <th class="text-center"><?= _t('Response Time'); ?></th>
                             <th class="text-center"><?= _t('Times Viewed'); ?></th>
                             <th class="text-center"><?= _t('Last Viewed'); ?></th>
                         </tr>
@@ -61,6 +79,7 @@ define('SCREEN', 'cpgn');
                             <tr class="gradeX">
                                 <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_h((int)$opened->sid);?>/"><?= _h($opened->email); ?></a></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->first_open))->format('M. d, Y h:i A'); ?></td>
+                                <td class="text-center"><?= tc_response_time(_h((int)$opened->cid), _h((int)$opened->sid), _h($opened->first_open)); ?></td>
                                 <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?= _h((int)$opened->viewed); ?></span></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_h($opened->LastUpdate))->format('M. d, Y h:i A'); ?></td>
                             </tr>
@@ -70,6 +89,7 @@ define('SCREEN', 'cpgn');
                         <tr>
                             <th class="text-center"><?= _t('Subscriber'); ?></th>
                             <th class="text-center"><?= _t('First Viewed'); ?></th>
+                            <th class="text-center"><?= _t('Response Time'); ?></th>
                             <th class="text-center"><?= _t('Times Viewed'); ?></th>
                             <th class="text-center"><?= _t('Last Viewed'); ?></th>
                         </tr>

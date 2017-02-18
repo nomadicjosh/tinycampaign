@@ -516,25 +516,27 @@ $app->group('/user', function() use ($app) {
         }
 
         try {
-            $app->db->user()
-                ->where('id = ?', $id)->_and_()
-                ->where('id <> ?', get_userdata('id'))
-                ->reset()
-                ->findOne($id)
-                ->delete();
-
             $cpgns = $app->db->campaign()
                 ->where('owner = ?', $id)
                 ->find();
             foreach ($cpgns as $cpgn) {
                 try {
-                    Node::remove(_h($cpgn->node));
+                    Node::table('campaign_queue')
+                        ->where('cid', '=', _h($cpgn->id))
+                        ->delete();
                 } catch (NodeQException $e) {
                     _tc_flash()->error($e->getMessage());
                 } catch (Exception $e) {
                     _tc_flash()->error($e->getMessage());
                 }
             }
+
+            $app->db->user()
+                ->where('id = ?', $id)->_and_()
+                ->where('id <> ?', get_userdata('id'))
+                ->reset()
+                ->findOne($id)
+                ->delete();
 
             tc_cache_delete($id, 'user');
             tc_cache_flush_namespace('list');

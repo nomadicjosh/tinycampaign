@@ -233,3 +233,45 @@ function tc_blacklist_status_label($status)
 
     return $label[$status];
 }
+
+/**
+ * Retrieves all the tags from every subscriber
+ * owned by the logged in user and merges
+ * duplicate tags to create a list.
+ *
+ * @since 2.0.4
+ * @return mixed
+ */
+function get_subscriber_tag_list()
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $tagging = $app->db->subscriber()
+            ->select('tags')
+            ->where('addedBy = ?', get_userdata('id'));
+        $q = $tagging->find(function ($data) {
+            $array = [];
+            foreach ($data as $d) {
+                $array[] = $d;
+            }
+            return $array;
+        });
+        $tags = [];
+        foreach ($q as $r) {
+            $tags = array_merge($tags, explode(",", _h($r['tags'])));
+        }
+        $tags = array_unique_compact($tags);
+        foreach ($tags as $key => $value) {
+            if ($value == "" || strlen($value) <= 0) {
+                unset($tags[$key]);
+            }
+        }
+        return $tags;
+    } catch (NotFoundException $e) {
+        _etsis_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _etsis_flash()->error($e->getMessage());
+    } catch (ORMException $e) {
+        _etsis_flash()->error($e->getMessage());
+    }
+}

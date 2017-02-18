@@ -1490,31 +1490,6 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
         Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 
-    try {
-        $sql = $app->db->subscriber()
-            ->where('email = ?', $email)->_and_()
-            ->where('allowed = "true"')
-            ->findOne();
-        $sql->set([
-                'bounces' => $sql->bounces +1
-            ])
-            ->update();
-
-        $cpgn = $app->db->campaign()
-            ->where('id = ?', $cpgnId)
-            ->findOne();
-        $cpgn->set([
-                'bounces' => $cpgn->bounces +1
-            ])
-            ->update();
-    } catch (NotFoundException $e) {
-        Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    } catch (Exception $e) {
-        Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    } catch (ORMException $e) {
-        Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    }
-
     if ($remove == true || $remove == '1') {
         try {
             $q = $app->db->subscriber()
@@ -1523,7 +1498,8 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
                 ->whereGte('bounces', $bounces)
                 ->findOne();
             $q->set([
-                    'allowed' => 'false'
+                    'allowed' => 'false',
+                    'bounces' => $bounces
                 ])
                 ->update();
         } catch (NotFoundException $e) {
@@ -1533,18 +1509,31 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
         } catch (ORMException $e) {
             Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
-        /*
-          $conn = mysql_connect("localhost","username","password");
-          $sql = "SELECT id FROM mailinglist WHERE email = '" . $email . "'";
-          $result = mysql_query($sql);
-          if ( $result ) {
-          while($row = mysql_fetch_array($result)) {
-          $sql_update = "UPDATE mailinglist SET allowed='false' WHERE email = '" . $email . "'";
-          $result_update = mysql_query($sql_update);
-          }
-          }
-          mysql_close($conn);
-         */
+    } else {
+        try {
+            $sql = $app->db->subscriber()
+                ->where('email = ?', $email)->_and_()
+                ->where('allowed = "true"')
+                ->findOne();
+            $sql->set([
+                    'bounces' => $sql->bounces + 1
+                ])
+                ->update();
+
+            $cpgn = $app->db->campaign()
+                ->where('id = ?', $cpgnId)
+                ->findOne();
+            $cpgn->set([
+                    'bounces' => $cpgn->bounces + 1
+                ])
+                ->update();
+        } catch (NotFoundException $e) {
+            Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (ORMException $e) {
+            Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
     }
 
     $displayData = prepData($email, $bounceType, $remove);
