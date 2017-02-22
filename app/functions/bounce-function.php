@@ -1468,10 +1468,10 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     $bounces = $app->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
 
-    $cpgnId = find_x_campaign_id($headerFull);
-    $listId = find_x_list_id($headerFull);
-    $subId = find_x_subscriber_id($headerFull);
-    $subEmail = find_x_subscriber_email($headerFull);
+    $cpgnId = find_x_campaign_id($bodyFull);
+    $listId = find_x_list_id($bodyFull);
+    $subId = find_x_subscriber_id($bodyFull);
+    $subEmail = find_x_subscriber_email($bodyFull);
 
     try {
         Node::dispense('campaign_bounce');
@@ -1542,7 +1542,7 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
         }
     }
 
-    $displayData = prepData($email, $bounceType, $remove);
+    /*$displayData = prepData($email, $bounceType, $remove);
     $bounceType = $displayData['bounce_type'];
     $emailName = $displayData['emailName'];
     $emailAddy = $displayData['emailAddy'];
@@ -1550,7 +1550,7 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     echo $msgnum . ': ' . $ruleNo . ' | ' . $ruleCat . ' | ' . $bounceType . ' | ' . $remove . ' | ' . $email . ' | ' . $subject . "<br />\n";
 
-    return true;
+    return true;*/
 }
 
 /**
