@@ -1492,10 +1492,16 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     if ($remove == true || $remove == '1') {
         try {
+            $cpgn = $app->db->campaign()
+                ->where('id = ?', $cpgnId)
+                ->findOne();
+            $cpgn->set([
+                    'bounces' => $cpgn->bounces + 1
+                ])
+                ->update();
             $q = $app->db->subscriber()
                 ->where('email = ?', $email)->_and_()
-                ->where('allowed = "true"')->_and_()
-                ->whereGte('bounces', $bounces)
+                ->where('allowed = "true"')
                 ->findOne();
             $q->set([
                     'allowed' => 'false',
