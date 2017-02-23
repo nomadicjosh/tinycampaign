@@ -227,7 +227,7 @@ $app->group('/list', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -239,7 +239,7 @@ $app->group('/list', function() use ($app) {
 
     $app->get('/(\d+)/subscriber/', function ($id) use($app) {
         try {
-            $subs = $app->db->subscriber()
+            $subscribers = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                 ->select('subscriber.addDate,subscriber.id as Subscriber')
                 ->select('subscriber_list.unsubscribed')
@@ -247,9 +247,20 @@ $app->group('/list', function() use ($app) {
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->_join('list', 'subscriber_list.lid = list.id')
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.id = ?', $id)
-                ->find();
-
+                ->where('list.id = ?', $id);
+            
+            $subs = tc_cache_get('list_subscribers_'.$id, 'list_subscribers');
+            if (empty($subs)) {
+                $subs = $subscribers->find(function ($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add('list_subscribers_'.$id, $subs, 'list_subscribers');
+            }
+            
             $list = $app->db->list()
                 ->select('list.name,list.id')
                 ->where('list.id = ?', $id)
@@ -296,13 +307,13 @@ $app->group('/list', function() use ($app) {
 
             $app->view->display('list/subscriber', [
                 'title' => _t('Subscribers'),
-                'subs' => $subs,
+                'subs' => array_to_object($subs),
                 'list' => $list
                 ]
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -348,6 +359,8 @@ $app->group('/list', function() use ($app) {
                         ]);
                     }
                     fclose($handle);
+                    tc_cache_flush_namespace('my_subscribers_'.get_userdata('id'));
+                    tc_cache_flush_namespace('list_subscribers');
                     _tc_flash()->success(_t('Subscribers were imported successfully.'));
                 } else {
                     _tc_flash()->error(_t('Your .csv file was empty or missing.'));
@@ -413,7 +426,7 @@ $app->group('/list', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -456,7 +469,7 @@ $app->group('/list', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -536,7 +549,7 @@ $app->group('/list', function() use ($app) {
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
     });
-    
+
     /**
      * Before route check.
      */
@@ -584,10 +597,10 @@ $app->group('/list', function() use ($app) {
                     ->findOne(_h($cl->cid))
                     ->delete();
             }
-            
+
             try {
                 app\src\NodeQ\tc_NodeQ::table('campaign_queue')
-                    ->where('lid','=',$id)
+                    ->where('lid', '=', $id)
                     ->delete();
             } catch (app\src\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
@@ -600,6 +613,8 @@ $app->group('/list', function() use ($app) {
                 ->findOne(_h($list->id))
                 ->delete();
 
+            tc_cache_flush_namespace('my_subscribers_'.get_userdata('id'));
+            tc_cache_flush_namespace('list_subscribers');
             tc_cache_delete($id, 'list');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
