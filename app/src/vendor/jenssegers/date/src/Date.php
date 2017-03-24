@@ -2,7 +2,6 @@
 
 use Carbon\Carbon;
 use DateInterval;
-use DateTime;
 use DateTimeZone;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
@@ -67,7 +66,7 @@ class Date extends Carbon
     }
 
     /**
-     * Create a carbon instance from a string.
+     * Create a Date instance from a string.
      *
      * @param  string              $time
      * @param  string|DateTimeZone $timezone
@@ -75,19 +74,22 @@ class Date extends Carbon
      */
     public static function parse($time = null, $timezone = null)
     {
-        $time = static::translateTimeString($time);
+        if ($time instanceof Carbon) {
+            return new static(
+                $time->toDateTimeString(),
+                $timezone ?: $time->getTimezone()
+            );
+        }
+
+        if (! is_int($time)) {
+            $time = static::translateTimeString($time);
+        }
 
         return new static($time, $timezone);
     }
 
     /**
-     * Create a Carbon instance from a specific format.
-     *
-     * @param  string                   $format
-     * @param  string                   $time
-     * @param  DateTimeZone|string      $timezone
-     * @return static
-     * @throws InvalidArgumentException
+     * @inheritdoc
      */
     public static function createFromFormat($format, $time, $timezone = null)
     {
@@ -97,11 +99,7 @@ class Date extends Carbon
     }
 
     /**
-     * Get the difference in a human readable format.
-     *
-     * @param  Date   $since
-     * @param  bool   $absolute Removes time difference modifiers ago, after, etc
-     * @return string
+     * @inheritdoc
      */
     public function diffForHumans(Carbon $since = null, $absolute = false, $short = false)
     {
@@ -121,10 +119,10 @@ class Date extends Carbon
         $units = [
             'second' => 60,
             'minute' => 60,
-            'hour'   => 24,
-            'day'    => 7,
-            'week'   => 30 / 7,
-            'month'  => 12,
+            'hour' => 24,
+            'day' => 7,
+            'week' => 30 / 7,
+            'month' => 12,
         ];
 
         // Date difference
@@ -173,8 +171,8 @@ class Date extends Carbon
     /**
      * Alias for diffForHumans.
      *
-     * @param  Date   $since
-     * @param  bool   $absolute Removes time difference modifiers ago, after, etc
+     * @param  Date $since
+     * @param  bool $absolute Removes time difference modifiers ago, after, etc
      * @return string
      */
     public function ago($since = null, $absolute = false)
@@ -185,7 +183,7 @@ class Date extends Carbon
     /**
      * Alias for diffForHumans.
      *
-     * @param  Date   $since
+     * @param  Date $since
      * @return string
      */
     public function until($since = null)
@@ -194,10 +192,7 @@ class Date extends Carbon
     }
 
     /**
-     * Returns date formatted according to given or predefined format.
-     *
-     * @param  string $format
-     * @return string
+     * @inheritdoc
      */
     public function format($format)
     {
@@ -236,14 +231,23 @@ class Date extends Carbon
                 if (in_array($character, ['F', 'M'])) {
                     $choice = (($i - 2) >= 0 and in_array($format[$i - 2], ['d', 'j'])) ? 1 : 0;
 
-                    $translated = $lang->transChoice(strtolower($key), $choice);
+                    $translated = $lang->transChoice(mb_strtolower($key), $choice);
                 } else {
-                    $translated = $lang->trans(strtolower($key));
+                    $translated = $lang->trans(mb_strtolower($key));
                 }
 
                 // Short notations.
                 if (in_array($character, ['D', 'M'])) {
-                    $translated = mb_substr($translated, 0, 3);
+                    $toTranslate     = mb_strtolower($original);
+                    $shortTranslated = $lang->trans($toTranslate);
+
+                    if ($shortTranslated === $toTranslate) {
+                        // use the first 3 characters as short notation
+                        $translated = mb_substr($translated, 0, 3);
+                    } else {
+                        // use translated version
+                        $translated = $shortTranslated;
+                    }
                 }
 
                 // Add to replace list.
@@ -274,11 +278,19 @@ class Date extends Carbon
         $lang = $this->getTranslator();
 
         // Create Date instance if needed
-        if (! $time instanceof self) {
-            $time = new static($time, $timezone);
+        if (! $time instanceof static) {
+            $time = Date::parse($time, $timezone);
         }
 
-        $units = ['y' => 'year', 'm' => 'month', 'w' => 'week', 'd' => 'day', 'h' => 'hour', 'i' => 'minute', 's' => 'second'];
+        $units = [
+            'y' => 'year',
+            'm' => 'month',
+            'w' => 'week',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        ];
 
         // Get DateInterval and cast to array
         $interval = (array) $this->diff($time);
@@ -303,8 +315,8 @@ class Date extends Carbon
     /**
      * Adds an amount of days, months, years, hours, minutes and seconds to a Date object.
      *
-     * @param  string|DateInterval $interval
-     * @return Date
+     * @param DateInterval|string $interval
+     * @return Date|bool
      */
     public function add($interval)
     {
@@ -317,14 +329,14 @@ class Date extends Carbon
             }
         }
 
-        return parent::add($interval);
+        return parent::add($interval) ? $this : false;
     }
 
     /**
      * Subtracts an amount of days, months, years, hours, minutes and seconds from a DateTime object.
      *
-     * @param  string|DateInterval $interval
-     * @return Date
+     * @param DateInterval|string $interval
+     * @return Date|bool
      */
     public function sub($interval)
     {
@@ -337,13 +349,11 @@ class Date extends Carbon
             }
         }
 
-        return parent::sub($interval);
+        return parent::sub($interval) ? $this : false;
     }
 
     /**
-     * Get the current translator locale.
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function getLocale()
     {
@@ -351,15 +361,12 @@ class Date extends Carbon
     }
 
     /**
-     * Set the current locale.
-     *
-     * @param  string $locale
-     * @return void
+     * @inheritdoc
      */
     public static function setLocale($locale)
     {
         // Use RFC 5646 for filenames.
-        $resource = __DIR__ . '/Lang/' . str_replace('_', '-', $locale) . '.php';
+        $resource = __DIR__.'/Lang/'.str_replace('_', '-', $locale).'.php';
 
         if (! file_exists($resource)) {
             static::setLocale(static::getFallbackLocale());
@@ -398,9 +405,7 @@ class Date extends Carbon
     }
 
     /**
-     * Return the Translator implementation.
-     *
-     * @return Translator
+     * @inheritdoc
      */
     public static function getTranslator()
     {
@@ -414,9 +419,7 @@ class Date extends Carbon
     }
 
     /**
-     * Set the Translator implementation.
-     *
-     * @param Translator $translator
+     * @inheritdoc
      */
     public static function setTranslator(TranslatorInterface $translator)
     {
@@ -437,7 +440,27 @@ class Date extends Carbon
         }
 
         // All the language file items we can translate.
-        $keys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        $keys = [
+            'january',
+            'february',
+            'march',
+            'april',
+            'may',
+            'june',
+            'july',
+            'august',
+            'september',
+            'october',
+            'november',
+            'december',
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+            'sunday',
+        ];
 
         // Get all the language lines of the current locale.
         $all = static::getTranslator()->getCatalogue()->all();
