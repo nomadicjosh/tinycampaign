@@ -17,14 +17,8 @@ use Joli\JoliNotif\Util\OsHelper;
 
 class AppleScriptNotifierTest extends NotifierTestCase
 {
-    const BINARY = 'osascript';
-
     use CliBasedNotifierTestTrait;
-
-    protected function getNotifier()
-    {
-        return new AppleScriptNotifier();
-    }
+    const BINARY = 'osascript';
 
     public function testIsSupported()
     {
@@ -51,6 +45,11 @@ class AppleScriptNotifierTest extends NotifierTestCase
         $this->assertSame(Notifier::PRIORITY_LOW, $notifier->getPriority());
     }
 
+    protected function getNotifier()
+    {
+        return new AppleScriptNotifier();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -74,6 +73,26 @@ CLI;
     /**
      * {@inheritdoc}
      */
+    protected function getExpectedCommandLineForNotificationWithASubtitle()
+    {
+        return <<<CLI
+'osascript' '-e' 'display notification "I'\''m the notification body" subtitle "I'\''m the notification subtitle"'
+CLI;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getExpectedCommandLineForNotificationWithASound()
+    {
+        return <<<CLI
+'osascript' '-e' 'display notification "I'\''m the notification body" sound name "Frog"'
+CLI;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getExpectedCommandLineForNotificationWithAnIcon()
     {
         return <<<CLI
@@ -87,7 +106,7 @@ CLI;
     protected function getExpectedCommandLineForNotificationWithAllOptions()
     {
         return <<<CLI
-'osascript' '-e' 'display notification "I'\''m the notification body" with title "I'\''m the notification title"'
+'osascript' '-e' 'display notification "I'\''m the notification body" with title "I'\''m the notification title" subtitle "I'\''m the notification subtitle" sound name "Frog"'
 CLI;
     }
 }

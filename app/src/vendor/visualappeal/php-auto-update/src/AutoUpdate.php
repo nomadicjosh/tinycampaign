@@ -113,6 +113,16 @@ class AutoUpdate
      */
     private $_password = '';
 
+    /*
+     * Callbacks to be called when each update is finished
+     */
+    private $onEachUpdateFinishCallbacks = [];
+
+    /*
+     * Callbacks to be called when all updates are finished
+     */
+    private $onAllUpdateFinishCallbacks = [];
+
     /**
      * No update available.
      */
@@ -611,6 +621,7 @@ class AutoUpdate
 
             // Check if parent directory is writable
             if (!is_dir($foldername)) {
+                mkdir($foldername);
                 $this->_log->addDebug(sprintf('[SIMULATE] Create directory "%s"', $foldername));
                 $files[$i]['parent_folder_exists'] = false;
 
@@ -746,7 +757,8 @@ class AutoUpdate
                     return false;
                 }
             } else {
-                if (!touch($absoluteFilename)) {
+                // touch will fail if PHP is not the owner of the file, and file_put_contents is faster than touch.
+                if (!file_put_contents($absoluteFilename)) {
                     $this->_log->addError(sprintf('[SIMULATE] The file "%s" could not be created!', $absoluteFilename));
                     zip_close($zip);
 
@@ -765,11 +777,22 @@ class AutoUpdate
                 return false;
             }
 
-            if (!fwrite($updateHandle, $contents)) {
-                $this->_log->addError(sprintf('Could not write to file "%s"!', $absoluteFilename));
-                zip_close($zip);
 
-                return false;
+            if (!fwrite($updateHandle, $contents)) {
+                if (zip_entry_filesize($file) == 0) {
+                    if (!file_put_contents($absoluteFilename , chr(0)  )) {
+
+                        $this->_log->addError(sprintf('Could not write to file "%s"!', $absoluteFilename));
+                        zip_close($zip);
+                        return false;
+                    }
+                }
+                else
+                {
+                        $this->_log->addError(sprintf('Could not write to file "%s"!', $absoluteFilename));
+                        zip_close($zip);
+                        return false;
+                }
             }
 
             fclose($updateHandle);
@@ -859,6 +882,7 @@ class AutoUpdate
             // Install update
             $result = $this->_install($updateFile, $simulateInstall, $update['version']);
             if ($result === true) {
+                $this->runOnEachUpdateFinishCallbacks($update['version']);
                 if ($deleteDownload) {
                     $this->_log->addDebug(sprintf('Trying to delete update file "%s" after successfull update', $updateFile));
                     if (@unlink($updateFile)) {
@@ -882,7 +906,7 @@ class AutoUpdate
                 return $result;
             }
         }
-
+        $this->runOnAllUpdateFinishCallbacks($this->getVersionsToUpdate());
         return true;
     }
 
@@ -899,4 +923,35 @@ class AutoUpdate
 
         return $dir;
     }
+
+    /**
+     * @param array $callback
+     */
+    public function onEachUpdateFinish($callback)
+    {
+        $this->onEachUpdateFinishCallbacks[] = $callback;
+    }
+
+    /**
+     * @param array $callback
+     */
+    public function setOnAllUpdateFinishCallbacks($callback)
+    {
+        $this->onAllUpdateFinishCallbacks[] = $callback;
+    }
+
+    public function runOnEachUpdateFinishCallbacks($updateVersion)
+    {
+        foreach ($this->onEachUpdateFinishCallbacks as $callback) {
+            call_user_func($callback, $updateVersion);
+        }
+    }
+
+    public function runOnAllUpdateFinishCallbacks($updatedVersions)
+    {
+        foreach ($this->onAllUpdateFinishCallbacks as $callback) {
+            call_user_func($callback, $updatedVersions);
+        }
+    }
+
 }

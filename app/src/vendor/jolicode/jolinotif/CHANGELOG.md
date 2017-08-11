@@ -1,9 +1,28 @@
 # Changes between versions
 
+## 1.2.0 (2017-07-17)
+
+* Added support for sound and subtitle option on AppleScript notifier
+* Added support for url option on TerminalNotifier notifier
+
+## 1.1.2 (2017-07-13)
+
+* Fixed compatibility with symfony/process 3.3
+
+## 1.1.1 (2017-06-03)
+
+* Fixed Notification icon to always use a canonical absolute path
+
+## 1.1.0 (2017-04-04)
+
+* Added NotifierFactory::createOrThrowException() method
+* Added NullNotifier to get ride of null value
+* Updated php-cs-fixer to v2.0 and fixed CS
+
 ## 1.0.5 (2016-03-22)
 
-* Allow Symfony 3
-* Fix quote escaping in AppleScriptNotifier
+* Allowed Symfony 3
+* Fixed quote escaping in AppleScriptNotifier
 
 ## 1.0.4 (2015-06-20)
 

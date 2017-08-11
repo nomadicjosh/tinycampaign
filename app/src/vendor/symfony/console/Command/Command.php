@@ -40,7 +40,6 @@ class Command
     private $ignoreValidationErrors = false;
     private $applicationDefinitionMerged = false;
     private $applicationDefinitionMergedWithArgs = false;
-    private $inputBound = false;
     private $code;
     private $synopsis = array();
     private $usages = array();
@@ -204,6 +203,8 @@ class Command
      *
      * @return int The command exit code
      *
+     * @throws \Exception When binding input fails. Bypass this by calling {@link ignoreValidationErrors()}.
+     *
      * @see setCode()
      * @see execute()
      */
@@ -217,13 +218,11 @@ class Command
         $this->mergeApplicationDefinition();
 
         // bind the input against the command specific arguments/options
-        if (!$this->inputBound) {
-            try {
-                $input->bind($this->definition);
-            } catch (ExceptionInterface $e) {
-                if (!$this->ignoreValidationErrors) {
-                    throw $e;
-                }
+        try {
+            $input->bind($this->definition);
+        } catch (ExceptionInterface $e) {
+            if (!$this->ignoreValidationErrors) {
+                throw $e;
             }
         }
 
@@ -287,7 +286,7 @@ class Command
         if ($code instanceof \Closure) {
             $r = new \ReflectionFunction($code);
             if (null === $r->getClosureThis()) {
-                if (PHP_VERSION_ID < 70000) {
+                if (\PHP_VERSION_ID < 70000) {
                     // Bug in PHP5: https://bugs.php.net/bug.php?id=64761
                     // This means that we cannot bind static closures and therefore we must
                     // ignore any errors here.  There is no way to test if the closure is
@@ -650,14 +649,6 @@ class Command
         }
 
         return $this->helperSet->get($name);
-    }
-
-    /**
-     * @internal
-     */
-    public function setInputBound($inputBound)
-    {
-        $this->inputBound = $inputBound;
     }
 
     /**

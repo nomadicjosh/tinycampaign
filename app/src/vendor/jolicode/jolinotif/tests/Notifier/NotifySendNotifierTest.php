@@ -16,14 +16,8 @@ use Joli\JoliNotif\Notifier\NotifySendNotifier;
 
 class NotifySendNotifierTest extends NotifierTestCase
 {
-    const BINARY = 'notify-send';
-
     use CliBasedNotifierTestTrait;
-
-    protected function getNotifier()
-    {
-        return new NotifySendNotifier();
-    }
+    const BINARY = 'notify-send';
 
     public function testGetBinary()
     {
@@ -37,6 +31,11 @@ class NotifySendNotifierTest extends NotifierTestCase
         $notifier = $this->getNotifier();
 
         $this->assertSame(Notifier::PRIORITY_MEDIUM, $notifier->getPriority());
+    }
+
+    protected function getNotifier()
+    {
+        return new NotifySendNotifier();
     }
 
     /**
@@ -64,8 +63,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAnIcon()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'notify-send' '--icon' '/home/toto/Images/my-icon.png' 'I'\''m the notification body'
+'notify-send' '--icon' '${iconDir}/image.gif' 'I'\''m the notification body'
 CLI;
     }
 
@@ -74,8 +75,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAllOptions()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'notify-send' '--icon' '/home/toto/Images/my-icon.png' 'I'\''m the notification title' 'I'\''m the notification body'
+'notify-send' '--icon' '${iconDir}/image.gif' 'I'\''m the notification title' 'I'\''m the notification body'
 CLI;
     }
 }

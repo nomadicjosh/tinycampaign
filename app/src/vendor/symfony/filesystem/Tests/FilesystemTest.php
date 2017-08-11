@@ -156,6 +156,9 @@ class FilesystemTest extends FilesystemTestCase
         $this->assertEquals('SOURCE FILE', file_get_contents($targetFilePath));
     }
 
+    /**
+     * @group network
+     */
     public function testCopyForOriginUrlsAndExistingLocalFileDefaultsToCopy()
     {
         $sourceFilePath = 'http://symfony.com/images/common/logo/logo_symfony_header.png';
@@ -442,14 +445,22 @@ class FilesystemTest extends FilesystemTestCase
         $this->assertFilePermissions(400, $file);
     }
 
-    public function testChmodWrongMod()
+    public function testChmodWithWrongModLeavesPreviousPermissionsUntouched()
     {
         $this->markAsSkippedIfChmodIsMissing();
+
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('chmod() changes permissions even when passing invalid modes on HHVM');
+        }
 
         $dir = $this->workspace.DIRECTORY_SEPARATOR.'file';
         touch($dir);
 
+        $permissions = fileperms($dir);
+
         $this->filesystem->chmod($dir, 'Wrongmode');
+
+        $this->assertSame($permissions, fileperms($dir));
     }
 
     public function testChmodRecursive()
@@ -536,7 +547,10 @@ class FilesystemTest extends FilesystemTestCase
         $dir = $this->workspace.DIRECTORY_SEPARATOR.'dir';
         mkdir($dir);
 
-        $this->filesystem->chown($dir, $this->getFileOwner($dir));
+        $owner = $this->getFileOwner($dir);
+        $this->filesystem->chown($dir, $owner);
+
+        $this->assertSame($owner, $this->getFileOwner($dir));
     }
 
     public function testChownRecursive()
@@ -548,7 +562,10 @@ class FilesystemTest extends FilesystemTestCase
         $file = $dir.DIRECTORY_SEPARATOR.'file';
         touch($file);
 
-        $this->filesystem->chown($dir, $this->getFileOwner($dir), true);
+        $owner = $this->getFileOwner($dir);
+        $this->filesystem->chown($dir, $owner, true);
+
+        $this->assertSame($owner, $this->getFileOwner($file));
     }
 
     public function testChownSymlink()
@@ -562,7 +579,10 @@ class FilesystemTest extends FilesystemTestCase
 
         $this->filesystem->symlink($file, $link);
 
-        $this->filesystem->chown($link, $this->getFileOwner($link));
+        $owner = $this->getFileOwner($link);
+        $this->filesystem->chown($link, $owner);
+
+        $this->assertSame($owner, $this->getFileOwner($link));
     }
 
     public function testChownLink()
@@ -576,7 +596,10 @@ class FilesystemTest extends FilesystemTestCase
 
         $this->filesystem->hardlink($file, $link);
 
-        $this->filesystem->chown($link, $this->getFileOwner($link));
+        $owner = $this->getFileOwner($link);
+        $this->filesystem->chown($link, $owner);
+
+        $this->assertSame($owner, $this->getFileOwner($link));
     }
 
     /**
@@ -633,7 +656,10 @@ class FilesystemTest extends FilesystemTestCase
         $dir = $this->workspace.DIRECTORY_SEPARATOR.'dir';
         mkdir($dir);
 
-        $this->filesystem->chgrp($dir, $this->getFileGroup($dir));
+        $group = $this->getFileGroup($dir);
+        $this->filesystem->chgrp($dir, $group);
+
+        $this->assertSame($group, $this->getFileGroup($dir));
     }
 
     public function testChgrpRecursive()
@@ -645,7 +671,10 @@ class FilesystemTest extends FilesystemTestCase
         $file = $dir.DIRECTORY_SEPARATOR.'file';
         touch($file);
 
-        $this->filesystem->chgrp($dir, $this->getFileGroup($dir), true);
+        $group = $this->getFileGroup($dir);
+        $this->filesystem->chgrp($dir, $group, true);
+
+        $this->assertSame($group, $this->getFileGroup($file));
     }
 
     public function testChgrpSymlink()
@@ -659,7 +688,10 @@ class FilesystemTest extends FilesystemTestCase
 
         $this->filesystem->symlink($file, $link);
 
-        $this->filesystem->chgrp($link, $this->getFileGroup($link));
+        $group = $this->getFileGroup($link);
+        $this->filesystem->chgrp($link, $group);
+
+        $this->assertSame($group, $this->getFileGroup($link));
     }
 
     public function testChgrpLink()
@@ -673,7 +705,10 @@ class FilesystemTest extends FilesystemTestCase
 
         $this->filesystem->hardlink($file, $link);
 
-        $this->filesystem->chgrp($link, $this->getFileGroup($link));
+        $group = $this->getFileGroup($link);
+        $this->filesystem->chgrp($link, $group);
+
+        $this->assertSame($group, $this->getFileGroup($link));
     }
 
     /**
@@ -1091,6 +1126,16 @@ class FilesystemTest extends FilesystemTestCase
             array('/a/aab/bb/', '/b/aab', '../../a/aab/bb/'),
             array('/aab/bb', '/aa', '../aab/bb/'),
             array('/aab', '/aa', '../aab/'),
+            array('/aa/bb/cc', '/aa/dd/..', 'bb/cc/'),
+            array('/aa/../bb/cc', '/aa/dd/..', '../bb/cc/'),
+            array('/aa/bb/../../cc', '/aa/../dd/..', 'cc/'),
+            array('/../aa/bb/cc', '/aa/dd/..', 'bb/cc/'),
+            array('/../../aa/../bb/cc', '/aa/dd/..', '../bb/cc/'),
+            array('C:/aa/bb/cc', 'C:/aa/dd/..', 'bb/cc/'),
+            array('c:/aa/../bb/cc', 'c:/aa/dd/..', '../bb/cc/'),
+            array('C:/aa/bb/../../cc', 'C:/aa/../dd/..', 'cc/'),
+            array('C:/../aa/bb/cc', 'C:/aa/dd/..', 'bb/cc/'),
+            array('C:/../../aa/../bb/cc', 'C:/aa/dd/..', '../bb/cc/'),
         );
 
         if ('\\' === DIRECTORY_SEPARATOR) {
@@ -1403,6 +1448,81 @@ class FilesystemTest extends FilesystemTestCase
 
         // Zlib stat uses file:// wrapper so remove scheme
         $this->assertFileExists(str_replace($scheme, '', $filename));
+        $this->assertSame('bar', file_get_contents($filename));
+    }
+
+    public function testAppendToFile()
+    {
+        $filename = $this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'bar.txt';
+
+        // skip mode check on Windows
+        if ('\\' !== DIRECTORY_SEPARATOR) {
+            $oldMask = umask(0002);
+        }
+
+        $this->filesystem->dumpFile($filename, 'foo');
+
+        $this->filesystem->appendToFile($filename, 'bar');
+
+        $this->assertFileExists($filename);
+        $this->assertSame('foobar', file_get_contents($filename));
+
+        // skip mode check on Windows
+        if ('\\' !== DIRECTORY_SEPARATOR) {
+            $this->assertFilePermissions(664, $filename, 'The written file should keep the same permissions as before.');
+            umask($oldMask);
+        }
+    }
+
+    public function testAppendToFileWithScheme()
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM does not handle the file:// scheme correctly');
+        }
+
+        $scheme = 'file://';
+        $filename = $scheme.$this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'baz.txt';
+        $this->filesystem->dumpFile($filename, 'foo');
+
+        $this->filesystem->appendToFile($filename, 'bar');
+
+        $this->assertFileExists($filename);
+        $this->assertSame('foobar', file_get_contents($filename));
+    }
+
+    public function testAppendToFileWithZlibScheme()
+    {
+        $scheme = 'compress.zlib://';
+        $filename = $this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'baz.txt';
+        $this->filesystem->dumpFile($filename, 'foo');
+
+        // Zlib stat uses file:// wrapper so remove it
+        $this->assertSame('foo', file_get_contents(str_replace($scheme, '', $filename)));
+
+        $this->filesystem->appendToFile($filename, 'bar');
+
+        $this->assertFileExists($filename);
+        $this->assertSame('foobar', file_get_contents($filename));
+    }
+
+    public function testAppendToFileCreateTheFileIfNotExists()
+    {
+        $filename = $this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'bar.txt';
+
+        // skip mode check on Windows
+        if ('\\' !== DIRECTORY_SEPARATOR) {
+            $oldMask = umask(0002);
+        }
+
+        $this->filesystem->appendToFile($filename, 'bar');
+
+        // skip mode check on Windows
+        if ('\\' !== DIRECTORY_SEPARATOR) {
+            $this->assertFilePermissions(664, $filename);
+            umask($oldMask);
+        }
+
+        $this->assertFileExists($filename);
         $this->assertSame('bar', file_get_contents($filename));
     }
 

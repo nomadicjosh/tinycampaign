@@ -102,6 +102,10 @@ class PhpFunctionsScanner extends FunctionsScanner
                             $bufferFunctions[0]->addArgumentChunk($constants[$value[1]]);
                             break;
                         }
+                        if (strtolower($value[1]) === 'null') {
+                            $bufferFunctions[0]->addArgumentChunk(null);
+                            break;
+                        }
                         $bufferFunctions[0]->stopArgument();
                     }
                     //new function found
@@ -167,7 +171,7 @@ class PhpFunctionsScanner extends FunctionsScanner
                             $result = $value;
                             break;
                         }
-                    }        
+                    }
                 } elseif ($this->extractComments === '' || strpos($value, $this->extractComments) === 0) {
                     $result = $value;
                 }

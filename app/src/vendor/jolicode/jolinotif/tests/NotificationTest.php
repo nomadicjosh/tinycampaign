@@ -11,16 +11,18 @@
 
 namespace Joli\JoliNotif\tests;
 
+use Joli\JoliNotif\Notification;
+
 class NotificationTest extends \PHPUnit_Framework_TestCase
 {
     public function testItExtractsIconFromPhar()
     {
-        $key               = uniqid();
-        $iconContent       = $key;
-        $rootPackage       = dirname(dirname(__FILE__));
-        $iconRelativePath  = 'Resources/notification/icon-'.$key.'.png';
-        $testDir           = sys_get_temp_dir().'/test-jolinotif';
-        $pharPath          = $testDir.'/notification-extract-icon-'.$key.'.phar';
+        $key = uniqid();
+        $iconContent = $key;
+        $rootPackage = dirname(__DIR__);
+        $iconRelativePath = 'Resources/notification/icon-'.$key.'.png';
+        $testDir = sys_get_temp_dir().'/test-jolinotif';
+        $pharPath = $testDir.'/notification-extract-icon-'.$key.'.phar';
         $extractedIconPath = sys_get_temp_dir().'/jolinotif/'.$iconRelativePath;
 
         if (!is_dir($testDir)) {
@@ -54,5 +56,13 @@ PHAR_BOOTSTRAP;
 
         $this->assertTrue(is_file($extractedIconPath));
         $this->assertSame($iconContent, file_get_contents($extractedIconPath));
+    }
+
+    public function testItResolvesRealPathToIcon()
+    {
+        $notification = new Notification();
+        $notification->setIcon(__DIR__.'/../tests/fixtures/image.gif');
+
+        $this->assertSame(__DIR__.'/fixtures/image.gif', $notification->getIcon());
     }
 }

@@ -16,15 +16,9 @@ use Joli\JoliNotif\Notifier\NotifuNotifier;
 
 class NotifuNotifierTest extends NotifierTestCase
 {
-    const BINARY = 'notifu';
-
     use CliBasedNotifierTestTrait;
     use BinaryProviderTestTrait;
-
-    protected function getNotifier()
-    {
-        return new NotifuNotifier();
-    }
+    const BINARY = 'notifu';
 
     public function testGetBinary()
     {
@@ -38,6 +32,11 @@ class NotifuNotifierTest extends NotifierTestCase
         $notifier = $this->getNotifier();
 
         $this->assertSame(Notifier::PRIORITY_LOW, $notifier->getPriority());
+    }
+
+    protected function getNotifier()
+    {
+        return new NotifuNotifier();
     }
 
     /**
@@ -65,8 +64,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAnIcon()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'notifu' '/m' 'I'\''m the notification body' '/i' '/home/toto/Images/my-icon.png'
+'notifu' '/m' 'I'\''m the notification body' '/i' '${iconDir}/image.gif'
 CLI;
     }
 
@@ -75,8 +76,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAllOptions()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'notifu' '/m' 'I'\''m the notification body' '/p' 'I'\''m the notification title' '/i' '/home/toto/Images/my-icon.png'
+'notifu' '/m' 'I'\''m the notification body' '/p' 'I'\''m the notification title' '/i' '${iconDir}/image.gif'
 CLI;
     }
 }
