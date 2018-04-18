@@ -96,7 +96,7 @@ class tc_BounceHandler
      *
      * @var mixed
      */
-    public $actionFunction = 'callbackAction';
+    public $actionFunction = 'bounce_callback_action';
 
     /**
      * Callback custom body rules
