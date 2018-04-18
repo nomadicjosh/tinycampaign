@@ -1,3 +1,15 @@
+## 3.4.0
+
+* Allow two jobs of the same name to run (#92)
+
+## 3.3.2
+
+* Added support for Symfony 4
+
+## 3.3.1
+
+* Added support of swiftmailer version 6
+
 ## 3.3.0
 
 * Allow user to provide a callable in the `schedule` key that returns boolean (#77)

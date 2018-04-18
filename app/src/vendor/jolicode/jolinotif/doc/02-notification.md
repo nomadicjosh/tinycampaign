@@ -66,12 +66,14 @@ $notification->addOption('sound', 'Frog');
 Only works with TerminalNotifierNotifier at the moment.
 
 ```php
-$notification->addOption('subtitle', 'This is a subtitle');
+$notification->addOption('url', 'https://google.com');
+```
 
 ## Next readings
 
 * [Notifier](03-notifier.md)
 * [Advanced usage](04-advanced-usage.md)
+* [CLI usage](05-cli-usage.md)
 
 Previous pages:
 

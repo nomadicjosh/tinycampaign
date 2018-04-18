@@ -60,6 +60,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
             'Gettext\\Languages\\' => 18,
             'Gettext\\' => 8,
         ),
+        'E' => 
+        array (
+            'Egulias\\EmailValidator\\' => 23,
+        ),
         'D' => 
         array (
             'Desarrolla2\\Test\\Cache\\' => 23,
@@ -71,7 +75,6 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
             'Cron\\' => 5,
             'Cocur\\Slugify\\' => 14,
             'Cascade\\' => 8,
-            'Carbon\\' => 7,
         ),
     );
 
@@ -176,6 +179,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         array (
             0 => __DIR__ . '/..' . '/gettext/gettext/src',
         ),
+        'Egulias\\EmailValidator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator',
+        ),
         'Desarrolla2\\Test\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/desarrolla2/cache/test',
@@ -200,10 +207,10 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         array (
             0 => __DIR__ . '/..' . '/theorchard/monolog-cascade/src',
         ),
-        'Carbon\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
-        ),
+    );
+
+    public static $fallbackDirsPsr4 = array (
+        0 => __DIR__ . '/..' . '/nesbot/carbon/src',
     );
 
     public static $prefixesPsr0 = array (
@@ -237,6 +244,13 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
             'Httpful' => 
             array (
                 0 => __DIR__ . '/..' . '/nategood/httpful/src',
+            ),
+        ),
+        'D' => 
+        array (
+            'Doctrine\\Common\\Lexer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
             ),
         ),
     );
@@ -313,6 +327,7 @@ class ComposerStaticInita46950eb658426f8a6f236e88b2ed1da
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInita46950eb658426f8a6f236e88b2ed1da::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInita46950eb658426f8a6f236e88b2ed1da::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInita46950eb658426f8a6f236e88b2ed1da::$fallbackDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInita46950eb658426f8a6f236e88b2ed1da::$prefixesPsr0;
             $loader->classMap = ComposerStaticInita46950eb658426f8a6f236e88b2ed1da::$classMap;
 
