@@ -37,19 +37,6 @@ return [
     'november'  => 'novembris',
     'december'  => 'decembris',
 
-    'jan'       => 'jan',
-    'feb'       => 'feb',
-    'mar'       => 'mar',
-    'apr'       => 'apr',
-    'may'       => 'mai',
-    'jun'       => 'jūn',
-    'jul'       => 'jūl',
-    'aug'       => 'aug',
-    'sep'       => 'sep',
-    'oct'       => 'okt',
-    'nov'       => 'nov',
-    'dec'       => 'dec',
-
     'monday'    => 'pirmdiena',
     'tuesday'   => 'otrdiena',
     'wednesday' => 'trešdiena',
@@ -57,13 +44,5 @@ return [
     'friday'    => 'piektdiena',
     'saturday'  => 'sestdiena',
     'sunday'    => 'svētdiena',
-
-    'mon'       => 'pr',
-    'tue'       => 'ot',
-    'wed'       => 'tr',
-    'thu'       => 'ce',
-    'fri'       => 'pk',
-    'sat'       => 'se',
-    'sun'       => 'sv',
 
 ];

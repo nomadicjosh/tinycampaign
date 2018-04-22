@@ -37,19 +37,6 @@ return [
     'november'  => 'marraskuu',
     'december'  => 'joulukuu',
 
-    'jan'       => 'tammi',
-    'feb'       => 'helmi',
-    'mar'       => 'maalis',
-    'apr'       => 'huhti',
-    'may'       => 'touko',
-    'jun'       => 'kesä',
-    'jul'       => 'heinä',
-    'aug'       => 'elo',
-    'sep'       => 'syys',
-    'oct'       => 'loka',
-    'nov'       => 'marras',
-    'dec'       => 'joulu',
-
     'monday'    => 'maanantai',
     'tuesday'   => 'tiistai',
     'wednesday' => 'keskiviikko',
@@ -57,13 +44,5 @@ return [
     'friday'    => 'perjantai',
     'saturday'  => 'lauantai',
     'sunday'    => 'sunnuntai',
-
-    'mon'       => 'ma',
-    'tue'       => 'ti',
-    'wed'       => 'ke',
-    'thu'       => 'to',
-    'fri'       => 'pe',
-    'sat'       => 'la',
-    'sun'       => 'su',
 
 ];
