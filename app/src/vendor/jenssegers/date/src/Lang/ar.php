@@ -13,7 +13,7 @@ return [
     */
 
     'ago'       => 'منذ :time',
-    'from_now'  => ':time من الآن',
+    'from_now'  => 'من الآن :time',
     'after'     => 'بعد :time',
     'before'    => 'قبل :time',
     'year'      => '{0}سنة|{1}سنة|{2}سنتين|[3,10]:count سنوات|[11,Inf]:count سنة',
@@ -37,7 +37,7 @@ return [
     'november'  => 'نوفمبر',
     'december'  => 'ديسمبر',
 
-    'monday'    => 'الاثنين',
+    'monday'    => 'الإثنين',
     'tuesday'   => 'الثلاثاء',
     'wednesday' => 'الأربعاء',
     'thursday'  => 'الخميس',
