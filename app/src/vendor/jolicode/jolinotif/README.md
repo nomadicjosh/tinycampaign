@@ -9,7 +9,7 @@
 PHP >= 5.4
 
 JoliNotif is a PHP library to send notifications to your desktop directly from
-your script. It takes care of using the right command available, without having
+your script. It takes care of using the right binary available, without having
 to worry if you're running on Linux, Windows or MacOS.
 
 ![Demo](doc/images/demo.gif)
@@ -37,21 +37,21 @@ include __DIR__.'/vendor/autoload.php';
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
 
-// Create a Notifier (or null if no notifier supported)
+// Create a Notifier
 $notifier = NotifierFactory::create();
 
-if ($notifier) {
-    // Create your notification
-    $notification =
-        (new Notification())
-        ->setTitle('Notification title')
-        ->setBody('This is the body of your notification')
-        ->setIcon(__DIR__.'/path/to/your/icon.png')
-    ;
+// Create your notification
+$notification =
+    (new Notification())
+    ->setTitle('Notification title')
+    ->setBody('This is the body of your notification')
+    ->setIcon(__DIR__.'/path/to/your/icon.png')
+    ->addOption('subtitle', 'This is a subtitle') // Only works on macOS (AppleScriptNotifier)
+    ->addOption('sound', 'Frog') // Only works on macOS (AppleScriptNotifier)
+;
 
-    // Send it
-    $notifier->send($notification);
-}
+// Send it
+$notifier->send($notification);
 ```
 
 ## Further documentation
@@ -62,6 +62,7 @@ Discover more by reading the docs:
 * [Notification](doc/02-notification.md)
 * [Notifier](doc/03-notifier.md)
 * [Advanced usage](doc/04-advanced-usage.md)
+* [CLI usage](doc/05-cli-usage.md)
 
 You can see the current and past versions using one of the following:
 

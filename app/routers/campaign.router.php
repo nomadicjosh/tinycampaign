@@ -347,7 +347,7 @@ $app->group('/campaign', function() use ($app) {
         $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/{NOID}/subscriber/{NOID}/">' . _t('preferences page') . '</a>', $msg);
         $msg .= $footer;
         $msg .= tinyc_footer_logo();
-        $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $send_to, _h($cpgn->subject), $msg, _escape($cpgn->text), '']);
+        $app->hook->{'do_action_array'}('tinyc_test_email_init', [$server, $send_to, _h($cpgn->subject), $msg, _escape($cpgn->text), '']);
         redirect($app->req->server['HTTP_REFERER']);
     });
 
@@ -391,6 +391,11 @@ $app->group('/campaign', function() use ($app) {
             $unique_unsubs = Node::table('campaign_queue')
                 ->where('cid', '=', $id)
                 ->andWhere('is_unsubscribed', '=', 1)
+                ->findAll()
+                ->count();
+            Node::dispense('campaign_bounce');
+            $unique_bounces = Node::table('campaign_bounce')
+                ->where('cid', '=', $id)
                 ->findAll()
                 ->count();
         } catch (NodeQException $e) {
@@ -437,7 +442,8 @@ $app->group('/campaign', function() use ($app) {
                 'unique_opens' => $unique_opens,
                 'clicks' => $clicks,
                 'unique_clicks' => $unique_clicks,
-                'unique_unsubs' => $unique_unsubs
+                'unique_unsubs' => $unique_unsubs,
+                'unique_bounces' => $unique_bounces
                 ]
             );
         }

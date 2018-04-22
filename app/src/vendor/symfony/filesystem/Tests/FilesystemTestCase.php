@@ -11,9 +11,10 @@
 
 namespace Symfony\Component\Filesystem\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
-class FilesystemTestCase extends \PHPUnit_Framework_TestCase
+class FilesystemTestCase extends TestCase
 {
     private $umask;
 
@@ -91,7 +92,7 @@ class FilesystemTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param int    $expectedFilePerms expected file permissions as three digits (i.e. 755)
+     * @param int    $expectedFilePerms Expected file permissions as three digits (i.e. 755)
      * @param string $filePath
      */
     protected function assertFilePermissions($expectedFilePerms, $filePath)

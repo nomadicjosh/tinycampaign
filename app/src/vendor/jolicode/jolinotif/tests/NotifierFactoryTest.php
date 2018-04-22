@@ -11,23 +11,14 @@
 
 namespace Joli\JoliNotif\tests;
 
-use Joli\JoliNotif\Notifier;
+use Joli\JoliNotif\Notifier\NullNotifier;
 use Joli\JoliNotif\NotifierFactory;
 use Joli\JoliNotif\tests\fixtures\ConfigurableNotifier;
 use Joli\JoliNotif\Util\OsHelper;
+use PHPUnit\Framework\TestCase;
 
-class NotifierFactoryTest extends \PHPUnit_Framework_TestCase
+class NotifierFactoryTest extends TestCase
 {
-    private function assertNotifierClasses($expectedNotifierClasses, $notifiers)
-    {
-        $expectedCount = count($expectedNotifierClasses);
-        $this->assertSame($expectedCount, count($notifiers));
-
-        for ($i = 0; $i < $expectedCount; ++$i) {
-            $this->assertInstanceOf($expectedNotifierClasses[$i], $notifiers[$i]);
-        }
-    }
-
     public function testGetDefaultNotifiers()
     {
         $notifiers = NotifierFactory::getDefaultNotifiers();
@@ -53,7 +44,7 @@ class NotifierFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $notifier = NotifierFactory::create();
 
-        if (null === $notifier) {
+        if ($notifier instanceof NullNotifier) {
             $this->markTestSkipped('This test needs that at least one notifier is supported');
         }
 
@@ -85,14 +76,14 @@ class NotifierFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Joli\\JoliNotif\\tests\\fixtures\\ConfigurableNotifier', $notifier);
     }
 
-    public function testCreateWithNoSupportedNotifiersReturnsNull()
+    public function testCreateWithNoSupportedNotifiersReturnsANullNotifier()
     {
         $notifier = NotifierFactory::create([
             new ConfigurableNotifier(false),
             new ConfigurableNotifier(false),
         ]);
 
-        $this->assertNull($notifier);
+        $this->assertInstanceOf('Joli\\JoliNotif\\Notifier\\NullNotifier', $notifier);
     }
 
     public function testCreateUsesTheOnlySupportedNotifier()
@@ -159,5 +150,24 @@ class NotifierFactoryTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertSame($notifier3, $notifier);
+    }
+
+    /** @expectedException \Joli\JoliNotif\Exception\NoSupportedNotifierException */
+    public function testCreateOrThrowExceptionWithNoSupportedNotifiersThrowsException()
+    {
+        NotifierFactory::createOrThrowException([
+            new ConfigurableNotifier(false),
+            new ConfigurableNotifier(false),
+        ]);
+    }
+
+    private function assertNotifierClasses($expectedNotifierClasses, $notifiers)
+    {
+        $expectedCount = count($expectedNotifierClasses);
+        $this->assertSame($expectedCount, count($notifiers));
+
+        for ($i = 0; $i < $expectedCount; ++$i) {
+            $this->assertInstanceOf($expectedNotifierClasses[$i], $notifiers[$i]);
+        }
     }
 }

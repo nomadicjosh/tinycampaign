@@ -9,7 +9,7 @@ use ArrayObject;
 
 /**
  * Class to manage a collection of translations.
- * 
+ *
  * @method static fromBladeFile(string $filename, array $options = [])
  * @method static fromBladeString(string $string, array $options = [])
  * @method addFromBladeFile(string $filename, array $options = [])
@@ -206,7 +206,9 @@ class Translations extends ArrayObject
     public function offsetSet($index, $value)
     {
         if (!($value instanceof Translation)) {
-            throw new InvalidArgumentException('Only instances of Gettext\\Translation must be added to a Gettext\\Translations');
+            throw new InvalidArgumentException(
+                'Only instances of Gettext\\Translation must be added to a Gettext\\Translations'
+            );
         }
 
         $id = $value->getId();
@@ -227,11 +229,14 @@ class Translations extends ArrayObject
      *
      * @param int    $count
      * @param string $rule
-     * 
+     *
      * @return self
      */
     public function setPluralForms($count, $rule)
     {
+        if (preg_match('/[a-z]/i', str_replace('n', '', $rule))) {
+            throw new \InvalidArgumentException('Invalid Plural form: ' . $rule);
+        }
         $this->setHeader(self::HEADER_PLURAL, "nplurals={$count}; plural={$rule};");
 
         return $this;
@@ -246,7 +251,9 @@ class Translations extends ArrayObject
     {
         $header = $this->getHeader(self::HEADER_PLURAL);
 
-        if (!empty($header) && preg_match('/^nplurals\s*=\s*(\d+)\s*;\s*plural\s*=\s*([^;]+)\s*;$/', $header, $matches)) {
+        if (!empty($header)
+            && preg_match('/^nplurals\s*=\s*(\d+)\s*;\s*plural\s*=\s*([^;]+)\s*;$/', $header, $matches)
+        ) {
             return [intval($matches[1]), $matches[2]];
         }
     }
@@ -256,7 +263,7 @@ class Translations extends ArrayObject
      *
      * @param string $name
      * @param string $value
-     * 
+     *
      * @return self
      */
     public function setHeader($name, $value)
@@ -295,7 +302,7 @@ class Translations extends ArrayObject
 
     /**
      * Removes all headers.
-     * 
+     *
      * @return self
      */
     public function deleteHeaders()
@@ -309,7 +316,7 @@ class Translations extends ArrayObject
      * Removes one header.
      *
      * @param string $name
-     * 
+     *
      * @return self
      */
     public function deleteHeader($name)
@@ -333,7 +340,7 @@ class Translations extends ArrayObject
      * Sets the language and the plural forms.
      *
      * @param string $language
-     * 
+     *
      * @throws InvalidArgumentException if the language hasn't been recognized
      *
      * @return self
@@ -365,7 +372,7 @@ class Translations extends ArrayObject
      * Set a new domain for this translations.
      *
      * @param string $domain
-     * 
+     *
      * @return self
      */
     public function setDomain($domain)
@@ -418,13 +425,12 @@ class Translations extends ArrayObject
 
     /**
      * Count all elements translated
-     * 
+     *
      * @return integer
      */
     public function countTranslated()
     {
-        $callback = function(Translation $v)
-        {
+        $callback = function (Translation $v) {
             return ($v->hasTranslation()) ? $v->getTranslation() : null;
         };
 
@@ -450,7 +456,7 @@ class Translations extends ArrayObject
      *
      * @param Translations $translations The translations instance to merge with
      * @param int          $options
-     * 
+     *
      * @return self
      */
     public function mergeWith(Translations $translations, $options = Merge::DEFAULTS)

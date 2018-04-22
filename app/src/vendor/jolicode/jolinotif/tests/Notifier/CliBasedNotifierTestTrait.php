@@ -56,30 +56,12 @@ trait CliBasedNotifierTestTrait
     }
 
     /**
-     * @return string
-     */
-    abstract protected function getExpectedCommandLineForNotification();
-
-    /**
-     * @return string
-     */
-    abstract protected function getExpectedCommandLineForNotificationWithATitle();
-
-    /**
-     * @return string
-     */
-    abstract protected function getExpectedCommandLineForNotificationWithAnIcon();
-
-    /**
-     * @return string
-     */
-    abstract protected function getExpectedCommandLineForNotificationWithAllOptions();
-
-    /**
      * @return array
      */
     public function provideValidNotifications()
     {
+        $iconDir = $this->getIconDir();
+
         return [
             [
                 (new Notification())
@@ -95,14 +77,35 @@ trait CliBasedNotifierTestTrait
             [
                 (new Notification())
                     ->setBody('I\'m the notification body')
-                    ->setIcon('/home/toto/Images/my-icon.png'),
+                    ->addOption('subtitle', 'I\'m the notification subtitle'),
+                $this->getExpectedCommandLineForNotificationWithASubtitle(),
+            ],
+            [
+                (new Notification())
+                    ->setBody('I\'m the notification body')
+                    ->addOption('sound', 'Frog'),
+                $this->getExpectedCommandLineForNotificationWithASound(),
+            ],
+            [
+                (new Notification())
+                    ->setBody('I\'m the notification body')
+                    ->addOption('url', 'https://google.com'),
+                $this->getExpectedCommandLineForNotificationWithAnUrl(),
+            ],
+            [
+                (new Notification())
+                    ->setBody('I\'m the notification body')
+                    ->setIcon($iconDir.'/image.gif'),
                 $this->getExpectedCommandLineForNotificationWithAnIcon(),
             ],
             [
                 (new Notification())
                     ->setBody('I\'m the notification body')
                     ->setTitle('I\'m the notification title')
-                    ->setIcon('/home/toto/Images/my-icon.png'),
+                    ->addOption('subtitle', 'I\'m the notification subtitle')
+                    ->addOption('sound', 'Frog')
+                    ->addOption('url', 'https://google.com')
+                    ->setIcon($iconDir.'/image.gif'),
                 $this->getExpectedCommandLineForNotificationWithAllOptions(),
             ],
         ];
@@ -136,4 +139,59 @@ trait CliBasedNotifierTestTrait
             $this->assertInstanceOf('Joli\JoliNotif\Exception\InvalidNotificationException', $e);
         }
     }
+
+    public function getIconDir()
+    {
+        return realpath(dirname(__DIR__).'/fixtures');
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getExpectedCommandLineForNotification();
+
+    /**
+     * @return string
+     */
+    abstract protected function getExpectedCommandLineForNotificationWithATitle();
+
+    /**
+     * Subtitle is supported only on few notifier.
+     *
+     * @return string
+     */
+    protected function getExpectedCommandLineForNotificationWithASubtitle()
+    {
+        return $this->getExpectedCommandLineForNotification();
+    }
+
+    /**
+     * Sound is supported only on few notifier.
+     *
+     * @return string
+     */
+    protected function getExpectedCommandLineForNotificationWithASound()
+    {
+        return $this->getExpectedCommandLineForNotification();
+    }
+
+    /**
+     * Sound is supported only on few notifier.
+     *
+     * @return string
+     */
+    protected function getExpectedCommandLineForNotificationWithAnUrl()
+    {
+        return $this->getExpectedCommandLineForNotification();
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getExpectedCommandLineForNotificationWithAnIcon();
+
+    /**
+     * @return string
+     */
+    abstract protected function getExpectedCommandLineForNotificationWithAllOptions();
 }

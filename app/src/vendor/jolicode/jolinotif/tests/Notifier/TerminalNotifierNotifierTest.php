@@ -17,14 +17,8 @@ use Joli\JoliNotif\Util\OsHelper;
 
 class TerminalNotifierNotifierTest extends NotifierTestCase
 {
-    const BINARY = 'terminal-notifier';
-
     use CliBasedNotifierTestTrait;
-
-    protected function getNotifier()
-    {
-        return new TerminalNotifierNotifier();
-    }
+    const BINARY = 'terminal-notifier';
 
     public function testGetBinary()
     {
@@ -38,6 +32,11 @@ class TerminalNotifierNotifierTest extends NotifierTestCase
         $notifier = $this->getNotifier();
 
         $this->assertSame(Notifier::PRIORITY_MEDIUM, $notifier->getPriority());
+    }
+
+    protected function getNotifier()
+    {
+        return new TerminalNotifierNotifier();
     }
 
     /**
@@ -63,11 +62,23 @@ CLI;
     /**
      * {@inheritdoc}
      */
+    protected function getExpectedCommandLineForNotificationWithAnUrl()
+    {
+        return <<<CLI
+'terminal-notifier' '-message' 'I'\''m the notification body' '-open' 'https://google.com'
+CLI;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getExpectedCommandLineForNotificationWithAnIcon()
     {
         if (OsHelper::isMacOS() && version_compare(OsHelper::getMacOSVersion(), '10.9.0', '>=')) {
+            $iconDir = $this->getIconDir();
+
             return <<<CLI
-'terminal-notifier' '-message' 'I'\''m the notification body' '-appIcon' '/home/toto/Images/my-icon.png'
+'terminal-notifier' '-message' 'I'\''m the notification body' '-appIcon' '${iconDir}/image.gif'
 CLI;
         }
 
@@ -82,13 +93,15 @@ CLI;
     protected function getExpectedCommandLineForNotificationWithAllOptions()
     {
         if (OsHelper::isMacOS() && version_compare(OsHelper::getMacOSVersion(), '10.9.0', '>=')) {
+            $iconDir = $this->getIconDir();
+
             return <<<CLI
-'terminal-notifier' '-message' 'I'\''m the notification body' '-title' 'I'\''m the notification title' '-appIcon' '/home/toto/Images/my-icon.png'
+'terminal-notifier' '-message' 'I'\''m the notification body' '-title' 'I'\''m the notification title' '-appIcon' '${iconDir}/image.gif' '-open' 'https://google.com'
 CLI;
         }
 
         return <<<CLI
-'terminal-notifier' '-message' 'I'\''m the notification body' '-title' 'I'\''m the notification title'
+'terminal-notifier' '-message' 'I'\''m the notification body' '-title' 'I'\''m the notification title' '-open' 'https://google.com'
 CLI;
     }
 }

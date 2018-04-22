@@ -241,8 +241,7 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
             $role->insert([
                     'roleName' => $app->req->post['roleName'],
                     'permission' => maybe_serialize($app->req->post['permission'])
-                ])
-                ->save();
+                ]);
 
             $ID = $role->lastInsertId();
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
@@ -1009,6 +1008,8 @@ $app->post('/subscribe/', function () use($app) {
             }
         }
 
+        tc_cache_flush_namespace('my_subscribers');
+        tc_cache_flush_namespace('list_subscribers');
         tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_user_value('1', 'uname'));
         check_custom_success_url($app->req->post['code'], $sub);
     } catch (NotFoundException $e) {
@@ -1146,6 +1147,8 @@ $app->post('/asubscribe/', function () use($app) {
                 subscribe_email_node($list->code, $new_sub);
             }
 
+            tc_cache_flush_namespace('my_subscribers');
+            tc_cache_flush_namespace('list_subscribers');
             $status = _t("success");
             $message = '<font style="color:#008000">' . _t("You have been successfully subscribed. Check your email.") . '</font>';
         } catch (NotFoundException $e) {
@@ -1237,6 +1240,8 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
             } catch (Exception $e) {
                 Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             }
+            tc_cache_flush_namespace('my_subscribers');
+            tc_cache_flush_namespace('list_subscribers');
             unsubscribe_email_node(_h($list->code), $subscriber);
             $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
             _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
@@ -1328,6 +1333,8 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
             } catch (Exception $e) {
                 Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             }
+            tc_cache_flush_namespace('my_subscribers');
+            tc_cache_flush_namespace('list_subscribers');
             unsubscribe_email_node(_h($list->code), $subscriber);
             $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
         }

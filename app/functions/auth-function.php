@@ -49,7 +49,7 @@ function get_userdata($field)
             ->where('user.id = ?', $auth->id)->_and_()
             ->where('user.uname = ?', $auth->uname)
             ->findOne();
-        return _h($user->{$field});
+        return _escape($user->{$field});
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
@@ -130,7 +130,7 @@ function tc_authenticate($login, $password, $rememberme)
 
         $ll = $app->db->user();
         $ll->LastLogin = \Jenssegers\Date\Date::now();
-        $ll->where('id = ?', _h($user->id))
+        $ll->where('id = ?', _escape($user->id))
             ->update();
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -156,8 +156,8 @@ function tc_authenticate($login, $password, $rememberme)
         Cascade::getLogger('error')->error(sprintf('AUTHSTATE[%s]: Unauthorized: %s', $e->getCode(), $e->getMessage()));
     }
 
-    tc_logger_activity_log_write('Authentication', 'Login', get_name(_h($user->id)), _h($user->uname));
-    _tc_flash()->success(sprintf(_t('Login was successful. Welcome <strong>%s</strong> to your dashboard.'), get_name(_h($user->id))), get_base_url() . 'dashboard/');
+    tc_logger_activity_log_write('Authentication', 'Login', get_name(_escape($user->id)), _escape($user->uname));
+    _tc_flash()->success(sprintf(_t('Login was successful. Welcome <strong>%s</strong> to your dashboard.'), get_name(_escape($user->id))), get_base_url() . 'dashboard/');
 }
 
 /**
@@ -203,7 +203,7 @@ function tc_authenticate_user($login, $password, $rememberme)
         }
     }
 
-    if (!tc_check_password($password, $user->password, _h($user->id))) {
+    if (!tc_check_password($password, $user->password, _escape($user->id))) {
         _tc_flash()->error(_t('<strong>ERROR</strong>: The password you entered is incorrect.'), get_base_url());
 
         return;
@@ -237,7 +237,7 @@ function tc_set_auth_cookie($user, $rememberme = '')
          * 
          * @since 2.0.0
          */
-        $expire = $app->hook->{'apply_filter'}('auth_cookie_expiration', (_h(get_option('cookieexpire')) !== '') ? _h(get_option('cookieexpire')) : $app->config('cookies.lifetime'));
+        $expire = $app->hook->{'apply_filter'}('auth_cookie_expiration', (_escape(get_option('cookieexpire')) !== '') ? _escape(get_option('cookieexpire')) : $app->config('cookies.lifetime'));
     } else {
         /**
          * Ensure the browser will continue to send the cookie until it expires.
@@ -249,8 +249,8 @@ function tc_set_auth_cookie($user, $rememberme = '')
 
     $auth_cookie = [
         'key' => 'TC_COOKIENAME',
-        'id' => _h($user->id),
-        'uname' => _h($user->uname),
+        'id' => _escape($user->id),
+        'uname' => _escape($user->uname),
         'remember' => (isset($rememberme) ? $rememberme : _t('no')),
         'exp' => $expire + time()
     ];

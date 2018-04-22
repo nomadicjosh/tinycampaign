@@ -19,8 +19,18 @@ $app->group('/subscriber', function() use ($app) {
 
     $app->get('/', function () use($app) {
         try {
-            $subscribers = $app->db->subscriber()
-                ->find();
+            $subscribers = $app->db->subscriber();
+            $subs = tc_cache_get('my_subscribers_'.get_userdata('id'), 'my_subscribers');
+            if (empty($subs)) {
+                $subs = $subscribers->find(function ($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add('my_subscribers_'.get_userdata('id'), $subs, 'my_subscribers');
+            }
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -36,7 +46,7 @@ $app->group('/subscriber', function() use ($app) {
 
         $app->view->display('subscriber/index', [
             'title' => _t('Manage Subscribers'),
-            'subscribers' => $subscribers
+            'subscribers' => array_to_object($subs)
             ]
         );
     });
@@ -94,6 +104,8 @@ $app->group('/subscriber', function() use ($app) {
                         ]);
                     }
 
+                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
                     _tc_flash()->warning(_t('Subscriber was added to the list but flagged as spam.'), get_base_url() . 'subscriber' . '/' . $id . '/');
                 } catch (NotFoundException $e) {
@@ -137,6 +149,8 @@ $app->group('/subscriber', function() use ($app) {
                         ]);
                     }
 
+                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
                     _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'subscriber' . '/' . $id . '/');
                 } catch (NotFoundException $e) {
@@ -233,8 +247,10 @@ $app->group('/subscriber', function() use ($app) {
                         }
                     }
 
+                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
+                    tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('Update Record', 'Subscriber', get_sub_name($id), get_userdata('uname'));
                     _tc_flash()->warning(_t('Subscriber was updated but was flagged as spam.'), $app->req->server['HTTP_REFERER']);
                 } catch (NotFoundException $e) {
@@ -296,8 +312,10 @@ $app->group('/subscriber', function() use ($app) {
                         }
                     }
 
+                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
+                    tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('Update Record', 'Subscriber', get_sub_name($id), get_userdata('uname'));
                     _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
                 } catch (NotFoundException $e) {
@@ -412,9 +430,11 @@ $app->group('/subscriber', function() use ($app) {
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());
             }
-
+            
+            tc_cache_delete('my_subscribers_'.get_userdata('id'));
             tc_cache_delete($id, 'subscriber');
             tc_cache_delete($id, 'slist');
+            tc_cache_flush_namespace('list_subscribers');
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);

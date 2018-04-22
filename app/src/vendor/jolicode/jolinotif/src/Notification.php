@@ -31,6 +31,11 @@ class Notification
     private $icon;
 
     /**
+     * @var array
+     */
+    private $options = [];
+
+    /**
      * @return string
      */
     public function getTitle()
@@ -88,9 +93,39 @@ class Notification
         // This makes the icon accessible for native commands when it's embedded inside a phar
         if (PharExtractor::isLocatedInsideAPhar($icon)) {
             $icon = PharExtractor::extractFile($icon);
+        } else {
+            // Makes the icon path absolute (expanding all symbolic links and resolving references like "/../")
+            $icon = realpath($icon);
         }
 
         $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    public function getOption($key)
+    {
+        if (!array_key_exists($key, $this->options)) {
+            return null;
+        }
+
+        return $this->options[$key];
+    }
+
+    /**
+     * @param string $key
+     * @param string $option
+     *
+     * @return $this
+     */
+    public function addOption($key, $option)
+    {
+        $this->options[$key] = $option;
 
         return $this;
     }

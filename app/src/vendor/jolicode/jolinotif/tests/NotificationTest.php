@@ -11,16 +11,19 @@
 
 namespace Joli\JoliNotif\tests;
 
-class NotificationTest extends \PHPUnit_Framework_TestCase
+use Joli\JoliNotif\Notification;
+use PHPUnit\Framework\TestCase;
+
+class NotificationTest extends TestCase
 {
     public function testItExtractsIconFromPhar()
     {
-        $key               = uniqid();
-        $iconContent       = $key;
-        $rootPackage       = dirname(dirname(__FILE__));
-        $iconRelativePath  = 'Resources/notification/icon-'.$key.'.png';
-        $testDir           = sys_get_temp_dir().'/test-jolinotif';
-        $pharPath          = $testDir.'/notification-extract-icon-'.$key.'.phar';
+        $key = uniqid();
+        $iconContent = $key;
+        $rootPackage = dirname(__DIR__);
+        $iconRelativePath = 'Resources/notification/icon-'.$key.'.png';
+        $testDir = sys_get_temp_dir().'/test-jolinotif';
+        $pharPath = $testDir.'/notification-extract-icon-'.$key.'.phar';
         $extractedIconPath = sys_get_temp_dir().'/jolinotif/'.$iconRelativePath;
 
         if (!is_dir($testDir)) {
@@ -48,11 +51,19 @@ PHAR_BOOTSTRAP;
         $phar->addFromString($iconRelativePath, $iconContent);
         $phar->setStub($phar->createDefaultStub('bootstrap.php'));
 
-        $this->assertTrue(is_file($pharPath));
+        $this->assertFileExists($pharPath);
 
         exec('php '.$pharPath);
 
-        $this->assertTrue(is_file($extractedIconPath));
+        $this->assertFileExists($extractedIconPath);
         $this->assertSame($iconContent, file_get_contents($extractedIconPath));
+    }
+
+    public function testItResolvesRealPathToIcon()
+    {
+        $notification = new Notification();
+        $notification->setIcon(__DIR__.'/../tests/fixtures/image.gif');
+
+        $this->assertFileEquals(__DIR__.'/fixtures/image.gif', $notification->getIcon());
     }
 }

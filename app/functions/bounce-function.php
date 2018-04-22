@@ -1462,16 +1462,16 @@ function bmhDSNRules($dsn_msg, $dsn_report, $debug_mode = false)
  *
  * @return boolean
  */
-function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remove, $ruleNo = false, $ruleCat = false, $totalFetched = 0, $body = '', $headerFull = '', $bodyFull = '')
+function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader, $remove, $ruleNo = false, $ruleCat = false, $totalFetched = 0, $body = '', $headerFull = '', $bodyFull = '')
 {
     $app = \Liten\Liten::getInstance();
 
     $bounces = $app->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
 
-    $cpgnId = find_x_campaign_id($headerFull);
-    $listId = find_x_list_id($headerFull);
-    $subId = find_x_subscriber_id($headerFull);
-    $subEmail = find_x_subscriber_email($headerFull);
+    $cpgnId = (find_x_campaign_id($headerFull) >= 0 ? find_x_campaign_id($headerFull) : find_x_campaign_id($bodyFull));
+    $listId = (find_x_list_id($headerFull) >= 0 ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
+    $subId = (find_x_subscriber_id($headerFull) >= 0 ? find_x_subscriber_id($headerFull) : find_x_subscriber_id($bodyFull));
+    $subEmail = (find_x_subscriber_email($headerFull) != '' ? find_x_subscriber_email($headerFull) : find_x_subscriber_email($bodyFull));
 
     try {
         Node::dispense('campaign_bounce');
@@ -1492,10 +1492,16 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     if ($remove == true || $remove == '1') {
         try {
+            $cpgn = $app->db->campaign()
+                ->where('id = ?', $cpgnId)
+                ->findOne();
+            $cpgn->set([
+                    'bounces' => $cpgn->bounces + 1
+                ])
+                ->update();
             $q = $app->db->subscriber()
                 ->where('email = ?', $email)->_and_()
-                ->where('allowed = "true"')->_and_()
-                ->whereGte('bounces', $bounces)
+                ->where('allowed = "true"')
                 ->findOne();
             $q->set([
                     'allowed' => 'false',
@@ -1536,7 +1542,7 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
         }
     }
 
-    $displayData = prepData($email, $bounceType, $remove);
+    /*$displayData = prepData($email, $bounceType, $remove);
     $bounceType = $displayData['bounce_type'];
     $emailName = $displayData['emailName'];
     $emailAddy = $displayData['emailAddy'];
@@ -1544,7 +1550,7 @@ function callbackAction($msgnum, $bounceType, $email, $subject, $xheader, $remov
 
     echo $msgnum . ': ' . $ruleNo . ' | ' . $ruleCat . ' | ' . $bounceType . ' | ' . $remove . ' | ' . $email . ' | ' . $subject . "<br />\n";
 
-    return true;
+    return true;*/
 }
 
 /**

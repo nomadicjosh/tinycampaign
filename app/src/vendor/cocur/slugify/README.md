@@ -20,13 +20,13 @@ Features
 --------
 
 - Removes all special characters from a string.
-- Provides custom replacements for Arabic, Austrian, Azerbaijani, Bulgarian, Burmese, Croatian, Czech, Esperanto, Finnish, French, Georgian, German, Greek, Hindi, Italien, Latvian, Lithuanian, Norwegian, Polish, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian and Vietnamese special characters. Instead of
+- Provides custom replacements for Arabic, Austrian, Azerbaijani, Bulgarian, Burmese, Croatian, Czech, Esperanto, Estonian, Finnish, French, Georgian, German, Greek, Hindi, Italien, Latvian, Lithuanian, Norwegian, Polish, Romanian, Russian, Serbian, Spanish, Swedish, Turkish, Ukrainian and Vietnamese special characters. Instead of
 removing these characters, Slugify approximates them (e.g., `ae` replaces `ä`).
 - No external dependencies.
 - PSR-4 compatible.
 - Compatible with PHP >= 5.5.9, PHP 7 and [HHVM](http://hhvm.com).
-- Integrations for [Symfony2](http://symfony.com), [Silex (1 and 2)](http://silex.sensiolabs.org), [Laravel](http://laravel.com),
-[Twig](http://twig.sensiolabs.org), [Zend Framework 2](http://framework.zend.com/), [Nette Framework](http://nette.org/), 
+- Integrations for [Symfony (2 and 3)](http://symfony.com), [Silex (1 and 2)](http://silex.sensiolabs.org), [Laravel](http://laravel.com),
+[Twig (1 and 2)](http://twig.sensiolabs.org), [Zend Framework 2](http://framework.zend.com/), [Nette Framework](http://nette.org/),
 [Latte](http://latte.nette.org/) and [Plum](https://github.com/plumphp/plum).
 
 
@@ -42,10 +42,6 @@ $ composer require cocur/slugify
 
 Usage
 -----
-
-> The documentation you can find here has already been updated for the upcoming 2.0 release. If you are using the
-v1.4, the latest stable version, please use the corresponding documentation. You can find it 
-[here](https://github.com/cocur/slugify/tree/1.4). 
 
 Generate a slug:
 
@@ -99,7 +95,7 @@ You can find a list of the available rulesets in `Resources/rules`.
 
 ### More options
 
-The constructor takes an options array, you have already seen the `rulesets` options above. You can also change the 
+The constructor takes an options array, you have already seen the `rulesets` options above. You can also change the
 regular expression that is used to replace characters with the separator.
 
 ```php
@@ -166,9 +162,9 @@ All you need to do is:
 Integrations
 ------------
 
-### Symfony2
+### Symfony
 
-Slugify contains a Symfony2 bundle and service definition that allow you to use it as a service in your Symfony2
+Slugify contains a Symfony bundle and service definition that allow you to use it as a service in your Symfony
 application. The code resides in the `Cocur\Slugify\Bridge\Symfony` namespace and you only need to add the bundle class
 to your `AppKernel.php`:
 
@@ -214,14 +210,14 @@ cocur_slugify:
 
 ### Twig
 
-If you use the Symfony2 framework with Twig you can use the Twig filter `slugify` in your templates after you have setup
-Symfony2 integrations (see above).
+If you use the Symfony framework with Twig you can use the Twig filter `slugify` in your templates after you have setup
+Symfony integrations (see above).
 
 ```twig
 {{ 'Hällo Wörld'|slugify }}
 ```
 
-If you use Twig outside of the Symfony2 framework you first need to add the extension to your environment:
+If you use Twig outside of the Symfony framework you first need to add the extension to your environment:
 
 ```php
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
@@ -490,6 +486,13 @@ $slugify = $container->get(Slugify\SlugifyInterface::class);
 Change Log
 ----------
 
+### Version 2.5 (23 March 2017)
+
+- [#150](https://github.com/cocur/slugify/pull/150) Add Romanian rules (by [gabiudrescu](https://github.com/gabiudrescu))
+- [#154](https://github.com/cocur/slugify/pull/154) Add French rules (by [SuN-80](https://github.com/SuN-80))
+- [#159](https://github.com/cocur/slugify/pull/159) Add Estonian rules (by [erkimiilberg](https://github.com/erkimiilberg))
+- [#162](https://github.com/cocur/slugify/pull/162) Add support for Twig 2 (by [JakeFr](https://github.com/JakeFr))
+
 ### Version 2.4 (9 February 2017)
 
 - [#133](https://github.com/cocur/slugify/pull/133) Allow to modify options without creating a new object (by [leofeyer](https://github.com/leofeyer))
@@ -658,7 +661,7 @@ inform us if a transliteration is wrong. We would highly appreciate it if you ca
 Github. If you have never contributed to a project on Github we are happy to help you. Just ask on Twitter or directly
 join our Gitter.
 
-You always can help me (Florian, the original developer and maintainer) out by 
+You always can help me (Florian, the original developer and maintainer) out by
 [sending me an Euro or two](https://paypal.me/florianec/2).
 
 

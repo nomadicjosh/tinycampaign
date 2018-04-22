@@ -26,29 +26,23 @@ class Table
 {
     /**
      * Table headers.
-     *
-     * @var array
      */
     private $headers = array();
 
     /**
      * Table rows.
-     *
-     * @var array
      */
     private $rows = array();
 
     /**
      * Column widths cache.
-     *
-     * @var array
      */
     private $effectiveColumnWidths = array();
 
     /**
      * Number of columns cache.
      *
-     * @var array
+     * @var int
      */
     private $numberOfColumns;
 
@@ -156,7 +150,7 @@ class Table
      */
     public function setColumnStyle($columnIndex, $name)
     {
-        $columnIndex = intval($columnIndex);
+        $columnIndex = (int) $columnIndex;
 
         $this->columnStyles[$columnIndex] = $this->resolveStyle($name);
 
@@ -191,7 +185,7 @@ class Table
      */
     public function setColumnWidth($columnIndex, $width)
     {
-        $this->columnWidths[intval($columnIndex)] = intval($width);
+        $this->columnWidths[(int) $columnIndex] = (int) $width;
 
         return $this;
     }
@@ -269,6 +263,7 @@ class Table
      * Renders table to output.
      *
      * Example:
+     * <code>
      * +---------------+-----------------------+------------------+
      * | ISBN          | Title                 | Author           |
      * +---------------+-----------------------+------------------+
@@ -276,6 +271,7 @@ class Table
      * | 9971-5-0210-0 | A Tale of Two Cities  | Charles Dickens  |
      * | 960-425-059-0 | The Lord of the Rings | J. R. R. Tolkien |
      * +---------------+-----------------------+------------------+
+     * </code>
      */
     public function render()
     {
@@ -309,7 +305,7 @@ class Table
     /**
      * Renders horizontal header separator.
      *
-     * Example: +-----+-----------+-------+
+     * Example: <code>+-----+-----------+-------+</code>
      */
     private function renderRowSeparator()
     {
@@ -340,7 +336,7 @@ class Table
     /**
      * Renders table row.
      *
-     * Example: | 9971-5-0210-0 | A Tale of Two Cities  | Charles Dickens  |
+     * Example: <code>| 9971-5-0210-0 | A Tale of Two Cities  | Charles Dickens  |</code>
      *
      * @param array  $row
      * @param string $cellFormat
@@ -426,7 +422,7 @@ class Table
                 if (!strstr($cell, "\n")) {
                     continue;
                 }
-                $lines = explode("\n", $cell);
+                $lines = explode("\n", str_replace("\n", "<fg=default;bg=default>\n</>", $cell));
                 foreach ($lines as $lineKey => $line) {
                     if ($cell instanceof TableCell) {
                         $line = new TableCell($line, array('colspan' => $cell->getColspan()));
@@ -458,16 +454,21 @@ class Table
      * @param int   $line
      *
      * @return array
+     *
+     * @throws InvalidArgumentException
      */
-    private function fillNextRows($rows, $line)
+    private function fillNextRows(array $rows, $line)
     {
         $unmergedRows = array();
         foreach ($rows[$line] as $column => $cell) {
+            if (null !== $cell && !$cell instanceof TableCell && !is_scalar($cell) && !(is_object($cell) && method_exists($cell, '__toString'))) {
+                throw new InvalidArgumentException(sprintf('A cell must be a TableCell, a scalar or an object implementing __toString, %s given.', gettype($cell)));
+            }
             if ($cell instanceof TableCell && $cell->getRowspan() > 1) {
                 $nbLines = $cell->getRowspan() - 1;
                 $lines = array($cell);
                 if (strstr($cell, "\n")) {
-                    $lines = explode("\n", $cell);
+                    $lines = explode("\n", str_replace("\n", "<fg=default;bg=default>\n</>", $cell));
                     $nbLines = count($lines) > $nbLines ? substr_count($cell, "\n") : $nbLines;
 
                     $rows[$line][$column] = new TableCell($lines[0], array('colspan' => $cell->getColspan()));
@@ -479,6 +480,9 @@ class Table
                 foreach ($unmergedRows as $unmergedRowKey => $unmergedRow) {
                     $value = isset($lines[$unmergedRowKey - $line]) ? $lines[$unmergedRowKey - $line] : '';
                     $unmergedRows[$unmergedRowKey][$column] = new TableCell($value, array('colspan' => $cell->getColspan()));
+                    if ($nbLines === $unmergedRowKey - $line) {
+                        break;
+                    }
                 }
             }
         }
@@ -507,8 +511,6 @@ class Table
     /**
      * fill cells for a row that contains colspan > 1.
      *
-     * @param array $row
-     *
      * @return array
      */
     private function fillCells($row)
@@ -533,7 +535,7 @@ class Table
      *
      * @return array
      */
-    private function copyRow($rows, $line)
+    private function copyRow(array $rows, $line)
     {
         $row = $rows[$line];
         foreach ($row as $cellKey => $cellValue) {
@@ -548,8 +550,6 @@ class Table
 
     /**
      * Gets number of columns by row.
-     *
-     * @param array $row
      *
      * @return int
      */
@@ -566,11 +566,9 @@ class Table
     /**
      * Gets list of columns for the given row.
      *
-     * @param array $row
-     *
      * @return array
      */
-    private function getRowColumns($row)
+    private function getRowColumns(array $row)
     {
         $columns = range(0, $this->numberOfColumns - 1);
         foreach ($row as $cellKey => $cell) {
@@ -585,10 +583,8 @@ class Table
 
     /**
      * Calculates columns widths.
-     *
-     * @param array $rows
      */
-    private function calculateColumnsWidth($rows)
+    private function calculateColumnsWidth(array $rows)
     {
         for ($column = 0; $column < $this->numberOfColumns; ++$column) {
             $lengths = array();
@@ -599,9 +595,10 @@ class Table
 
                 foreach ($row as $i => $cell) {
                     if ($cell instanceof TableCell) {
-                        $textLength = Helper::strlenWithoutDecoration($this->output->getFormatter(), $cell);
+                        $textContent = Helper::removeDecoration($this->output->getFormatter(), $cell);
+                        $textLength = Helper::strlen($textContent);
                         if ($textLength > 0) {
-                            $contentColumns = str_split($cell, ceil($textLength / $cell->getColspan()));
+                            $contentColumns = str_split($textContent, ceil($textLength / $cell->getColspan()));
                             foreach ($contentColumns as $position => $content) {
                                 $row[$i + $position] = $content;
                             }

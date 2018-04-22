@@ -16,15 +16,9 @@ use Joli\JoliNotif\Notifier\ToasterNotifier;
 
 class ToasterNotifierTest extends NotifierTestCase
 {
-    const BINARY = 'toast';
-
     use CliBasedNotifierTestTrait;
     use BinaryProviderTestTrait;
-
-    protected function getNotifier()
-    {
-        return new ToasterNotifier();
-    }
+    const BINARY = 'toast';
 
     public function testGetBinary()
     {
@@ -40,13 +34,18 @@ class ToasterNotifierTest extends NotifierTestCase
         $this->assertSame(Notifier::PRIORITY_MEDIUM, $notifier->getPriority());
     }
 
+    protected function getNotifier()
+    {
+        return new ToasterNotifier();
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function getExpectedCommandLineForNotification()
     {
-        return <<<CLI
-'toast' '-m' 'I'\\''m the notification body'
+        return <<<'CLI'
+'toast' '-m' 'I'\''m the notification body'
 CLI;
     }
 
@@ -65,8 +64,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAnIcon()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'toast' '-m' 'I'\''m the notification body' '-p' '/home/toto/Images/my-icon.png'
+'toast' '-m' 'I'\''m the notification body' '-p' '${iconDir}/image.gif'
 CLI;
     }
 
@@ -75,8 +76,10 @@ CLI;
      */
     protected function getExpectedCommandLineForNotificationWithAllOptions()
     {
+        $iconDir = $this->getIconDir();
+
         return <<<CLI
-'toast' '-m' 'I'\''m the notification body' '-t' 'I'\''m the notification title' '-p' '/home/toto/Images/my-icon.png'
+'toast' '-m' 'I'\''m the notification body' '-t' 'I'\''m the notification title' '-p' '${iconDir}/image.gif'
 CLI;
     }
 }

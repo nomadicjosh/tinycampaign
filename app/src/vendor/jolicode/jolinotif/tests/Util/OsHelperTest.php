@@ -12,8 +12,9 @@
 namespace Joli\JoliNotif\tests\Util;
 
 use Joli\JoliNotif\Util\OsHelper;
+use PHPUnit\Framework\TestCase;
 
-class OsHelperTest extends \PHPUnit_Framework_TestCase
+class OsHelperTest extends TestCase
 {
     public function testIsUnix()
     {
@@ -66,7 +67,7 @@ class OsHelperTest extends \PHPUnit_Framework_TestCase
 
     public function testIsMacOS()
     {
-        $uname    = php_uname();
+        $uname = php_uname();
         $isDarwin = 'Darwin' === substr($uname, 0, 6);
 
         $this->assertSame($isDarwin, OsHelper::isMacOS());

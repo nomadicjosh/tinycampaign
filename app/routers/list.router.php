@@ -227,7 +227,7 @@ $app->group('/list', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -239,7 +239,7 @@ $app->group('/list', function() use ($app) {
 
     $app->get('/(\d+)/subscriber/', function ($id) use($app) {
         try {
-            $subs = $app->db->subscriber()
+            $subscribers = $app->db->subscriber()
                 ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                 ->select('subscriber.addDate,subscriber.id as Subscriber')
                 ->select('subscriber_list.unsubscribed')
@@ -247,8 +247,19 @@ $app->group('/list', function() use ($app) {
                 ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                 ->_join('list', 'subscriber_list.lid = list.id')
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.id = ?', $id)
-                ->find();
+                ->where('list.id = ?', $id);
+
+            $subs = tc_cache_get('list_subscribers_' . $id, 'list_subscribers');
+            if (empty($subs)) {
+                $subs = $subscribers->find(function ($data) {
+                    $array = [];
+                    foreach ($data as $d) {
+                        $array[] = $d;
+                    }
+                    return $array;
+                });
+                tc_cache_add('list_subscribers_' . $id, $subs, 'list_subscribers');
+            }
 
             $list = $app->db->list()
                 ->select('list.name,list.id')
@@ -296,13 +307,13 @@ $app->group('/list', function() use ($app) {
 
             $app->view->display('list/subscriber', [
                 'title' => _t('Subscribers'),
-                'subs' => $subs,
+                'subs' => array_to_object($subs),
                 'list' => $list
                 ]
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -348,6 +359,8 @@ $app->group('/list', function() use ($app) {
                         ]);
                     }
                     fclose($handle);
+                    tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
+                    tc_cache_flush_namespace('list_subscribers');
                     _tc_flash()->success(_t('Subscribers were imported successfully.'));
                 } else {
                     _tc_flash()->error(_t('Your .csv file was empty or missing.'));
@@ -413,7 +426,7 @@ $app->group('/list', function() use ($app) {
             );
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -456,7 +469,7 @@ $app->group('/list', function() use ($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
-    
+
     /**
      * Before route check.
      */
@@ -536,7 +549,7 @@ $app->group('/list', function() use ($app) {
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
     });
-    
+
     /**
      * Before route check.
      */
@@ -555,6 +568,46 @@ $app->group('/list', function() use ($app) {
             'title' => 'elfinder 2.0'
             ]
         );
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/(\d+)/subscriber/(\d+)/d/', function($lid) {
+        if (!hasPermission('delete_subscriber')) {
+            _tc_flash()->error(_t('You lack the proper permission to delete subscribers.'), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/subscriber/(\d+)/d/', function ($lid, $sid) use($app) {
+        try {
+            $sub = $app->db->list()
+                ->select('subscriber_list.id AS slID')
+                ->_join('subscriber_list', 'list.id = subscriber_list.lid')
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where('list.id = ?', $lid)->_and_()
+                ->where('subscriber_list.sid = ?', $sid)
+                ->findOne();
+
+            if ($sub->count() > 0) {
+                $app->db->subscriber_list()
+                    ->reset()
+                    ->findOne(_h($sub->slID))
+                    ->delete();
+            }
+
+            tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
+            tc_cache_flush_namespace('list_subscribers');
+            tc_cache_delete($lid, 'list');
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        }
     });
 
     /**
@@ -584,10 +637,10 @@ $app->group('/list', function() use ($app) {
                     ->findOne(_h($cl->cid))
                     ->delete();
             }
-            
+
             try {
                 app\src\NodeQ\tc_NodeQ::table('campaign_queue')
-                    ->where('lid','=',$id)
+                    ->where('lid', '=', $id)
                     ->delete();
             } catch (app\src\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
@@ -600,14 +653,16 @@ $app->group('/list', function() use ($app) {
                 ->findOne(_h($list->id))
                 ->delete();
 
+            tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
+            tc_cache_flush_namespace('list_subscribers');
             tc_cache_delete($id, 'list');
-            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         }
     });
 });
