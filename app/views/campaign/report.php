@@ -72,13 +72,18 @@ define('SCREEN', 'cpgn');
                         </tr>
                         
                         <tr class="gradeX">
-                            <td class="text-center"><strong><?=_t('Bounces');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=_h((int)$cpgn->bounces);?></span></td>
+                            <td class="text-center"><strong><?=_t('Bounced');?></strong></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->bounces) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/bounced/">'._h($unique_bounces).'</a>' : 0);?></span></td>
+                        </tr>
+                        
+                        <tr class="gradeX">
+                            <td class="text-center"><strong><?=_t('% Bounced');?></strong></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=($unique_bounces > 0 ? percent($unique_bounces, _h((int)$cpgn->recipients)) : 0);?>%</span></td>
                         </tr>
                         
                         <tr class="gradeX">
                             <td class="text-center"><strong><?=_t('Opened');?></strong></td>
-                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h($unique_opens).'</a>' : _h((int)$cpgn->viewed));?></span></td>
+                            <td class="text-center"><span class="label bg-gray" style="font-size:1em;font-weight: bold;"><?=(_h((int)$cpgn->viewed) > 0 ? '<a href="'.get_base_url().'campaign'.'/'._h((int)$cpgn->id).'/report/opened/">'._h($unique_opens).'</a>' : 0);?></span></td>
                         </tr>
                         
                         <tr class="gradeX">

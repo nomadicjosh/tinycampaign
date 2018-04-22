@@ -5,6 +5,7 @@ use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\NodeQ\NodeQException;
+use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
 use Cascade\Cascade;
@@ -1177,8 +1178,8 @@ function tc_smtp($tcMailer)
     if (_h(get_option('tc_smtp_host')) && _h(get_option('tc_smtp_host')) != '' && _h(get_option('tc_smtp_status')) == 1) {
 
         try {
-            $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
-        } catch (app\src\NodeQ\NodeQException $e) {
+            $node = Node::table('php_encryption')->find(1);
+        } catch (NodeQException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (NotFoundException $e) {
             _tc_flash()->{'error'}($e->getMessage());
@@ -1190,7 +1191,7 @@ function tc_smtp($tcMailer)
             $password = Crypto::decrypt(_h(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
             _tc_flash()->{'error'}($e->getMessage());
-        } catch (app\src\Exception\Exception $e) {
+        } catch (Exception $e) {
             _tc_flash()->{'error'}($e->getMessage());
         }
 
@@ -1220,6 +1221,81 @@ function tc_smtp($tcMailer)
 }
 
 /**
+ * Function used for sending test email.
+ * 
+ * @since 2.0.5
+ * @param object $data Object of info passed to PHPMailer.
+ * @param string $to Email recipient.
+ * @param string $subject Email subject.
+ * @param string $html HTML version of the email message.
+ * @param string $text Text version of the email message.
+ * @param object $message Object of \app\src\tc_Queue().
+ */
+function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = '')
+{
+    $app = \Liten\Liten::getInstance();
+
+    if (is_object($data)) {
+        try {
+            $node = Node::table('php_encryption')->find(1);
+        } catch (NodeQException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (NotFoundException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        }
+
+        try {
+            $password = Crypto::decrypt(_h($data->password), Key::loadFromAsciiSafeString($node->key));
+        } catch (Defuse\Crypto\Exception\BadFormatException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        }
+
+        try {
+            $tcMailer = _tc_phpmailer(true);
+            $tcMailer->Mailer = "smtp";
+            $tcMailer->ContentType = "text/html";
+            $tcMailer->CharSet = "UTF-8";
+            $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
+            $tcMailer->addCustomHeader('X-Campaign-Id', $data->xcampaignid);
+            $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
+            $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
+            $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
+            $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
+            $tcMailer->From = _h($data->femail);
+            $tcMailer->FromName = _h($data->fname);
+            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
+            $tcMailer->AddReplyTo(_h($data->remail), _h($data->rname)); // Reply-To
+            $tcMailer->addAddress($to);
+            $tcMailer->Subject = $subject;
+            $tcMailer->Body = $html;
+            $tcMailer->AltBody = $text;
+            $tcMailer->isHTML(true);
+            $tcMailer->Host = _h($data->hname);
+            $tcMailer->SMTPSecure = _h($data->protocol);
+            $tcMailer->Port = _h($data->port);
+            $tcMailer->SMTPAuth = true;
+            $tcMailer->Username = _h($data->uname);
+            $tcMailer->Password = $password;
+            if ($tcMailer->send()) {
+                _tc_flash()->{'success'}(_t('Email Sent.'));
+            }
+            $tcMailer->ClearAddresses();
+            $tcMailer->ClearAttachments();
+        } catch (phpmailerException $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        } catch (\app\src\Exception\Exception $e) {
+            _tc_flash()->{'error'}($e->getMessage());
+        }
+    }
+}
+
+/**
  * Function used for multiple sending servers.
  * 
  * @since 2.0.1
@@ -1236,8 +1312,8 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
 
     if (is_object($data)) {
         try {
-            $node = app\src\NodeQ\tc_NodeQ::table('php_encryption')->find(1);
-        } catch (app\src\NodeQ\NodeQException $e) {
+            $node = Node::table('php_encryption')->find(1);
+        } catch (NodeQException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (NotFoundException $e) {
             _tc_flash()->{'error'}($e->getMessage());
@@ -1251,7 +1327,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
             _tc_flash()->{'error'}($e->getMessage());
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
             _tc_flash()->{'error'}($e->getMessage());
-        } catch (app\src\Exception\Exception $e) {
+        } catch (Exception $e) {
             _tc_flash()->{'error'}($e->getMessage());
         }
 
@@ -1398,7 +1474,8 @@ function send_campaign_to_queue($cpgn)
         try {
             $upd = $app->db->campaign();
             $upd->set([
-                    'status' => 'processing'
+                    'status' => 'processing',
+                    'last_queued' => Jenssegers\Date\Date::now()
                 ])
                 ->where('id = ?', _h($cpgn->id))
                 ->update();
@@ -1464,6 +1541,7 @@ $app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
 $app->hook->{'add_action'}('tcMailer_init', 'tc_smtp', 5, 1);
 $app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
 $app->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
+$app->hook->{'add_action'}('tinyc_test_email_init', 'tinyc_test_email', 5, 6);
 $app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
 $app->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
 $app->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
