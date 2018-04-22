@@ -103,7 +103,7 @@ define('SCREEN', 'general');
                             
                             <div class="form-group">
                                 <label><?= _t('Mailing Address'); ?></label>
-                                <textarea class="form-control" rows="3" name="mailing_address"></textarea>
+                                <textarea class="form-control" rows="3" name="mailing_address"><?=_h(get_option('mailing_address'));?>"</textarea>
                             </div>
                             
                             <div class="form-group">
