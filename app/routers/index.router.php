@@ -241,8 +241,7 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
             $role->insert([
                     'roleName' => $app->req->post['roleName'],
                     'permission' => maybe_serialize($app->req->post['permission'])
-                ])
-                ->save();
+                ]);
 
             $ID = $role->lastInsertId();
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
