@@ -248,8 +248,8 @@ $app->group('/list', function() use ($app) {
                 ->_join('list', 'subscriber_list.lid = list.id')
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where('list.id = ?', $id);
-            
-            $subs = tc_cache_get('list_subscribers_'.$id, 'list_subscribers');
+
+            $subs = tc_cache_get('list_subscribers_' . $id, 'list_subscribers');
             if (empty($subs)) {
                 $subs = $subscribers->find(function ($data) {
                     $array = [];
@@ -258,9 +258,9 @@ $app->group('/list', function() use ($app) {
                     }
                     return $array;
                 });
-                tc_cache_add('list_subscribers_'.$id, $subs, 'list_subscribers');
+                tc_cache_add('list_subscribers_' . $id, $subs, 'list_subscribers');
             }
-            
+
             $list = $app->db->list()
                 ->select('list.name,list.id')
                 ->where('list.id = ?', $id)
@@ -359,7 +359,7 @@ $app->group('/list', function() use ($app) {
                         ]);
                     }
                     fclose($handle);
-                    tc_cache_flush_namespace('my_subscribers_'.get_userdata('id'));
+                    tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
                     tc_cache_flush_namespace('list_subscribers');
                     _tc_flash()->success(_t('Subscribers were imported successfully.'));
                 } else {
@@ -573,6 +573,46 @@ $app->group('/list', function() use ($app) {
     /**
      * Before route check.
      */
+    $app->before('GET', '/(\d+)/subscriber/(\d+)/d/', function($lid) {
+        if (!hasPermission('delete_subscriber')) {
+            _tc_flash()->error(_t('You lack the proper permission to delete subscribers.'), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/subscriber/(\d+)/d/', function ($lid, $sid) use($app) {
+        try {
+            $sub = $app->db->list()
+                ->select('subscriber_list.id AS slID')
+                ->_join('subscriber_list', 'list.id = subscriber_list.lid')
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where('list.id = ?', $lid)->_and_()
+                ->where('subscriber_list.sid = ?', $sid)
+                ->findOne();
+
+            if ($sub->count() > 0) {
+                $app->db->subscriber_list()
+                    ->reset()
+                    ->findOne(_h($sub->slID))
+                    ->delete();
+            }
+
+            tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
+            tc_cache_flush_namespace('list_subscribers');
+            tc_cache_delete($lid, 'list');
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $lid . '/' . 'subscriber' . '/');
+        }
+    });
+
+    /**
+     * Before route check.
+     */
     $app->before('GET', '/(\d+)/d/', function() {
         if (!hasPermission('delete_email_list')) {
             _tc_flash()->error(_t('You lack the proper permission to delete an email list.'), get_base_url() . 'list' . '/');
@@ -613,16 +653,16 @@ $app->group('/list', function() use ($app) {
                 ->findOne(_h($list->id))
                 ->delete();
 
-            tc_cache_flush_namespace('my_subscribers_'.get_userdata('id'));
+            tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
             tc_cache_flush_namespace('list_subscribers');
             tc_cache_delete($id, 'list');
-            _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error($e->getMessage(), get_base_url() . 'list' . '/' . $id . '/' . 'subscriber' . '/');
         }
     });
 });
