@@ -197,7 +197,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
     });
 
-    $app->get('/(\d+)/reset/', function ($id) use($app) {
+    $app->get('/(\d+)/reset/', function ($id) {
         try {
             $reset = Node::table('cronjob_handler')->find($id);
             $reset->runned = (int) 0;
@@ -339,93 +339,129 @@ $app->group('/cron', function () use($app, $css, $js) {
         try {
             $setting = Node::table('cronjob_setting')->find(1);
             $cron = Node::table('cronjob_handler')->where('status', '=', (int) 1)->findAll();
-        } catch (NodeQException $e) {
-            _tc_flash()->error($e->getMessage());
-        }
 
-        if (!isset($app->req->get['password']) && !isset($argv[1])) {
-            Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
-            exit(_t('No cronjob handler password found, use cronjob?password=<yourpassword>.'));
-        } elseif (isset($app->req->get['password']) && $app->req->get['password'] != _h($setting->cronjobpassword)) {
-            Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid $_GET password')));
-            exit(_t('Invalid $_GET password'));
-        } elseif (_h($setting->cronjobpassword) == 'changeme') {
-            Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Cronjob handler password needs to be changed.')));
-            exit(_t('Cronjob handler password needs to be changed.'));
-        } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != _h($setting->cronjobpassword))) {
-            Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid argument password (password=yourpassword)')));
-            exit(_t('Invalid argument password (password=yourpassword)'));
-        }
+            if (!isset($app->req->get['password']) && !isset($argv[1])) {
+                Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
+                exit(_t('No cronjob handler password found, use cronjob?password=<yourpassword>.'));
+            } elseif (isset($app->req->get['password']) && $app->req->get['password'] != _h($setting->cronjobpassword)) {
+                Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid $_GET password')));
+                exit(_t('Invalid $_GET password'));
+            } elseif (_h($setting->cronjobpassword) == 'changeme') {
+                Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Cronjob handler password needs to be changed.')));
+                exit(_t('Cronjob handler password needs to be changed.'));
+            } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != _h($setting->cronjobpassword))) {
+                Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid argument password (password=yourpassword)')));
+                exit(_t('Invalid argument password (password=yourpassword)'));
+            }
 
-        if (isset($run) && $run == true) {
-            exit(_t('Cronjob already running'));
-        }
+            if (isset($run) && $run == true) {
+                exit(_t('Cronjob already running'));
+            }
 
-        $run = true;
+            $run = true;
 
-        if (is_object($cron) && count($cron) > 0) {
-            $d = Jenssegers\Date\Date::now();
-            // execute only one job and then exit
-            foreach ($cron as $job) {
+            if (is_object($cron) && count($cron) > 0) {
+                $d = Jenssegers\Date\Date::now();
+                // execute only one job and then exit
+                foreach ($cron as $job) {
 
-                if (isset($app->req->get['id']) && _h($job->id) == $app->req->get['id']) {
-                    $run = true;
-                } else {
-                    $run = false;
-                    if ($job->time != '') {
-                        if (substr(_h($job->lastrun), 0, 10) != $d) {
-                            if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . _h($job->time))) {
-                                $run = true;
-                            }
-                        }
-                    } elseif ($job->each > 0) {
-                        if (strtotime(_h($job->lastrun)) + _h($job->each) < strtotime($d)) {
-                            $run = true;
-                            // if time set, daily after time...
-                            if (_h($job->each) > (60 * 60 * 24) && strlen(_h($job->eachtime)) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . _h($job->eachtime))) {
-                                // only run 'today' at or after give time.
-                                $run = false;
-                            }
-                        }
-                    } elseif (substr(_h($job->lastrun), 0, 10) != $d->format('Y-m-d')) {
+                    if (isset($app->req->get['id']) && _h($job->id) == $app->req->get['id']) {
                         $run = true;
-                    }
-                }
-
-                if ($run == true) {
-                    // save as executed
-                    echo _t('Running: ') . _h($job->url) . PHP_EOL . PHP_EOL;
-
-                    try {
-                        $upd = Node::table('cronjob_handler')->find(_h($job->id));
-                        $upd->lastrun = $d->format('Y-m-d H:i:s');
-                        $upd->runned ++;
-                        $upd->save();
-                    } catch (NodeQException $e) {
-                        Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
-                    }
-
-                    echo _t('Connecting to cronjob') . PHP_EOL . PHP_EOL;
-
-                    // execute cronjob
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, _h($job->url));
-                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, (!empty($setting->timeout) ? $setting->timeout : 5));
-
-                    curl_exec($ch);
-
-                    if (curl_errno($ch)) {
-                        Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[400]: Bad request: %s', curl_error($ch)));
-                        echo _t('Cronjob error: ') . curl_error($ch) . PHP_EOL;
                     } else {
-                        echo _t('Cronjob data loaded') . PHP_EOL;
+                        $run = false;
+                        if ($job->time != '') {
+                            if (substr(_h($job->lastrun), 0, 10) != $d) {
+                                if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . _h($job->time))) {
+                                    $run = true;
+                                }
+                            }
+                        } elseif ($job->each > 0) {
+                            if (strtotime(_h($job->lastrun)) + _h($job->each) < strtotime($d)) {
+                                $run = true;
+                                // if time set, daily after time...
+                                if (_h($job->each) > (60 * 60 * 24) && strlen(_h($job->eachtime)) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . _h($job->eachtime))) {
+                                    // only run 'today' at or after give time.
+                                    $run = false;
+                                }
+                            }
+                        } elseif (substr(_h($job->lastrun), 0, 10) != $d->format('Y-m-d')) {
+                            $run = true;
+                        }
                     }
 
-                    curl_close($ch);
+                    if ($run == true) {
+                        // save as executed
+                        echo _t('Running: ') . _h($job->url) . PHP_EOL . PHP_EOL;
+
+                        try {
+                            $upd = Node::table('cronjob_handler')->find(_h($job->id));
+                            $upd->lastrun = $d->format('Y-m-d H:i:s');
+                            $upd->runned ++;
+                            $upd->save();
+                        } catch (NodeQException $e) {
+                            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+                        }
+
+                        echo _t('Connecting to cronjob') . PHP_EOL . PHP_EOL;
+
+                        // execute cronjob
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, _h($job->url));
+                        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_TIMEOUT, (!empty($setting->timeout) ? $setting->timeout : 5));
+
+                        curl_exec($ch);
+
+                        if (curl_errno($ch)) {
+                            Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[400]: Bad request: %s', curl_error($ch)));
+                            echo _t('Cronjob error: ') . curl_error($ch) . PHP_EOL;
+                        } else {
+                            echo _t('Cronjob data loaded') . PHP_EOL;
+                        }
+
+                        curl_close($ch);
+                    }
                 }
             }
+        } catch (NodeQException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        }
+    });
+
+    $app->before('POST|PUT|DELETE|OPTIONS', '/master/', function () use($app) {
+        header('Content-Type: application/json');
+        $app->res->_format('json', 404);
+        exit();
+    });
+
+    $app->get('/master/', function () {
+        $jobby = new \Jobby\Jobby();
+
+        try {
+            $setting = Node::table('cronjob_setting')->find(1);
+
+            // Every job has a name
+            $jobby->add('MasterCronJob', [
+                // Run a shell command
+                'command' => '/usr/bin/curl -s ' . get_base_url() . 'cron/cronjob/?password=' . _h($setting->cronjobpassword),
+                // Ordinary crontab schedule format is supported.
+                // This schedule runs every 5 minutes.
+                // You could also insert DateTime string in the format of Y-m-d H:i:s.
+                'schedule' => '*/5 * * * *',
+                // Stdout and stderr is sent to the specified file
+                'output' => APP_PATH . 'tmp/logs/tc-error-' . Jenssegers\Date\Date::now()->format('Y-m-d') . '.txt',
+                // You can turn off a job by setting 'enabled' to false
+                'enabled' => true,
+            ]);
+
+            $jobby->run();
+        } catch (NodeQException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     });
 
@@ -440,9 +476,9 @@ $app->group('/cron', function () use($app, $css, $js) {
                 ->delete();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
-        } catch (Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
+            Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         }
 
@@ -551,6 +587,10 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
+                        $msg = str_replace('{list_id}', $message->getListId(), $msg);
+                        $msg = str_replace('{subscriber_id}', $message->getSubscriberId(), $msg);
+                        $msg = str_replace('{subscriber_code}', _h($sub->code), $msg);
+                        $msg = str_replace('{campaign_id}', $message->getMessageId(), $msg);
                         $msg = str_replace('{subject}', _h($cpgn->subject), $msg);
                         $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . _h($cpgn->id) . '/">' . _t('View this email in your browser') . '</a>', $msg);
                         $msg = str_replace('{first_name}', _h($sub->fname), $msg);
@@ -606,9 +646,9 @@ $app->group('/cron', function () use($app, $css, $js) {
             }
         } catch (NotFoundException $e) {
             Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
-        } catch (Exception $e) {
-            Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
+            Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
+        } catch (Exception $e) {
             Cascade::getLogger('system_email')->alert(sprintf('QUEUESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
         }
     });
@@ -636,7 +676,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         $time_start = microtime_float();
 
         $bmh = new app\src\tc_BounceHandler();
-        $bmh->actionFunction = 'callbackAction'; // default is 'bounce_callback_action'
+        $bmh->actionFunction = 'bounce_callback_action'; // default is 'bounce_callback_action'
         $bmh->verbose = app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_REPORT; //app\src\tc_BounceHandler::VERBOSE_DEBUG; //app\src\tc_BounceHandler::VERBOSE_QUIET; // default is BounceMailHandler::VERBOSE_SIMPLE
         //$bmh->useFetchStructure  = true; // true is default, no need to specify
         //$bmh->testMode           = false; // false is default, no need to specify
