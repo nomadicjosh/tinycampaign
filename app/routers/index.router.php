@@ -708,7 +708,7 @@ $app->before('GET|POST', '/server/(\d+)/test/', function() use($app) {
 
 $app->match('GET|POST', '/server/(\d+)/test/', function ($id) use($app) {
     $server = get_server_info($id);
-    $app->hook->{'do_action_array'}('tinyc_email_init', [$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
+    $app->hook->{'do_action_array'}('tinyc_test_email_init', [$server, $app->req->post['to_email'], $app->req->post['subject'], $app->req->post['message'], '']);
     redirect($app->req->server['HTTP_REFERER']);
 });
 
