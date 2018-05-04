@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'tubalmartin\\CssMin\\' => array($vendorDir . '/tubalmartin/cssmin/src'),
     'VisualAppeal\\' => array($vendorDir . '/visualappeal/php-auto-update/src'),
     'Symfony\\Polyfill\\Util\\' => array($vendorDir . '/symfony/polyfill-util'),
     'Symfony\\Polyfill\\Php56\\' => array($vendorDir . '/symfony/polyfill-php56'),
@@ -23,12 +24,17 @@ return array(
     'Stolz\\Assets\\' => array($vendorDir . '/stolz/assets/src'),
     'Respect\\Validation\\' => array($vendorDir . '/respect/validation/library'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'Phinx\\' => array($vendorDir . '/robmorgan/phinx/src/Phinx'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+    'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-client/src', $vendorDir . '/league/oauth2-google/src'),
     'Joli\\JoliNotif\\' => array($vendorDir . '/jolicode/jolinotif/src'),
     'Jobby\\' => array($vendorDir . '/hellogerard/jobby/src'),
     'Jenssegers\\Date\\' => array($vendorDir . '/jenssegers/date/src'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
+    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Gettext\\Languages\\' => array($vendorDir . '/gettext/languages/src'),
     'Gettext\\' => array($vendorDir . '/gettext/gettext/src'),
     'Egulias\\EmailValidator\\' => array($vendorDir . '/egulias/email-validator/EmailValidator'),
