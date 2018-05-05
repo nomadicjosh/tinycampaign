@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -22,8 +23,8 @@ function role_perm($id = null)
 
     try {
         $role = $app->db->role()
-            ->select('role.permission')
-            ->where('role.id = ?', $id);
+                ->select('role.permission')
+                ->where('role.id = ?', $id);
         $q1 = $role->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -112,7 +113,7 @@ function user_permission($id = null)
          */
         $array2 = [];
         $role = $app->db->query("SELECT permission from role WHERE id = ?", [
-            _h($r1['roleID'])
+            _escape($r1['roleID'])
         ]);
         $q2 = $role->find(function ($data) {
             $array = [];
@@ -181,7 +182,7 @@ function get_name($id)
 
     $name = get_user_by('id', $id);
 
-    return _h($name->fname) . ' ' . _h($name->lname);
+    return _escape($name->fname) . ' ' . _escape($name->lname);
 }
 
 /**
@@ -212,9 +213,9 @@ function get_initials($id, $initials = 2)
     $name = get_user_by('id', $id);
 
     if ($initials == 2) {
-        return mb_substr(_h($name->fname), 0, 1, 'UTF-8') . '. ' . mb_substr(_h($name->lname), 0, 1, 'UTF-8') . '.';
+        return mb_substr(_escape($name->fname), 0, 1, 'UTF-8') . '. ' . mb_substr(_escape($name->lname), 0, 1, 'UTF-8') . '.';
     } else {
-        return _h($name->lname) . ', ' . mb_substr(_h($name->fname), 0, 1, 'UTF-8') . '.';
+        return _escape($name->lname) . ', ' . mb_substr(_escape($name->fname), 0, 1, 'UTF-8') . '.';
     }
 }
 
@@ -248,7 +249,7 @@ function get_perm_roles()
     try {
         $role = $app->db->role()->find();
         foreach ($role as $r) {
-            echo '<option value="' . _h($r->id) . '">' . _h($r->roleName) . '</option>' . "\n";
+            echo '<option value="' . _escape($r->id) . '">' . _escape($r->roleName) . '</option>' . "\n";
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -270,10 +271,10 @@ function get_user_roles($active = null)
     $app = \Liten\Liten::getInstance();
     try {
         $roles = $app->db->role()
-            ->find();
+                ->find();
 
         foreach ($roles as $role) {
-            echo '<option value="' . $role->id . '"' . selected($active, _h($role->id), false) . '>' . _h($role->roleName) . '</option>';
+            echo '<option value="' . $role->id . '"' . selected($active, _escape($role->id), false) . '>' . _escape($role->roleName) . '</option>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -298,9 +299,9 @@ function get_user_lists($active = null)
     try {
         $in = "'" . implode("','", get_subscriber_list_id($active)) . "'";
         $lists = $app->db->list()
-            ->where('list.owner = ?', get_userdata('id'))->_and_()
-            ->where("(list.status = 'open' OR list.id IN($in))")
-            ->find();
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where("(list.status = 'open' OR list.id IN($in))")
+                ->find();
 
         foreach ($lists as $list) {
             if (in_array($list->id, get_subscriber_list_id($active))) {
@@ -323,10 +324,10 @@ function get_user_servers($active = null)
     $app = \Liten\Liten::getInstance();
     try {
         $servers = $app->db->server()
-            ->where('owner = ?', get_userdata('id'))
-            ->find();
+                ->where('owner = ?', get_userdata('id'))
+                ->find();
         foreach ($servers as $server) {
-            echo '<option value="' . $server->id . '"' . selected($active, _h($server->id), false) . '>' . _h($server->name) . '</option>';
+            echo '<option value="' . $server->id . '"' . selected($active, _escape($server->id), false) . '>' . _escape($server->name) . '</option>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());

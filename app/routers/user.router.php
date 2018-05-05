@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\NodeQ\tc_NodeQ as Node;
@@ -23,10 +24,10 @@ $app->group('/user', function() use ($app) {
     $app->get('/', function () use($app) {
         try {
             $users = $app->db->user()
-                ->select('user.*, role.roleName,role.permission')
-                ->_join('role', 'user.roleID = role.id')
-                ->where('user.id <> "1"')
-                ->find();
+                    ->select('user.*, role.roleName,role.permission')
+                    ->_join('role', 'user.roleID = role.id')
+                    ->where('user.id <> "1"')
+                    ->find();
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -43,7 +44,7 @@ $app->group('/user', function() use ($app) {
         $app->view->display('user/index', [
             'title' => _t('Manage Users'),
             'users' => $users
-            ]
+                ]
         );
     });
 
@@ -113,7 +114,7 @@ $app->group('/user', function() use ($app) {
 
         $app->view->display('user/add', [
             'title' => _t('Add New User')
-            ]
+                ]
         );
     });
 
@@ -166,7 +167,7 @@ $app->group('/user', function() use ($app) {
                  */
                 $app->hook->do_action('update_user_db_table', $user);
                 $user->where('id = ?', $id)
-                    ->update();
+                        ->update();
 
                 /**
                  * Fires after user record has been updated.
@@ -209,7 +210,7 @@ $app->group('/user', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (_h($user->id) <= 0) {
+         */ elseif (_escape($user->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -224,7 +225,7 @@ $app->group('/user', function() use ($app) {
             $app->view->display('user/view', [
                 'title' => _t('View/Edit User'),
                 'user' => $user
-                ]
+                    ]
             );
         }
     });
@@ -263,14 +264,14 @@ $app->group('/user', function() use ($app) {
                 $user->country = if_null($app->req->post['country']);
                 $user->LastUpdate = \Jenssegers\Date\Date::now()->format('Y-m-d h:i:s');
                 $user->where('id = ?', get_userdata('id'))
-                    ->update();
+                        ->update();
 
                 if (isset($app->req->post['password'])) {
                     try {
                         $user = $app->db->user();
                         $user->password = tc_hash_password($app->req->post['password']);
                         $user->where('id = ?', get_userdata('id'))
-                            ->update();
+                                ->update();
                     } catch (NotFoundException $e) {
                         _tc_flash()->error($e->getMessage());
                     } catch (Exception $e) {
@@ -300,7 +301,7 @@ $app->group('/user', function() use ($app) {
         $app->view->display('user/profile', [
             'title' => _t('View/Edit Profile'),
             'user' => $user
-            ]
+                ]
         );
     });
 
@@ -358,7 +359,7 @@ $app->group('/user', function() use ($app) {
             ]);
         } /**
          * If data is zero, 404 not found.
-         */ elseif (_h($user->id) <= 0) {
+         */ elseif (_escape($user->id) <= 0) {
 
             $app->view->display('error/404', [
                 'title' => '404 Error'
@@ -398,8 +399,8 @@ $app->group('/user', function() use ($app) {
                 'key' => 'SWITCH_USERBACK',
                 'id' => get_userdata('id'),
                 'uname' => get_userdata('uname'),
-                'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-                'exp' => _h(get_option('cookieexpire')) + time()
+                'remember' => (_escape(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+                'exp' => _escape(get_option('cookieexpire')) + time()
             ];
             $app->cookies->setSecureCookie($switch_cookie);
         }
@@ -428,8 +429,8 @@ $app->group('/user', function() use ($app) {
             'key' => 'TC_COOKIENAME',
             'id' => $id,
             'uname' => get_user_value($id, 'uname'),
-            'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-            'exp' => _h(get_option('cookieexpire')) + time()
+            'remember' => (_escape(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+            'exp' => _escape(get_option('cookieexpire')) + time()
         ];
 
         $app->cookies->setSecureCookie($auth_cookie);
@@ -492,8 +493,8 @@ $app->group('/user', function() use ($app) {
             'key' => 'TC_COOKIENAME',
             'id' => $id,
             'uname' => get_user_value($id, 'uname'),
-            'remember' => (_h(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
-            'exp' => _h(get_option('cookieexpire')) + time()
+            'remember' => (_escape(get_option('cookieexpire')) - time() > 86400 ? _t('yes') : _t('no')),
+            'exp' => _escape(get_option('cookieexpire')) + time()
         ];
         $app->cookies->setSecureCookie($switch_cookie);
         redirect(get_base_url() . 'dashboard' . '/');
@@ -517,13 +518,13 @@ $app->group('/user', function() use ($app) {
 
         try {
             $cpgns = $app->db->campaign()
-                ->where('owner = ?', $id)
-                ->find();
+                    ->where('owner = ?', $id)
+                    ->find();
             foreach ($cpgns as $cpgn) {
                 try {
                     Node::table('campaign_queue')
-                        ->where('cid', '=', _h($cpgn->id))
-                        ->delete();
+                            ->where('cid', '=', _escape($cpgn->id))
+                            ->delete();
                 } catch (NodeQException $e) {
                     _tc_flash()->error($e->getMessage());
                 } catch (Exception $e) {
@@ -532,11 +533,11 @@ $app->group('/user', function() use ($app) {
             }
 
             $app->db->user()
-                ->where('id = ?', $id)->_and_()
-                ->where('id <> ?', get_userdata('id'))
-                ->reset()
-                ->findOne($id)
-                ->delete();
+                    ->where('id = ?', $id)->_and_()
+                    ->where('id <> ?', get_userdata('id'))
+                    ->reset()
+                    ->findOne($id)
+                    ->delete();
 
             tc_cache_delete($id, 'user');
             tc_cache_flush_namespace('list');

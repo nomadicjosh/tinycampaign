@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -59,7 +60,7 @@ function table_dropdown($table, $where = null, $id, $code, $name, $activeID = nu
         });
 
         foreach ($q as $r) {
-            echo '<option value="' . _h($r[$code]) . '"' . selected($activeID, _h($r[$code]), false) . '>' . _h($r[$code]) . ' ' . _h($r[$name]) . '</option>' . "\n";
+            echo '<option value="' . _escape($r[$code]) . '"' . selected($activeID, _escape($r[$code]), false) . '>' . _escape($r[$code]) . ' ' . _escape($r[$name]) . '</option>' . "\n";
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -166,7 +167,7 @@ function qt($table, $field, $where = null)
         $query->find();
 
         foreach ($query as $r) {
-            return _h($r->{$field});
+            return _escape($r->{$field});
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -189,8 +190,8 @@ function get_subscriber_list_id($id)
     $app = \Liten\Liten::getInstance();
     try {
         $q = $app->db->subscriber_list()
-            ->where('sid = ?', $id)->_and_()
-            ->where('unsubscribed = "0"');
+                ->where('sid = ?', $id)->_and_()
+                ->where('unsubscribed = "0"');
 
         $slist = tc_cache_get($id, 'slist');
         if (empty($slist)) {
@@ -231,9 +232,9 @@ function get_campaign_lists($active = null)
     try {
         $in = "'" . implode("','", get_campaign_list_id($active)) . "'";
         $lists = $app->db->list()
-            ->where('list.owner = ?', get_userdata('id'))->_and_()
-            ->where("(list.status = 'open' OR list.id IN($in))")
-            ->find();
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where("(list.status = 'open' OR list.id IN($in))")
+                ->find();
 
         foreach ($lists as $list) {
             if (in_array($list->id, get_campaign_list_id($active))) {
@@ -263,7 +264,7 @@ function get_campaign_list_id($id)
     $app = \Liten\Liten::getInstance();
     try {
         $q = $app->db->campaign_list()
-            ->where('cid = ?', $id);
+                ->where('cid = ?', $id);
 
         $cpgn = tc_cache_get($id, 'clist');
         if (empty($cpgn)) {
@@ -303,8 +304,8 @@ function get_server_info($id)
     $app = \Liten\Liten::getInstance();
     try {
         $server = $app->db->server()
-            ->where('id = ?', $id)
-            ->findOne();
+                ->where('id = ?', $id)
+                ->findOne();
 
         return $server;
     } catch (NotFoundException $e) {

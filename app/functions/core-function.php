@@ -1119,7 +1119,7 @@ function tc_field_css_class($element)
 {
     $app = \Liten\Liten::getInstance();
 
-    if (_h(get_option($element)) == 'hide') {
+    if (_escape(get_option($element)) == 'hide') {
         return $app->hook->{'apply_filter'}('field_css_class', " $element");
     }
 }
@@ -1227,8 +1227,8 @@ function template_vars_replacement($template)
     $app = \Liten\Liten::getInstance();
 
     $var_array = [
-        'system_name' => _h(get_option('system_name')),
-        'address' => _h(get_option('mailing_address'))
+        'system_name' => _escape(get_option('system_name')),
+        'address' => _escape(get_option('mailing_address'))
     ];
 
     $to_replace = $app->hook->{'apply_filter'}('email_template_tags', $var_array);
@@ -1442,7 +1442,7 @@ function tc_response_time($cid, $sid, $left_operand)
                 ->where('cid', '=', $cid)
                 ->andWhere('sid', '=', $sid)
                 ->find();
-        $seconds = strtotime($left_operand) - strtotime(_h($node->timestamp_sent));
+        $seconds = strtotime($left_operand) - strtotime(_escape($node->timestamp_sent));
         return tc_seconds_to_time($seconds);
     } catch (NodeQException $e) {
         _tc_flash()->error($e->getMessage());

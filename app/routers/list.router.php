@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -28,8 +29,8 @@ $app->group('/list', function() use ($app) {
     $app->get('/', function () use($app) {
         try {
             $lists = $app->db->list()
-                ->where('owner = ?', get_userdata('id'))
-                ->find();
+                    ->where('owner = ?', get_userdata('id'))
+                    ->find();
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -44,7 +45,7 @@ $app->group('/list', function() use ($app) {
         $app->view->display('list/index', [
             'title' => _t('My Email Lists'),
             'lists' => $lists
-            ]
+                ]
         );
     });
 
@@ -142,7 +143,7 @@ $app->group('/list', function() use ($app) {
 
         $app->view->display('list/create', [
             'title' => _t('Create Email List')
-            ]
+                ]
         );
     });
 
@@ -172,7 +173,7 @@ $app->group('/list', function() use ($app) {
                 $list->status = $app->req->_post('status');
                 $list->server = if_null($app->req->post['server']);
                 $list->where('id = ?', $id)->_and_()
-                    ->where('owner = ?', get_userdata('id'));
+                        ->where('owner = ?', get_userdata('id'));
                 $list->update();
 
                 tc_cache_delete($id, 'list');
@@ -210,7 +211,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($list->id)) <= 0) {
+         */ elseif (count(_escape($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -223,7 +224,7 @@ $app->group('/list', function() use ($app) {
             $app->view->display('list/view', [
                 'title' => _t('View/Edit Email List'),
                 'list' => $list
-                ]
+                    ]
             );
         }
     });
@@ -240,14 +241,14 @@ $app->group('/list', function() use ($app) {
     $app->get('/(\d+)/subscriber/', function ($id) use($app) {
         try {
             $subscribers = $app->db->subscriber()
-                ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                ->select('subscriber.addDate,subscriber.id as Subscriber')
-                ->select('subscriber_list.unsubscribed')
-                ->select('list.id as ListID')
-                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->_join('list', 'subscriber_list.lid = list.id')
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.id = ?', $id);
+                    ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->select('subscriber.addDate,subscriber.id as Subscriber')
+                    ->select('subscriber_list.unsubscribed')
+                    ->select('list.id as ListID')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->_join('list', 'subscriber_list.lid = list.id')
+                    ->where('list.owner = ?', get_userdata('id'))->_and_()
+                    ->where('list.id = ?', $id);
 
             $subs = tc_cache_get('list_subscribers_' . $id, 'list_subscribers');
             if (empty($subs)) {
@@ -262,10 +263,10 @@ $app->group('/list', function() use ($app) {
             }
 
             $list = $app->db->list()
-                ->select('list.name,list.id')
-                ->where('list.id = ?', $id)
-                ->where('list.owner = ?', get_userdata('id'))
-                ->findOne();
+                    ->select('list.name,list.id')
+                    ->where('list.id = ?', $id)
+                    ->where('list.owner = ?', get_userdata('id'))
+                    ->findOne();
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -292,7 +293,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($list->id)) <= 0) {
+         */ elseif (count(_escape($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -309,7 +310,7 @@ $app->group('/list', function() use ($app) {
                 'title' => _t('Subscribers'),
                 'subs' => array_to_object($subs),
                 'list' => $list
-                ]
+                    ]
             );
         }
     });
@@ -377,9 +378,9 @@ $app->group('/list', function() use ($app) {
         try {
 
             $list = $app->db->list()
-                ->where('list.id = ?', $id)->_and_()
-                ->where('list.owner = ?', get_userdata('id'))
-                ->findOne();
+                    ->where('list.id = ?', $id)->_and_()
+                    ->where('list.owner = ?', get_userdata('id'))
+                    ->findOne();
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -406,7 +407,7 @@ $app->group('/list', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($list->id)) <= 0) {
+         */ elseif (count(_escape($list->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -422,7 +423,7 @@ $app->group('/list', function() use ($app) {
             $app->view->display('list/import', [
                 'title' => _t('Import Subscribers'),
                 'list' => $list
-                ]
+                    ]
             );
         }
     });
@@ -445,11 +446,11 @@ $app->group('/list', function() use ($app) {
             $output = fopen("php://output", "w");
             fputcsv($output, ['ID', 'First Name', 'Last Name', 'Email', 'Add Date', 'Confirmed', 'Unsubscribed']);
             $csv = $app->db->subscriber()
-                ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email,subscriber.addDate')
-                ->select('CASE WHEN subscriber_list.confirmed = "1" THEN "Yes" ELSE "No" END')
-                ->select('CASE WHEN subscriber_list.unsubscribed = "1" THEN "Yes" ELSE "No" END')
-                ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                ->where('subscriber_list.lid = ?', $id);
+                    ->select('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email,subscriber.addDate')
+                    ->select('CASE WHEN subscriber_list.confirmed = "1" THEN "Yes" ELSE "No" END')
+                    ->select('CASE WHEN subscriber_list.unsubscribed = "1" THEN "Yes" ELSE "No" END')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->where('subscriber_list.lid = ?', $id);
             $q = $csv->find(function ($data) {
                 $array = [];
                 foreach ($data as $d) {
@@ -566,7 +567,7 @@ $app->group('/list', function() use ($app) {
 
         $app->view->display('campaign/elfinder', [
             'title' => 'elfinder 2.0'
-            ]
+                ]
         );
     });
 
@@ -583,18 +584,18 @@ $app->group('/list', function() use ($app) {
     $app->get('/(\d+)/subscriber/(\d+)/d/', function ($lid, $sid) use($app) {
         try {
             $sub = $app->db->list()
-                ->select('subscriber_list.id AS slID')
-                ->_join('subscriber_list', 'list.id = subscriber_list.lid')
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.id = ?', $lid)->_and_()
-                ->where('subscriber_list.sid = ?', $sid)
-                ->findOne();
+                    ->select('subscriber_list.id AS slID')
+                    ->_join('subscriber_list', 'list.id = subscriber_list.lid')
+                    ->where('list.owner = ?', get_userdata('id'))->_and_()
+                    ->where('list.id = ?', $lid)->_and_()
+                    ->where('subscriber_list.sid = ?', $sid)
+                    ->findOne();
 
             if ($sub->count() > 0) {
                 $app->db->subscriber_list()
-                    ->reset()
-                    ->findOne(_h($sub->slID))
-                    ->delete();
+                        ->reset()
+                        ->findOne(_escape($sub->slID))
+                        ->delete();
             }
 
             tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
@@ -623,25 +624,25 @@ $app->group('/list', function() use ($app) {
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
             $list = $app->db->list()
-                ->where('owner = ?', get_userdata('id'))->_and_()
-                ->where('id = ?', $id)
-                ->findOne();
+                    ->where('owner = ?', get_userdata('id'))->_and_()
+                    ->where('id = ?', $id)
+                    ->findOne();
 
             $cpgn_list = $app->db->campaign_list()
-                ->where('lid = ?', _h($list->id))
-                ->find();
+                    ->where('lid = ?', _escape($list->id))
+                    ->find();
 
             foreach ($cpgn_list as $cl) {
                 $app->db->campaign()
-                    ->reset()
-                    ->findOne(_h($cl->cid))
-                    ->delete();
+                        ->reset()
+                        ->findOne(_escape($cl->cid))
+                        ->delete();
             }
 
             try {
                 app\src\NodeQ\tc_NodeQ::table('campaign_queue')
-                    ->where('lid', '=', $id)
-                    ->delete();
+                        ->where('lid', '=', $id)
+                        ->delete();
             } catch (app\src\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
@@ -649,9 +650,9 @@ $app->group('/list', function() use ($app) {
             }
 
             $app->db->list()
-                ->reset()
-                ->findOne(_h($list->id))
-                ->delete();
+                    ->reset()
+                    ->findOne(_escape($list->id))
+                    ->delete();
 
             tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
             tc_cache_flush_namespace('list_subscribers');

@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -101,14 +102,14 @@ $app->group('/dashboard', function () use($app) {
 
         try {
             $q = $app->db->list()
-                ->select('list.name')
-                ->select('COUNT(subscriber_list.sid) AS count')
-                ->_join('subscriber_list', 'list.id = subscriber_list.lid')
-                ->where('subscriber_list.confirmed = "1"')->_and_()
-                ->where('subscriber_list.unsubscribed <> "1"')->_and_()
-                ->where('list.owner = ?', get_userdata('id'))
-                ->groupBy('subscriber_list.lid')
-                ->orderBy('subscriber_list.addDate', 'DESC');
+                    ->select('list.name')
+                    ->select('COUNT(subscriber_list.sid) AS count')
+                    ->_join('subscriber_list', 'list.id = subscriber_list.lid')
+                    ->where('subscriber_list.confirmed = "1"')->_and_()
+                    ->where('subscriber_list.unsubscribed <> "1"')->_and_()
+                    ->where('list.owner = ?', get_userdata('id'))
+                    ->groupBy('subscriber_list.lid')
+                    ->orderBy('subscriber_list.addDate', 'DESC');
             $results = tc_cache_get('dash_slist', 'dash_slist');
             if (empty($results)) {
                 // Use closure as callback
@@ -123,8 +124,8 @@ $app->group('/dashboard', function () use($app) {
             }
             $rows = [];
             foreach ($results as $list) {
-                $row[0] = _h($list['name']);
-                $row[1] = _h($list['count']);
+                $row[0] = _escape($list['name']);
+                $row[1] = _escape($list['count']);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -141,12 +142,12 @@ $app->group('/dashboard', function () use($app) {
 
         try {
             $q = $app->db->campaign()
-                ->select('list.name')
-                ->select('campaign.recipients AS count')
-                ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-                ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.owner = ?', get_userdata('id'))
-                ->groupBy('list.id');
+                    ->select('list.name')
+                    ->select('campaign.recipients AS count')
+                    ->_join('campaign_list', 'campaign.id = campaign_list.cid')
+                    ->_join('list', 'campaign_list.lid = list.id')
+                    ->where('campaign.owner = ?', get_userdata('id'))
+                    ->groupBy('list.id');
             $results = tc_cache_get('dash_sent', 'dash_sent');
             if (empty($results)) {
                 // Use closure as callback
@@ -162,8 +163,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($results as $email) {
-                $row[0] = _h($email['name']);
-                $row[1] = _h($email['count']);
+                $row[0] = _escape($email['name']);
+                $row[1] = _escape($email['count']);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -179,14 +180,14 @@ $app->group('/dashboard', function () use($app) {
     $app->get('/getCpgnList/', function () use($app) {
         try {
             $q = $app->db->campaign()
-                ->select('list.name AS List')
-                ->select('COUNT(campaign_list.id) AS count')
-                ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-                ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.owner = ?', get_userdata('id'))
-                ->groupBy('list.name')
-                ->orderBy('campaign.id', 'DESC')
-                ->limit(10);
+                    ->select('list.name AS List')
+                    ->select('COUNT(campaign_list.id) AS count')
+                    ->_join('campaign_list', 'campaign.id = campaign_list.cid')
+                    ->_join('list', 'campaign_list.lid = list.id')
+                    ->where('campaign.owner = ?', get_userdata('id'))
+                    ->groupBy('list.name')
+                    ->orderBy('campaign.id', 'DESC')
+                    ->limit(10);
             $results = tc_cache_get('dash_cpgns', 'dash_cpgns');
             if (empty($results)) {
                 // Use closure as callback
@@ -202,8 +203,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($results as $c) {
-                $row[0] = _h($c['List']);
-                $row[1] = _h($c['count']);
+                $row[0] = _escape($c['List']);
+                $row[1] = _escape($c['count']);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);
@@ -220,12 +221,12 @@ $app->group('/dashboard', function () use($app) {
 
         try {
             $q = $app->db->campaign()
-                ->select('campaign.bounces as count,list.name')
-                ->_join('campaign_list', 'campaign.id = campaign_list.cid')
-                ->_join('list', 'campaign_list.lid = list.id')
-                ->where('campaign.bounces > 0')->_and_()
-                ->where('campaign.owner = ?', get_userdata('id'))
-                ->groupBy('campaign.id');
+                    ->select('campaign.bounces as count,list.name')
+                    ->_join('campaign_list', 'campaign.id = campaign_list.cid')
+                    ->_join('list', 'campaign_list.lid = list.id')
+                    ->where('campaign.bounces > 0')->_and_()
+                    ->where('campaign.owner = ?', get_userdata('id'))
+                    ->groupBy('campaign.id');
             $results = tc_cache_get('dash_bounce', 'dash_bounce');
             if (empty($results)) {
                 // Use closure as callback
@@ -241,8 +242,8 @@ $app->group('/dashboard', function () use($app) {
 
             $rows = [];
             foreach ($results as $cpgn) {
-                $row[0] = _h($cpgn['name']);
-                $row[1] = _h($cpgn['count']);
+                $row[0] = _escape($cpgn['name']);
+                $row[1] = _escape($cpgn['count']);
                 array_push($rows, $row);
             }
             print json_encode($rows, JSON_NUMERIC_CHECK);

@@ -118,7 +118,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_h($perm->id)) <= 0) {
+     */ elseif (count(_escape($perm->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -211,7 +211,7 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_h($role->id)) <= 0) {
+     */ elseif (count(_escape($role->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -387,7 +387,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_h($tpl->id)) <= 0) {
+     */ elseif (count(_escape($tpl->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -577,7 +577,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
                 ->findOne();
 
         try {
-            $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
+            $password = Crypto::decrypt(_escape($server->password), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
@@ -611,7 +611,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_h($server->id)) <= 0) {
+     */ elseif (count(_escape($server->id)) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -799,7 +799,7 @@ $app->get('/archive/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_h($cpgn->id)) <= 0) {
+     */ elseif (count(_escape($cpgn->id)) <= 0) {
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
         exit();
@@ -811,7 +811,7 @@ $app->get('/archive/(\d+)/', function ($id) use($app) {
      */ else {
 
         $app->view->display('index/view-archive', [
-            'title' => _h($cpgn->subject),
+            'title' => _escape($cpgn->subject),
             'cpgn' => $cpgn
                 ]
         );
@@ -844,8 +844,8 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
         /**
          * Check if subscriber has already confirmed subscription.
          */
-        if (_h($subscriber->confirmed) == 1) {
-            _tc_flash()->{'error'}(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), _h($list->name)));
+        if (_escape($subscriber->confirmed) == 1) {
+            _tc_flash()->{'error'}(sprint(_t("Your subscription to <strong>%s</strong> has already been confirmed."), _escape($list->name)));
         }
         /**
          * If the database table doesn't exist, then it
@@ -864,7 +864,7 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($subscriber->sid)) <= 0) {
+         */ elseif (count(_escape($subscriber->sid)) <= 0) {
 
             _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
@@ -881,11 +881,11 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
                     ->where('code = ?', $code)
                     ->update();
 
-            subscribe_email_node(_h($list->code), $subscriber);
+            subscribe_email_node(_escape($list->code), $subscriber);
 
-            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
+            $app->hook->{'do_action'}('check_subscriber_email', _escape($subscriber->email));
 
-            if (_h($list->notify_email) == 1) {
+            if (_escape($list->notify_email) == 1) {
                 try {
                     Node::dispense('new_subscriber_notification');
                     $notify = Node::table('new_subscriber_notification');
@@ -900,7 +900,7 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
                 }
             }
 
-            _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), _h($list->name)));
+            _tc_flash()->success(sprintf(_t("Your subscription to <strong>%s</strong> has been confirmed. Thank you."), _escape($list->name)));
         }
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -941,7 +941,7 @@ $app->post('/subscribe/', function () use($app) {
      * Check if subscriber exists.
      */
     $get_sub = get_subscriber_by('email', $app->req->post['email']);
-    if (_h($get_sub->id) > 0) {
+    if (_escape($get_sub->id) > 0) {
         _tc_flash()->{'error'}(sprintf(_t('Your email is already in the system. <a href="%s"><strong>Click here</strong></a> to update your preferences.'), get_base_url() . 'preferences' . '/' . _escape($get_sub->code) . '/subscriber/' . _escape($get_sub->id) . '/'), get_base_url() . 'status' . '/');
         exit();
     }
@@ -955,7 +955,7 @@ $app->post('/subscribe/', function () use($app) {
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if subscriber is actually a spammer.
      */
@@ -981,24 +981,24 @@ $app->post('/subscribe/', function () use($app) {
 
         $sub_list = $app->db->subscriber_list();
         $sub_list->insert([
-            'lid' => _h($list->id),
+            'lid' => _escape($list->id),
             'sid' => $sid,
             'method' => 'subscribe',
             'addDate' => Jenssegers\Date\Date::now(),
             'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+            'confirmed' => (_escape($list->optin) == 1 ? 0 : 1)
         ]);
 
         $sub = $app->db->subscriber_list()
-                ->where('lid = ?', _h($list->id))->_and_()
+                ->where('lid = ?', _escape($list->id))->_and_()
                 ->where('sid = ?', $sid)->_and_()
                 ->findOne();
 
-        if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+        if (_escape($list->notify_email) == 1 && _escape($list->optin) == 0) {
             try {
                 Node::dispense('new_subscriber_notification');
                 $notify = Node::table('new_subscriber_notification');
-                $notify->lid = _h((int) $list->id);
+                $notify->lid = _escape((int) $list->id);
                 $notify->sid = (int) $sid;
                 $notify->sent = (int) 0;
                 $notify->save();
@@ -1067,7 +1067,7 @@ $app->post('/asubscribe/', function () use($app) {
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if email is empty.
      */
@@ -1078,7 +1078,7 @@ $app->post('/asubscribe/', function () use($app) {
     }
     /**
      * Check if subscriber exists.
-     */ elseif (_h($get_sub->id) > 0) {
+     */ elseif (_escape($get_sub->id) > 0) {
         $status = _t("error");
         $message = '<font style="color:#ff0000">' . _t("Your email is already in the system.") . '</font>';
         $valid = false;
@@ -1113,19 +1113,19 @@ $app->post('/asubscribe/', function () use($app) {
 
             $sub_list = $app->db->subscriber_list();
             $sub_list->insert([
-                'lid' => _h($list->id),
+                'lid' => _escape($list->id),
                 'sid' => $sid,
                 'method' => 'subscribe',
                 'addDate' => Jenssegers\Date\Date::now(),
                 'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                'confirmed' => (_h($list->optin) == 1 ? 0 : 1)
+                'confirmed' => (_escape($list->optin) == 1 ? 0 : 1)
             ]);
 
-            if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
+            if (_escape($list->notify_email) == 1 && _escape($list->optin) == 0) {
                 try {
                     Node::dispense('new_subscriber_notification');
                     $notify = Node::table('new_subscriber_notification');
-                    $notify->lid = _h((int) $list->id);
+                    $notify->lid = _escape((int) $list->id);
                     $notify->sid = (int) $sid;
                     $notify->sent = (int) 0;
                     $notify->save();
@@ -1215,7 +1215,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($subscriber->sid)) <= 0) {
+         */ elseif (count(_escape($subscriber->sid)) <= 0) {
 
             _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
@@ -1243,9 +1243,9 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
             }
             tc_cache_flush_namespace('my_subscribers');
             tc_cache_flush_namespace('list_subscribers');
-            unsubscribe_email_node(_h($list->code), $subscriber);
-            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
-            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _h($list->name)));
+            unsubscribe_email_node(_escape($list->code), $subscriber);
+            $app->hook->{'do_action'}('check_subscriber_email', _escape($subscriber->email));
+            _tc_flash()->success(sprintf(_t("Unsubscribing to mailing list <strong>%s</strong> was successful."), _escape($list->name)));
         }
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -1306,7 +1306,7 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($subscriber->sid)) <= 0) {
+         */ elseif (count(_escape($subscriber->sid)) <= 0) {
 
             header('Content-Type: application/json');
             $app->res->_format('json', 404);
@@ -1336,8 +1336,8 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
             }
             tc_cache_flush_namespace('my_subscribers');
             tc_cache_flush_namespace('list_subscribers');
-            unsubscribe_email_node(_h($list->code), $subscriber);
-            $app->hook->{'do_action'}('check_subscriber_email', _h($subscriber->email));
+            unsubscribe_email_node(_escape($list->code), $subscriber);
+            $app->hook->{'do_action'}('check_subscriber_email', _escape($subscriber->email));
         }
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
@@ -1397,7 +1397,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                     ->where('sid = ?', $sid)
                     ->findOne();
             $track->set([
-                        'viewed' => _h((int) $track->viewed) + 1
+                        'viewed' => _escape((int) $track->viewed) + 1
                     ])
                     ->update();
 
@@ -1410,7 +1410,7 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
                     . "WHERE `id` = ?", [$cid]
             );
             /* $cpgn2 = $app->db->campaign();
-              $cpgn2->viewed = _h((int)$campaign->viewed) +1;
+              $cpgn2->viewed = _escape((int)$campaign->viewed) +1;
               $cpgn2->where('id = ?', $cid)
               ->update(); */
         }
@@ -1485,7 +1485,7 @@ $app->get('/lt/', function () use($app) {
                     ->where('url = ?', $app->req->get['url'])
                     ->findOne();
             $track2->set([
-                        'clicked' => _h((int) $track2->clicked) + 1
+                        'clicked' => _escape((int) $track2->clicked) + 1
                     ])
                     ->update();
         }
@@ -1664,7 +1664,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (_h($get_sub->id) <= 0) {
+     */ elseif (_escape($get_sub->id) <= 0) {
 
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
@@ -1693,7 +1693,7 @@ $app->post('/reset-password/', function () use($app) {
 
     $user = get_user_by('email', $app->req->post['email']);
 
-    if (_h($user->email) == '') {
+    if (_escape($user->email) == '') {
         _tc_flash()->{'error'}(_t('A user with that email does not exist.'), get_base_url());
     }
 
@@ -1703,25 +1703,25 @@ $app->post('/reset-password/', function () use($app) {
         $pass->set([
                     'code' => $code,
                 ])
-                ->where('id = ?', _h($user->id))
+                ->where('id = ?', _escape($user->id))
                 ->update();
 
         $domain = get_domain_name();
-        $site = _h(get_option('system_name'));
+        $site = _escape(get_option('system_name'));
         $link = get_base_url() . 'password' . '/' . $code . '/';
         $message = _file_get_contents(APP_PATH . 'views/setting/tpl/reset_password.tpl');
         $message = str_replace('{password_reset}', sprintf('<a href="%s" style="display: block;text-decoration: none;font-family: Helvetica, Arial, sans-serif;color: #ffffff;font-weight: bold;text-align: center;"><span style="text-decoration: none;color: #ffffff;text-align: center;display: block;">' . _t('Reset Password') . '</span></a>', $link), $message);
         $message = str_replace('{system_name}', $site, $message);
-        $message = str_replace('{email}', _h($user->email), $message);
+        $message = str_replace('{email}', _escape($user->email), $message);
         $message = str_replace('{system_url}', get_base_url(), $message);
         $headers = "From: $site <auto-reply@$domain>\r\n";
-        if (_h(get_option('tc_smtp_status')) == 0) {
+        if (_escape(get_option('tc_smtp_status')) == 0) {
             $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
             $headers .= "MIME-Version: 1.0" . "\r\n";
         }
 
         try {
-            _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('Password Reset'), $message, $headers);
+            _tc_email()->tc_mail(_escape($user->email), _escape(get_option('system_name')) . ': ' . _t('Password Reset'), $message, $headers);
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage(), get_base_url());
         }
@@ -1764,23 +1764,23 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
                         'code' => NULL,
                         'password' => tc_hash_password($password)
                     ])
-                    ->where('id = ?', _h($user->id))
+                    ->where('id = ?', _escape($user->id))
                     ->update();
 
             $domain = get_domain_name();
-            $site = _h(get_option('system_name'));
+            $site = _escape(get_option('system_name'));
 
             $message = _file_get_contents(APP_PATH . 'views/setting/tpl/new_password.tpl');
             $message = str_replace('{password}', $password, $message);
             $message = str_replace('{system_name}', $site, $message);
             $headers = "From: $site <auto-reply@$domain>\r\n";
-            if (_h(get_option('tc_smtp_status')) == 0) {
+            if (_escape(get_option('tc_smtp_status')) == 0) {
                 $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
                 $headers .= "MIME-Version: 1.0" . "\r\n";
             }
 
             try {
-                _tc_email()->tc_mail(_h($user->email), _h(get_option('system_name')) . ': ' . _t('New Password'), $message, $headers);
+                _tc_email()->tc_mail(_escape($user->email), _escape(get_option('system_name')) . ': ' . _t('New Password'), $message, $headers);
             } catch (phpmailerException $e) {
                 _tc_flash()->{'error'}($e->getMessage(), get_base_url() . 'status' . '/');
             }
@@ -1817,7 +1817,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (_h($user->id) <= 0) {
+     */ elseif (_escape($user->id) <= 0) {
 
         header('Content-Type: application/json');
         $app->res->_format('json', 404);

@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Respect\Validation\Validator as v;
@@ -31,8 +32,8 @@ function get_email_lists()
     $app = \Liten\Liten::getInstance();
     try {
         $lists = $app->db->list()
-            ->where('owner = ?', get_userdata('id'))
-            ->find();
+                ->where('owner = ?', get_userdata('id'))
+                ->find();
         foreach ($lists as $list) {
             echo '<li' . (SCREEN === $list->code ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . $list->id . '/"><i class="fa fa-circle-o"></i> ' . $list->name . '</a></li>';
         }
@@ -52,11 +53,11 @@ function check_custom_success_url($code, $sub)
     if ($list->redirect_success != NULL && v::url()->validate($list->redirect_success) && $list->optin == 1) {
         // send confirm email and redirect.
         confirm_email_node($code, $sub);
-        _tc_flash()->info(sprintf(_t('You were added to the list <strong>%s</strong>, but you will need to check your email in a few minutes in order to confirm your subscription.'), $list->name), _h($list->redirect_success));
+        _tc_flash()->info(sprintf(_t('You were added to the list <strong>%s</strong>, but you will need to check your email in a few minutes in order to confirm your subscription.'), $list->name), _escape($list->redirect_success));
     } elseif ($list->redirect_success != NULL && v::url()->validate($list->redirect_success) && $list->optin == 0) {
         // send success email and redirect to default success.
         subscribe_email_node($code, $sub);
-        _tc_flash()->success(sprintf(_t('Thank you for subscribing to the mailing list <strong>%s</strong>.'), $list->name), _h($list->redirect_success));
+        _tc_flash()->success(sprintf(_t('Thank you for subscribing to the mailing list <strong>%s</strong>.'), $list->name), _escape($list->redirect_success));
     } elseif ($list->redirect_success == NULL && $list->optin == 1) {
         // send confirm email and redirect to default success.
         confirm_email_node($code, $sub);
@@ -72,7 +73,7 @@ function check_custom_error_url($code)
 {
     $list = get_list_by('code', $code);
     if ($list->redirect_unsuccess != null && v::url()->validate($list->redirect_unsuccess)) {
-        $url = _h($list->redirect_unsuccess);
+        $url = _escape($list->redirect_unsuccess);
     } elseif ($list->redirect_unsuccess == null) {
         $url = get_base_url() . 'status' . '/';
     }
@@ -91,8 +92,8 @@ function get_list_by($field, $value)
 
     try {
         $list = $app->db->list()
-            ->where("list.$field = ?", $value)
-            ->findOne();
+                ->where("list.$field = ?", $value)
+                ->findOne();
 
         return $list;
     } catch (NotFoundException $e) {
@@ -116,8 +117,8 @@ function get_campaign_by_id($id)
 
     try {
         $msg = $app->db->campaign()
-            ->where("campaign.id = ?", $id)
-            ->findOne();
+                ->where("campaign.id = ?", $id)
+                ->findOne();
 
         return $msg;
     } catch (NotFoundException $e) {
@@ -205,8 +206,8 @@ function get_list_subscribers_count($id)
     $app = \Liten\Liten::getInstance();
     try {
         $count = $app->db->subscriber_list()
-            ->where('subscriber_list.lid = ?', $id)
-            ->count('subscriber_list.sid');
+                ->where('subscriber_list.lid = ?', $id)
+                ->count('subscriber_list.sid');
         return $count;
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -253,9 +254,9 @@ function get_user_template()
     $app = \Liten\Liten::getInstance();
     try {
         $q = $app->db->template()
-            ->where('owner = ?', get_userdata('id'))
-            ->orderBy('addDate')
-            ->find();
+                ->where('owner = ?', get_userdata('id'))
+                ->orderBy('addDate')
+                ->find();
         return $q;
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -278,10 +279,10 @@ function get_list_subscriber_count($id)
     $app = \Liten\Liten::getInstance();
     try {
         $count = $app->db->subscriber_list()
-            ->where('confirmed = "1"')->_and_()
-            ->where('unsubscribed = "0"')
-            ->where('lid = ?', $id)
-            ->count('id');
+                ->where('confirmed = "1"')->_and_()
+                ->where('unsubscribed = "0"')
+                ->where('lid = ?', $id)
+                ->count('id');
 
         return $count;
     } catch (NotFoundException $e) {
@@ -358,7 +359,7 @@ function list_unsubscribe($tcMailer, $data)
 {
     $app = \Liten\Liten::getInstance();
 
-    $link = '<' . get_base_url() . 'xunsubscribe/' . _h($data->slist_code) . '/lid/' . _h($data->xlistid) . '/sid/' . _h($data->xsubscriberid) . '/rid/' . _h($data->uniqueid) . '/>';
+    $link = '<' . get_base_url() . 'xunsubscribe/' . _escape($data->slist_code) . '/lid/' . _escape($data->xlistid) . '/sid/' . _escape($data->xsubscriberid) . '/rid/' . _escape($data->uniqueid) . '/>';
     return $app->hook->{'apply_filter'}('list_unsubscribe', $tcMailer->addCustomHeader('List-Unsubscribe', $link));
 }
 
@@ -368,7 +369,7 @@ function mark_subscriber_as_spammer($email)
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if subscriber is a spammer.
      */
@@ -376,13 +377,13 @@ function mark_subscriber_as_spammer($email)
         try {
 
             $subscriber = $app->db->subscriber()
-                ->where('email = ?', $email)->_and_()
-                ->where('spammer = "0"')
-                ->findOne();
+                    ->where('email = ?', $email)->_and_()
+                    ->where('spammer = "0"')
+                    ->findOne();
             $subscriber->set([
-                    'spammer' => (int) 1
-                ])
-                ->update();
+                        'spammer' => (int) 1
+                    ])
+                    ->update();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {

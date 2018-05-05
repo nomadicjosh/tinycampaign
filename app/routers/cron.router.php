@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\NodeQ\tc_NodeQ as Node;
@@ -140,8 +141,8 @@ $app->group('/cron', function () use($app, $css, $js) {
             if (filter_var($app->req->post['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
                 try {
                     $url = Node::table('cronjob_handler')
-                        ->where('url', '=', $app->req->_post('url'))
-                        ->find();
+                            ->where('url', '=', $app->req->_post('url'))
+                            ->find();
                 } catch (NodeQException $e) {
                     _tc_flash()->error($e->getMessage(), get_base_url() . 'cron/');
                     exit();
@@ -313,7 +314,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_h($sql->id)) <= 0) {
+         */ elseif (count(_escape($sql->id)) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -329,7 +330,7 @@ $app->group('/cron', function () use($app, $css, $js) {
             $app->view->display('cron/view', [
                 'title' => _t('View Cronjob Handler'),
                 'cron' => $sql
-                ]
+                    ]
             );
         }
     });
@@ -343,13 +344,13 @@ $app->group('/cron', function () use($app, $css, $js) {
             if (!isset($app->req->get['password']) && !isset($argv[1])) {
                 Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('No cronjob password found, use cronjob?password=<yourpassword>.')));
                 exit(_t('No cronjob handler password found, use cronjob?password=<yourpassword>.'));
-            } elseif (isset($app->req->get['password']) && $app->req->get['password'] != _h($setting->cronjobpassword)) {
+            } elseif (isset($app->req->get['password']) && $app->req->get['password'] != _escape($setting->cronjobpassword)) {
                 Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid $_GET password')));
                 exit(_t('Invalid $_GET password'));
-            } elseif (_h($setting->cronjobpassword) == 'changeme') {
+            } elseif (_escape($setting->cronjobpassword) == 'changeme') {
                 Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Cronjob handler password needs to be changed.')));
                 exit(_t('Cronjob handler password needs to be changed.'));
-            } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != _h($setting->cronjobpassword))) {
+            } elseif (isset($argv[0]) && (substr($argv[1], 0, 8) != 'password' or substr($argv[1], 9) != _escape($setting->cronjobpassword))) {
                 Cascade::getLogger('system_email')->alert(sprintf('CRONSTATE[401]: Unauthorized: %s', _t('Invalid argument password (password=yourpassword)')));
                 exit(_t('Invalid argument password (password=yourpassword)'));
             }
@@ -365,36 +366,36 @@ $app->group('/cron', function () use($app, $css, $js) {
                 // execute only one job and then exit
                 foreach ($cron as $job) {
 
-                    if (isset($app->req->get['id']) && _h($job->id) == $app->req->get['id']) {
+                    if (isset($app->req->get['id']) && _escape($job->id) == $app->req->get['id']) {
                         $run = true;
                     } else {
                         $run = false;
                         if ($job->time != '') {
-                            if (substr(_h($job->lastrun), 0, 10) != $d) {
-                                if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . _h($job->time))) {
+                            if (substr(_escape($job->lastrun), 0, 10) != $d) {
+                                if (strtotime($d->format('Y-m-d H:i')) > strtotime($d->format('Y-m-d ') . _escape($job->time))) {
                                     $run = true;
                                 }
                             }
                         } elseif ($job->each > 0) {
-                            if (strtotime(_h($job->lastrun)) + _h($job->each) < strtotime($d)) {
+                            if (strtotime(_escape($job->lastrun)) + _escape($job->each) < strtotime($d)) {
                                 $run = true;
                                 // if time set, daily after time...
-                                if (_h($job->each) > (60 * 60 * 24) && strlen(_h($job->eachtime)) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . _h($job->eachtime))) {
+                                if (_escape($job->each) > (60 * 60 * 24) && strlen(_escape($job->eachtime)) == 5 && strtotime($d->format('Y-m-d H:i')) < strtotime($d->format('Y-m-d') . _escape($job->eachtime))) {
                                     // only run 'today' at or after give time.
                                     $run = false;
                                 }
                             }
-                        } elseif (substr(_h($job->lastrun), 0, 10) != $d->format('Y-m-d')) {
+                        } elseif (substr(_escape($job->lastrun), 0, 10) != $d->format('Y-m-d')) {
                             $run = true;
                         }
                     }
 
                     if ($run == true) {
                         // save as executed
-                        echo _t('Running: ') . _h($job->url) . PHP_EOL . PHP_EOL;
+                        echo _t('Running: ') . _escape($job->url) . PHP_EOL . PHP_EOL;
 
                         try {
-                            $upd = Node::table('cronjob_handler')->find(_h($job->id));
+                            $upd = Node::table('cronjob_handler')->find(_escape($job->id));
                             $upd->lastrun = $d->format('Y-m-d H:i:s');
                             $upd->runned ++;
                             $upd->save();
@@ -406,7 +407,7 @@ $app->group('/cron', function () use($app, $css, $js) {
 
                         // execute cronjob
                         $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, _h($job->url));
+                        curl_setopt($ch, CURLOPT_URL, _escape($job->url));
                         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                         curl_setopt($ch, CURLOPT_TIMEOUT, (!empty($setting->timeout) ? $setting->timeout : 5));
@@ -446,7 +447,7 @@ $app->group('/cron', function () use($app, $css, $js) {
             // Every job has a name
             $jobby->add('MasterCronJob', [
                 // Run a shell command
-                'command' => '/usr/bin/curl -s ' . get_base_url() . 'cron/cronjob/?password=' . _h($setting->cronjobpassword),
+                'command' => '/usr/bin/curl -s ' . get_base_url() . 'cron/cronjob/?password=' . _escape($setting->cronjobpassword),
                 // Ordinary crontab schedule format is supported.
                 // This schedule runs every 5 minutes.
                 // You could also insert DateTime string in the format of Y-m-d H:i:s.
@@ -472,8 +473,8 @@ $app->group('/cron', function () use($app, $css, $js) {
     $app->get('/purgeErrorLog/', function () use($app) {
         try {
             $app->db->error()
-                ->where('DATE_ADD(error.addDate, INTERVAL 5 DAY) <= ?', Jenssegers\Date\Date::now()->format('Y-m-d'))
-                ->delete();
+                    ->where('DATE_ADD(error.addDate, INTERVAL 5 DAY) <= ?', Jenssegers\Date\Date::now()->format('Y-m-d'))
+                    ->delete();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->error(sprintf('CRONSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (ORMException $e) {
@@ -522,8 +523,8 @@ $app->group('/cron', function () use($app, $css, $js) {
     $app->get('/runEmailQueue/', function () use($app) {
         try {
             $cpgn = $app->db->campaign()
-                ->where('campaign.status = "processing"')
-                ->findOne();
+                    ->where('campaign.status = "processing"')
+                    ->findOne();
 
             if ($cpgn != false) {
                 try {
@@ -532,15 +533,15 @@ $app->group('/cron', function () use($app, $css, $js) {
                      * If not, mark campaign as `sent`.
                      */
                     $sent = Node::table('campaign_queue')
-                        ->where('is_sent', '=', 'false')
-                        ->andWhere('cid', '=', _h($cpgn->id))
-                        ->findAll()
-                        ->count();
-                    if ($sent <= 0 && _h($cpgn->status) != 'sent') {
+                            ->where('is_sent', '=', 'false')
+                            ->andWhere('cid', '=', _escape($cpgn->id))
+                            ->findAll()
+                            ->count();
+                    if ($sent <= 0 && _escape($cpgn->status) != 'sent') {
                         $complete = $app->db->campaign()
-                            ->where('id = ?', _h($cpgn->id))->_and_()
-                            ->where('status <> "sent"')
-                            ->findOne();
+                                ->where('id = ?', _escape($cpgn->id))->_and_()
+                                ->where('status <> "sent"')
+                                ->findOne();
                         $complete->status = 'sent';
                         $complete->update();
                         return true;
@@ -552,22 +553,22 @@ $app->group('/cron', function () use($app, $css, $js) {
                     // get messages from the queue
                     $messages = $queue->getEmails();
                     $i = 0;
-                    $last = Node::table('campaign_queue')->where('cid', '=', _h($cpgn->id))->orderBy('id', 'DESC')->limit(1)->find();
+                    $last = Node::table('campaign_queue')->where('cid', '=', _escape($cpgn->id))->orderBy('id', 'DESC')->limit(1)->find();
                     // iterate messages
                     foreach ($messages as $message) {
                         $sub = get_subscriber_by('email', $message->getToEmail());
                         $slist = $app->db->subscriber_list()
-                            ->where('subscriber_list.lid = ?', $message->getListId())->_and_()
-                            ->where('subscriber_list.sid = ?', $message->getSubscriberId())
-                            ->findOne();
+                                ->where('subscriber_list.lid = ?', $message->getListId())->_and_()
+                                ->where('subscriber_list.sid = ?', $message->getSubscriberId())
+                                ->findOne();
 
                         $list = get_list_by('id', $message->getListId());
-                        $server = get_server_info(_h($list->server));
+                        $server = get_server_info(_escape($list->server));
 
                         /**
                          * Generate slug from subject. Useful for Google Analytics.
                          */
-                        $slug = _tc_unique_campaign_slug(_h($cpgn->subject));
+                        $slug = _tc_unique_campaign_slug(_escape($cpgn->subject));
                         /**
                          * Create an array to merge later.
                          */
@@ -580,38 +581,38 @@ $app->group('/cron', function () use($app, $css, $js) {
                             'uniqueid' => $message->getId()
                         ];
                         $footer = _escape($cpgn->footer);
-                        $footer = str_replace('{email}', _h($sub->email), $footer);
-                        $footer = str_replace('{from_email}', _h($cpgn->from_email), $footer);
-                        $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/', $footer);
-                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/', $footer);
+                        $footer = str_replace('{email}', _escape($sub->email), $footer);
+                        $footer = str_replace('{from_email}', _escape($cpgn->from_email), $footer);
+                        $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . _escape($sub->code) . '/subscriber/' . _escape($sub->id) . '/', $footer);
+                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/', $footer);
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
                         $msg = str_replace('{list_id}', $message->getListId(), $msg);
                         $msg = str_replace('{subscriber_id}', $message->getSubscriberId(), $msg);
-                        $msg = str_replace('{subscriber_code}', _h($sub->code), $msg);
+                        $msg = str_replace('{subscriber_code}', _escape($sub->code), $msg);
                         $msg = str_replace('{campaign_id}', $message->getMessageId(), $msg);
-                        $msg = str_replace('{subject}', _h($cpgn->subject), $msg);
-                        $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . _h($cpgn->id) . '/">' . _t('View this email in your browser') . '</a>', $msg);
-                        $msg = str_replace('{first_name}', _h($sub->fname), $msg);
-                        $msg = str_replace('{last_name}', _h($sub->lname), $msg);
-                        $msg = str_replace('{email}', _h($sub->email), $msg);
-                        $msg = str_replace('{address1}', _h($sub->address1), $msg);
-                        $msg = str_replace('{address2}', _h($sub->address2), $msg);
-                        $msg = str_replace('{city}', _h($sub->city), $msg);
-                        $msg = str_replace('{state}', _h($sub->state), $msg);
-                        $msg = str_replace('{postal_code}', _h($sub->postal_code), $msg);
-                        $msg = str_replace('{country}', _h($sub->country), $msg);
-                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . _h($slist->code) . '/lid/' . _h($slist->lid) . '/sid/' . _h($slist->sid) . '/rid/' . _h($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
-                        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . _h($sub->code) . '/subscriber/' . _h($sub->id) . '/">' . _t('preferences page') . '</a>', $msg);
+                        $msg = str_replace('{subject}', _escape($cpgn->subject), $msg);
+                        $msg = str_replace('{view_online}', '<a href="' . get_base_url() . 'archive/' . _escape($cpgn->id) . '/">' . _t('View this email in your browser') . '</a>', $msg);
+                        $msg = str_replace('{first_name}', _escape($sub->fname), $msg);
+                        $msg = str_replace('{last_name}', _escape($sub->lname), $msg);
+                        $msg = str_replace('{email}', _escape($sub->email), $msg);
+                        $msg = str_replace('{address1}', _escape($sub->address1), $msg);
+                        $msg = str_replace('{address2}', _escape($sub->address2), $msg);
+                        $msg = str_replace('{city}', _escape($sub->city), $msg);
+                        $msg = str_replace('{state}', _escape($sub->state), $msg);
+                        $msg = str_replace('{postal_code}', _escape($sub->postal_code), $msg);
+                        $msg = str_replace('{country}', _escape($sub->country), $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a href="' . get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
+                        $msg = str_replace('{personal_preferences}', '<a href="' . get_base_url() . 'preferences/' . _escape($sub->code) . '/subscriber/' . _escape($sub->id) . '/">' . _t('preferences page') . '</a>', $msg);
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
-                        $msg .= campaign_tracking_code(_h($cpgn->id), _h($sub->id));
+                        $msg .= campaign_tracking_code(_escape($cpgn->id), _escape($sub->id));
 
                         if (++$i === 1) {
                             $q = $app->db->campaign()
-                                ->where('id = ?', _h($cpgn->id))
-                                ->findOne();
+                                    ->where('id = ?', _escape($cpgn->id))
+                                    ->findOne();
                             $finish = strtotime($last->timestamp_to_send);
                             $q->sendfinish = date("Y-m-d H:i:s", strtotime('+10 minutes', $finish));
                             $q->update();
@@ -629,11 +630,11 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $app->hook->{'do_action_array'}('tinyc_email_init', [
                             $obj_merged,
                             $message->getToEmail(),
-                            _h($cpgn->subject),
-                            tc_link_tracking($msg, _h($cpgn->id), _h($sub->id), $slug),
-                            tc_link_tracking(_h($cpgn->text), _h($cpgn->id), _h($sub->id), $slug),
+                            _escape($cpgn->subject),
+                            tc_link_tracking($msg, _escape($cpgn->id), _escape($sub->id), $slug),
+                            tc_link_tracking(_escape($cpgn->text), _escape($cpgn->id), _escape($sub->id), $slug),
                             $message
-                            ]
+                                ]
                         );
                     }
                 } catch (NodeQException $e) {
@@ -665,7 +666,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
 
         try {
-            $password = Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
+            $password = Crypto::decrypt(_escape(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
             Cascade::getLogger('system_email')->alert(sprintf('BOUNCESTATE[%s]: Conflict: %s', $e->getCode(), $e->getMessage()));
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
@@ -688,15 +689,15 @@ $app->group('/cron', function () use($app, $css, $js) {
         /*
          * for remote mailbox
          */
-        $bmh->mailhost = _h(get_option('tc_bmh_host')); // your mail server
-        $bmh->mailboxUserName = _h(get_option('tc_bmh_username')); // your mailbox username
+        $bmh->mailhost = _escape(get_option('tc_bmh_host')); // your mail server
+        $bmh->mailboxUserName = _escape(get_option('tc_bmh_username')); // your mailbox username
         $bmh->mailboxPassword = $password; // your mailbox password
-        $bmh->port = _h(get_option('tc_bmh_port')); // the port to access your mailbox, default is 143
-        $bmh->service = _h(get_option('tc_bmh_service')); // the service to use (imap or pop3), default is 'imap'
-        $bmh->serviceOption = _h(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
-        $bmh->boxname = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))); // the mailbox to access, default is 'INBOX'
+        $bmh->port = _escape(get_option('tc_bmh_port')); // the port to access your mailbox, default is 143
+        $bmh->service = _escape(get_option('tc_bmh_service')); // the service to use (imap or pop3), default is 'imap'
+        $bmh->serviceOption = _escape(get_option('tc_bmh_service_option')); // the service options (none, tls, notls, ssl, etc.), default is 'notls'
+        $bmh->boxname = (_escape(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _escape(get_option('tc_bmh_mailbox'))); // the mailbox to access, default is 'INBOX'
         $bmh->moveHard = true; // default is false
-        $bmh->hardMailbox = (_h(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _h(get_option('tc_bmh_mailbox'))) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
+        $bmh->hardMailbox = (_escape(get_option('tc_bmh_mailbox')) == '' ? 'INBOX' : _escape(get_option('tc_bmh_mailbox'))) . '.hard'; // default is 'INBOX.hard' - NOTE: must start with 'INBOX.'
         $bmh->moveSoft = false; // default is false
         $bmh->softMailbox = ''; // default is 'INBOX.soft' - NOTE: must start with 'INBOX.'
         $bmh->openMailbox();

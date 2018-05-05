@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -20,7 +21,7 @@ $app->group('/subscriber', function() use ($app) {
     $app->get('/', function () use($app) {
         try {
             $subscribers = $app->db->subscriber();
-            $subs = tc_cache_get('my_subscribers_'.get_userdata('id'), 'my_subscribers');
+            $subs = tc_cache_get('my_subscribers_' . get_userdata('id'), 'my_subscribers');
             if (empty($subs)) {
                 $subs = $subscribers->find(function ($data) {
                     $array = [];
@@ -29,7 +30,7 @@ $app->group('/subscriber', function() use ($app) {
                     }
                     return $array;
                 });
-                tc_cache_add('my_subscribers_'.get_userdata('id'), $subs, 'my_subscribers');
+                tc_cache_add('my_subscribers_' . get_userdata('id'), $subs, 'my_subscribers');
             }
         } catch (NotFoundException $e) {
             _tc_flash()->error($e->getMessage());
@@ -47,7 +48,7 @@ $app->group('/subscriber', function() use ($app) {
         $app->view->display('subscriber/index', [
             'title' => _t('Manage Subscribers'),
             'subscribers' => array_to_object($subs)
-            ]
+                ]
         );
     });
 
@@ -62,7 +63,7 @@ $app->group('/subscriber', function() use ($app) {
 
     $app->match('GET|POST', '/add/', function () use($app) {
 
-        \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -104,7 +105,7 @@ $app->group('/subscriber', function() use ($app) {
                         ]);
                     }
 
-                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_delete('my_subscribers_' . get_userdata('id'));
                     tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
                     _tc_flash()->warning(_t('Subscriber was added to the list but flagged as spam.'), get_base_url() . 'subscriber' . '/' . $id . '/');
@@ -149,7 +150,7 @@ $app->group('/subscriber', function() use ($app) {
                         ]);
                     }
 
-                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_delete('my_subscribers_' . get_userdata('id'));
                     tc_cache_flush_namespace('list_subscribers');
                     tc_logger_activity_log_write('New Record', 'Subscriber', $app->req->post['fname'] . ' ' . $app->req->post['lname'], get_userdata('uname'));
                     _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'subscriber' . '/' . $id . '/');
@@ -171,7 +172,7 @@ $app->group('/subscriber', function() use ($app) {
 
         $app->view->display('subscriber/add', [
             'title' => _t('Add New Subscriber')
-            ]
+                ]
         );
     });
 
@@ -187,7 +188,7 @@ $app->group('/subscriber', function() use ($app) {
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
         $sub = get_subscriber_by('id', $id);
-        \app\src\tc_StopForumSpam::$spamTolerance = _h(get_option('spam_tolerance'));
+        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -213,16 +214,16 @@ $app->group('/subscriber', function() use ($app) {
                         'tags' => if_null($app->req->post['tags'])
                     ]);
                     $subscriber->where('id = ?', $id)
-                        ->update();
+                            ->update();
 
                     $data = [];
                     $data['lid'] = $app->req->post['lid'];
 
                     foreach ($app->req->post['id'] as $list) {
                         $sub = $app->db->subscriber_list()
-                            ->where('sid = ?', $id)->_and_()
-                            ->where('lid = ?', $list)
-                            ->findOne();
+                                ->where('sid = ?', $id)->_and_()
+                                ->where('lid = ?', $list)
+                                ->findOne();
 
                         if ($sub == false && $list == $data['lid'][$list]) {
                             $sub_list = $app->db->subscriber_list();
@@ -237,17 +238,17 @@ $app->group('/subscriber', function() use ($app) {
                         } else {
                             $sub_list = $app->db->subscriber_list();
                             $sub_list->set([
-                                    'lid' => $list,
-                                    'sid' => $id,
-                                    'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
-                                ])
-                                ->where('sid = ?', $id)->_and_()
-                                ->where('lid = ?', $list)
-                                ->update();
+                                        'lid' => $list,
+                                        'sid' => $id,
+                                        'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                    ])
+                                    ->where('sid = ?', $id)->_and_()
+                                    ->where('lid = ?', $list)
+                                    ->update();
                         }
                     }
 
-                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_delete('my_subscribers_' . get_userdata('id'));
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
                     tc_cache_flush_namespace('list_subscribers');
@@ -278,16 +279,16 @@ $app->group('/subscriber', function() use ($app) {
                         'tags' => if_null($app->req->post['tags'])
                     ]);
                     $subscriber->where('id = ?', $id)
-                        ->update();
+                            ->update();
 
                     $data = [];
                     $data['lid'] = $app->req->post['lid'];
 
                     foreach ($app->req->post['id'] as $list) {
                         $sub = $app->db->subscriber_list()
-                            ->where('sid = ?', $id)->_and_()
-                            ->where('lid = ?', $list)
-                            ->findOne();
+                                ->where('sid = ?', $id)->_and_()
+                                ->where('lid = ?', $list)
+                                ->findOne();
 
                         if ($sub == false && $list == $data['lid'][$list]) {
                             $sub_list = $app->db->subscriber_list();
@@ -302,17 +303,17 @@ $app->group('/subscriber', function() use ($app) {
                         } else {
                             $sub_list = $app->db->subscriber_list();
                             $sub_list->set([
-                                    'lid' => $list,
-                                    'sid' => $id,
-                                    'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
-                                ])
-                                ->where('sid = ?', $id)->_and_()
-                                ->where('lid = ?', $list)
-                                ->update();
+                                        'lid' => $list,
+                                        'sid' => $id,
+                                        'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                                    ])
+                                    ->where('sid = ?', $id)->_and_()
+                                    ->where('lid = ?', $list)
+                                    ->update();
                         }
                     }
 
-                    tc_cache_delete('my_subscribers_'.get_userdata('id'));
+                    tc_cache_delete('my_subscribers_' . get_userdata('id'));
                     tc_cache_delete($id, 'subscriber');
                     tc_cache_delete($id, 'slist');
                     tc_cache_flush_namespace('list_subscribers');
@@ -346,7 +347,7 @@ $app->group('/subscriber', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (_h($sub->id) <= 0) {
+         */ elseif (_escape($sub->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -365,7 +366,7 @@ $app->group('/subscriber', function() use ($app) {
             $app->view->display('subscriber/view', [
                 'title' => _t('View/Edit Subscriber'),
                 'subscriber' => $sub
-                ]
+                    ]
             );
         }
     });
@@ -373,8 +374,8 @@ $app->group('/subscriber', function() use ($app) {
     $app->get('/getTags/', function () use($app) {
         try {
             $tagging = $app->db->subscriber()
-                ->select('tags')
-                ->where('addedBy = ?', get_userdata('id'));
+                    ->select('tags')
+                    ->where('addedBy = ?', get_userdata('id'));
             $q = $tagging->find(function ($data) {
                 $array = [];
                 foreach ($data as $d) {
@@ -384,7 +385,7 @@ $app->group('/subscriber', function() use ($app) {
             });
             $tags = [];
             foreach ($q as $r) {
-                $tags = array_merge($tags, explode(",", _h($r['tags'])));
+                $tags = array_merge($tags, explode(",", _escape($r['tags'])));
             }
             $tags = array_unique_compact($tags);
             foreach ($tags as $key => $value) {
@@ -415,23 +416,23 @@ $app->group('/subscriber', function() use ($app) {
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
             $app->db->subscriber()
-                ->where('addedBy = ?', get_userdata('id'))->_and_()
-                ->where('id = ?', $id)
-                ->reset()
-                ->findOne($id)
-                ->delete();
+                    ->where('addedBy = ?', get_userdata('id'))->_and_()
+                    ->where('id = ?', $id)
+                    ->reset()
+                    ->findOne($id)
+                    ->delete();
 
             try {
                 app\src\NodeQ\tc_NodeQ::table('campaign_queue')
-                    ->where('sid', '=', $id)
-                    ->delete();
+                        ->where('sid', '=', $id)
+                        ->delete();
             } catch (app\src\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());
             }
-            
-            tc_cache_delete('my_subscribers_'.get_userdata('id'));
+
+            tc_cache_delete('my_subscribers_' . get_userdata('id'));
             tc_cache_delete($id, 'subscriber');
             tc_cache_delete($id, 'slist');
             tc_cache_flush_namespace('list_subscribers');

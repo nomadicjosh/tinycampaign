@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
@@ -71,7 +72,7 @@ $config = [
             'formatter' => 'exception',
             'mailer' => new app\src\tc_Email(),
             'message' => 'This message will be replaced with the real one.',
-            'email_to' => _h($app->hook->{'get_option'}('system_email')),
+            'email_to' => _escape($app->hook->{'get_option'}('system_email')),
             'subject' => _t('tinyCampaign System Alert!')
         ]
     ],
