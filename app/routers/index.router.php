@@ -970,8 +970,8 @@ $app->post('/subscribe/', function () use($app) {
             'fname' => $app->req->post['fname'],
             'lname' => $app->req->post['lname'],
             'email' => $app->req->post['email'],
-            'state' => NULL,
-            'country' => NULL,
+            'state' => if_null($app->req->post['state']),
+            'country' => if_null($app->req->post['country']),
             'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
             'ip' => $app->req->server['REMOTE_ADDR'],
             'addedBy' => (int) 1,
@@ -1580,9 +1580,9 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                 'address1' => $app->req->post['address1'],
                 'address2' => $app->req->post['address2'],
                 'city' => $app->req->post['city'],
-                'state' => $app->req->post['state'],
+                'state' => if_null($app->req->post['state']),
                 'postal_code' => $app->req->post['postal_code'],
-                'country' => $app->req->post['country']
+                'country' => if_null($app->req->post['country'])
             ]);
             $subscriber->where('id = ?', $id)
                     ->update();

@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\NodeQ\tc_NodeQ as Node;
@@ -257,7 +258,7 @@ function make_clickable($value, $protocols = ['http', 'mail'], array $attributes
             case 'https': $value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) {
                     if ($match[1])
                         $protocol = $match[1];
-                    $link = $match[2] ? : $match[3];
+                    $link = $match[2] ?: $match[3];
                     return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$link</a>") . '>';
                 }, $value);
                 break;
@@ -1438,9 +1439,9 @@ function tc_response_time($cid, $sid, $left_operand)
 {
     try {
         $node = Node::table('campaign_queue')
-            ->where('cid', '=', $cid)
-            ->andWhere('sid', '=', $sid)
-            ->find();
+                ->where('cid', '=', $cid)
+                ->andWhere('sid', '=', $sid)
+                ->find();
         $seconds = strtotime($left_operand) - strtotime(_h($node->timestamp_sent));
         return tc_seconds_to_time($seconds);
     } catch (NodeQException $e) {
@@ -1448,4 +1449,29 @@ function tc_response_time($cid, $sid, $left_operand)
     } catch (Exception $e) {
         _tc_flash()->error($e->getMessage());
     }
+}
+
+/**
+ * Checks if a variable is null. If not null, check if integer or string.
+ * 
+ * @since 2.0.5
+ * @param string|int $var   Variable to check.
+ * @return string|int|null Returns null if empty or a string or an integer.
+ */
+function if_null($var)
+{
+    $_var = ctype_digit($var) ? (int) $var : (string) $var;
+    return $var === '' ? NULL : $_var;
+}
+
+/**
+ * If variable is not null, return it.
+ * 
+ * @since 2.0.5
+ * @param string|int $var   Variable to check.
+ * @return string|int|null Returns false if NULL or a string or an integer.
+ */
+function if_not_null($var)
+{
+    return $var !== NULL ? _escape($var) : false;
 }

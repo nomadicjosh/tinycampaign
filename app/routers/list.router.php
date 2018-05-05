@@ -114,15 +114,15 @@ $app->group('/list', function() use ($app) {
                 $list->description = $app->req->_post('description');
                 $list->created = Jenssegers\Date\Date::now();
                 $list->owner = get_userdata('id');
-                $list->redirect_success = (empty($app->req->post['redirect_success']) ? NULL : $app->req->post['redirect_success']);
-                $list->redirect_unsuccess = (empty($app->req->post['redirect_unsuccess']) ? NULL : $app->req->post['redirect_unsuccess']);
+                $list->redirect_success = if_null($app->req->post['redirect_success']);
+                $list->redirect_unsuccess = if_null($app->req->post['redirect_unsuccess']);
                 $list->confirm_email = _file_get_contents(APP_PATH . 'views/setting/tpl/confirm_email.tpl');
                 $list->subscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/subscribe_email.tpl');
                 $list->unsubscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/unsubscribe_email.tpl');
                 $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
-                $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);
+                $list->server = if_null($app->req->post['server']);
                 $list->save();
 
                 $ID = $list->lastInsertId();
@@ -162,15 +162,15 @@ $app->group('/list', function() use ($app) {
                 $list = $app->db->list();
                 $list->name = $app->req->_post('name');
                 $list->description = $app->req->_post('description');
-                $list->redirect_success = (empty($app->req->post['redirect_success']) ? NULL : $app->req->post['redirect_success']);
-                $list->redirect_unsuccess = (empty($app->req->post['redirect_unsuccess']) ? NULL : $app->req->post['redirect_unsuccess']);
+                $list->redirect_success = if_null($app->req->post['redirect_success']);
+                $list->redirect_unsuccess = if_null($app->req->post['redirect_unsuccess']);
                 $list->confirm_email = $app->req->_post('confirm_email');
                 $list->subscribe_email = $app->req->_post('subscribe_email');
                 $list->unsubscribe_email = $app->req->_post('unsubscribe_email');
                 $list->notify_email = $app->req->post['notify_email'];
                 $list->optin = $app->req->_post('optin');
                 $list->status = $app->req->_post('status');
-                $list->server = ($app->req->post['server'] == '' ? NULL : $app->req->post['server']);
+                $list->server = if_null($app->req->post['server']);
                 $list->where('id = ?', $id)->_and_()
                     ->where('owner = ?', get_userdata('id'));
                 $list->update();

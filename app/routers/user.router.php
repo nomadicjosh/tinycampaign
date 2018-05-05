@@ -75,9 +75,9 @@ $app->group('/user', function() use ($app) {
                 $user->address1 = $app->req->post['address1'];
                 $user->address2 = $app->req->post['address2'];
                 $user->city = $app->req->post['city'];
-                $user->state = $app->req->post['state'];
+                $user->state = if_null($app->req->post['state']);
                 $user->postal_code = $app->req->post['postal_code'];
-                $user->country = $app->req->post['country'];
+                $user->country = if_null($app->req->post['country']);
                 $user->password = tc_hash_password($pass);
                 $user->status = $app->req->post['status'];
                 $user->roleID = $app->req->post['roleID'];
@@ -151,9 +151,9 @@ $app->group('/user', function() use ($app) {
                 $user->address1 = $app->req->post['address1'];
                 $user->address2 = $app->req->post['address2'];
                 $user->city = $app->req->post['city'];
-                $user->state = $app->req->post['state'];
+                $user->state = if_null($app->req->post['state']);
                 $user->postal_code = $app->req->post['postal_code'];
-                $user->country = $app->req->post['country'];
+                $user->country = if_null($app->req->post['country']);
                 $user->status = $app->req->post['status'];
                 $user->roleID = $app->req->post['roleID'];
                 $user->LastUpdate = \Jenssegers\Date\Date::now()->format('Y-m-d h:i:s');
@@ -258,9 +258,9 @@ $app->group('/user', function() use ($app) {
                 $user->address1 = $app->req->post['address1'];
                 $user->address2 = $app->req->post['address2'];
                 $user->city = $app->req->post['city'];
-                $user->state = $app->req->post['state'];
+                $user->state = if_null($app->req->post['state']);
                 $user->postal_code = $app->req->post['postal_code'];
-                $user->country = $app->req->post['country'];
+                $user->country = if_null($app->req->post['country']);
                 $user->LastUpdate = \Jenssegers\Date\Date::now()->format('Y-m-d h:i:s');
                 $user->where('id = ?', get_userdata('id'))
                     ->update();

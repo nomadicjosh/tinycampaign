@@ -80,13 +80,13 @@ $app->group('/subscriber', function() use ($app) {
                         'address1' => $app->req->post['address1'],
                         'address2' => $app->req->post['address2'],
                         'city' => $app->req->post['city'],
-                        'state' => $app->req->post['state'],
+                        'state' => if_null($app->req->post['state']),
                         'postal_code' => $app->req->post['postal_code'],
-                        'country' => $app->req->post['country'],
+                        'country' => if_null($app->req->post['country']),
                         'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                         'ip' => $app->req->server['REMOTE_ADDR'],
                         'spammer' => (int) 1,
-                        'tags' => $app->req->post['tags'],
+                        'tags' => if_null($app->req->post['tags']),
                         'addedBy' => get_userdata('id'),
                         'addDate' => Jenssegers\Date\Date::now()
                     ]);
@@ -125,13 +125,13 @@ $app->group('/subscriber', function() use ($app) {
                         'address1' => $app->req->post['address1'],
                         'address2' => $app->req->post['address2'],
                         'city' => $app->req->post['city'],
-                        'state' => $app->req->post['state'],
+                        'state' => if_null($app->req->post['state']),
                         'postal_code' => $app->req->post['postal_code'],
-                        'country' => $app->req->post['country'],
+                        'country' => if_null($app->req->post['country']),
                         'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
                         'ip' => $app->req->server['REMOTE_ADDR'],
                         'spammer' => (int) 0,
-                        'tags' => $app->req->post['tags'],
+                        'tags' => if_null($app->req->post['tags']),
                         'addedBy' => get_userdata('id'),
                         'addDate' => Jenssegers\Date\Date::now()
                     ]);
@@ -205,12 +205,12 @@ $app->group('/subscriber', function() use ($app) {
                         'address1' => $app->req->post['address1'],
                         'address2' => $app->req->post['address2'],
                         'city' => $app->req->post['city'],
-                        'state' => $app->req->post['state'],
+                        'state' => if_null($app->req->post['state']),
                         'postal_code' => $app->req->post['postal_code'],
-                        'country' => $app->req->post['country'],
+                        'country' => if_null($app->req->post['country']),
                         'spammer' => (int) 1,
                         'exception' => $app->req->post['exception'],
-                        'tags' => $app->req->post['tags']
+                        'tags' => if_null($app->req->post['tags'])
                     ]);
                     $subscriber->where('id = ?', $id)
                         ->update();
@@ -270,12 +270,12 @@ $app->group('/subscriber', function() use ($app) {
                         'address1' => $app->req->post['address1'],
                         'address2' => $app->req->post['address2'],
                         'city' => $app->req->post['city'],
-                        'state' => $app->req->post['state'],
+                        'state' => if_null($app->req->post['state']),
                         'postal_code' => $app->req->post['postal_code'],
-                        'country' => $app->req->post['country'],
+                        'country' => if_null($app->req->post['country']),
                         'spammer' => (int) 0,
                         'exception' => $app->req->post['exception'],
-                        'tags' => $app->req->post['tags']
+                        'tags' => if_null($app->req->post['tags'])
                     ]);
                     $subscriber->where('id = ?', $id)
                         ->update();

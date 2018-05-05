@@ -69,8 +69,8 @@ $app->group('/campaign', function() use ($app) {
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
                 $msg->html = $app->req->post['html'];
-                $msg->text = $app->req->post['text'];
-                $msg->footer = $app->req->post['footer'];
+                $msg->text = if_null($app->req->post['text']);
+                $msg->footer = if_null($app->req->post['footer']);
                 $msg->status = 'ready';
                 $msg->sendstart = $app->req->post['sendstart'];
                 $msg->archive = $app->req->post['archive'];
@@ -129,8 +129,8 @@ $app->group('/campaign', function() use ($app) {
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
                 $msg->html = $app->req->post['html'];
-                $msg->text = $app->req->post['text'];
-                $msg->footer = $app->req->post['footer'];
+                $msg->text = if_null($app->req->post['text']);
+                $msg->footer = if_null($app->req->post['footer']);
                 $msg->status = $app->req->post['status'];
                 $msg->sendstart = $app->req->post['sendstart'];
                 $msg->archive = $app->req->post['archive'];
