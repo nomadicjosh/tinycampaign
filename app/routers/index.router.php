@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Respect\Validation\Validator as v;
@@ -44,7 +45,7 @@ $app->match('GET|POST', '/', function () use($app) {
 
     $app->view->display('index/index', [
         'title' => _t('Login')
-        ]
+            ]
     );
 });
 
@@ -62,7 +63,7 @@ $app->match('GET|POST', '/permission/', function () use($app) {
 
     $app->view->display('permission/index', [
         'title' => _t('Manage Permissions')
-        ]
+            ]
     );
 });
 
@@ -130,7 +131,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
         $app->view->display('permission/view', [
             'title' => _t('Edit Permission'),
             'perm' => $perm
-            ]
+                ]
         );
     }
 });
@@ -160,7 +161,7 @@ $app->match('GET|POST', '/permission/add/', function () use($app) {
 
     $app->view->display('permission/add', [
         'title' => _t('Add New Permission')
-        ]
+            ]
     );
 });
 
@@ -177,7 +178,7 @@ $app->match('GET|POST', '/role/', function () use($app) {
 
     $app->view->display('role/index', [
         'title' => _t('Manage Roles')
-        ]
+            ]
     );
 });
 
@@ -228,7 +229,7 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
         $app->view->display('role/view', [
             'title' => _t('Edit Role'),
             'role' => $role
-            ]
+                ]
         );
     }
 });
@@ -239,9 +240,9 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
         try {
             $role = $app->db->role();
             $role->insert([
-                    'roleName' => $app->req->post['roleName'],
-                    'permission' => maybe_serialize($app->req->post['permission'])
-                ]);
+                'roleName' => $app->req->post['roleName'],
+                'permission' => maybe_serialize($app->req->post['permission'])
+            ]);
 
             $ID = $role->lastInsertId();
             _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'role' . '/' . $ID . '/');
@@ -261,7 +262,7 @@ $app->match('GET|POST', '/role/add/', function () use($app) {
 
     $app->view->display('role/add', [
         'title' => _t('Add Role')
-        ]
+            ]
     );
 });
 
@@ -269,11 +270,11 @@ $app->post('/role/editRole/', function () use($app) {
     try {
         $role = $app->db->role();
         $role->set([
-                'roleName' => $app->req->post['roleName'],
-                'permission' => maybe_serialize($app->req->post['permission'])
-            ])
-            ->where('id = ?', $app->req->post['roleID'])
-            ->update();
+                    'roleName' => $app->req->post['roleName'],
+                    'permission' => maybe_serialize($app->req->post['permission'])
+                ])
+                ->where('id = ?', $app->req->post['roleID'])
+                ->update();
 
         _tc_flash()->success(_tc_flash()->notice(200));
     } catch (NotFoundException $e) {
@@ -300,8 +301,8 @@ $app->match('GET|POST', '/template/', function () use($app) {
 
     try {
         $tpl = $app->db->template()
-            ->where('owner = ?', get_userdata('id'))
-            ->find();
+                ->where('owner = ?', get_userdata('id'))
+                ->find();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -318,7 +319,7 @@ $app->match('GET|POST', '/template/', function () use($app) {
     $app->view->display('template/index', [
         'title' => _t('Templates'),
         'templates' => $tpl
-        ]
+            ]
     );
 });
 
@@ -337,13 +338,13 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
         try {
             $tpl = $app->db->template();
             $tpl->set([
-                    'name' => $app->req->post['name'],
-                    'description' => $app->req->post['description'],
-                    'content' => $app->req->post['content']
-                ])
-                ->where('id = ?', $id)->_and_()
-                ->where('owner = ?', get_userdata('id'))
-                ->update();
+                        'name' => $app->req->post['name'],
+                        'description' => $app->req->post['description'],
+                        'content' => $app->req->post['content']
+                    ])
+                    ->where('id = ?', $id)->_and_()
+                    ->where('owner = ?', get_userdata('id'))
+                    ->update();
             tc_logger_activity_log_write('Update Record', 'Template', $app->req->post['name'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
@@ -357,9 +358,9 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
 
     try {
         $tpl = $app->db->template()
-            ->where('id = ?', $id)->_and_()
-            ->where('owner = ?', get_userdata('id'))
-            ->findOne();
+                ->where('id = ?', $id)->_and_()
+                ->where('owner = ?', get_userdata('id'))
+                ->findOne();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -404,7 +405,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
         $app->view->display('template/view', [
             'title' => _t('Edit Template'),
             'tpl' => $tpl
-            ]
+                ]
         );
     }
 });
@@ -450,7 +451,7 @@ $app->match('GET|POST', '/template/create/', function () use($app) {
 
     $app->view->display('template/create', [
         'title' => _t('Create Template')
-        ]
+            ]
     );
 });
 
@@ -467,11 +468,11 @@ $app->before('GET', '/template/(\d+)/d/', function() use($app) {
 $app->get('/template/(\d+)/d/', function ($id) use($app) {
     try {
         $app->db->template()
-            ->where('owner = ?', get_userdata('id'))->_and_()
-            ->where('id = ?', $id)
-            ->reset()
-            ->findOne($id)
-            ->delete();
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->reset()
+                ->findOne($id)
+                ->delete();
 
         _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
     } catch (NotFoundException $e) {
@@ -496,8 +497,8 @@ $app->match('GET|POST', '/server/', function () use($app) {
 
     try {
         $servers = $app->db->server()
-            ->where('owner = ?', get_userdata('id'))
-            ->find();
+                ->where('owner = ?', get_userdata('id'))
+                ->find();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -514,7 +515,7 @@ $app->match('GET|POST', '/server/', function () use($app) {
     $app->view->display('server/index', [
         'title' => _t('Servers'),
         'servers' => $servers
-        ]
+            ]
     );
 });
 
@@ -543,21 +544,21 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
         try {
             $server = $app->db->server();
             $server->set([
-                    'name' => $app->req->post['name'],
-                    'hname' => $app->req->post['hname'],
-                    'uname' => $app->req->post['uname'],
-                    'password' => Crypto::encrypt($app->req->post['password'], Key::loadFromAsciiSafeString($node->key)),
-                    'port' => $app->req->post['port'],
-                    'protocol' => $app->req->post['protocol'],
-                    'throttle' => $app->req->post['throttle'],
-                    'femail' => $app->req->post['femail'],
-                    'fname' => $app->req->post['fname'],
-                    'remail' => $app->req->post['remail'],
-                    'rname' => $app->req->post['rname']
-                ])
-                ->where('id = ?', $id)->_and_()
-                ->where('owner = ?', get_userdata('id'))
-                ->update();
+                        'name' => $app->req->post['name'],
+                        'hname' => $app->req->post['hname'],
+                        'uname' => $app->req->post['uname'],
+                        'password' => Crypto::encrypt($app->req->post['password'], Key::loadFromAsciiSafeString($node->key)),
+                        'port' => $app->req->post['port'],
+                        'protocol' => $app->req->post['protocol'],
+                        'throttle' => $app->req->post['throttle'],
+                        'femail' => $app->req->post['femail'],
+                        'fname' => $app->req->post['fname'],
+                        'remail' => $app->req->post['remail'],
+                        'rname' => $app->req->post['rname']
+                    ])
+                    ->where('id = ?', $id)->_and_()
+                    ->where('owner = ?', get_userdata('id'))
+                    ->update();
             tc_logger_activity_log_write('Update Record', 'Server', $app->req->post['name'], get_userdata('uname'));
             _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
         } catch (NotFoundException $e) {
@@ -571,9 +572,9 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
 
     try {
         $server = $app->db->server()
-            ->where('id = ?', $id)->_and_()
-            ->where('owner = ?', get_userdata('id'))
-            ->findOne();
+                ->where('id = ?', $id)->_and_()
+                ->where('owner = ?', get_userdata('id'))
+                ->findOne();
 
         try {
             $password = Crypto::decrypt(_h($server->password), Key::loadFromAsciiSafeString($node->key));
@@ -629,7 +630,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
             'title' => _t('Edit Server'),
             'server' => $server,
             'password' => $password
-            ]
+                ]
         );
     }
 });
@@ -693,7 +694,7 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
 
     $app->view->display('server/create', [
         'title' => _t('Create a Server')
-        ]
+            ]
     );
 });
 
@@ -725,11 +726,11 @@ $app->before('GET', '/server/(\d+)/d/', function() use($app) {
 $app->get('/server/(\d+)/d/', function ($id) use($app) {
     try {
         $app->db->server()
-            ->where('owner = ?', get_userdata('id'))->_and_()
-            ->where('id = ?', $id)
-            ->reset()
-            ->findOne($id)
-            ->delete();
+                ->where('owner = ?', get_userdata('id'))->_and_()
+                ->where('id = ?', $id)
+                ->reset()
+                ->findOne($id)
+                ->delete();
 
         _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
     } catch (NotFoundException $e) {
@@ -744,8 +745,8 @@ $app->get('/server/(\d+)/d/', function ($id) use($app) {
 $app->get('/archive/', function () use($app) {
     try {
         $archives = $app->db->campaign()
-            ->where('campaign.archive = "1"')
-            ->find();
+                ->where('campaign.archive = "1"')
+                ->find();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -760,16 +761,16 @@ $app->get('/archive/', function () use($app) {
     $app->view->display('index/archives', [
         'title' => _t('Archived Campaigns'),
         'archives' => $archives
-        ]
+            ]
     );
 });
 
 $app->get('/archive/(\d+)/', function ($id) use($app) {
     try {
         $cpgn = $app->db->campaign()
-            ->where('campaign.id = ?', $id)->_and_()
-            ->where('campaign.archive = "1"')
-            ->findOne();
+                ->where('campaign.id = ?', $id)->_and_()
+                ->where('campaign.archive = "1"')
+                ->findOne();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -812,7 +813,7 @@ $app->get('/archive/(\d+)/', function ($id) use($app) {
         $app->view->display('index/view-archive', [
             'title' => _h($cpgn->subject),
             'cpgn' => $cpgn
-            ]
+                ]
         );
     }
 });
@@ -832,14 +833,14 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
 
     try {
         $subscriber = $app->db->subscriber_list()
-            ->select('subscriber_list.lid,subscriber_list.sid')
-            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
-            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
-            ->where('subscriber_list.lid = ?', $lid)->_and_()
-            ->where('subscriber_list.sid = ?', $sid)->_and_()
-            ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.confirmed = "0"')
-            ->findOne();
+                ->select('subscriber_list.lid,subscriber_list.sid')
+                ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+                ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+                ->where('subscriber_list.lid = ?', $lid)->_and_()
+                ->where('subscriber_list.sid = ?', $sid)->_and_()
+                ->where('subscriber_list.code = ?', $code)->_and_()
+                ->where('subscriber_list.confirmed = "0"')
+                ->findOne();
         /**
          * Check if subscriber has already confirmed subscription.
          */
@@ -873,12 +874,12 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
          */ else {
             $sub = $app->db->subscriber_list();
             $sub->set([
-                    'confirmed' => (int) 1
-                ])
-                ->where('lid = ?', $lid)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->where('code = ?', $code)
-                ->update();
+                        'confirmed' => (int) 1
+                    ])
+                    ->where('lid = ?', $lid)->_and_()
+                    ->where('sid = ?', $sid)->_and_()
+                    ->where('code = ?', $code)
+                    ->update();
 
             subscribe_email_node(_h($list->code), $subscriber);
 
@@ -911,7 +912,7 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
 
     $app->view->display('index/status', [
         'title' => _t('Email Confirmed')
-        ]
+            ]
     );
 });
 
@@ -941,7 +942,7 @@ $app->post('/subscribe/', function () use($app) {
      */
     $get_sub = get_subscriber_by('email', $app->req->post['email']);
     if (_h($get_sub->id) > 0) {
-        _tc_flash()->{'error'}(_t('Your email is already in the system.'), get_base_url() . 'status' . '/');
+        _tc_flash()->{'error'}(sprintf(_t('Your email is already in the system. <a href="%s"><strong>Click here</strong></a> to update your preferences.'), get_base_url() . 'preferences' . '/' . _escape($get_sub->code) . '/subscriber/' . _escape($get_sub->id) . '/'), get_base_url() . 'status' . '/');
         exit();
     }
     /**
@@ -989,9 +990,9 @@ $app->post('/subscribe/', function () use($app) {
         ]);
 
         $sub = $app->db->subscriber_list()
-            ->where('lid = ?', _h($list->id))->_and_()
-            ->where('sid = ?', $sid)->_and_()
-            ->findOne();
+                ->where('lid = ?', _h($list->id))->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->findOne();
 
         if (_h($list->notify_email) == 1 && _h($list->optin) == 0) {
             try {
@@ -1136,8 +1137,8 @@ $app->post('/asubscribe/', function () use($app) {
             }
 
             $new_sub = $app->db->subscriber_list()
-                ->where('sid = ?', $sid)
-                ->findOne();
+                    ->where('sid = ?', $sid)
+                    ->findOne();
 
             if ($list->optin == 1) {
                 // send confirm email and redirect.
@@ -1188,14 +1189,14 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
 
     try {
         $subscriber = $app->db->subscriber_list()
-            ->select('subscriber_list.lid,subscriber_list.sid')
-            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
-            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
-            ->where('subscriber_list.lid = ?', $lid)->_and_()
-            ->where('subscriber_list.sid = ?', $sid)->_and_()
-            ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.unsubscribed = "0"')
-            ->findOne();
+                ->select('subscriber_list.lid,subscriber_list.sid')
+                ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+                ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+                ->where('subscriber_list.lid = ?', $lid)->_and_()
+                ->where('subscriber_list.sid = ?', $sid)->_and_()
+                ->where('subscriber_list.code = ?', $code)->_and_()
+                ->where('subscriber_list.unsubscribed = "0"')
+                ->findOne();
         /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
@@ -1224,12 +1225,12 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
          */ else {
             $sub = $app->db->subscriber_list();
             $sub->set([
-                    'unsubscribed' => (int) 1
-                ])
-                ->where('lid = ?', $lid)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->where('code = ?', $code)
-                ->update();
+                        'unsubscribed' => (int) 1
+                    ])
+                    ->where('lid = ?', $lid)->_and_()
+                    ->where('sid = ?', $sid)->_and_()
+                    ->where('code = ?', $code)
+                    ->update();
             try {
                 $upd = Node::table('campaign_queue')->find($rid);
                 $upd->is_unsubscribed = (int) 1;
@@ -1256,7 +1257,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
 
     $app->view->display('index/status', [
         'title' => _t('Unsubscribe Confirmed')
-        ]
+            ]
     );
 });
 
@@ -1275,14 +1276,14 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
 
     try {
         $subscriber = $app->db->subscriber_list()
-            ->select('subscriber_list.lid,subscriber_list.sid')
-            ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
-            ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
-            ->where('subscriber_list.lid = ?', $lid)->_and_()
-            ->where('subscriber_list.sid = ?', $sid)->_and_()
-            ->where('subscriber_list.code = ?', $code)->_and_()
-            ->where('subscriber_list.unsubscribed = "0"')
-            ->findOne();
+                ->select('subscriber_list.lid,subscriber_list.sid')
+                ->select('subscriber_list.code,subscriber_list.confirmed,subscriber.email')
+                ->_join('subscriber', 'subscriber_list.sid = subscriber.id')
+                ->where('subscriber_list.lid = ?', $lid)->_and_()
+                ->where('subscriber_list.sid = ?', $sid)->_and_()
+                ->where('subscriber_list.code = ?', $code)->_and_()
+                ->where('subscriber_list.unsubscribed = "0"')
+                ->findOne();
         /**
          * If the database table doesn't exist, then it
          * is false and a 404 should be sent.
@@ -1317,12 +1318,12 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
          */ else {
             $sub = $app->db->subscriber_list();
             $sub->set([
-                    'unsubscribed' => (int) 1
-                ])
-                ->where('lid = ?', $lid)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->where('code = ?', $code)
-                ->update();
+                        'unsubscribed' => (int) 1
+                    ])
+                    ->where('lid = ?', $lid)->_and_()
+                    ->where('sid = ?', $sid)->_and_()
+                    ->where('code = ?', $code)
+                    ->update();
             try {
                 $upd = Node::table('campaign_queue')->find($rid);
                 $upd->is_unsubscribed = (int) 1;
@@ -1372,9 +1373,9 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
 
     try {
         $tracking = $app->db->tracking()
-            ->where('cid = ?', $cid)->_and_()
-            ->where('sid = ?', $sid)
-            ->count('id');
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)
+                ->count('id');
 
         if ($tracking <= 0) {
             $track = $app->db->tracking();
@@ -1386,27 +1387,27 @@ $app->get('/tracking/cid/(\d+)/sid/(\d+)/', function ($cid, $sid) use($app) {
             ]);
 
             $app->db->query(
-                "UPDATE `campaign` "
-                . "SET `viewed` = `viewed` + 1 "
-                . "WHERE `id` = ?", [$cid]
+                    "UPDATE `campaign` "
+                    . "SET `viewed` = `viewed` + 1 "
+                    . "WHERE `id` = ?", [$cid]
             );
         } else {
             $track = $app->db->tracking()
-                ->where('cid = ?', $cid)->_and_()
-                ->where('sid = ?', $sid)
-                ->findOne();
+                    ->where('cid = ?', $cid)->_and_()
+                    ->where('sid = ?', $sid)
+                    ->findOne();
             $track->set([
-                    'viewed' => _h((int) $track->viewed) + 1
-                ])
-                ->update();
+                        'viewed' => _h((int) $track->viewed) + 1
+                    ])
+                    ->update();
 
             /* $campaign = $app->db->campaign()
               ->where('id = ?', $cid)
               ->findOne(); */
             $app->db->query(
-                "UPDATE `campaign` "
-                . "SET `viewed` = `viewed` + 1 "
-                . "WHERE `id` = ?", [$cid]
+                    "UPDATE `campaign` "
+                    . "SET `viewed` = `viewed` + 1 "
+                    . "WHERE `id` = ?", [$cid]
             );
             /* $cpgn2 = $app->db->campaign();
               $cpgn2->viewed = _h((int)$campaign->viewed) +1;
@@ -1461,10 +1462,10 @@ $app->get('/lt/', function () use($app) {
         }
 
         $tracking = $app->db->tracking_link()
-            ->where('cid = ?', $cid)->_and_()
-            ->where('sid = ?', $sid)->_and_()
-            ->where('url = ?', $app->req->get['url'])
-            ->count('id');
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)->_and_()
+                ->where('url = ?', $app->req->get['url'])
+                ->count('id');
 
         if ($tracking <= 0) {
             $track1 = $app->db->tracking_link();
@@ -1479,14 +1480,14 @@ $app->get('/lt/', function () use($app) {
             ]);
         } else {
             $track2 = $app->db->tracking_link()
-                ->where('cid = ?', $cid)->_and_()
-                ->where('sid = ?', $sid)->_and_()
-                ->where('url = ?', $app->req->get['url'])
-                ->findOne();
+                    ->where('cid = ?', $cid)->_and_()
+                    ->where('sid = ?', $sid)->_and_()
+                    ->where('url = ?', $app->req->get['url'])
+                    ->findOne();
             $track2->set([
-                    'clicked' => _h((int) $track2->clicked) + 1
-                ])
-                ->update();
+                        'clicked' => _h((int) $track2->clicked) + 1
+                    ])
+                    ->update();
         }
         tc_cache_flush_namespace('domain_report');
         tc_cache_flush_namespace('oday_report');
@@ -1518,7 +1519,7 @@ $app->get('/status/', function () use($app) {
 
     $app->view->display('index/status', [
         'title' => _t('Status')
-        ]
+            ]
     );
 });
 
@@ -1534,7 +1535,7 @@ $app->get('/spam/', function () use($app) {
 
     $app->view->display('index/status', [
         'title' => _t('No Spamming!')
-        ]
+            ]
     );
 });
 
@@ -1584,16 +1585,16 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                 'country' => $app->req->post['country']
             ]);
             $subscriber->where('id = ?', $id)
-                ->update();
+                    ->update();
 
             $data = [];
             $data['lid'] = $app->req->post['lid'];
 
             foreach ($app->req->post['id'] as $list) {
                 $sub = $app->db->subscriber_list()
-                    ->where('sid = ?', $id)->_and_()
-                    ->where('lid = ?', $list)
-                    ->findOne();
+                        ->where('sid = ?', $id)->_and_()
+                        ->where('lid = ?', $list)
+                        ->findOne();
 
                 if ($sub == false && $list == $data['lid'][$list]) {
                     $sub_list = $app->db->subscriber_list();
@@ -1607,13 +1608,13 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
                 } else {
                     $sub_list = $app->db->subscriber_list();
                     $sub_list->set([
-                            'lid' => $list,
-                            'sid' => $id,
-                            'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
-                        ])
-                        ->where('sid = ?', $id)->_and_()
-                        ->where('lid = ?', $list)
-                        ->update();
+                                'lid' => $list,
+                                'sid' => $id,
+                                'unsubscribed' => ($list > $data['lid'][$list] ? (int) 1 : (int) 0)
+                            ])
+                            ->where('sid = ?', $id)->_and_()
+                            ->where('lid = ?', $list)
+                            ->update();
                 }
             }
 
@@ -1630,9 +1631,9 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
 
     try {
         $get_sub = $app->db->subscriber()
-            ->where('code = ?', $code)->_and_()
-            ->where('id = ?', $id)
-            ->findOne();
+                ->where('code = ?', $code)->_and_()
+                ->where('id = ?', $id)
+                ->findOne();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
@@ -1683,7 +1684,7 @@ $app->match('GET|POST', '/preferences/(\w+)/subscriber/(\d+)/', function ($code,
         $app->view->display('index/preferences', [
             'title' => _t('My Preferences'),
             'subscriber' => $get_sub
-            ]
+                ]
         );
     }
 });
@@ -1700,10 +1701,10 @@ $app->post('/reset-password/', function () use($app) {
         $code = _random_lib()->generateString(100, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
         $pass = $app->db->user();
         $pass->set([
-                'code' => $code,
-            ])
-            ->where('id = ?', _h($user->id))
-            ->update();
+                    'code' => $code,
+                ])
+                ->where('id = ?', _h($user->id))
+                ->update();
 
         $domain = get_domain_name();
         $site = _h(get_option('system_name'));
@@ -1739,8 +1740,8 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
 
     try {
         $user = $app->db->user()
-            ->where('code = ?', $code)
-            ->findOne();
+                ->where('code = ?', $code)
+                ->findOne();
     } catch (NotFoundException $e) {
         _tc_flash()->{'error'}($e->getMessage(), get_base_url());
     } catch (Exception $e) {
@@ -1760,11 +1761,11 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
         try {
             $pass = $app->db->user();
             $pass->set([
-                    'code' => NULL,
-                    'password' => tc_hash_password($password)
-                ])
-                ->where('id = ?', _h($user->id))
-                ->update();
+                        'code' => NULL,
+                        'password' => tc_hash_password($password)
+                    ])
+                    ->where('id = ?', _h($user->id))
+                    ->update();
 
             $domain = get_domain_name();
             $site = _h(get_option('system_name'));
@@ -1834,7 +1835,7 @@ $app->match('GET|POST', '/password/(\w+)/', function ($code) use($app) {
         $app->view->display('index/password', [
             'title' => _t('New Password'),
             'user' => $user
-            ]
+                ]
         );
     }
 });
