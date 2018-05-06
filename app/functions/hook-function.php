@@ -1268,6 +1268,7 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
             $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
+            $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
             $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
             $tcMailer->From = _escape($data->femail);
             $tcMailer->FromName = _escape($data->fname);
@@ -1343,6 +1344,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
             $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
+            $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
             $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
             $tcMailer->From = _escape($data->femail);
             $tcMailer->FromName = _escape($data->fname);
