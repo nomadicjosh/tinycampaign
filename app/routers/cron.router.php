@@ -578,6 +578,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                             'xsubscriberid' => $message->getSubscriberId(),
                             'xsubscriberemail' => $message->getToEmail(),
                             'slist_code' => $slist->code,
+                            'unsub_mailto' => $list->unsub_mailto,
                             'uniqueid' => $message->getId()
                         ];
                         $footer = _escape($cpgn->footer);

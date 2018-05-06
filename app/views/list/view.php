@@ -14,7 +14,7 @@ $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 define('SCREEN_PARENT', 'list');
-define('SCREEN', _h($list->code));
+define('SCREEN', _escape($list->code));
 ?>
 
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
@@ -94,38 +94,43 @@ define('SCREEN', _h($list->code));
         <!-- SELECT2 EXAMPLE -->
         <div class="box box-default">
             <!-- form start -->
-            <form method="post" action="<?= get_base_url(); ?>list/<?=_h((int)$list->id);?>/" data-toggle="validator" autocomplete="off">
+            <form method="post" action="<?= get_base_url(); ?>list/<?=_escape((int)$list->id);?>/" data-toggle="validator" autocomplete="off">
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Code'); ?></label>
-                                <input type="text" class="form-control" value="<?=_h($list->code);?>" readonly required>
+                                <input type="text" class="form-control" value="<?=_escape($list->code);?>" readonly required>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('List Name'); ?></label>
-                                <input type="text" class="form-control" name="name" value="<?=_h($list->name);?>" required>
+                                <input type="text" class="form-control" name="name" value="<?=_escape($list->name);?>" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('List Unsubscribe'); ?>  <a href="#unsub" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
+                                <input type="text" class="form-control" name="unsub_mailto" value="<?=if_not_null(_escape($list->unsub_mailto));?>">
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Short Description'); ?></label>
-                                <textarea class="form-control" rows="3" name="description"><?=_h($list->description);?></textarea>
+                                <textarea class="form-control" rows="3" name="description"><?=_escape($list->description);?></textarea>
                             </div>
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>
                                 <select class="form-control select2" name="status" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="open"<?=selected('open', _h($list->status), false);?>><?=_t('Open');?></option>
-                                    <option value="closed"<?=selected('closed', _h($list->status), false);?>><?=_t('Closed');?></option>
+                                    <option value="open"<?=selected('open', _escape($list->status), false);?>><?=_t('Open');?></option>
+                                    <option value="closed"<?=selected('closed', _escape($list->status), false);?>><?=_t('Closed');?></option>
                                 </select>
                                 <p class="help-block"><?=_t('If Closed, no one will be able to subscribe to the list.');?></p>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Redirect Success'); ?></label>
-                                <input type="text" class="form-control" name="redirect_success" value="<?=_h($list->redirect_success);?>" >
+                                <input type="text" class="form-control" name="redirect_success" value="<?=_escape($list->redirect_success);?>" >
                                 <p class="help-block"><?=_t('Override the default with your custom url success message.');?></p>
                             </div>
                             
@@ -137,14 +142,14 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Notify Email?'); ?>  <a href="#notify" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <select class="form-control select2" name="notify_email" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1',_h((int)$list->notify_email),false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0',_h((int)$list->notify_email),false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1',_escape((int)$list->notify_email),false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0',_escape((int)$list->notify_email),false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Redirect Error'); ?></label>
-                                <input type="text" class="form-control" name="redirect_unsuccess" value="<?=_h($list->redirect_unsuccess);?>" >
+                                <input type="text" class="form-control" name="redirect_unsuccess" value="<?=_escape($list->redirect_unsuccess);?>" >
                                 <p class="help-block"><?=_t('Override the default with your custom url unsuccess message.');?></p>
                             </div>
                             
@@ -152,8 +157,8 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('Double Opt-in?'); ?></label>
                                 <select class="form-control select2" name="optin" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <option value="1"<?=selected('1', _h((int)$list->optin), false);?>><?=_t('Yes');?></option>
-                                    <option value="0"<?=selected('0', _h((int)$list->optin), false);?>><?=_t('No');?></option>
+                                    <option value="1"<?=selected('1', _escape((int)$list->optin), false);?>><?=_t('Yes');?></option>
+                                    <option value="0"<?=selected('0', _escape((int)$list->optin), false);?>><?=_t('No');?></option>
                                 </select>
                             </div>
                             
@@ -161,18 +166,18 @@ define('SCREEN', _h($list->code));
                                 <label><font color="red">*</font> <?= _t('SMTP Server'); ?></label>
                                 <select class="form-control select2" name="server" style="width: 100%;" required>
                                     <option>&nbsp;</option>
-                                    <?php get_user_servers(_h((int)$list->server));?>
+                                    <?php get_user_servers(_escape((int)$list->server));?>
                                 </select>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?=get_name(_h((int)$list->owner));?>"readonly>
+                                <input type="text" class="form-control" value="<?=get_name(_escape((int)$list->owner));?>"readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label><?= _t('Modified'); ?></label>
-                                <input type="text" class="form-control" value="<?= Jenssegers\Date\Date::parse(_h($list->LastUpdate))->format('M. d, Y @ h:i A');?>" readonly>
+                                <input type="text" class="form-control" value="<?= Jenssegers\Date\Date::parse(_escape($list->LastUpdate))->format('M. d, Y @ h:i A');?>" readonly>
                             </div>
                             
                         </div>
@@ -182,7 +187,7 @@ define('SCREEN', _h($list->code));
                             
                             <div class="form-group">
                                 <label><?= _t('Confirm Email Template'); ?></label>
-                                <textarea class="form-control template" rows="3" name="confirm_email"><?=_h($list->confirm_email);?></textarea>
+                                <textarea class="form-control template" rows="3" name="confirm_email"><?=_escape($list->confirm_email);?></textarea>
                             </div>
                             
                         </div>
@@ -192,7 +197,7 @@ define('SCREEN', _h($list->code));
                             
                             <div class="form-group">
                                 <label><?= _t('Subscribe Email Template'); ?></label>
-                                <textarea class="form-control template" rows="3" name="subscribe_email"><?=_h($list->subscribe_email);?></textarea>
+                                <textarea class="form-control template" rows="3" name="subscribe_email"><?=_escape($list->subscribe_email);?></textarea>
                             </div>
                             
                         </div>
@@ -202,7 +207,7 @@ define('SCREEN', _h($list->code));
                             
                             <div class="form-group">
                                 <label><?= _t('Unsubscribe Email Template'); ?></label>
-                                <textarea class="form-control template" rows="3" name="unsubscribe_email"><?=_h($list->unsubscribe_email);?></textarea>
+                                <textarea class="form-control template" rows="3" name="unsubscribe_email"><?=_escape($list->unsubscribe_email);?></textarea>
                             </div>
                             
                         </div>
@@ -228,7 +233,7 @@ define('SCREEN', _h($list->code));
     &lt;p&gt;&lt;label&gt;Email: &lt;/label&gt;&lt;input type="text" class="input" name="email" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;input type="hidden" name="m6qIHt4Z5evV" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;input type="hidden" name="YgexGyklrgi1" /&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;input type="hidden" name="code" value="<?=_h($list->code);?>" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;input type="hidden" name="code" value="<?=_escape($list->code);?>" /&gt;&lt;/p&gt;
     &lt;p&gt;&lt;input type="submit" name="submit" id="submit" value="Submit" /&gt;&lt;/p&gt;
 &lt;/form&gt;
 </pre>
@@ -246,7 +251,7 @@ define('SCREEN', _h($list->code));
             &lt;input type="email" id="signup-email" name="email" placeholder="Enter Email" /&gt;&lt;br /&gt;
             &lt;input type="hidden" name="m6qIHt4Z5evV" /&gt;
             &lt;input type="hidden" name="YgexGyklrgi1" /&gt;
-            &lt;input type="hidden" name="code" value="<?=_h($list->code);?>" /&gt;
+            &lt;input type="hidden" name="code" value="<?=_escape($list->code);?>" /&gt;
             &lt;input type="submit" name="signup-button" id="signup-button" value="Subscribe"&gt;
             &lt;span class="arrow"&gt;&lt;/span&gt;
         &lt;/form&gt;
@@ -291,6 +296,28 @@ define('SCREEN', _h($list->code));
                 </div>
                 <div class="modal-body">
                     <p><?=_t( "Set this option to 'Yes' if you would like to receive email every time someone subscribes to your list." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
+    <!-- modal -->
+    <div class="modal" id="unsub">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'List Unsubscribe' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "This is the email address that will receive unsubscribe requests." );?></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>

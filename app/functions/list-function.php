@@ -359,7 +359,7 @@ function list_unsubscribe($tcMailer, $data)
 {
     $app = \Liten\Liten::getInstance();
 
-    $link = '<' . get_base_url() . 'xunsubscribe/' . _escape($data->slist_code) . '/lid/' . _escape($data->xlistid) . '/sid/' . _escape($data->xsubscriberid) . '/rid/' . _escape($data->uniqueid) . '/>';
+    $link = ($data->unsub_mailto != null ? '<mailto:' . $data->unsub_mailto . '>, ' : '') . '<' . get_base_url() . 'xunsubscribe/' . _escape($data->slist_code) . '/lid/' . _escape($data->xlistid) . '/sid/' . _escape($data->xsubscriberid) . '/rid/' . _escape($data->uniqueid) . '>';
     return $app->hook->{'apply_filter'}('list_unsubscribe', $tcMailer->addCustomHeader('List-Unsubscribe', $link));
 }
 
