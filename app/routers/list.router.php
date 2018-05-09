@@ -338,6 +338,7 @@ $app->group('/list', function() use ($app) {
                 $filename = $_FILES["csv_import"]["tmp_name"];
                 if ($_FILES["csv_import"]["size"] > 0) {
                     $handle = fopen($filename, "r");
+                    fgetcsv($handle, 10000, $delimiter[$app->req->post['delimiter']]);
                     while (($data = fgetcsv($handle, 1000, $delimiter[$app->req->post['delimiter']])) !== FALSE) {
                         $subscriber = $app->db->subscriber();
                         $subscriber->insert([
