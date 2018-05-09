@@ -668,11 +668,9 @@ function dashboard_email_list_count()
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where('list.status = "open"')
                 ->count('id');
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
@@ -702,13 +700,10 @@ function dashboard_campaign_count()
         $emails = $app->db->campaign()
                 ->where('campaign.owner = ?', get_userdata('id'))->_and_()
                 ->where('campaign.status = "sent"')
-                ->groupBy('campaign.id')
-                ->count('campaign.recipients');
-    } catch (NotFoundException $e) {
+                ->count('campaign.id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
@@ -741,11 +736,9 @@ function dashboard_subscriber_count()
                 ->where('subscriber_list.confirmed = "1"')->_and_()
                 ->where('subscriber_list.unsubscribed = "0"')
                 ->count('subscriber_list.id');
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
@@ -771,15 +764,14 @@ function dashboard_email_sent_count()
     $app = \Liten\Liten::getInstance();
 
     try {
-        $emails = $app->db->campaign()
-                ->where('campaign.owner = ?', get_userdata('id'))
-                ->groupBy('campaign.id')
-                ->sum('campaign.recipients');
-    } catch (NotFoundException $e) {
+        $emails = $app->db->campaign_queue()
+                ->_join('campaign','campaign_queue.cid = campaign.id')
+                ->where('campaign.owner = ?', get_userdata('id'))->_and_()
+                ->where('campaign_queue.is_sent = "true"')
+                ->count('campaign_queue.id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
