@@ -1,0 +1,24 @@
+{
+    "require": {
+        "robmorgan/phinx": "^0.6.6",
+        "phpmailer/phpmailer": "^5.2",
+        "gettext/gettext": "^4.2",
+        "gettext/languages": "^2.1",
+        "defuse/php-encryption": "^2.1",
+        "ircmaxell/random-lib": "^1.2",
+        "ircmaxell/security-lib": "^1.1",
+        "jenssegers/date": "^3.2.9",
+        "jolicode/jolinotif": "^1.0",
+        "theorchard/monolog-cascade": "^0.5",
+        "monolog/monolog": "^1.22",
+        "nategood/httpful": "^0.2.20",
+        "respect/validation": "^1.1",
+        "stolz/assets": "^0.1.9",
+        "visualappeal/php-auto-update": "^0.9.5",
+        "cocur/slugify":"^2.0",
+        "hellogerard/jobby": "^3.3",
+        "league/oauth2-google": "^2.2",
+        "tubalmartin/cssmin": "^4.1",
+        "simplepie/simplepie": "^1.5"
+    }
+}

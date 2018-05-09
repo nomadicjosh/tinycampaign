@@ -16,7 +16,6 @@ test-code.php
 tests
 Tests
 phpunit
-composer.json
-composer.lock
 phinx.php
 .htaccess
+vendor
