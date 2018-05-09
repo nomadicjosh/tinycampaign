@@ -81,6 +81,9 @@ define('SCREEN', 'ctpl');
                     {text: 'Country', onclick: function () {
                             editor.insertContent('{country}');
                         }},
+                    {text: 'RSS Feed', onclick: function () {
+                            editor.insertContent('{rss_feed}');
+                        }},
                     {text: 'Unsubscribe URL', onclick: function () {
                             editor.insertContent('{unsubscribe_url}');
                         }},

@@ -1,11 +1,10 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\Exception\Exception;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\IOException;
-use app\src\NodeQ\NodeQException;
 use Cascade\Cascade;
 use Jenssegers\Date\Date;
 
@@ -257,7 +256,7 @@ function make_clickable($value, $protocols = ['http', 'mail'], array $attributes
             case 'https': $value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) {
                     if ($match[1])
                         $protocol = $match[1];
-                    $link = $match[2] ? : $match[3];
+                    $link = $match[2] ?: $match[3];
                     return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$link</a>") . '>';
                 }, $value);
                 break;
@@ -1118,7 +1117,7 @@ function tc_field_css_class($element)
 {
     $app = \Liten\Liten::getInstance();
 
-    if (_h(get_option($element)) == 'hide') {
+    if (_escape(get_option($element)) == 'hide') {
         return $app->hook->{'apply_filter'}('field_css_class', " $element");
     }
 }
@@ -1226,8 +1225,8 @@ function template_vars_replacement($template)
     $app = \Liten\Liten::getInstance();
 
     $var_array = [
-        'system_name' => _h(get_option('system_name')),
-        'address' => _h(get_option('mailing_address'))
+        'system_name' => _escape(get_option('system_name')),
+        'address' => _escape(get_option('mailing_address'))
     ];
 
     $to_replace = $app->hook->{'apply_filter'}('email_template_tags', $var_array);
@@ -1425,27 +1424,43 @@ function find_x_subscriber_email($text)
 }
 
 /**
- * Calculates response time between when the campaign was sent
- * and when the subscriber first opened his/her email.
+ * Checks if a variable is null. If not null, check if integer or string.
  * 
- * @since 2.0.4
- * @param int $cid Campaign id.
- * @param int $sid Subscriber id.
- * @param string $left_operand When campaign was first opened by subscriber.
+ * @since 2.0.5
+ * @param string|int $var   Variable to check.
+ * @return string|int|null Returns null if empty or a string or an integer.
+ */
+function if_null($var)
+{
+    $_var = ctype_digit($var) ? (int) $var : (string) $var;
+    return $var === '' ? NULL : $_var;
+}
+
+/**
+ * If variable is not null, return it.
+ * 
+ * @since 2.0.5
+ * @param string|int $var   Variable to check.
+ * @return string|int|null Returns false if NULL or a string or an integer.
+ */
+function if_not_null($var)
+{
+    return $var !== NULL ? _escape($var) : false;
+}
+
+/**
+ * Adds label to the rss campaign's status.
+ * 
+ * @since 2.0.5
+ * @param string $status
  * @return string
  */
-function tc_response_time($cid, $sid, $left_operand)
+function tc_rss_cpgn_status_label($status)
 {
-    try {
-        $node = Node::table('campaign_queue')
-            ->where('cid', '=', $cid)
-            ->andWhere('sid', '=', $sid)
-            ->find();
-        $seconds = strtotime($left_operand) - strtotime(_h($node->timestamp_sent));
-        return tc_seconds_to_time($seconds);
-    } catch (NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    }
+    $label = [
+        'active' => 'label-success',
+        'inactive' => 'label-danger'
+    ];
+
+    return $label[$status];
 }

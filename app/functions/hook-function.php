@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Defuse\Crypto\Crypto;
@@ -548,6 +549,7 @@ function tc_dashboard_footer()
      */
     $app->hook->{'do_action'}('tc_dashboard_footer');
 }
+
 /**
  * Includes and loads all activated plugins.
  *
@@ -663,21 +665,19 @@ function dashboard_email_list_count()
     // Number of overall email lists.
     try {
         $lists = $app->db->list()
-            ->where('list.owner = ?', get_userdata('id'))->_and_()
-            ->where('list.status = "open"')
-            ->count('id');
-    } catch (NotFoundException $e) {
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where('list.status = "open"')
+                ->count('id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
     $count .= '<div class="small-box bg-aqua">';
     $count .= '<div class="inner">';
-    $count .= '<h3>' . _h($lists) . '</h3>';
+    $count .= '<h3>' . _escape($lists) . '</h3>';
     $count .= '<p>' . _t('Email Lists') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-ios-list"></i></div>';
@@ -698,22 +698,19 @@ function dashboard_campaign_count()
     // Number of overall emails sent
     try {
         $emails = $app->db->campaign()
-            ->where('campaign.owner = ?', get_userdata('id'))->_and_()
-            ->where('campaign.status = "sent"')
-            ->groupBy('campaign.id')
-            ->count('campaign.recipients');
-    } catch (NotFoundException $e) {
+                ->where('campaign.owner = ?', get_userdata('id'))->_and_()
+                ->where('campaign.status = "sent"')
+                ->count('campaign.id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
     $count .= '<div class="small-box bg-green">';
     $count .= '<div class="inner">';
-    $count .= '<h3>' . _h($emails) . '</h3>';
+    $count .= '<h3>' . _escape($emails) . '</h3>';
     $count .= '<p>' . _t('Campaigns') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-email"></i></div>';
@@ -734,23 +731,21 @@ function dashboard_subscriber_count()
     // Number of overall subscribers
     try {
         $subs = $app->db->subscriber_list()
-            ->_join('list', 'subscriber_list.lid = list.id')
-            ->where('list.owner = ?', get_userdata('id'))->_and_()
-            ->where('subscriber_list.confirmed = "1"')->_and_()
-            ->where('subscriber_list.unsubscribed = "0"')
-            ->count('subscriber_list.id');
-    } catch (NotFoundException $e) {
+                ->_join('list', 'subscriber_list.lid = list.id')
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where('subscriber_list.confirmed = "1"')->_and_()
+                ->where('subscriber_list.unsubscribed = "0"')
+                ->count('subscriber_list.id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
     $count .= '<div class="small-box bg-yellow">';
     $count .= '<div class="inner">';
-    $count .= '<h3>' . _h($subs) . '</h3>';
+    $count .= '<h3>' . _escape($subs) . '</h3>';
     $count .= '<p>' . _t('Active Subscribers') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-ios-people"></i></div>';
@@ -769,22 +764,21 @@ function dashboard_email_sent_count()
     $app = \Liten\Liten::getInstance();
 
     try {
-        $emails = $app->db->campaign()
-            ->where('campaign.owner = ?', get_userdata('id'))
-            ->groupBy('campaign.id')
-            ->sum('campaign.recipients');
-    } catch (NotFoundException $e) {
+        $emails = $app->db->campaign_queue()
+                ->_join('campaign','campaign_queue.cid = campaign.id')
+                ->where('campaign.owner = ?', get_userdata('id'))->_and_()
+                ->where('campaign_queue.is_sent = "true"')
+                ->count('campaign_queue.id');
+    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->{'error'}($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     }
 
     $count = '<div class="col-lg-3 col-xs-6">';
     $count .= '<div class="small-box bg-red">';
     $count .= '<div class="inner">';
-    $count .= '<h3>' . _h($emails) . '</h3>';
+    $count .= '<h3>' . _escape($emails) . '</h3>';
     $count .= '<p>' . _t('Emails Sent') . '</p>';
     $count .= '</div>';
     $count .= '<div class="icon"><i class="ion ion-paper-airplane"></i></div>';
@@ -1175,7 +1169,7 @@ function campaign_tracking_code($cid, $sid)
 
 function tc_smtp($tcMailer)
 {
-    if (_h(get_option('tc_smtp_host')) && _h(get_option('tc_smtp_host')) != '' && _h(get_option('tc_smtp_status')) == 1) {
+    if (_escape(get_option('tc_smtp_host')) && _escape(get_option('tc_smtp_host')) != '' && _escape(get_option('tc_smtp_status')) == 1) {
 
         try {
             $node = Node::table('php_encryption')->find(1);
@@ -1188,7 +1182,7 @@ function tc_smtp($tcMailer)
         }
 
         try {
-            $password = Crypto::decrypt(_h(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
+            $password = Crypto::decrypt(_escape(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (Exception $e) {
@@ -1200,16 +1194,16 @@ function tc_smtp($tcMailer)
             $tcMailer->ContentType = "text/html";
             $tcMailer->CharSet = "UTF-8";
             $tcMailer->XMailer = 'tinyCampaign ' . CURRENT_RELEASE;
-            $tcMailer->From = _h(get_option("system_email"));
-            $tcMailer->FromName = _h(get_option("system_name"));
-            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
+            $tcMailer->From = _escape(get_option("system_email"));
+            $tcMailer->FromName = _escape(get_option("system_name"));
+            $tcMailer->Sender = (_escape(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _escape(get_option('tc_bmh_username'))); // Return-Path
             $tcMailer->AddReplyTo($tcMailer->From, $tcMailer->FromName); // Reply-To
-            $tcMailer->Host = _h(get_option("tc_smtp_host"));
-            $tcMailer->SMTPSecure = _h(get_option("tc_smtp_smtpsecure"));
-            $tcMailer->Port = _h(get_option("tc_smtp_port"));
+            $tcMailer->Host = _escape(get_option("tc_smtp_host"));
+            $tcMailer->SMTPSecure = _escape(get_option("tc_smtp_smtpsecure"));
+            $tcMailer->Port = _escape(get_option("tc_smtp_port"));
             $tcMailer->SMTPAuth = true;
             $tcMailer->isHTML(true);
-            $tcMailer->Username = _h(get_option("tc_smtp_username"));
+            $tcMailer->Username = _escape(get_option("tc_smtp_username"));
             $tcMailer->Password = $password;
             _tc_flash()->{'success'}(_t('Email Sent.'));
         } catch (phpmailerException $e) {
@@ -1247,7 +1241,7 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
         }
 
         try {
-            $password = Crypto::decrypt(_h($data->password), Key::loadFromAsciiSafeString($node->key));
+            $password = Crypto::decrypt(_escape($data->password), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
             _tc_flash()->{'error'}($e->getMessage());
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
@@ -1266,21 +1260,22 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
             $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
+            $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
             $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
-            $tcMailer->From = _h($data->femail);
-            $tcMailer->FromName = _h($data->fname);
-            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
-            $tcMailer->AddReplyTo(_h($data->remail), _h($data->rname)); // Reply-To
+            $tcMailer->From = _escape($data->femail);
+            $tcMailer->FromName = _escape($data->fname);
+            $tcMailer->Sender = (_escape(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _escape(get_option('tc_bmh_username'))); // Return-Path
+            $tcMailer->AddReplyTo(_escape($data->remail), _escape($data->rname)); // Reply-To
             $tcMailer->addAddress($to);
             $tcMailer->Subject = $subject;
             $tcMailer->Body = $html;
             $tcMailer->AltBody = $text;
             $tcMailer->isHTML(true);
-            $tcMailer->Host = _h($data->hname);
-            $tcMailer->SMTPSecure = _h($data->protocol);
-            $tcMailer->Port = _h($data->port);
+            $tcMailer->Host = _escape($data->hname);
+            $tcMailer->SMTPSecure = _escape($data->protocol);
+            $tcMailer->Port = _escape($data->port);
             $tcMailer->SMTPAuth = true;
-            $tcMailer->Username = _h($data->uname);
+            $tcMailer->Username = _escape($data->uname);
             $tcMailer->Password = $password;
             if ($tcMailer->send()) {
                 _tc_flash()->{'success'}(_t('Email Sent.'));
@@ -1314,22 +1309,24 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
         try {
             $node = Node::table('php_encryption')->find(1);
         } catch (NodeQException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (NotFoundException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         }
 
         try {
-            $password = Crypto::decrypt(_h($data->password), Key::loadFromAsciiSafeString($node->key));
+            $password = Crypto::decrypt(_escape($data->password), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         }
+
+        $is_error = false;
 
         try {
             $tcMailer = _tc_phpmailer(true);
@@ -1341,32 +1338,39 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
             $tcMailer->addCustomHeader('X-List-Id', $data->xlistid);
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
+            $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
             $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
-            $tcMailer->From = _h($data->femail);
-            $tcMailer->FromName = _h($data->fname);
-            $tcMailer->Sender = (_h(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _h(get_option('tc_bmh_username'))); // Return-Path
-            $tcMailer->AddReplyTo(_h($data->remail), _h($data->rname)); // Reply-To
+            $tcMailer->From = _escape($data->femail);
+            $tcMailer->FromName = _escape($data->fname);
+            $tcMailer->Sender = (_escape(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _escape(get_option('tc_bmh_username'))); // Return-Path
+            $tcMailer->AddReplyTo(_escape($data->remail), _escape($data->rname)); // Reply-To
             $tcMailer->addAddress($to);
             $tcMailer->Subject = $subject;
             $tcMailer->Body = $html;
             $tcMailer->AltBody = $text;
             $tcMailer->isHTML(true);
-            $tcMailer->Host = _h($data->hname);
-            $tcMailer->SMTPSecure = _h($data->protocol);
-            $tcMailer->Port = _h($data->port);
+            $tcMailer->Host = _escape($data->hname);
+            $tcMailer->SMTPSecure = _escape($data->protocol);
+            $tcMailer->Port = _escape($data->port);
             $tcMailer->SMTPAuth = true;
-            $tcMailer->Username = _h($data->uname);
+            $tcMailer->Username = _escape($data->uname);
             $tcMailer->Password = $password;
-            if ($tcMailer->send()) {
-                $app->hook->{'do_action'}('mark_queued_record_sent', $message);
-                _tc_flash()->{'success'}(_t('Email Sent.'));
-            }
+            $tcMailer->send();
             $tcMailer->ClearAddresses();
             $tcMailer->ClearAttachments();
         } catch (phpmailerException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            $is_error = true;
+            $error_text = $e->getMessage();
         } catch (\app\src\Exception\Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            $is_error = true;
+            $error_text = $e->getMessage();
+        }
+
+        if ($is_error) {
+            update_error_count($data);
+        } else {
+            $app->hook->{'do_action'}('mark_queued_record_sent', $message);
+            update_send_count($data);
         }
     }
 }
@@ -1391,9 +1395,9 @@ function send_campaign_to_queue($cpgn)
              * Retrieve list info based on the unique campaign id.
              */
             $campaign_list = $app->db->campaign_list()
-                ->select('campaign_list.lid')
-                ->where('campaign_list.cid = ?', _h($cpgn->id))
-                ->find();
+                    ->select('campaign_list.lid')
+                    ->where('campaign_list.cid = ?', _escape($cpgn->id))
+                    ->find();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
@@ -1414,7 +1418,7 @@ function send_campaign_to_queue($cpgn)
                 /* $subscriber = $app->db->subscriber()
                   ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                   ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                  ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
+                  ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
                   ->where('subscriber.allowed = "true"')->_and_()
                   ->where('(subscriber.spammer = "0" AND subscriber.exception = "0")')->_or_()
                   ->where('(subscriber.spammer = "1" AND subscriber.exception = "1")')->_or_()
@@ -1425,16 +1429,16 @@ function send_campaign_to_queue($cpgn)
                   ->find(); */
 
                 $subscriber = $app->db->subscriber()
-                    ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                    ->where('subscriber_list.lid = ?', _h($c_list->lid))->_and_()
-                    ->where('subscriber.allowed = "true"')->_and_()
-                    ->where('subscriber.bounces < "3"')->_and_()
-                    ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
-                    ->where('subscriber_list.confirmed = "1"')->_and_()
-                    ->where('subscriber_list.unsubscribed = "0"')
-                    ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                    ->find();
+                        ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                        ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                        ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                        ->where('subscriber.allowed = "true"')->_and_()
+                        ->where('subscriber.bounces < "3"')->_and_()
+                        ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                        ->where('subscriber_list.confirmed = "1"')->_and_()
+                        ->where('subscriber_list.unsubscribed = "0"')
+                        ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                        ->find();
             } catch (NotFoundException $e) {
                 Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             } catch (Exception $e) {
@@ -1449,19 +1453,19 @@ function send_campaign_to_queue($cpgn)
              */
             $i = 0;
             foreach ($subscriber as $sub) {
-                $list = get_list_by('id', _h($c_list->lid));
-                $server = get_server_info(_h($list->server));
-                $throttle = _h($server->throttle) * ++$i;
-                $sendstart = _h($cpgn->sendstart);
+                $list = get_list_by('id', _escape($c_list->lid));
+                $server = get_server_info(_escape($list->server));
+                $throttle = _escape($server->throttle) * ++$i;
+                $sendstart = _escape($cpgn->sendstart);
                 /**
                  * Create new tc_QueueMessage object.
                  */
                 $new_message = new app\src\tc_QueueMessage();
-                $new_message->setListId(_h($c_list->lid));
+                $new_message->setListId(_escape($c_list->lid));
                 $new_message->setMessageId($cpgn->id);
-                $new_message->setSubscriberId(_h($sub->id));
-                $new_message->setToEmail(_h($sub->email));
-                $new_message->setToName(_h($sub->fname) . ' ' . _h($sub->lname));
+                $new_message->setSubscriberId(_escape($sub->id));
+                $new_message->setToEmail(_escape($sub->email));
+                $new_message->setToName(_escape($sub->fname) . ' ' . _escape($sub->lname));
                 $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
                 $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$sendstart +$throttle seconds"));
                 /**
@@ -1474,11 +1478,11 @@ function send_campaign_to_queue($cpgn)
         try {
             $upd = $app->db->campaign();
             $upd->set([
-                    'status' => 'processing',
-                    'last_queued' => Jenssegers\Date\Date::now()
-                ])
-                ->where('id = ?', _h($cpgn->id))
-                ->update();
+                        'status' => 'processing',
+                        'last_queued' => Jenssegers\Date\Date::now()
+                    ])
+                    ->where('id = ?', _escape($cpgn->id))
+                    ->update();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
@@ -1488,7 +1492,7 @@ function send_campaign_to_queue($cpgn)
         }
 
 
-        tc_logger_activity_log_write('Update Record', 'Campaign Queued', _h($cpgn->subject), get_userdata('uname'));
+        tc_logger_activity_log_write('Update Record', 'Campaign Queued', _escape($cpgn->subject), get_userdata('uname'));
         _tc_flash()->{'success'}(_t('Campaign was successfully sent to the queue.'));
     } catch (NodeQException $e) {
         Cascade::getLogger('error')->{'error'}(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
@@ -1509,12 +1513,12 @@ function mark_queued_record_sent($message)
     $app = \Liten\Liten::getInstance();
     try {
         $q = $app->db->campaign()
-            ->where('id = ?', _h((int) $message->getMessageId()))
-            ->findOne();
+                ->where('id = ?', _escape((int) $message->getMessageId()))
+                ->findOne();
         $q->set([
-                'recipients' => _h((int) $q->recipients) + 1
-            ])
-            ->update();
+                    'recipients' => _escape((int) $q->recipients) + 1
+                ])
+                ->update();
 
         // remove message from the queue by updating is_sent value
         $queue = new \app\src\tc_Queue();
@@ -1527,6 +1531,7 @@ function mark_queued_record_sent($message)
         Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
+
 $app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
 $app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
 $app->hook->{'add_action'}('release', 'foot_release', 5);

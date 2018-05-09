@@ -1,12 +1,11 @@
-<?php namespace app\src;
+<?php
+
+namespace app\src;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
 use app\src\tc_QueueMessage as Message;
 use Cascade\Cascade;
 
@@ -28,24 +27,12 @@ class tc_Queue
     public $app;
 
     /**
-     * Node where messages are saved.
-     * 
-     * @var type 
-     */
-    public $node = 'campaign_queue';
-
-    /**
      * 
      * @param \Liten\Liten $liten
      */
     public function __construct(\Liten\Liten $liten = null)
     {
         $this->app = !empty($liten) ? $liten : \Liten\Liten::getInstance();
-    }
-
-    public function getNode()
-    {
-        return $this->node;
     }
 
     /**
@@ -57,12 +44,10 @@ class tc_Queue
     public function getUnsentEmailCount()
     {
         try {
-            $count = Node::table($this->getNode())->where('is_sent', '=', 'false')->findAll()->count();
+            $count = $this->app->db->campaign_queue()->where('is_sent', 'false')->count();
             return $count;
-        } catch (NodeQException $e) {
+        } catch (ORMException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (InvalidArgumentException $e) {
-            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -77,12 +62,10 @@ class tc_Queue
     public function getEmailCount()
     {
         try {
-            $count = Node::table($this->getNode())->findAll()->count();
+            $count = $this->app->db->campaign_queue()->count();
             return $count;
-        } catch (NodeQException $e) {
+        } catch (ORMException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (InvalidArgumentException $e) {
-            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -97,10 +80,15 @@ class tc_Queue
     {
         $now = \Jenssegers\Date\Date::now()->format('Y-m-d H:i:s');
         try {
-            $node = Node::table($this->getNode())->where('is_sent', '=', 'false')->andWhere('timestamp_to_send', '<=', $now)->findAll();
+            $node = $this->app->db->campaign_queue()->where('is_sent', 'false')->_and_()->whereLte('timestamp_to_send', $now)->find();
             $result_array = [];
 
             foreach ($node as $row) {
+                if (!validate_email(_escape($row->to_email))) {
+                    Cascade::getLogger('notice')->notice(sprintf(_t('Invalid subscriber email: %s'), _escape($row->to_email)));
+                    is_cancelled($row);
+                }
+
                 $message = new Message();
                 $message->setId($row->id);
                 $message->setListId($row->lid);
@@ -117,10 +105,8 @@ class tc_Queue
             }
 
             return $result_array;
-        } catch (NodeQException $e) {
+        } catch (ORMException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (InvalidArgumentException $e) {
-            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
@@ -158,26 +144,26 @@ class tc_Queue
         }
 
         try {
-            $node = Node::table($this->getNode());
-            $node->lid = (int) $message->getListId();
-            $node->cid = (int) $message->getMessageId();
-            $node->sid = (int) $message->getSubscriberId();
-            $node->to_email = (string) $message->getToEmail();
-            $node->to_name = (string) $message->getToName();
-            $node->timestamp_created = (string) $message->getTimestampCreated();
-            $node->timestamp_to_send = (string) $message->getTimeStampToSend();
-            $node->timestamp_sent = (string) $message->getTimestampSent();
-            $node->is_unsubscribed = (int) 0;
-            $node->is_sent = (string) 'false';
-            $node->save();
-        } catch (NodeQException $e) {
+            $node = $this->app->db->campaign_queue();
+            $node->insert([
+                'lid' => (int) $message->getListId(),
+                'cid' => (int) $message->getMessageId(),
+                'sid' => (int) $message->getSubscriberId(),
+                'to_email' => (string) $message->getToEmail(),
+                'to_name' => (string) $message->getToName(),
+                'timestamp_created' => (string) $message->getTimestampCreated(),
+                'timestamp_to_send' => (string) $message->getTimeStampToSend(),
+                'timestamp_sent' => (string) $message->getTimestampSent(),
+                'is_unsubscribed' => (int) 0,
+                'is_sent' => (string) 'false'
+            ]);
+        } catch (ORMException $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (InvalidArgumentException $e) {
-            Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
             Cascade::getLogger('error')->error(sprintf('QUEUESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
 
         return true;
     }
+
 }

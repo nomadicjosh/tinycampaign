@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'vierbergenlars\\SemVer\\' => array($vendorDir . '/vierbergenlars/php-semver/src'),
     'vierbergenlars\\LibJs\\' => array($vendorDir . '/vierbergenlars/php-semver/src'),
+    'SimplePie' => array($vendorDir . '/simplepie/simplepie/library'),
     'SecurityLib' => array($vendorDir . '/ircmaxell/security-lib/lib'),
     'RandomLib' => array($vendorDir . '/ircmaxell/random-lib/lib'),
     'Httpful' => array($vendorDir . '/nategood/httpful/src'),

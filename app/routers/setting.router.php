@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -26,7 +27,7 @@ $app->match('GET|POST', '/setting/', function () use($app) {
                 'system_name', 'system_email', 'mail_throttle',
                 'cookieexpire', 'cookiepath', 'backend_skin',
                 'tc_core_locale', 'system_timezone', 'api_key',
-                'mailing_address', 'collapse_sidebar','spam_tolerance'
+                'mailing_address', 'collapse_sidebar', 'spam_tolerance'
             ];
 
             foreach ($options as $option_name) {
@@ -53,7 +54,7 @@ $app->match('GET|POST', '/setting/', function () use($app) {
 
     $app->view->display('setting/index', [
         'title' => _t('General Settings')
-        ]
+            ]
     );
 });
 
@@ -102,10 +103,10 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
     }
 
     try {
-        if (_h(get_option('tc_smtp_password')) != '') {
-            $password = Crypto::decrypt(_h(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
+        if (_escape(get_option('tc_smtp_password')) != '') {
+            $password = Crypto::decrypt(_escape(get_option('tc_smtp_password')), Key::loadFromAsciiSafeString($node->key));
         } else {
-            $password = _h(get_option('tc_smtp_password'));
+            $password = _escape(get_option('tc_smtp_password'));
         }
     } catch (Defuse\Crypto\Exception\BadFormatException $e) {
         _tc_flash()->error($e->getMessage());
@@ -121,7 +122,7 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
     $app->view->display('setting/smtp', [
         'title' => _t('SMTP Settings'),
         'password' => $password
-        ]
+            ]
     );
 });
 
@@ -192,12 +193,12 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
             _tc_flash()->error($e->getMessage());
         }
     }
-    
+
     try {
-        if (_h(get_option('tc_bmh_password')) != '') {
-            $password = Crypto::decrypt(_h(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
+        if (_escape(get_option('tc_bmh_password')) != '') {
+            $password = Crypto::decrypt(_escape(get_option('tc_bmh_password')), Key::loadFromAsciiSafeString($node->key));
         } else {
-            $password = _h(get_option('tc_bmh_password'));
+            $password = _escape(get_option('tc_bmh_password'));
         }
     } catch (Defuse\Crypto\Exception\BadFormatException $e) {
         _tc_flash()->error($e->getMessage());
@@ -213,7 +214,7 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
     $app->view->display('setting/bounce', [
         'title' => _t('Bounce Email Settings'),
         'password' => $password
-        ]
+            ]
     );
 });
 

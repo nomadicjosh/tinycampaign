@@ -217,6 +217,18 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             <li<?=(SCREEN === 'tpl' ? ' class="active"' : '');?><?=ae('manage_campaigns');?>><a href="<?=get_base_url();?>template/"><i class="fa fa-circle-o"></i> <?=_t('Manage Templates');?></a></li>
           </ul>
         </li>
+        <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'rss' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-rss"></i> <span><?=_t('RSS Campaigns');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'crss' ? ' class="active"' : '');?><?=ae('create_campaign');?>><a href="<?=get_base_url();?>rss-campaign/create/"><i class="fa fa-circle-o"></i> <?=_t('Create RSS Campaign');?></a></li>
+            <li<?=(SCREEN === 'rss' ? ' class="active"' : '');?><?=ae('manage_campaigns');?> ><a href="<?=get_base_url();?>rss-campaign/"><i class="fa fa-circle-o"></i> <?=_t('Manage RSS Campaigns');?></a></li>
+          </ul>
+        </li>
         <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'cpgns' ? ' active' : '');?>">
           <a href="#">
             <i class="fa fa-envelope"></i> <span><?=_t('Campaigns');?></span>
@@ -272,7 +284,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
     <div class="pull-right hidden-xs">
       <b><?=_t('Release');?></b> <?=CURRENT_RELEASE;?>
     </div>
-    <strong>Copyright &copy; 2016 <a href="https://codecanyon.net/item/tinycampaign/4755189"><?=_t('tinyCampaign');?></a>.</strong>
+    <strong>Copyright &copy; 2016 <a href="https://tinyc.7mediaws.org/"><?=_t('tinyCampaign');?></a>.</strong>
   </footer>
 </div>
 <!-- ./wrapper -->

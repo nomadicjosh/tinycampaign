@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 
@@ -29,33 +30,33 @@ function uc_get_username_list()
         return $array;
     });
     foreach ($q as $v) {
-        echo '<option value="' . _h($v['uname']) . '">' . _h($v['uname']) . ' => ' . get_name(_h($v['id'])) . ' </option>';
+        echo '<option value="' . _escape($v['uname']) . '">' . _escape($v['uname']) . ' => ' . get_name(_escape($v['id'])) . ' </option>';
     }
 }
 
 function uc_send_email_to_user($id)
 {
     $app = \Liten\Liten::getInstance();
-    
+
     $user = get_user_by('id', $id);
     $uname = $app->req->post['new_uname'];
-    $domain = get_domain_name(); 
-    $site = _h(get_option('system_name'));
-    
+    $domain = get_domain_name();
+    $site = _escape(get_option('system_name'));
+
     $message = _file_get_contents(TC_PLUGIN_DIR . 'username-changer/tpl/username-changer-notification.tpl');
     $message = str_replace('{system_name}', $site, $message);
     $message = str_replace('{system_url}', get_base_url(), $message);
-    $message = str_replace('{fname}', _h($user->fname), $message);
+    $message = str_replace('{fname}', _escape($user->fname), $message);
     $message = str_replace('{uname}', $uname, $message);
-    $message = str_replace('{email}', _h($user->email), $message);
+    $message = str_replace('{email}', _escape($user->email), $message);
     $headers = "From: $site <auto-reply@$domain>\r\n";
-    if (_h(get_option('tc_smtp_status')) == 0) {
+    if (_escape(get_option('tc_smtp_status')) == 0) {
         $headers .= "X-Mailer: tinyCampaign " . CURRENT_RELEASE . "\r\n";
         $headers .= "MIME-Version: 1.0" . "\r\n";
     }
 
     try {
-        _tc_email()->tc_mail(_h($user->email), _t("Username Updated"), $message, $headers);
+        _tc_email()->tc_mail(_escape($user->email), _t("Username Updated"), $message, $headers);
     } catch (phpmailerException $e) {
         _tc_flash()->error($e->getMessage());
     }
@@ -63,7 +64,7 @@ function uc_send_email_to_user($id)
 
 function uc_username_changer_page_url()
 {
-    echo '<li'.(SCREEN === 'uchanger' ? ' class="active"' : '').'><a href="'.get_base_url().'username-changer/"><i class="fa fa-circle-o"></i> '._t('Username Changer', 'username-changer').'</a></li>';
+    echo '<li' . (SCREEN === 'uchanger' ? ' class="active"' : '') . '><a href="' . get_base_url() . 'username-changer/"><i class="fa fa-circle-o"></i> ' . _t('Username Changer', 'username-changer') . '</a></li>';
 }
 
-$app->hook->add_action('plugin_parent_page','uc_username_changer_page_url', 10);
+$app->hook->add_action('plugin_parent_page', 'uc_username_changer_page_url', 10);

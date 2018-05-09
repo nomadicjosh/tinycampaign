@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -52,8 +53,8 @@ $app->match('GET|POST', '/username-changer/', function () use($app, $view) {
                 /*
                  * Send email
                  */
-                uc_send_email_to_user(_h($email->id));
-                if (_h($email->id) == get_userdata('id')) {
+                uc_send_email_to_user(_escape($email->id));
+                if (_escape($email->id) == get_userdata('id')) {
                     _tc_flash()->info(_t('Username was updated which caused you to be logged out automatically.'), get_base_url() . 'logout' . '/');
                     exit();
                 }

@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\NodeQ\tc_NodeQ as Node;
@@ -30,8 +31,8 @@ function get_subscriber_by($field, $value)
     $app = \Liten\Liten::getInstance();
     try {
         $subscriber = $app->db->subscriber()
-            ->where("subscriber.$field = ?", $value)
-            ->findOne();
+                ->where("subscriber.$field = ?", $value)
+                ->findOne();
 
         return $subscriber;
     } catch (NotFoundException $e) {
@@ -67,7 +68,7 @@ function get_sub_name($id)
 
     $name = get_subscriber_by('id', $id);
 
-    return _h($name->fname) . ' ' . _h($name->lname);
+    return _escape($name->fname) . ' ' . _escape($name->lname);
 }
 
 /**
@@ -247,8 +248,8 @@ function get_subscriber_tag_list()
     $app = \Liten\Liten::getInstance();
     try {
         $tagging = $app->db->subscriber()
-            ->select('tags')
-            ->where('addedBy = ?', get_userdata('id'));
+                ->select('tags')
+                ->where('addedBy = ?', get_userdata('id'));
         $q = $tagging->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -258,7 +259,7 @@ function get_subscriber_tag_list()
         });
         $tags = [];
         foreach ($q as $r) {
-            $tags = array_merge($tags, explode(",", _h($r['tags'])));
+            $tags = array_merge($tags, explode(",", _escape($r['tags'])));
         }
         $tags = array_unique_compact($tags);
         foreach ($tags as $key => $value) {

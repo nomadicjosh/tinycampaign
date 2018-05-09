@@ -217,29 +217,6 @@ class Migrations
         }
     }
 
-    public static function campaign_queue()
-    {
-        try {
-            Node::create('campaign_queue', [
-                'lid' => 'integer',
-                'cid' => 'integer',
-                'sid' => 'integer',
-                'to_email' => 'string',
-                'to_name' => 'string',
-                'timestamp_created' => 'string',
-                'timestamp_to_send' => 'string',
-                'timestamp_sent' => 'string',
-                'is_unsubscribed' => 'integer',
-                'timestamp_unsubscribed' => 'string',
-                'is_sent' => 'string'
-            ]);
-        } catch (NodeQException $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        } catch (Exception $e) {
-            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-        }
-    }
-
     public static function campaign_bounce()
     {
         try {

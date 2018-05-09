@@ -82,7 +82,7 @@ $app->view->block('index');
     <div class="pull-right hidden-xs">
       <b><?=_t('Release');?></b> <?=CURRENT_RELEASE;?>
     </div>
-    <strong>Copyright &copy; 2016 <a href="https://codecanyon.net/item/tinycampaign/4755189"><?=_t('tinyCampaign');?></a>.</strong>
+    <strong>Copyright &copy; 2016 <a href="https://tinyc.7mediaws.org/"><?=_t('tinyCampaign');?></a>.</strong>
   </footer>
 </div>
 <!-- ./wrapper -->
