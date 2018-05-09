@@ -2,6 +2,8 @@
 
 tinyCampaign is a simple and lightweight newsletter system built on a nice Bootstrap and the [Liten](//www.litenframework.com/) framework. You can send out simple and beautiful HTML emails with ease. You must use an SMTP account in order to send out emails. This is to help reduce spam as well as to better identify spammers abusing the system.
 
+![tinyCampaign](//tiny-campaign.s3.amazonaws.com/images/tinyc-image.png)
+
 ## Rewrite
 
 ### Apache
