@@ -38,7 +38,7 @@ location /newsletter {
 }
 </pre>
 
-Before purchasing, make sure your server meets the following requirements:
+Before downloading, make sure your server meets the following requirements:
 
 *   Apache/Nginx
 *   PHP 7.0+
@@ -88,7 +88,7 @@ tinyCampaign Demo:
 *   Email open reporting
 *   Link click tracking
 *   Distribution reports
-*   [Campaign Tracking with Google Analytics](//codecanyon.7mediaws.org/knowledge-base/track-campaign-with-google-analytics/)
+*   [Campaign Tracking with Google Analytics](//tinyc.7mediaws.org/knowledge-base/track-campaign-with-google-analytics/)
 *   Double opt-in verification/confirmation at list level (toggle)
 *   Import subscribers from csv files
 *   Export subscribers to csv files
@@ -101,25 +101,17 @@ tinyCampaign Demo:
 *   System error logs (database & file)
 *   System audit trail
 *   Hooks and plugin system
-*   [Custom email headers](//codecanyon.7mediaws.org/wiki/custom_email_header/)
+*   [Custom email headers](//tinyc.7mediaws.org/wiki/custom_email_header/)
 *   List-Unsubscribe header
-*   [Serve application over SSL](//codecanyon.7mediaws.org/knowledge-base/secure-socket-layer-ssl/)
+*   [Serve application over SSL](//tinyc.7mediaws.org/knowledge-base/secure-socket-layer-ssl/)
 *   Real-time spam prevention
-
-### Latest Version
-
-![version 2.0.0](//tiny-campaign.s3.amazonaws.com/images/dashboard.png)
-
-### Documentation and Support
-
-*   Check out the [support documentation](//tiny-campaign.s3.amazonaws.com/index.html)
-*   For quality support, check out the dedicated [support site](//codecanyon.7mediaws.org/). It is easy to open a new ticket on the site by verifying your puchase.
 
 ### Changelog
 
 <pre>
     v2.1.0 (TBD)
     - [Feature] Campaign segmentation with rules
+    - [Enhance] Added ability to re-queue campaigns to be sent to those subscribed after the campaign was queued
     
     v2.0.5 (2018.05.09)
     - [Fix] Ternary to look at full header or full body to retrieve bounce info
@@ -128,13 +120,11 @@ tinyCampaign Demo:
     - [Enhance] JSON Pretty Print Cache
     - [Enhance] Mark subscriber as unsubscribed when blacklisted
     - [Enhance] Added `last_queued` date field to `campaign` table
-    - [Enhance] Added ability to re-queue campaigns to be sent to those subscribed after the campaign was queued
     - [Enhance] Caching subscriber list for faster response time
     - [Enhanced] Added Google's Feedback-ID to header
     - [Enhance] Subscriber tagging
     - [Enhance] Migrate campaign queue to database
     - [Feature] RSS campaigns
-    - [Feature] Incident report
     
     
     v2.0.4 (2017-02-21)
@@ -211,6 +201,7 @@ tinyCampaign Demo:
     - First release
 </pre>
 
-## Resources.
+### Documentation and Support
 
-* User manual: [url](https://codecanyon.7mediaws.org/article-categories/tinycampaign/).
+*   Check out the [support documentation](//tiny-campaign.s3.amazonaws.com/index.html)
+*   For api help and code samples, check out the [knowledgebase](//tinyc.7mediaws.org/).
