@@ -72,6 +72,35 @@ class InitialSchema extends AbstractMigration
                 ->addForeignKey('lid', 'list', 'id', array('constraint' => 'campaign_list_lid', 'delete' => 'CASCADE', 'update' => 'CASCADE'))
                 ->create();
         endif;
+        
+        // Migration for table campaign
+        if (!$this->hasTable('campaign_queue')) :
+            $table = $this->table('campaign_queue', ['id' => false, 'primary_key' => 'id', 'encoding' => 'utf8mb4', 'collation' => 'utf8mb4_unicode_ci']);
+            $table
+                    ->addColumn('id', 'integer', ['identity' => true, 'limit' => MysqlAdapter::INT_BIG])
+                    ->addColumn('lid', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+                    ->addColumn('cid', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+                    ->addColumn('sid', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+                    ->addColumn('to_email', 'string', ['limit' => 191])
+                    ->addColumn('to_name', 'string', ['limit' => 191])
+                    ->addColumn('timestamp_created', 'datetime', ['null' => true])
+                    ->addColumn('timestamp_to_send', 'datetime', ['null' => true])
+                    ->addColumn('timestamp_sent', 'datetime', ['null' => true])
+                    ->addColumn('is_unsubscribed', 'integer', ['default' => 0, 'limit' => MysqlAdapter::INT_REGULAR])
+                    ->addColumn('timestamp_unsubscribed', 'datetime', ['null' => true])
+                    ->addColumn('is_priority', 'enum', ['default' => 'false', 'values' => ['true', 'false']])
+                    ->addColumn('is_immediate', 'enum', ['default' => 'false', 'values' => ['true', 'false']])
+                    ->addColumn('is_sent', 'enum', ['default' => 'false', 'values' => ['true', 'false']])
+                    ->addColumn('is_cancelled', 'enum', ['default' => 'false', 'values' => ['true', 'false']])
+                    ->addColumn('is_blocked', 'enum', ['default' => 'false', 'values' => ['true', 'false']])
+                    ->addColumn('send_count', 'integer', ['default' => 0, 'limit' => MysqlAdapter::INT_REGULAR])
+                    ->addColumn('error_count', 'integer', ['default' => 0, 'limit' => MysqlAdapter::INT_REGULAR])
+                    ->addColumn('LastUpdate', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
+                    ->addForeignKey('lid', 'list', 'id', ['constraint' => 'campaign_queue_lid', 'delete' => 'CASCADE', 'update' => 'CASCADE'])
+                    ->addForeignKey('cid', 'campaign', 'id', ['constraint' => 'campaign_queue_cid', 'delete' => 'CASCADE', 'update' => 'CASCADE'])
+                    ->addForeignKey('sid', 'subscriber', 'id', ['constraint' => 'campaign_queue_sid', 'delete' => 'CASCADE', 'update' => 'CASCADE'])
+                    ->create();
+        endif;
 
         // Migration for table country
         if (!$this->hasTable('country')) :
