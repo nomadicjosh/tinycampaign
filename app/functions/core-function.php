@@ -2,11 +2,9 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
 use app\src\Exception\Exception;
 use app\src\Exception\NotFoundException;
 use app\src\Exception\IOException;
-use app\src\NodeQ\NodeQException;
 use Cascade\Cascade;
 use Jenssegers\Date\Date;
 
@@ -1426,32 +1424,6 @@ function find_x_subscriber_email($text)
 }
 
 /**
- * Calculates response time between when the campaign was sent
- * and when the subscriber first opened his/her email.
- * 
- * @since 2.0.4
- * @param int $cid Campaign id.
- * @param int $sid Subscriber id.
- * @param string $left_operand When campaign was first opened by subscriber.
- * @return string
- */
-function tc_response_time($cid, $sid, $left_operand)
-{
-    try {
-        $node = Node::table('campaign_queue')
-                ->where('cid', '=', $cid)
-                ->andWhere('sid', '=', $sid)
-                ->find();
-        $seconds = strtotime($left_operand) - strtotime(_escape($node->timestamp_sent));
-        return tc_seconds_to_time($seconds);
-    } catch (NodeQException $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    }
-}
-
-/**
  * Checks if a variable is null. If not null, check if integer or string.
  * 
  * @since 2.0.5
@@ -1474,4 +1446,21 @@ function if_null($var)
 function if_not_null($var)
 {
     return $var !== NULL ? _escape($var) : false;
+}
+
+/**
+ * Adds label to the rss campaign's status.
+ * 
+ * @since 2.0.5
+ * @param string $status
+ * @return string
+ */
+function tc_rss_cpgn_status_label($status)
+{
+    $label = [
+        'active' => 'label-success',
+        'inactive' => 'label-danger'
+    ];
+
+    return $label[$status];
 }

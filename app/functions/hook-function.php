@@ -1317,22 +1317,24 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
         try {
             $node = Node::table('php_encryption')->find(1);
         } catch (NodeQException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (NotFoundException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         }
 
         try {
             $password = Crypto::decrypt(_escape($data->password), Key::loadFromAsciiSafeString($node->key));
         } catch (Defuse\Crypto\Exception\BadFormatException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            Cascade::getLogger('error')->{'error'}($e->getMessage());
         }
+
+        $is_error = false;
 
         try {
             $tcMailer = _tc_phpmailer(true);
@@ -1361,16 +1363,22 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
             $tcMailer->SMTPAuth = true;
             $tcMailer->Username = _escape($data->uname);
             $tcMailer->Password = $password;
-            if ($tcMailer->send()) {
-                $app->hook->{'do_action'}('mark_queued_record_sent', $message);
-                _tc_flash()->{'success'}(_t('Email Sent.'));
-            }
+            $tcMailer->send();
             $tcMailer->ClearAddresses();
             $tcMailer->ClearAttachments();
         } catch (phpmailerException $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            $is_error = true;
+            $error_text = $e->getMessage();
         } catch (\app\src\Exception\Exception $e) {
-            _tc_flash()->{'error'}($e->getMessage());
+            $is_error = true;
+            $error_text = $e->getMessage();
+        }
+
+        if ($is_error) {
+            update_error_count($data);
+        } else {
+            $app->hook->{'do_action'}('mark_queued_record_sent', $message);
+            update_send_count($data);
         }
     }
 }

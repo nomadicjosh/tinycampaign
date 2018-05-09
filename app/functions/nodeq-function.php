@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use app\src\Exception\NotFoundException;
@@ -27,17 +28,20 @@ $app = \Liten\Liten::getInstance();
  */
 function set_queued_message_is_sent($message)
 {
+    $app = \Liten\Liten::getInstance();
+
     $now = Jenssegers\Date\Date::now();
     try {
-        Node::dispense('campaign_queue');
-        $queue = Node::table('campaign_queue')->find($message->getId());
-        $queue->timestamp_sent = (string) $now;
-        $queue->is_sent = (string) 'true';
-        $queue->save();
-    } catch (NodeQException $e) {
-        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
-    } catch (InvalidArgumentException $e) {
-        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+
+        $campaign = $app->db->campaign_queue();
+        $campaign->set([
+                    'timestamp_sent' => (string) $now,
+                    'is_sent' => 'true'
+                ])
+                ->where('id', $message->getId())
+                ->update();
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
         Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
@@ -241,16 +245,16 @@ function move_old_nodes_to_queue_node()
     $app = \Liten\Liten::getInstance();
     try {
         $campaign = $app->db->campaign()
-            ->where('status = "sent"')
-            ->find();
+                ->where('status = "sent"')
+                ->find();
         foreach ($campaign as $c) {
             $file = $app->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . _escape($c->node) . '.data.node';
             if (file_exists($file)) {
                 try {
-                    Node::dispense('campaign_queue');
+                    Node::dispense(_escape($c->node));
                     $node = Node::table(_escape($c->node))->where('is_sent', '=', 'true')->findAll();
                     foreach ($node as $n) {
-                        $sent = Node::table('campaign_queue');
+                        $sent = Node::table($c->node);
                         $sent->lid = (int) _escape($n->lid);
                         $sent->cid = (int) _escape($n->mid);
                         $sent->sid = (int) _escape($n->sid);
@@ -278,6 +282,171 @@ function move_old_nodes_to_queue_node()
     } catch (Exception $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
     } catch (ORMException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+function check_rss_campaigns()
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $feeds = $app->db->rss_campaign()->where('status', 'active');
+        if ($feeds->count() <= 0) {
+            return false;
+        }
+
+        foreach ($feeds->find() as $feed) {
+            $rss = new SimplePie();
+            $rss->set_feed_url(_escape($feed->rss_feed));
+            $rss->enable_cache(false);
+            //$rss->set_cache_location(APP_PATH . 'tmp' . DS . 'cache' . DS);
+            //$rss->set_cache_duration(3600);
+
+            // Init feed
+            $rss->init();
+
+            // Make sure the page is being served with the UTF-8 headers.
+            $rss->handle_content_type();
+            $items = $rss->get_items();
+
+            $accumulatedText = '';
+            $accumulatedGuid = [];
+
+            if ($rss->error()) {
+                foreach ($rss->error() as $key => $error) {
+                    Cascade::getLogger('error')->error(_t('The following feed contains errors:') . ' ' . _escape($feed->rss_feed)[$key] . "\n");
+                }
+            }
+
+            foreach ($items as $item) {
+                $title = $item->get_title();
+                //decode HTML entities in title to UTF8
+                //run it two times to support double encoding, if for example "&uuml;" is encoded as "&amp;uuml;"
+                $nr_entitiy_decode_runs = 2;
+                for ($i = 0; $i < $nr_entitiy_decode_runs; $i++) {
+                    $title = html_entity_decode($title, ENT_COMPAT | ENT_HTML401, "UTF-8");
+                }
+                $guid = $item->get_id(true);
+                $date = $item->get_date('m/d/y h:i a');
+                $description = $item->get_description();
+
+                // check if item has been sent already
+                $rss_guid = $app->db->query('SELECT guid FROM rss_guid WHERE guid = ?', [$guid])->findOne();
+
+                // if so, skip
+                if ($rss_guid->guid != '') {
+                    continue;
+                }// if not send it
+                else {
+                    $text = [];
+                    $text[] = '<h2>' . $title . '</h2> ' . $date;
+                    $text[] = $description;
+                    $accumulatedText .= implode("\n", $text) . "\n\n";
+                    $accumulatedGuid[] = $guid;
+                }
+            }
+
+            if (empty($accumulatedText)) {
+                //nothing to send
+                return false;
+            }
+
+            $node = Node::table(_escape($feed->node));
+            $node->rcid = (int) _escape($feed->id);
+            $node->rss_content = (string) $accumulatedText;
+            $node->is_processed = (string) 'false';
+            $node->save();
+
+            foreach ($accumulatedGuid as $guid) {
+                $rss_guid = $app->db->rss_guid();
+                $rss_guid->insert([
+                    'guid' => $guid
+                ]);
+            }
+        }
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+function generate_rss_campaigns()
+{
+    $app = \Liten\Liten::getInstance();
+
+    try {
+        $campaigns = $app->db->rss_campaign()->where('status', 'active')->find();
+        foreach ($campaigns as $campaign) {
+            /**
+             * Delete records that have been processed.
+             */
+            Node::table(_escape($campaign->node))->where('is_processed', '=', 'true')->delete();
+            /**
+             * Look for records that have not been processed.
+             */
+            $node = Node::table(_escape($campaign->node))->where('is_processed', '=', 'false');
+            if ($node->findAll()->count() > 0) {
+                $rss = $node->where('rcid', '=', _escape($campaign->id))->find();
+
+                $template = get_template_by_id(_escape($campaign->tid));
+
+                $message = _escape($template->content);
+                $message = str_replace('{rss_feed}', _escape($rss->rss_content), $message);
+
+                $now = Jenssegers\Date\Date::now();
+
+                $cpgn = $app->db->campaign();
+                $cpgn->insert([
+                    'owner' => _escape($campaign->owner),
+                    'subject' => _escape($campaign->subject),
+                    'from_name' => _escape($campaign->from_name),
+                    'from_email' => _escape($campaign->from_email),
+                    'html' => $message,
+                    'footer' => _file_get_contents(APP_PATH . 'views/setting/tpl/email_footer.tpl'),
+                    'status' => 'ready',
+                    'sendstart' => (string) $now->parse('+1 hour'),
+                    'addDate' => (string) $now
+                ]);
+
+                $ID = $cpgn->lastInsertId();
+
+                $lists = maybe_unserialize(_escape($campaign->lid));
+
+                foreach ($lists as $list) {
+                    $cpgn_list = $app->db->campaign_list();
+                    $cpgn_list->insert([
+                        'cid' => $ID,
+                        'lid' => $list
+                    ]);
+                }
+
+                $_cpgn = get_campaign_by_id($ID);
+
+                if (_escape($_cpgn->status) == 'processing') {
+                    _tc_flash()->error(_t('RSS Campaign is already queued.'));
+                    exit();
+                }
+
+                if (_escape($_cpgn->id) <= 0) {
+                    _tc_flash()->success(_t('RSS Campaign does not exist.'));
+                    exit();
+                }
+
+                $app->hook->{'do_action'}('queue_campaign', $_cpgn);
+            }
+
+            $upd = Node::table(_escape($campaign->node))->find($node->id);
+            $upd->is_processed = (string) 'true';
+            $upd->save();
+        }
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }

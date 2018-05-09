@@ -25,6 +25,11 @@ elseif (strpos(getPathInfo('/campaign'), "/campaign") === 0)
     require($app->config('routers_dir') . 'campaign.router.php');
 }
 
+elseif (strpos(getPathInfo('/rss-campaign'), "/rss-campaign") === 0)
+{
+    require($app->config('routers_dir') . 'campaign.router.php');
+}
+
 elseif (strpos(getPathInfo('/cron'), "/cron") === 0)
 {
     require($app->config('routers_dir') . 'cron.router.php');

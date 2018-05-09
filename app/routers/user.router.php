@@ -522,7 +522,7 @@ $app->group('/user', function() use ($app) {
                     ->find();
             foreach ($cpgns as $cpgn) {
                 try {
-                    Node::table('campaign_queue')
+                    Node::table($cpgn->node)
                             ->where('cid', '=', _escape($cpgn->id))
                             ->delete();
                 } catch (NodeQException $e) {

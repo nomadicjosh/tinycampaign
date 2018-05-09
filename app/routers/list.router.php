@@ -110,10 +110,10 @@ $app->group('/list', function() use ($app) {
         if ($app->req->isPost()) {
             try {
                 $list = $app->db->list();
-                $list->code = $app->req->post('code');
-                $list->name = $app->req->post('name');
-                $list->unsub_mailto = if_null($app->req->post('unsub_mailto'));
-                $list->description = $app->req->post('description');
+                $list->code = $app->req->post['code'];
+                $list->name = $app->req->post['name'];
+                $list->unsub_mailto = if_null($app->req->post['unsub_mailto']);
+                $list->description = $app->req->post['description'];
                 $list->created = Jenssegers\Date\Date::now();
                 $list->owner = get_userdata('id');
                 $list->redirect_success = if_null($app->req->post['redirect_success']);
@@ -122,8 +122,8 @@ $app->group('/list', function() use ($app) {
                 $list->subscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/subscribe_email.tpl');
                 $list->unsubscribe_email = _file_get_contents(APP_PATH . 'views/setting/tpl/unsubscribe_email.tpl');
                 $list->notify_email = $app->req->post['notify_email'];
-                $list->optin = $app->req->post('optin');
-                $list->status = $app->req->post('status');
+                $list->optin = $app->req->post['optin'];
+                $list->status = $app->req->post['status'];
                 $list->server = if_null($app->req->post['server']);
                 $list->save();
 
@@ -162,17 +162,17 @@ $app->group('/list', function() use ($app) {
         if ($app->req->isPost()) {
             try {
                 $list = $app->db->list();
-                $list->name = $app->req->post('name');
-                $list->unsub_mailto = if_null($app->req->post('unsub_mailto'));
-                $list->description = $app->req->post('description');
+                $list->name = $app->req->post['name'];
+                $list->unsub_mailto = if_null($app->req->post['unsub_mailto']);
+                $list->description = $app->req->post['description'];
                 $list->redirect_success = if_null($app->req->post['redirect_success']);
                 $list->redirect_unsuccess = if_null($app->req->post['redirect_unsuccess']);
-                $list->confirm_email = $app->req->post('confirm_email');
-                $list->subscribe_email = $app->req->post('subscribe_email');
-                $list->unsubscribe_email = $app->req->post('unsubscribe_email');
+                $list->confirm_email = $app->req->post['confirm_email'];
+                $list->subscribe_email = $app->req->post['subscribe_email'];
+                $list->unsubscribe_email = $app->req->post['unsubscribe_email'];
                 $list->notify_email = $app->req->post['notify_email'];
-                $list->optin = $app->req->post('optin');
-                $list->status = $app->req->post('status');
+                $list->optin = $app->req->post['optin'];
+                $list->status = $app->req->post['status'];
                 $list->server = if_null($app->req->post['server']);
                 $list->where('id = ?', $id)->_and_()
                         ->where('owner = ?', get_userdata('id'));

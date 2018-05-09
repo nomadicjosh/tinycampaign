@@ -267,6 +267,10 @@ class ComposerStaticInit3713b52973cf0a544c4372965b416b9c
         ),
         'S' => 
         array (
+            'SimplePie' => 
+            array (
+                0 => __DIR__ . '/..' . '/simplepie/simplepie/library',
+            ),
             'SecurityLib' => 
             array (
                 0 => __DIR__ . '/..' . '/ircmaxell/security-lib/lib',

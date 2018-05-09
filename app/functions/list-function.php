@@ -232,13 +232,13 @@ function tc_link_tracking($body, $cid, $sid, $campaign)
 {
     $link = get_base_url() . 'lt' . '/?cid=' . urlencode($cid) . '&sid=' . urlencode($sid);
     return preg_replace_callback('#(<a.*?href=")([^"]*)("[^>]*?>)#i', function($match) use ($campaign, $link) {
-        if (strpos($link, '?') === false) {
+        if (strpos($match[2], '?') === false) {
             $ga = '?';
         } else {
             $ga .= '&';
         }
         $ga .= 'utm_source=tinyc' . '&utm_medium=email' . '&utm_campaign=' . urlencode($campaign);
-        return $match[1] . $link . $ga . '&url=' . $match[2] . $match[3];
+        return $match[1] . $link . '&url=' . $match[2] . $ga . $match[3];
     }, $body);
 }
 

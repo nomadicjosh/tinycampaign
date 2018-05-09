@@ -2,9 +2,9 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
+use Cascade\Cascade;
 
 /**
  * tinyCampaign Database Related Functions
@@ -62,11 +62,9 @@ function table_dropdown($table, $where = null, $id, $code, $name, $activeID = nu
         foreach ($q as $r) {
             echo '<option value="' . _escape($r[$code]) . '"' . selected($activeID, _escape($r[$code]), false) . '>' . _escape($r[$code]) . ' ' . _escape($r[$name]) . '</option>' . "\n";
         }
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -136,11 +134,9 @@ function date_dropdown($limit = 0, $name = '', $table = '', $column = '', $id = 
         $html_output .= '           </select>' . "\n";
 
         return $html_output;
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -169,11 +165,9 @@ function qt($table, $field, $where = null)
         foreach ($query as $r) {
             return _escape($r->{$field});
         }
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -210,11 +204,9 @@ function get_subscriber_list_id($id)
             $a[] = $r['lid'];
         }
         return $a;
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -243,11 +235,9 @@ function get_campaign_lists($active = null)
                 echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
             }
         }
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -283,11 +273,9 @@ function get_campaign_list_id($id)
             $a[] = $r['lid'];
         }
         return $a;
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
-        _tc_flash()->error($e->getMessage());
-    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     }
 }
@@ -308,11 +296,228 @@ function get_server_info($id)
                 ->findOne();
 
         return $server;
-    } catch (NotFoundException $e) {
+    } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (Exception $e) {
         _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Calculates response time between when the campaign was sent
+ * and when the subscriber first opened his/her email.
+ * 
+ * @since 2.0.4
+ * @param int $cid Campaign id.
+ * @param int $sid Subscriber id.
+ * @param string $left_operand When campaign was first opened by subscriber.
+ * @return string
+ */
+function tc_response_time($cid, $sid, $left_operand)
+{
+    $app = \Liten\Liten::getInstance();
+
+    try {
+        $resp = $app->db->campaign_queue()
+                ->where('cid = ?', $cid)->_and_()
+                ->where('sid = ?', $sid)
+                ->findOne();
+
+        $seconds = strtotime($left_operand) - strtotime(_escape($resp->timestamp_sent));
+        return tc_seconds_to_time($seconds);
     } catch (ORMException $e) {
         _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
     }
+}
+
+/**
+ * Retrieve email lists of logged in user
+ * to be used for campaigns.
+ * 
+ * @since 2.0.5
+ * @param array $list_array List of list id's.
+ */
+function get_rss_campaign_lists($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $in = "'" . implode("','", get_rss_campaign_list_id($active)) . "'";
+        $lists = $app->db->list()
+                ->where('list.owner = ?', get_userdata('id'))->_and_()
+                ->where("(list.status = 'open' OR list.id IN($in))")
+                ->find();
+
+        foreach ($lists as $list) {
+            if (in_array($list->id, get_rss_campaign_list_id($active))) {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            } else {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            }
+        }
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve RSS campaign list id's.
+ * 
+ * @since 2.0.5
+ * @param int $id RSS Campaigns id.
+ * @return int|array
+ */
+function get_rss_campaign_list_id($id)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $rss = $app->db->rss_campaign()->findOne($id);
+
+        return maybe_unserialize($rss->lid);
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve and list templates.
+ * 
+ * @since 2.0.5
+ * @param int $active Active id.
+ */
+function get_template_list($active = null)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $templates = $app->db->template()
+                ->where('template.owner = ?', get_userdata('id'))
+                ->find();
+
+        foreach ($templates as $template) {
+            echo '<option value="' . _escape($template->id) . '"' . selected($active, _escape($template->id), false) . '>' . _escape($template->name) . '</option>';
+        }
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve a template by it's id.
+ * 
+ * @since 2.0.5
+ * @access private
+ * @param int $id Template's id.
+ */
+function get_template_by_id($id)
+{
+    $app = \Liten\Liten::getInstance();
+    try {
+        $templates = $app->db->template()
+                ->where('template.id = ?', $id)
+                ->findOne();
+
+        return $templates;
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Cancels queue record when email cannot be sent.
+ * 
+ * @since 2.0.5
+ * @access private
+ * @param array $data Array of queued data.
+ */
+function is_cancelled($data)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $cancel = $app->db->campaign_queue();
+    $cancel->set([
+                'is_cancelled' => 'true'
+            ])
+            ->where('lid = ?', $data->lid)->_and_()
+            ->where('cid = ?', $data->cid)->_and_()
+            ->where('sid = ?', $data->sid)
+            ->update();
+}
+
+/**
+ * Retrieves error count of queued record.
+ * 
+ * @since 2.0.5
+ * @access private
+ * @param array $data Array of queued data.
+ * @return array
+ */
+function get_error_count($data)
+{
+    $app = \Liten\Liten::getInstance();
+    $error_count = $app->db->campaign_queue()
+            ->where('lid = ?', $data->xlistid)->_and_()
+            ->where('cid = ?', $data->xcampaignid)->_and_()
+            ->where('sid = ?', $data->xsubscriberid)
+            ->findOne();
+
+    return $error_count;
+}
+
+/**
+ * Updates queued record with error count.
+ * 
+ * @access private
+ * @since 2.0.5
+ * @param array $data Array of queued data.
+ */
+function update_error_count($data)
+{
+    $app = \Liten\Liten::getInstance();
+
+    $error_count = get_error_count($data);
+
+    if (_escape($error_count->error_count) == $app->hook->{'apply_filter'}('update_error_count', 2)) {
+        $error_count->set([
+                    'error_count' => _escape($error_count->error_count) + 1
+                ])
+                ->update();
+        Cascade::getLogger('error')->{'error'}(sprintf(_t('Error while sending email to: %s. Cancelled: No more sending attempts allowed.'), _escape($error_count->to_email)));
+        is_cancelled($data);
+    } else {
+        $error_count->set([
+                    'error_count' => _escape($error_count->error_count) + 1
+                ])
+                ->update();
+        Cascade::getLogger('error')->{'error'}(sprintf(_t('Error while sending email to: %s. Scheduled to try again.'), _escape($error_count->to_email)));
+    }
+}
+
+/**
+ * Updates sending count of queued record.
+ * 
+ * @since 2.0.5
+ * @access private
+ * @param array $data Array of queued data.
+ */
+function update_send_count($data)
+{
+    $app = \Liten\Liten::getInstance();
+    $send_count = $app->db->campaign_queue()
+            ->where('lid = ?', $data->xlistid)->_and_()
+            ->where('cid = ?', $data->xcampaignid)->_and_()
+            ->where('sid = ?', $data->xsubscriberid)
+            ->findOne();
+    $send_count->set([
+                'send_count' => $send_count->send_count + 1
+            ])
+            ->update();
 }

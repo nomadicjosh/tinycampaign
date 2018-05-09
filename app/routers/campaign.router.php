@@ -47,8 +47,7 @@ $app->group('/campaign', function() use ($app) {
             'title' => _t('My Campaigns'),
             'msgs' => $msgs,
             'count' => $count
-                ]
-        );
+        ]);
     });
 
     /**
@@ -388,17 +387,17 @@ $app->group('/campaign', function() use ($app) {
         }
 
         try {
-            Node::dispense('campaign_queue');
-            $unique_unsubs = Node::table('campaign_queue')
-                    ->where('cid', '=', $id)
-                    ->andWhere('is_unsubscribed', '=', 1)
-                    ->findAll()
+            $unique_unsubs = $app->db->campaign_queue()
+                    ->where('cid = ?', $id)->_and_()
+                    ->where('is_unsubscribed', 1)
                     ->count();
             Node::dispense('campaign_bounce');
             $unique_bounces = Node::table('campaign_bounce')
                     ->where('cid', '=', $id)
                     ->findAll()
                     ->count();
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
         } catch (NodeQException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -614,21 +613,18 @@ $app->group('/campaign', function() use ($app) {
 
         try {
             $cpgn = get_campaign_by_id($id);
-            $unsubs = Node::table('campaign_queue')
-                    ->where('cid', '=', $id)
-                    ->andWhere('is_unsubscribed', '=', 1)
-                    ->findAll();
+            $unsubs = $app->db->campaign_queue()
+                    ->where('cid = ?', $id)->_and_()
+                    ->where('is_unsubscribed', 1)
+                    ->find();
 
-            $sum = Node::table('campaign_queue')
-                    ->where('cid', '=', $id)
-                    ->andWhere('is_unsubscribed', '=', 1)
-                    ->findAll()
+            $sum = $app->db->campaign_queue()
+                    ->where('cid = ?', $id)->_and_()
+                    ->where('is_unsubscribed', 1)
                     ->count();
-        } catch (NotFoundException $e) {
+        } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
-        } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage());
         }
 
@@ -1066,10 +1062,10 @@ $app->group('/campaign', function() use ($app) {
                     ->where('id = ?', $id);
 
             try {
-                Node::table('campaign_queue')
-                        ->where('cid', '=', $id)
+                $app->db->campaign_queue()
+                        ->where('cid', $id)
                         ->delete();
-            } catch (NodeQException $e) {
+            } catch (ORMException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());
@@ -1086,6 +1082,198 @@ $app->group('/campaign', function() use ($app) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         } catch (ORMException $e) {
             _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    });
+});
+
+$app->group('/rss-campaign', function() use ($app) {
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/', function () use($app) {
+
+        try {
+            $feeds = $app->db->rss_campaign()
+                    ->where('owner = ?', get_userdata('id'))
+                    ->orderBy('id', 'ASC')
+                    ->find();
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        tc_register_style('datatables');
+        tc_register_script('datatables');
+
+        $app->view->display('rss-campaign/index', [
+            'title' => _t('My RSS Campaigns'),
+            'feeds' => $feeds
+        ]);
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/create/', function() {
+        if (!hasPermission('create_campaign')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->match('GET|POST', '/create/', function () use($app) {
+
+        if ($app->req->isPost()) {
+            try {
+                $feed = $app->db->rss_campaign();
+                $feed->insert([
+                    'owner' => get_userdata('id'),
+                    'node' => $app->req->post['node'],
+                    'subject' => $app->req->post['subject'],
+                    'from_name' => $app->req->post['from_name'],
+                    'from_email' => $app->req->post['from_email'],
+                    'rss_feed' => $app->req->post['rss_feed'],
+                    'lid' => maybe_serialize($app->req->post['lid']),
+                    'tid' => $app->req->post['tid'],
+                    'status' => 'active',
+                    'addDate' => \Jenssegers\Date\Date::now()
+                ]);
+
+                $ID = $feed->lastInsertId();
+
+                try {
+                    Node::create($app->req->post['node'], [
+                        'rcid' => 'integer',
+                        'rss_content' => 'string',
+                        'is_processed' => 'string'
+                    ]);
+                } catch (NodeQException $e) {
+                    _tc_flash()->error($e->getMessage());
+                }
+
+                tc_logger_activity_log_write('New Record', 'RSS Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
+                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'rss-campaign' . '/' . $ID . '/');
+            } catch (NotFoundException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (ORMException $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+        }
+
+        tc_register_style('select2');
+        tc_register_style('iCheck');
+        tc_register_style('datetime');
+        tc_register_script('select2');
+        tc_register_script('moment.js');
+        tc_register_script('datetime');
+        tc_register_script('iCheck');
+
+        $app->view->display('rss-campaign/create', [
+            'title' => _t('Create Campaign')
+                ]
+        );
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
+
+        if ($app->req->isPost()) {
+            try {
+                $feed = $app->db->rss_campaign();
+                $feed->set([
+                            'subject' => $app->req->post['subject'],
+                            'from_name' => $app->req->post['from_name'],
+                            'from_email' => $app->req->post['from_email'],
+                            'rss_feed' => $app->req->post['rss_feed'],
+                            'lid' => maybe_serialize($app->req->post['lid']),
+                            'tid' => $app->req->post['tid'],
+                            'status' => $app->req->post['status']
+                        ])
+                        ->where('id = ?', $id)->_and_()
+                        ->where('owner = ?', get_userdata('id'))
+                        ->update();
+
+                tc_logger_activity_log_write('Update Record', 'RSS Campaign', _filter_input_string(INPUT_POST, 'subject'), get_userdata('uname'));
+                _tc_flash()->success(_tc_flash()->notice(200), $app->req->server['HTTP_REFERER']);
+            } catch (NotFoundException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (ORMException $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+        }
+
+        try {
+            $rss_campaign = $app->db->rss_campaign()
+                    ->where('owner = ?', get_userdata('id'))->_and_()
+                    ->where('id = ?', $id)
+                    ->findOne();
+        } catch (NotFoundException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($rss_campaign == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($rss_campaign) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (_escape($rss_campaign->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('select2');
+            tc_register_style('iCheck');
+            tc_register_style('datetime');
+            tc_register_script('select2');
+            tc_register_script('moment.js');
+            tc_register_script('datetime');
+            tc_register_script('iCheck');
+
+            $app->view->display('rss-campaign/view', [
+                'title' => _t('View/Edit RSS Campaign'),
+                'rss' => $rss_campaign
+                    ]
+            );
         }
     });
 });
