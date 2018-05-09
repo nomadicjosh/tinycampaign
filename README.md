@@ -47,6 +47,10 @@ Before downloading, make sure your server meets the following requirements:
 *   Access to shell/commandline
 *   cURL Enabled
 
+## Installation
+
+Visit the [KnowledgeBase](https://tinyc.7mediaws.org/knowledge-base/installation/) for detailed installation instructions.
+
 tinyCampaign Demo:
 ------------------
 

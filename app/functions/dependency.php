@@ -12,7 +12,7 @@ if (!defined('BASE_PATH'))
  */
 $app = \Liten\Liten::getInstance();
 
-tc_load_file(APP_PATH . 'src/vendor/autoload.php');
+tc_load_file(BASE_PATH . 'vendor/autoload.php');
 
 $app->inst->singleton('hook', function () {
     return new \app\src\Hooks();
