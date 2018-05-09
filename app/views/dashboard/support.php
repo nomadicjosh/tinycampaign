@@ -36,7 +36,7 @@ define('SCREEN', 'support');
         
         <div class="box box-default">
             <!-- form start -->
-            <iframe src="//codecanyon.7mediaws.org/" width="100%" height="900" marginwidth="0" marginheight="0" frameborder="0">
+            <iframe src="https://tinyc.7mediaws.org/" width="100%" height="900" marginwidth="0" marginheight="0" frameborder="0">
 			  <p><?=_t( 'Your browser does not support iframes.' );?></p>
 			</iframe>
             
