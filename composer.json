@@ -19,6 +19,7 @@
         "hellogerard/jobby": "^3.3",
         "league/oauth2-google": "^2.2",
         "tubalmartin/cssmin": "^4.1",
-        "simplepie/simplepie": "^1.5"
+        "simplepie/simplepie": "^1.5",
+        "phpseclib/mcrypt_compat": "^1.0"
     }
 }
