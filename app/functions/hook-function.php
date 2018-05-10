@@ -1322,6 +1322,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
  * Sends the campaign to the queue.
  * 
  * @since 2.0.2
+ * @access private
  * @param object $cpgn Campaign data object.
  */
 function send_campaign_to_queue($cpgn)
@@ -1369,17 +1370,33 @@ function send_campaign_to_queue($cpgn)
                   ->groupBy('subscriber.email')
                   ->find(); */
 
-                $subscriber = app()->db->subscriber()
-                        ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                        ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                        ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
-                        ->where('subscriber.allowed = "true"')->_and_()
-                        ->where('subscriber.bounces < "3"')->_and_()
-                        ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
-                        ->where('subscriber_list.confirmed = "1"')->_and_()
-                        ->where('subscriber_list.unsubscribed = "0"')
-                        ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                        ->find();
+                if (_escape($cpgn->ruleid) != null) {
+                    $rule = get_rule_by_id(_escape($cpgn->ruleid));
+                    $subscriber = app()->db->subscriber()
+                            ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                            ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                            ->where('subscriber.allowed = "true"')->_and_()
+                            ->where('subscriber.bounces < "3"')->_and_()
+                            ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                            ->where('subscriber_list.confirmed = "1"')->_and_()
+                            ->where('subscriber_list.unsubscribed = "0"')->_and_()
+                            ->where(_escape($rule->rule))
+                            ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->find();
+                } else {
+                    $subscriber = app()->db->subscriber()
+                            ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                            ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                            ->where('subscriber.allowed = "true"')->_and_()
+                            ->where('subscriber.bounces < "3"')->_and_()
+                            ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                            ->where('subscriber_list.confirmed = "1"')->_and_()
+                            ->where('subscriber_list.unsubscribed = "0"')
+                            ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->find();
+                }
             } catch (NotFoundException $e) {
                 Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             } catch (Exception $e) {

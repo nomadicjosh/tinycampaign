@@ -171,6 +171,14 @@ define('SCREEN', 'cpgn');
                             </div>
                             
                             <div class="form-group">
+                                <label><?= _t('Rule'); ?></label>
+                                <select class="form-control select2" name="ruleid" style="width: 100%;">
+                                    <option>&nbsp;</option>
+                                    <?php get_rules(_h($cpgn->ruleid)); ?>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Send Start'); ?></label>
                                 <div class='input-group date' id='datetimepicker1'>
                                     <input type='text' class="form-control" name="sendstart" value="<?=_h($cpgn->sendstart);?>" required/>
@@ -181,6 +189,10 @@ define('SCREEN', 'cpgn');
                                 <p class="help-block"><?=_t('Start data and time of the campaign. Editing it later will not update the queue once it starts.');?></p>
                             </div>
                             
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Archive?'); ?></label>
                                 <select class="form-control select2" name="archive" style="width: 100%;" required>
@@ -190,10 +202,6 @@ define('SCREEN', 'cpgn');
                                 </select>
                                 <p class="help-block"><?=_t('Should this campaign be available in the online archives?');?></p>
                             </div>
-                            
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
                             
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Status'); ?></label>

@@ -237,4 +237,24 @@ class Migrations
             Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
     }
+    
+    public static function rlde()
+    {
+        try {
+            Node::create('rlde', [
+                'id' => 'integer',
+                'owner' => 'integer',
+                'description' => 'string',
+                'code' => 'string',
+                'comment' => 'string',
+                'rule' => 'string',
+                'adddate' => 'string',
+                'lastupdate' => 'string'
+            ]);
+        } catch (NodeQException $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()), ['NodeQ' => 'rlde']);
+        } catch (Exception $e) {
+            Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: %s', $e->getCode(), $e->getMessage()), ['NodeQ' => 'rlde']);
+        }
+    }
 }

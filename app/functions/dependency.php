@@ -321,7 +321,7 @@ app()->asset->registerStyleCollection('datetime', ['bootstrap-datetimepicker/boo
 app()->asset->registerStyleCollection('elfinder', ['elfinder/css/elfinder.min.css', 'elfinder/css/theme.css']);
 app()->asset->registerStyleCollection('elfinder-moono', ['elfinder/moono/css/theme.css']);
 app()->asset->registerStyleCollection('selectize', ['selectize/selectize.default.css']);
-app()->asset->registerStyleCollection('querybuilder', ['https://cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/css/query-builder.default.min.css']);
+app()->asset->registerStyleCollection('querybuilder', ['//cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/css/query-builder.default.min.css','//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css','//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.bootstrap3.min.css']);
 
 app()->asset->registerScriptCollection('morris', ['morris/morris.min.js']);
 app()->asset->registerScriptCollection('chartjs', ['chartjs/Chart.min.js']);
@@ -340,11 +340,11 @@ app()->asset->registerScriptCollection('dashboard', ['pages/dashboard.js']);
 app()->asset->registerScriptCollection('campaign-domains', ['pages/campaign-domains.js']);
 app()->asset->registerScriptCollection('campaign-opened', ['pages/campaign-opened.js']);
 app()->asset->registerScriptCollection('campaign-clicked', ['pages/campaign-clicked.js']);
-app()->asset->registerScriptCollection('querybuilder', ['https://cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/js/query-builder.min.js']);
 require( APP_PATH . 'functions' . DS . 'global-function.php' );
 require( APP_PATH . 'functions' . DS . 'db-function.php' );
 require( APP_PATH . 'functions' . DS . 'notify-function.php' );
 require( APP_PATH . 'functions' . DS . 'bounce-function.php' );
+require( APP_PATH . 'functions' . DS . 'rules-function.php' );
 require( APP_PATH . 'functions' . DS . 'list-function.php' );
 require( APP_PATH . 'functions' . DS . 'nodeq-function.php' );
 require( APP_PATH . 'functions' . DS . 'auth-function.php' );

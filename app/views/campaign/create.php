@@ -171,6 +171,14 @@ define('SCREEN', 'ccpgn');
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
                                 <input type="text" class="form-control" name="from_email" value="<?= (_h($app->req->post['from_email']) != '' ? _h($app->req->post['from_email']) : ''); ?>" required>
                             </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('Rule'); ?></label>
+                                <select class="form-control select2" name="ruleid" style="width: 100%;">
+                                    <option>&nbsp;</option>
+                                    <?php get_rules(); ?>
+                                </select>
+                            </div>
 
                         </div>
                         <!-- /.col -->
