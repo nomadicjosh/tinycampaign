@@ -15,14 +15,10 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
-
 function role_perm($id = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $role = $app->db->role()
+        $role = app()->db->role()
                 ->select('role.permission')
                 ->where('role.id = ?', $id);
         $q1 = $role->find(function ($data) {
@@ -37,7 +33,7 @@ function role_perm($id = null)
             $a[] = $r1;
         }
 
-        $permission = $app->db->permission();
+        $permission = app()->db->permission();
         $q2 = $permission->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -71,11 +67,9 @@ function role_perm($id = null)
 
 function user_permission($id = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
         $array = [];
-        $pp = $app->db->query("SELECT permission FROM user_perms WHERE userID = ?", [
+        $pp = app()->db->query("SELECT permission FROM user_perms WHERE userID = ?", [
             $id
         ]);
         $q = $pp->find(function ($data) {
@@ -94,7 +88,7 @@ function user_permission($id = null)
          * userID = $id
          */
         $array1 = [];
-        $pr = $app->db->query("SELECT roleID from user WHERE id = ?", [
+        $pr = app()->db->query("SELECT roleID from user WHERE id = ?", [
             $id
         ]);
         $q1 = $pr->find(function ($data) {
@@ -112,7 +106,7 @@ function user_permission($id = null)
          * that are connected to the selected user.
          */
         $array2 = [];
-        $role = $app->db->query("SELECT permission from role WHERE id = ?", [
+        $role = app()->db->query("SELECT permission from role WHERE id = ?", [
             _escape($r1['roleID'])
         ]);
         $q2 = $role->find(function ($data) {
@@ -126,7 +120,7 @@ function user_permission($id = null)
             $array2[] = $r2;
         }
         $perm = maybe_unserialize($r2['permission']);
-        $permission = $app->db->permission();
+        $permission = app()->db->permission();
         $sql = $permission->find(function ($data) {
             $array = [];
             foreach ($data as $d) {
@@ -245,9 +239,8 @@ function get_user_value($id, $field)
  */
 function get_perm_roles()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $role = $app->db->role()->find();
+        $role = app()->db->role()->find();
         foreach ($role as $r) {
             echo '<option value="' . _escape($r->id) . '">' . _escape($r->roleName) . '</option>' . "\n";
         }
@@ -268,9 +261,8 @@ function get_perm_roles()
  */
 function get_user_roles($active = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $roles = $app->db->role()
+        $roles = app()->db->role()
                 ->find();
 
         foreach ($roles as $role) {
@@ -294,11 +286,9 @@ function get_user_roles($active = null)
  */
 function get_user_lists($active = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
         $in = "'" . implode("','", get_subscriber_list_id($active)) . "'";
-        $lists = $app->db->list()
+        $lists = app()->db->list()
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where("(list.status = 'open' OR list.id IN($in))")
                 ->find();
@@ -321,9 +311,8 @@ function get_user_lists($active = null)
 
 function get_user_servers($active = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $servers = $app->db->server()
+        $servers = app()->db->server()
                 ->where('owner = ?', get_userdata('id'))
                 ->find();
         foreach ($servers as $server) {

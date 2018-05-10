@@ -12,16 +12,12 @@ if (!defined('BASE_PATH'))
  * Author URI: https://www.joshparker.name/
  * Plugin Slug: username-changer
  */
-
-$app = \Liten\Liten::getInstance();
-
 include( TC_PLUGIN_DIR . 'username-changer/router/username-changer.router.php' );
 load_plugin_textdomain('username-changer', 'username-changer/languages');
 
 function uc_get_username_list()
 {
-    $app = \Liten\Liten::getInstance();
-    $list = $app->db->user()->select('id,uname');
+    $list = app()->db->user()->select('id,uname');
     $q = $list->find(function($data) {
         $array = [];
         foreach ($data as $d) {
@@ -36,10 +32,8 @@ function uc_get_username_list()
 
 function uc_send_email_to_user($id)
 {
-    $app = \Liten\Liten::getInstance();
-
     $user = get_user_by('id', $id);
-    $uname = $app->req->post['new_uname'];
+    $uname = app()->req->post['new_uname'];
     $domain = get_domain_name();
     $site = _escape(get_option('system_name'));
 
@@ -67,4 +61,4 @@ function uc_username_changer_page_url()
     echo '<li' . (SCREEN === 'uchanger' ? ' class="active"' : '') . '><a href="' . get_base_url() . 'username-changer/"><i class="fa fa-circle-o"></i> ' . _t('Username Changer', 'username-changer') . '</a></li>';
 }
 
-$app->hook->add_action('plugin_parent_page', 'uc_username_changer_page_url', 10);
+app()->hook->add_action('plugin_parent_page', 'uc_username_changer_page_url', 10);

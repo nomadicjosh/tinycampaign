@@ -62,7 +62,6 @@ function tc_notify_script()
  */
 function tc_push_notify($title, $message)
 {
-    $app = \Liten\Liten::getInstance();
     // Create a Notifier
     $notifier = NotifierFactory::create();
 
@@ -73,5 +72,5 @@ function tc_push_notify($title, $message)
         ->setIcon(BASE_PATH . 'static/assets/imgages/icon-success.png');
 
     // Send it
-    return $app->hook->{'apply_filter'}('push_notify', $notifier->send($notification));
+    return app()->hook->{'apply_filter'}('push_notify', $notifier->send($notification));
 }

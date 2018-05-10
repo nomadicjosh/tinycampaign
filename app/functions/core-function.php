@@ -19,21 +19,18 @@ use Jenssegers\Date\Date;
  */
 define('CURRENT_RELEASE', trim(_file_get_contents(BASE_PATH . 'RELEASE')));
 
-$app = \Liten\Liten::getInstance();
-
 /**
  * Retrieves tinyCampaign site root url.
  *
  * @since 4.1.9
- * @uses $app->hook->{'apply_filter'}() Calls 'base_url' filter.
+ * @uses app()->hook->{'apply_filter'}() Calls 'base_url' filter.
  *      
  * @return string tinyCampaign root url.
  */
 function get_base_url()
 {
-    $app = \Liten\Liten::getInstance();
     $url = url('/');
-    return $app->hook->{'apply_filter'}('base_url', $url);
+    return app()->hook->{'apply_filter'}('base_url', $url);
 }
 
 /**
@@ -100,12 +97,11 @@ function microtime_float()
 
 function getPathInfo($relative)
 {
-    $app = \Liten\Liten::getInstance();
     $base = basename(BASE_PATH);
-    if (strpos($app->req->server['REQUEST_URI'], DS . $base . $relative) === 0) {
+    if (strpos(app()->req->server['REQUEST_URI'], DS . $base . $relative) === 0) {
         return $relative;
     } else {
-        return $app->req->server['REQUEST_URI'];
+        return app()->req->server['REQUEST_URI'];
     }
 }
 
@@ -123,8 +119,6 @@ function getPathInfo($relative)
  */
 function _file_get_contents($filename, $use_include_path = false, $context = true)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Filter the boolean for include path.
      *
@@ -132,7 +126,7 @@ function _file_get_contents($filename, $use_include_path = false, $context = tru
      * @var bool $use_include_path
      * @return bool
      */
-    $use_include_path = $app->hook->{'apply_filter'}('trigger_include_path_search', $use_include_path);
+    $use_include_path = app()->hook->{'apply_filter'}('trigger_include_path_search', $use_include_path);
 
     /**
      * Filter the context resource.
@@ -141,7 +135,7 @@ function _file_get_contents($filename, $use_include_path = false, $context = tru
      * @var bool $context
      * @return bool
      */
-    $context = $app->hook->{'apply_filter'}('resource_context', $context);
+    $context = app()->hook->{'apply_filter'}('resource_context', $context);
 
     $opts = [
         'http' => [
@@ -156,7 +150,7 @@ function _file_get_contents($filename, $use_include_path = false, $context = tru
      * @param array $opts Array of options.
      * @return mixed
      */
-    $opts = $app->hook->{'apply_filter'}('stream_context_create_options', $opts);
+    $opts = app()->hook->{'apply_filter'}('stream_context_create_options', $opts);
 
     if ($context === true) {
         $context = stream_context_create($opts);
@@ -395,7 +389,6 @@ function tc_hash_password($password)
  */
 function tc_check_password($password, $hash, $user_id = '')
 {
-    $app = \Liten\Liten::getInstance();
     // If the hash is still md5...
     if (strlen($hash) <= 32) {
         $check = ($hash == md5($password));
@@ -404,7 +397,7 @@ function tc_check_password($password, $hash, $user_id = '')
             tc_set_password($password, $user_id);
             $hash = tc_hash_password($password);
         }
-        return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
+        return app()->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
     }
 
     // If the stored hash is longer than an MD5, presume the
@@ -413,7 +406,7 @@ function tc_check_password($password, $hash, $user_id = '')
 
     $check = $hasher->CheckPassword($password, $hash);
 
-    return $app->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
+    return app()->hook->{'apply_filter'}('check_password', $check, $password, $hash, $user_id);
 }
 
 /**
@@ -429,9 +422,8 @@ function tc_check_password($password, $hash, $user_id = '')
  */
 function tc_set_password($password, $user_id)
 {
-    $app = \Liten\Liten::getInstance();
     $hash = tc_hash_password($password);
-    $q = $app->db->user();
+    $q = app()->db->user();
     $q->password = $hash;
     $q->where('id = ?', $user_id)->update();
 }
@@ -831,8 +823,6 @@ function tc_php_check_syntax($file_name, $check_includes = true)
  */
 function tc_validate_plugin($plugin_name)
 {
-    $app = \Liten\Liten::getInstance();
-
     $plugin = str_replace('.plugin.php', '', $plugin_name);
 
     if (!tc_file_exists(TC_PLUGIN_DIR . $plugin . DS . $plugin_name, false)) {
@@ -865,7 +855,7 @@ function tc_validate_plugin($plugin_name)
      * @param string $plugin_name
      *            The plugin's base name.
      */
-    $app->hook->{'do_action'}('activate_plugin', $plugin_name);
+    app()->hook->{'do_action'}('activate_plugin', $plugin_name);
 
     /**
      * Fires as a specifig plugin is being activated.
@@ -877,7 +867,7 @@ function tc_validate_plugin($plugin_name)
      * @param string $plugin_name
      *            The plugin's base name.
      */
-    $app->hook->{'do_action'}('activate_' . $plugin_name);
+    app()->hook->{'do_action'}('activate_' . $plugin_name);
 
     /**
      * Activate the plugin if there are no errors.
@@ -898,7 +888,7 @@ function tc_validate_plugin($plugin_name)
      * @param string $plugin_name
      *            The plugin's base name.
      */
-    $app->hook->{'do_action'}('activated_plugin', $plugin_name);
+    app()->hook->{'do_action'}('activated_plugin', $plugin_name);
 }
 
 /**
@@ -1000,7 +990,6 @@ function _tc_cleanup_file_header_comment($str)
  */
 function tc_get_file_data($file, $default_headers, $context = '')
 {
-    $app = \Liten\Liten::getInstance();
     // We don't need to write to the file, so just open for reading.
     $fp = fopen($file, 'r');
     // Pull only the first 8kB of the file in.
@@ -1020,7 +1009,7 @@ function tc_get_file_data($file, $default_headers, $context = '')
      * @param array $extra_context_headers
      *            Empty array by default.
      */
-    if ($context && $extra_headers = $app->hook->{'apply_filter'}("extra_{$context}_headers", [])) {
+    if ($context && $extra_headers = app()->hook->{'apply_filter'}("extra_{$context}_headers", [])) {
         $extra_headers = array_combine($extra_headers, $extra_headers); // keys equal values
         $all_headers = array_merge($extra_headers, (array) $default_headers);
     } else {
@@ -1115,10 +1104,8 @@ function get_plugin_data($plugin_file, $markup = true, $translate = true)
  */
 function tc_field_css_class($element)
 {
-    $app = \Liten\Liten::getInstance();
-
     if (_escape(get_option($element)) == 'hide') {
-        return $app->hook->{'apply_filter'}('field_css_class', " $element");
+        return app()->hook->{'apply_filter'}('field_css_class', " $element");
     }
 }
 
@@ -1204,11 +1191,9 @@ function tc_file_exists($filename, $throw = true)
  */
 function set_email_template($body)
 {
-    $app = \Liten\Liten::getInstance();
-
     $tpl = _file_get_contents(APP_PATH . 'views/setting/tpl/email_alert.tpl');
 
-    $template = $app->hook->{'apply_filter'}('email_template', $tpl);
+    $template = app()->hook->{'apply_filter'}('email_template', $tpl);
 
     return str_replace('{content}', $body, $template);
 }
@@ -1222,14 +1207,12 @@ function set_email_template($body)
  */
 function template_vars_replacement($template)
 {
-    $app = \Liten\Liten::getInstance();
-
     $var_array = [
         'system_name' => _escape(get_option('system_name')),
         'address' => _escape(get_option('mailing_address'))
     ];
 
-    $to_replace = $app->hook->{'apply_filter'}('email_template_tags', $var_array);
+    $to_replace = app()->hook->{'apply_filter'}('email_template_tags', $var_array);
 
     foreach ($to_replace as $tag => $var) {
         $template = str_replace('{' . $tag . '}', $var, $template);
@@ -1248,8 +1231,6 @@ function template_vars_replacement($template)
  */
 function process_email_html($text, $title)
 {
-    $app = \Liten\Liten::getInstance();
-
     // Convert URLs to links
     $links = make_clickable($text);
 
@@ -1260,7 +1241,7 @@ function process_email_html($text, $title)
     $body = str_replace('{title}', $title, $template);
 
     // Replace variables in email
-    $message = $app->hook->{'apply_filter'}('email_template_body', template_vars_replacement($body));
+    $message = app()->hook->{'apply_filter'}('email_template_body', template_vars_replacement($body));
 
     return $message;
 }
@@ -1273,9 +1254,7 @@ function process_email_html($text, $title)
  */
 function get_domain_name()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $server_name = strtolower($app->req->server['SERVER_NAME']);
+    $server_name = strtolower(app()->req->server['SERVER_NAME']);
     if (substr($server_name, 0, 4) == 'www.') {
         $server_name = substr($server_name, 4);
     }

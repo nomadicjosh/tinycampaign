@@ -21,14 +21,12 @@ $t->register();
  */
 function load_core_locale()
 {
-    $app = \Liten\Liten::getInstance();
-
     if (is_readable(BASE_PATH . 'config.php')) {
         $locale = get_option('tc_core_locale');
     } else {
         $locale = 'en_US';
     }
-    return $app->hook->{'apply_filter'}('core_locale', $locale);
+    return app()->hook->{'apply_filter'}('core_locale', $locale);
 }
 
 /**
@@ -43,9 +41,6 @@ function load_core_locale()
 function load_textdomain($domain, $path)
 {
     global $t;
-
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Filter text domain and/or .mo file path for loading translations.
      *
@@ -55,7 +50,7 @@ function load_textdomain($domain, $path)
      * @param string $domain   Text domain. Unique identifier for retrieving translated strings.
      * @param string $path   Path to the .mo file.
      */
-    $plugin_override = $app->hook->{'apply_filter'}('override_load_textdomain', false, $domain, $path);
+    $plugin_override = app()->hook->{'apply_filter'}('override_load_textdomain', false, $domain, $path);
 
     if (true == $plugin_override) {
         return true;
@@ -69,7 +64,7 @@ function load_textdomain($domain, $path)
      * @param string $domain Text domain. Unique identifier for retrieving translated strings.
      * @param string $path Path to the .mo file.
      */
-    $app->hook->do_action('load_textdomain', $domain, $path);
+    app()->hook->do_action('load_textdomain', $domain, $path);
 
     /**
      * Filter .mo file path for loading translations for a specific text domain.
@@ -79,7 +74,7 @@ function load_textdomain($domain, $path)
      * @param string $path Path to the .mo file.
      * @param string $domain Text domain. Unique identifier for retrieving translated strings.
      */
-    $mofile = $app->hook->{'apply_filter'}('load_textdomain_mofile', $path, $domain);
+    $mofile = app()->hook->{'apply_filter'}('load_textdomain_mofile', $path, $domain);
     // Load only if the .mo file is present and readable.
     if (!is_readable($mofile)) {
         return false;
@@ -123,8 +118,6 @@ function load_default_textdomain($domain, $path)
  */
 function load_plugin_textdomain($domain, $plugin_rel_path = false)
 {
-    $app = \Liten\Liten::getInstance();
-
     $locale = load_core_locale();
     /**
      * Filter a plugin's locale.
@@ -134,7 +127,7 @@ function load_plugin_textdomain($domain, $plugin_rel_path = false)
      * @param string $locale The plugin's current locale.
      * @param string $domain Text domain. Unique identifier for retrieving translated strings.
      */
-    $plugin_locale = $app->hook->{'apply_filter'}('plugin_locale', $locale, $domain);
+    $plugin_locale = app()->hook->{'apply_filter'}('plugin_locale', $locale, $domain);
 
     if ($plugin_rel_path !== false) {
         $path = TC_PLUGIN_DIR . $plugin_rel_path . DS;
@@ -831,8 +824,6 @@ function tc_remove_accents($string)
  */
 function tc_sanitize_string($string, $fallback_string = '', $context = 'save')
 {
-    $app = \Liten\Liten::getInstance();
-
     $raw_string = $string;
 
     if ('save' == $context)
@@ -847,7 +838,7 @@ function tc_sanitize_string($string, $fallback_string = '', $context = 'save')
      * @param string $raw_string    The string prior to sanitization.
      * @param string $context       The context for which the string is being sanitized.
      */
-    $string = $app->hook->{'apply_filter'}('sanitize_string', $string, $raw_string, $context);
+    $string = app()->hook->{'apply_filter'}('sanitize_string', $string, $raw_string, $context);
 
     if ('' === $string || false === $string)
         $string = $fallback_string;

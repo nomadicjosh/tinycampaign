@@ -12,7 +12,6 @@ if (!defined('BASE_PATH'))
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 use Cascade\Cascade;
 
 $config = [
@@ -72,7 +71,7 @@ $config = [
             'formatter' => 'exception',
             'mailer' => new app\src\tc_Email(),
             'message' => 'This message will be replaced with the real one.',
-            'email_to' => _escape($app->hook->{'get_option'}('system_email')),
+            'email_to' => _escape(app()->hook->{'get_option'}('system_email')),
             'subject' => _t('tinyCampaign System Alert!')
         ]
     ],
@@ -100,7 +99,7 @@ $config = [
     ]
 ];
 
-Cascade::fileConfig($app->hook->{'apply_filter'}('monolog_cascade_config', $config));
+Cascade::fileConfig(app()->hook->{'apply_filter'}('monolog_cascade_config', $config));
 
 /**
  * Default Error Handler

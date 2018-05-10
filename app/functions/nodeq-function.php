@@ -18,7 +18,6 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * Sets is_sent status to `true` once message is sent.
@@ -28,12 +27,10 @@ $app = \Liten\Liten::getInstance();
  */
 function set_queued_message_is_sent($message)
 {
-    $app = \Liten\Liten::getInstance();
-
     $now = Jenssegers\Date\Date::now();
     try {
 
-        $campaign = $app->db->campaign_queue();
+        $campaign = app()->db->campaign_queue();
         $campaign->set([
                     'timestamp_sent' => (string) $now,
                     'is_sent' => 'true'
@@ -242,13 +239,12 @@ function new_subscriber_notify_email()
 
 function move_old_nodes_to_queue_node()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $campaign = $app->db->campaign()
+        $campaign = app()->db->campaign()
                 ->where('status = "sent"')
                 ->find();
         foreach ($campaign as $c) {
-            $file = $app->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . _escape($c->node) . '.data.node';
+            $file = app()->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . _escape($c->node) . '.data.node';
             if (file_exists($file)) {
                 try {
                     Node::dispense(_escape($c->node));
@@ -288,9 +284,8 @@ function move_old_nodes_to_queue_node()
 
 function check_rss_campaigns()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $feeds = $app->db->rss_campaign()->where('status', 'active');
+        $feeds = app()->db->rss_campaign()->where('status', 'active');
         if ($feeds->count() <= 0) {
             return false;
         }
@@ -331,7 +326,7 @@ function check_rss_campaigns()
                 $description = $item->get_description();
 
                 // check if item has been sent already
-                $rss_guid = $app->db->query('SELECT guid FROM rss_guid WHERE guid = ?', [$guid])->findOne();
+                $rss_guid = app()->db->query('SELECT guid FROM rss_guid WHERE guid = ?', [$guid])->findOne();
 
                 // if so, skip
                 if ($rss_guid->guid != '') {
@@ -358,7 +353,7 @@ function check_rss_campaigns()
             $node->save();
 
             foreach ($accumulatedGuid as $guid) {
-                $rss_guid = $app->db->rss_guid();
+                $rss_guid = app()->db->rss_guid();
                 $rss_guid->insert([
                     'guid' => $guid
                 ]);
@@ -375,10 +370,8 @@ function check_rss_campaigns()
 
 function generate_rss_campaigns()
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $campaigns = $app->db->rss_campaign()->where('status', 'active')->find();
+        $campaigns = app()->db->rss_campaign()->where('status', 'active')->find();
         foreach ($campaigns as $campaign) {
             /**
              * Delete records that have been processed.
@@ -398,7 +391,7 @@ function generate_rss_campaigns()
 
                 $now = Jenssegers\Date\Date::now();
 
-                $cpgn = $app->db->campaign();
+                $cpgn = app()->db->campaign();
                 $cpgn->insert([
                     'owner' => _escape($campaign->owner),
                     'subject' => _escape($campaign->subject),
@@ -416,7 +409,7 @@ function generate_rss_campaigns()
                 $lists = maybe_unserialize(_escape($campaign->lid));
 
                 foreach ($lists as $list) {
-                    $cpgn_list = $app->db->campaign_list();
+                    $cpgn_list = app()->db->campaign_list();
                     $cpgn_list->insert([
                         'cid' => $ID,
                         'lid' => $list
@@ -435,7 +428,7 @@ function generate_rss_campaigns()
                     exit();
                 }
 
-                $app->hook->{'do_action'}('queue_campaign', $_cpgn);
+                app()->hook->{'do_action'}('queue_campaign', $_cpgn);
             }
 
             $upd = Node::table(_escape($campaign->node))->find($node->id);

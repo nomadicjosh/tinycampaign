@@ -41,11 +41,11 @@ try {
         return false;
     }
 
-    $exist = $app->db->query("SHOW TABLES LIKE '%campaign_queue%'");
+    $exist = app()->db->query("SHOW TABLES LIKE '%campaign_queue%'");
     if ($exist == 1) {
-        $count = $app->db->campaign_queue()->count();
+        $count = app()->db->campaign_queue()->count();
         if ($count <= 0) {
-            $file = file_get_contents($app->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . 'campaign_queue.data.node');
+            $file = file_get_contents(app()->config('cookies.savepath') . 'nodes' . DS . 'tinyc' . DS . 'campaign_queue.data.node');
             $array = json_decode($file);
 
             foreach ($array as $key => $value) {
@@ -55,11 +55,11 @@ try {
                 }
                 $sql = substr($sql, 0, strlen($sql) - 1);
 
-                $app->db->query('INSERT INTO campaign_queue(tmp_id,lid,cid,sid,to_email,to_name,timestamp_created,timestamp_to_send,timestamp_sent,is_unsubscribed,timestamp_unsubscribed,is_sent) VALUES(' . $sql . ')');
+                app()->db->query('INSERT INTO campaign_queue(tmp_id,lid,cid,sid,to_email,to_name,timestamp_created,timestamp_to_send,timestamp_sent,is_unsubscribed,timestamp_unsubscribed,is_sent) VALUES(' . $sql . ')');
             }
 
-            $app->db->query('ALTER TABLE `campaign_queue` DROP COLUMN `tmp_id`');
-            $app->db->query('UPDATE `campaign_queue` SET `timestamp_unsubscribed` = NULL WHERE `timestamp_unsubscribed` = "0000-00-00 00:00:00"');
+            app()->db->query('ALTER TABLE `campaign_queue` DROP COLUMN `tmp_id`');
+            app()->db->query('UPDATE `campaign_queue` SET `timestamp_unsubscribed` = NULL WHERE `timestamp_unsubscribed` = "0000-00-00 00:00:00"');
         }
     }
 } catch (NodeQException $e) {
