@@ -23,7 +23,7 @@ define('SCREEN', 'rss');
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1><?= _t('Campaigns'); ?></h1>
+        <h1><?= _t('RSS Campaigns'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
             <li class="active"><?= _t('RSS Campaigns'); ?></li>
