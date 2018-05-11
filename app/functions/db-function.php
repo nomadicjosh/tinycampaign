@@ -216,10 +216,8 @@ function get_subscriber_list_id($id)
 function get_campaign_lists($active = null)
 {
     try {
-        $in = "'" . implode("','", get_campaign_list_id($active)) . "'";
         $lists = app()->db->list()
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where("list.id IN($in)")
+                ->where('list.owner = ?', get_userdata('id'))
                 ->find();
 
         foreach ($lists as $list) {
@@ -332,10 +330,8 @@ function tc_response_time($cid, $sid, $left_operand)
 function get_rss_campaign_lists($active = null)
 {
     try {
-        $in = "'" . implode("','", get_rss_campaign_list_id($active)) . "'";
         $lists = app()->db->list()
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where("list.id IN($in)")
+                ->where('list.owner = ?', get_userdata('id'))
                 ->find();
 
         foreach ($lists as $list) {
