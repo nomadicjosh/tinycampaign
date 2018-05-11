@@ -515,3 +515,69 @@ function is_subscribed_to_list($lid, $sid)
             ->count();
     return $sub_list > 0 ? true : false;
 }
+
+/**
+ * Retrieve email lists of logged in user
+ * to be used for campaigns, rss campaigns, and subscribers.
+ * 
+ * @since 2.0.6
+ * @param int $active Campaign's id.
+ */
+function get_subscription_email_lists($active = null)
+{
+    try {
+        $lists = app()->db->list()
+                ->where('list.owner = ?', get_userdata('id'))
+                ->find();
+
+        foreach ($lists as $list) {
+            if (in_array($list->id, get_subscription_email_list_id($active))) {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            } else {
+                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            }
+        }
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
+
+/**
+ * Retrieve subscriber lists list id's.
+ * 
+ * @since 2.0.6
+ * @param int $id Subscriber's id.
+ * @return int
+ */
+function get_subscription_email_list_id($id)
+{
+    try {
+        $q = app()->db->subscriber_list()
+                ->where('sid = ?', $id)->_and_()
+                ->where('unsubscribed = "0"');
+
+        $slist = tc_cache_get($id, 'slist');
+        if (empty($slist)) {
+            $slist = $q->find(function ($data) {
+                $array = [];
+                foreach ($data as $d) {
+                    $array[] = $d;
+                }
+                return $array;
+            });
+            tc_cache_add($id, $slist, 'slist');
+        }
+
+        $a = [];
+        foreach ($slist as $r) {
+            $a[] = $r['lid'];
+        }
+        return $a;
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}
