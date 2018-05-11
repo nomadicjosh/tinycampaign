@@ -6,6 +6,8 @@ use app\src\Exception\NotFoundException;
 use app\src\Exception\Exception;
 use PDOException as ORMException;
 
+$app = Liten\Liten::getInstance();
+
 /**
  * Username Changer Plugin Router
  *  
