@@ -648,8 +648,7 @@ function dashboard_email_list_count()
     // Number of overall email lists.
     try {
         $lists = app()->db->list()
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.status = "open"')
+                ->where('list.owner = ?', get_userdata('id'))
                 ->count('id');
     } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -1489,6 +1488,50 @@ function mark_queued_record_sent($message)
     }
 }
 
+function import_subscriber_to_list($lid, $data)
+{
+    $sub = get_subscriber_by('email', $data[2]);
+    if (_escape($sub->id) <= 0) {
+        $subscriber = app()->db->subscriber();
+        $subscriber->insert([
+            'fname' => $data[0],
+            'lname' => $data[1],
+            'email' => $data[2],
+            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'ip' => app()->req->server['REMOTE_ADDR'],
+            'addedBy' => get_userdata('id'),
+            'addDate' => Jenssegers\Date\Date::now()
+        ]);
+        $sid = $subscriber->lastInsertId();
+        $slist = app()->db->subscriber_list();
+        $slist->insert([
+            'lid' => $lid,
+            'sid' => $sid,
+            'method' => 'import',
+            'addDate' => Jenssegers\Date\Date::now(),
+            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'confirmed' => $data[3],
+            'unsubscribed' => $data[4]
+        ]);
+    } else {
+        $sub_list = is_subscribed_to_list($lid, _escape($sub->id));
+        if (!$sub_list) {
+            $slist = app()->db->subscriber_list();
+            $slist->insert([
+                'lid' => $lid,
+                'sid' => _escape($sub->id),
+                'method' => 'import',
+                'addDate' => Jenssegers\Date\Date::now(),
+                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'confirmed' => $data[3],
+                'unsubscribed' => $data[4]
+            ]);
+        } else {
+            //Do nothing
+        }
+    }
+}
+
 app()->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
 app()->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
 app()->hook->{'add_action'}('release', 'foot_release', 5);
@@ -1508,5 +1551,6 @@ app()->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
 app()->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
 app()->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
 app()->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
+app()->hook->{'add_action'}('import_subscriber', 'import_subscriber_to_list', 5, 2);
 app()->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 app()->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

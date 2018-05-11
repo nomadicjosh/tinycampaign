@@ -16,9 +16,9 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
   <!-- Bootstrap 3.3.6 -->
   <link rel="stylesheet" href="static/assets/css/bootstrap/lumen-bootstrap.min.css">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Ionicons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Favicon Package -->
   <link rel="apple-touch-icon" sizes="180x180" href="static/assets/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="static/assets/img/favicon-32x32.png" sizes="32x32">
@@ -28,7 +28,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
 <!-- jQuery 2.2.3 -->
 <script src="static/assets/js/jQuery/jquery-2.2.3.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <!-- Bootstrap 3.3.6 -->
 <script src="static/assets/js/bootstrap/bootstrap.min.js"></script>
 
@@ -122,7 +122,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
         <li class="header"><?=_t('MAIN NAVIGATION');?></li>
         <li class="treeview">
           <a href="<?=get_base_url();?>dashboard/">
-            <i class="fa fa-tachometer-alt"></i> <span><?=_t('Dashboard');?></span>
+            <i class="fa fa-dashboard"></i> <span><?=_t('Dashboard');?></span>
           </a>
         </li>
         <li<?=ae('access_settings_screen');?> class="treeview">
@@ -221,7 +221,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
         </li>
         <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'rules' ? ' active' : '');?>">
           <a href="#">
-            <i class="fa fa-ruler-horizontal"></i> <span><?=_t('Rules');?></span>
+            <i class="fa fa-object-group"></i> <span><?=_t('Rules');?></span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>

@@ -25,7 +25,7 @@ define('SCREEN', 'rule');
         <h1><?= _t('View/Edit Rule'); ?></h1>
         <ol class="breadcrumb">
             <li><a href="<?= get_base_url(); ?>dashboard/"><i class="fa fa-dashboard"></i> <?= _t('Dashboard'); ?></a></li>
-            <li><a href="<?= get_base_url(); ?>rlde/"><i class="fa fa-dashboard"></i> <?= _t('Rules'); ?></a></li>
+            <li><a href="<?= get_base_url(); ?>rlde/"><i class="fa fa-object-group"></i> <?= _t('Rules'); ?></a></li>
             <li class="active"><?= _t('View/Edit Rule'); ?></li>
         </ol>
     </section>
@@ -34,6 +34,8 @@ define('SCREEN', 'rule');
     <section class="content">
 
 <?= _tc_flash()->showMessage(); ?>
+        
+        <div class="alert alert-info"><?=_t('If you make any changes, you must click "Load Rule" in order to bring the changes to the screen and then click "Update".');?></div>
 
         <div class="box box-default">
             <!-- form start -->
@@ -47,7 +49,7 @@ define('SCREEN', 'rule');
                             </div>
 
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('Rule Code'); ?></label>
+                                <label><font color="red">*</font> <?= _t('Rule Code'); ?>  <a href="#code" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
                                 <input type="text" class="form-control" name="code" value="<?= _escape($rule->code); ?>" maxlength="10" required>
                             </div>
 
@@ -95,6 +97,29 @@ define('SCREEN', 'rule');
 
     </section>
     <!-- /.content -->
+    
+    <!-- modal -->
+    <div class="modal" id="code">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'Rule Code' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Code must be unique and contain no spaces." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
 </div>
 <!-- /.content-wrapper -->
 

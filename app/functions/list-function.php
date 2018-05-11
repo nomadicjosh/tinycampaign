@@ -31,9 +31,10 @@ function get_email_lists()
     try {
         $lists = app()->db->list()
                 ->where('owner = ?', get_userdata('id'))
+                ->orderBy('name')
                 ->find();
         foreach ($lists as $list) {
-            echo '<li' . (SCREEN === $list->code ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . $list->id . '/"><i class="fa fa-circle-o"></i> ' . $list->name . '</a></li>';
+            echo '<li' . (SCREEN === _escape($list->code) ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . _escape($list->id) . '/"><i class="fa fa-circle-o"></i> ' . _escape($list->name) . '</a></li>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());

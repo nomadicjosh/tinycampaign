@@ -219,7 +219,7 @@ function get_campaign_lists($active = null)
         $in = "'" . implode("','", get_campaign_list_id($active)) . "'";
         $lists = app()->db->list()
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where("(list.status = 'open' OR list.id IN($in))")
+                ->where("list.id IN($in)")
                 ->find();
 
         foreach ($lists as $list) {
@@ -327,7 +327,7 @@ function tc_response_time($cid, $sid, $left_operand)
  * to be used for campaigns.
  * 
  * @since 2.0.5
- * @param array $list_array List of list id's.
+ * @param array $active RSS Campaign's unique id.
  */
 function get_rss_campaign_lists($active = null)
 {
@@ -500,4 +500,22 @@ function update_send_count($data)
                 'send_count' => $send_count->send_count + 1
             ])
             ->update();
+}
+
+/**
+ * Checks if subscriber is already subscribed to an email list.
+ * 
+ * @since 2.0.6
+ * @access private
+ * @param int $lid Email list id to check against.
+ * @param int $sid Subscriber list id to check against.
+ * @return bool
+ */
+function is_subscribed_to_list($lid, $sid)
+{
+    $sub_list = app()->db->subscriber_list()
+            ->where('lid = ?', $lid)->_and_()
+            ->where('sid = ?', $sid)
+            ->count();
+    return $sub_list > 0 ? true : false;
 }
