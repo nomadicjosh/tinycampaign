@@ -89,7 +89,7 @@ $app->view->block('index');
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_user_lists($subscriber->id); ?></ul>
+                                <ul><?php get_subscriber_lists($subscriber->id); ?></ul>
                             </div>
                             
                             <div class="form-group">

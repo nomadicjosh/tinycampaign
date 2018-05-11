@@ -104,7 +104,7 @@ $tags = "{tag: '".implode("'},{tag: '", get_subscriber_tag_list())."'}";
                             
                             <div class="form-group">
                                 <label><?= _t('Lists'); ?></label><br />
-                                <ul><?php get_user_lists(); ?></ul>
+                                <ul><?php get_subscription_email_lists(); ?></ul>
                             </div>
                             
                         </div>

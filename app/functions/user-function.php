@@ -278,13 +278,12 @@ function get_user_roles($active = null)
 }
 
 /**
- * Retrieve email lists of logged in user
- * to be used for subscribers.
+ * Retrieve email lists for subscribers.
  * 
  * @since 2.0.0
  * @param int $active Subscriber's id.
  */
-function get_user_lists($active = null)
+function get_subscriber_lists($active = null)
 {
     try {
         $in = "'" . implode("','", get_subscriber_list_id($active)) . "'";
