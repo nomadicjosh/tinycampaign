@@ -43,7 +43,7 @@ location /newsletter {
 Before downloading, make sure your server meets the following requirements:
 
 *   Apache/Nginx
-*   PHP 7.0+
+*   PHP 7.2+
 *   MySQL 5.6+
 *   PDO Driver
 *   Access to shell/commandline
