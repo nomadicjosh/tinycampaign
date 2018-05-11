@@ -19,7 +19,6 @@ use Cascade\Cascade;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * Retrieve a list of email lists to show
@@ -29,13 +28,13 @@ $app = \Liten\Liten::getInstance();
  */
 function get_email_lists()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $lists = $app->db->list()
+        $lists = app()->db->list()
                 ->where('owner = ?', get_userdata('id'))
+                ->orderBy('name')
                 ->find();
         foreach ($lists as $list) {
-            echo '<li' . (SCREEN === $list->code ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . $list->id . '/"><i class="fa fa-circle-o"></i> ' . $list->name . '</a></li>';
+            echo '<li' . (SCREEN === _escape($list->code) ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . _escape($list->id) . '/"><i class="fa fa-circle-o"></i> ' . _escape($list->name) . '</a></li>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());
@@ -88,10 +87,8 @@ function check_custom_error_url($code)
  */
 function get_list_by($field, $value)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $list = $app->db->list()
+        $list = app()->db->list()
                 ->where("list.$field = ?", $value)
                 ->findOne();
 
@@ -113,10 +110,8 @@ function get_list_by($field, $value)
  */
 function get_campaign_by_id($id)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $msg = $app->db->campaign()
+        $msg = app()->db->campaign()
                 ->where("campaign.id = ?", $id)
                 ->findOne();
 
@@ -203,9 +198,8 @@ function is_status_sent($id)
  */
 function get_list_subscribers_count($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $count = $app->db->subscriber_list()
+        $count = app()->db->subscriber_list()
                 ->where('subscriber_list.lid = ?', $id)
                 ->count('subscriber_list.sid');
         return $count;
@@ -251,9 +245,8 @@ function tc_link_tracking($body, $cid, $sid, $campaign)
  */
 function get_user_template()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $q = $app->db->template()
+        $q = app()->db->template()
                 ->where('owner = ?', get_userdata('id'))
                 ->orderBy('addDate')
                 ->find();
@@ -276,9 +269,8 @@ function get_user_template()
  */
 function get_list_subscriber_count($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $count = $app->db->subscriber_list()
+        $count = app()->db->subscriber_list()
                 ->where('confirmed = "1"')->_and_()
                 ->where('unsubscribed = "0"')
                 ->where('lid = ?', $id)
@@ -357,15 +349,12 @@ function tc_list_status_label($status)
  */
 function list_unsubscribe($tcMailer, $data)
 {
-    $app = \Liten\Liten::getInstance();
-
     $link = ($data->unsub_mailto != null ? '<mailto:' . $data->unsub_mailto . '>, ' : '') . '<' . get_base_url() . 'xunsubscribe/' . _escape($data->slist_code) . '/lid/' . _escape($data->xlistid) . '/sid/' . _escape($data->xsubscriberid) . '/rid/' . _escape($data->uniqueid) . '>';
-    return $app->hook->{'apply_filter'}('list_unsubscribe', $tcMailer->addCustomHeader('List-Unsubscribe', $link));
+    return app()->hook->{'apply_filter'}('list_unsubscribe', $tcMailer->addCustomHeader('List-Unsubscribe', $link));
 }
 
 function mark_subscriber_as_spammer($email)
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Set spam tolerance.
      */
@@ -376,7 +365,7 @@ function mark_subscriber_as_spammer($email)
     if (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
         try {
 
-            $subscriber = $app->db->subscriber()
+            $subscriber = app()->db->subscriber()
                     ->where('email = ?', $email)->_and_()
                     ->where('spammer = "0"')
                     ->findOne();

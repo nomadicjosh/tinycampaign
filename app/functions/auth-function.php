@@ -41,11 +41,9 @@ function ie($perm)
 
 function get_userdata($field)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
         $auth = get_secure_cookie_data('TC_COOKIENAME');
-        $user = $app->db->user()
+        $user = app()->db->user()
             ->where('user.id = ?', $auth->id)->_and_()
             ->where('user.uname = ?', $auth->uname)
             ->findOne();
@@ -67,11 +65,9 @@ function get_userdata($field)
  */
 function is_user_logged_in()
 {
-    $app = \Liten\Liten::getInstance();
-
     $user = get_user_by('id', get_userdata('id'));
 
-    if ('' != $user->id && $app->cookies->verifySecureCookie('TC_COOKIENAME')) {
+    if ('' != $user->id && app()->cookies->verifySecureCookie('TC_COOKIENAME')) {
         return true;
     }
 
@@ -87,9 +83,8 @@ function is_user_logged_in()
  */
 function get_user_by($field, $value)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $user = $app->db->user()
+        $user = app()->db->user()
             ->select('user.*,role.roleName,role.permission')
             ->_join('role', 'user.roleID = role.id')
             ->where("user.$field = ?", $value)
@@ -115,20 +110,18 @@ function get_user_by($field, $value)
  */
 function tc_authenticate($login, $password, $rememberme)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $user = $app->db->user()
+        $user = app()->db->user()
             ->where('(user.uname = ? OR user.email = ?)', [$login, $login])->_and_()
             ->where('user.status = "1"')
             ->findOne();
 
         if (false == $user) {
-            _tc_flash()->error(_t('Your account is inactive.'), $app->req->server['HTTP_REFERER']);
+            _tc_flash()->error(_t('Your account is inactive.'), app()->req->server['HTTP_REFERER']);
             return;
         }
 
-        $ll = $app->db->user();
+        $ll = app()->db->user();
         $ll->LastLogin = \Jenssegers\Date\Date::now();
         $ll->where('id = ?', _escape($user->id))
             ->update();
@@ -151,7 +144,7 @@ function tc_authenticate($login, $password, $rememberme)
      * @throws Exception If $user is not a database object.
      */
     try {
-        $app->hook->{'apply_filter'}('tc_auth_cookie', $user, $rememberme);
+        app()->hook->{'apply_filter'}('tc_auth_cookie', $user, $rememberme);
     } catch (UnauthorizedException $e) {
         Cascade::getLogger('error')->error(sprintf('AUTHSTATE[%s]: Unauthorized: %s', $e->getCode(), $e->getMessage()));
     }
@@ -170,8 +163,6 @@ function tc_authenticate($login, $password, $rememberme)
  */
 function tc_authenticate_user($login, $password, $rememberme)
 {
-    $app = \Liten\Liten::getInstance();
-
     if (empty($login) || empty($password)) {
 
         if (empty($login)) {
@@ -217,15 +208,13 @@ function tc_authenticate_user($login, $password, $rememberme)
      * @param string $password User's password.
      * @param string $rememberme Whether to remember the person.
      */
-    $user = $app->hook->{'apply_filter'}('tc_authenticate_user', $login, $password, $rememberme);
+    $user = app()->hook->{'apply_filter'}('tc_authenticate_user', $login, $password, $rememberme);
 
     return $user;
 }
 
 function tc_set_auth_cookie($user, $rememberme = '')
 {
-
-    $app = \Liten\Liten::getInstance();
 
     if (!is_object($user)) {
         throw new UnauthorizedException(_t('"$user" should be a database object.'), 4011);
@@ -237,14 +226,14 @@ function tc_set_auth_cookie($user, $rememberme = '')
          * 
          * @since 2.0.0
          */
-        $expire = $app->hook->{'apply_filter'}('auth_cookie_expiration', (_escape(get_option('cookieexpire')) !== '') ? _escape(get_option('cookieexpire')) : $app->config('cookies.lifetime'));
+        $expire = app()->hook->{'apply_filter'}('auth_cookie_expiration', (_escape(get_option('cookieexpire')) !== '') ? _escape(get_option('cookieexpire')) : app()->config('cookies.lifetime'));
     } else {
         /**
          * Ensure the browser will continue to send the cookie until it expires.
          *
          * @since 2.0.0
          */
-        $expire = $app->hook->{'apply_filter'}('auth_cookie_expiration', ($app->config('cookies.lifetime') !== '') ? $app->config('cookies.lifetime') : 86400);
+        $expire = app()->hook->{'apply_filter'}('auth_cookie_expiration', (app()->config('cookies.lifetime') !== '') ? app()->config('cookies.lifetime') : 86400);
     }
 
     $auth_cookie = [
@@ -262,9 +251,9 @@ function tc_set_auth_cookie($user, $rememberme = '')
      * @param string $auth_cookie Authentication cookie.
      * @param int    $expire  Duration in seconds the authentication cookie should be valid.
      */
-    $app->hook->{'do_action'}('set_auth_cookie', $auth_cookie, $expire);
+    app()->hook->{'do_action'}('set_auth_cookie', $auth_cookie, $expire);
 
-    $app->cookies->setSecureCookie($auth_cookie);
+    app()->cookies->setSecureCookie($auth_cookie);
 }
 
 /**
@@ -274,23 +263,20 @@ function tc_set_auth_cookie($user, $rememberme = '')
  */
 function tc_clear_auth_cookie()
 {
-
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires just before the authentication cookies are cleared.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('clear_auth_cookie');
+    app()->hook->{'do_action'}('clear_auth_cookie');
 
     $vars1 = [];
-    parse_str($app->cookies->get('TC_COOKIENAME'), $vars1);
+    parse_str(app()->cookies->get('TC_COOKIENAME'), $vars1);
     /**
      * Checks to see if the cookie is exists on the server.
      * It it exists, we need to delete it.
      */
-    $file1 = $app->config('cookies.savepath') . 'cookies.' . $vars1['data'];
+    $file1 = app()->config('cookies.savepath') . 'cookies.' . $vars1['data'];
     try {
         if (tc_file_exists($file1)) {
             unlink($file1);
@@ -300,12 +286,12 @@ function tc_clear_auth_cookie()
     }
 
     $vars2 = [];
-    parse_str($app->cookies->get('SWITCH_USERBACK'), $vars2);
+    parse_str(app()->cookies->get('SWITCH_USERBACK'), $vars2);
     /**
      * Checks to see if the cookie is exists on the server.
      * It it exists, we need to delete it.
      */
-    $file2 = $app->config('cookies.savepath') . 'cookies.' . $vars2['data'];
+    $file2 = app()->config('cookies.savepath') . 'cookies.' . $vars2['data'];
     if (tc_file_exists($file2, false)) {
         @unlink($file2);
     }
@@ -315,8 +301,8 @@ function tc_clear_auth_cookie()
      * we know need to remove it from the browser and
      * redirect the user to the login page.
      */
-    $app->cookies->remove('TC_COOKIENAME');
-    $app->cookies->remove('SWITCH_USERBACK');
+    app()->cookies->remove('TC_COOKIENAME');
+    app()->cookies->remove('SWITCH_USERBACK');
 }
 
 /**
@@ -326,8 +312,7 @@ function tc_clear_auth_cookie()
  */
 function tc_login_form_show_message()
 {
-    $app = \Liten\Liten::getInstance();
-    echo $app->hook->{'apply_filter'}('login_form_show_message', _tc_flash()->showMessage());
+    echo app()->hook->{'apply_filter'}('login_form_show_message', _tc_flash()->showMessage());
 }
 
 /**
@@ -339,7 +324,6 @@ function tc_login_form_show_message()
  */
 function get_secure_cookie_data($key)
 {
-    $app = \Liten\Liten::getInstance();
-    $data = $app->cookies->getSecureCookie($key);
+    $data = app()->cookies->getSecureCookie($key);
     return $data;
 }

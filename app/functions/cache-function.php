@@ -30,7 +30,6 @@ if (! defined('BASE_PATH'))
  */
 function tc_cache_add($key, $data, $namespace = '', $expire = 120)
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Filter the expire time for cache item.
      *
@@ -38,7 +37,7 @@ function tc_cache_add($key, $data, $namespace = '', $expire = 120)
      * @param int $expire
      *            When the cache data should expire, in seconds.
      */
-    $ttl = $app->hook->{'apply_filter'}('tc_cache_increase_ttl', $expire);
+    $ttl = app()->hook->{'apply_filter'}('tc_cache_increase_ttl', $expire);
     $cache = _tc_cache_init();
     return $cache->create($key, $data, $namespace, (int) $ttl);
 }
@@ -79,7 +78,6 @@ function tc_cache_get($key, $namespace = '')
  */
 function tc_cache_replace($key, $data, $namespace = '', $expire = 120)
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Filter the expire time for cache item.
      *
@@ -87,7 +85,7 @@ function tc_cache_replace($key, $data, $namespace = '', $expire = 120)
      * @param int $expire
      *            When the cache data should expire, in seconds.
      */
-    $ttl = $app->hook->apply_filter('tc_cache_replace_ttl', $expire);
+    $ttl = app()->hook->apply_filter('tc_cache_replace_ttl', $expire);
     $cache = _tc_cache_init();
     return $cache->update($key, $data, $namespace, (int) $ttl);
 }
@@ -154,7 +152,6 @@ function tc_cache_flush_namespace($value)
  */
 function tc_cache_set($key, $data, $namespace = '', $expire = 120)
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Filter the expire time for cache item.
      *
@@ -162,7 +159,7 @@ function tc_cache_set($key, $data, $namespace = '', $expire = 120)
      * @param int $expire
      *            When the cache data should expire, in seconds.
      */
-    $ttl = $app->hook->apply_filter('tc_cache_increase_ttl', $expire);
+    $ttl = app()->hook->apply_filter('tc_cache_increase_ttl', $expire);
     $cache = _tc_cache_init();
     return $cache->set($key, $data, $namespace, (int) $ttl);
 }

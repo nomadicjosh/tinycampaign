@@ -68,6 +68,7 @@ $app->group('/campaign', function() use ($app) {
                 $msg->subject = $app->req->post['subject'];
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
+                $msg->ruleid = ($app->req->post['ruleid'] <= 0 ? NULL : $app->req->post['ruleid']);
                 $msg->html = $app->req->post['html'];
                 $msg->text = if_null($app->req->post['text']);
                 $msg->footer = if_null($app->req->post['footer']);
@@ -128,6 +129,7 @@ $app->group('/campaign', function() use ($app) {
                 $msg->subject = $app->req->post['subject'];
                 $msg->from_name = $app->req->post['from_name'];
                 $msg->from_email = $app->req->post['from_email'];
+                $msg->ruleid = ($app->req->post['ruleid'] <= 0 ? NULL : $app->req->post['ruleid']);
                 $msg->html = $app->req->post['html'];
                 $msg->text = if_null($app->req->post['text']);
                 $msg->footer = if_null($app->req->post['footer']);
@@ -182,7 +184,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($msg->id)) <= 0) {
+         */ elseif (_escape($msg->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -1274,6 +1276,228 @@ $app->group('/rss-campaign', function() use ($app) {
                 'rss' => $rss_campaign
                     ]
             );
+        }
+    });
+
+    $app->get('/(\d+)/d/', function ($id) use($app) {
+        try {
+
+            $node = app()->db->rss_campaign()
+                    ->where('owner = ?', get_userdata('id'))
+                    ->findOne($id);
+
+            if (_escape($node->id) > 0) {
+
+                Node::remove(_escape($node->node));
+
+                app()->db->rss_campaign()
+                        ->where('owner = ?', get_userdata('id'))
+                        ->reset()
+                        ->findOne($id)
+                        ->delete();
+            }
+
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'rss-campaign' . '/');
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        }
+    });
+});
+
+$app->group('/rlde', function() use ($app) {
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->get('/', function () use($app) {
+
+        try {
+            $rule = Node::table('rlde')
+                    ->where('owner', '=', (int) get_userdata('id'))
+                    ->findAll();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        tc_register_style('datatables');
+        tc_register_script('datatables');
+
+        $app->view->display('rlde/index', [
+            'title' => _t('Rules'),
+            'rules' => $rule
+        ]);
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/create/', function() {
+        if (!hasPermission('create_campaign')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->match('GET|POST', '/create/', function () use($app) {
+
+        if ($app->req->isPost()) {
+            try {
+                $rlde = Node::table('rlde');
+                $rlde->owner = (int) get_userdata('id');
+                $rlde->description = (string) $app->req->post['description'];
+                $rlde->code = (string) $app->req->post['code'];
+                $rlde->comment = (string) $app->req->post['comment'];
+                $rlde->rule = (string) $app->req->post['rule'];
+                $rlde->adddate = (string) Jenssegers\Date\Date::now();
+                $rlde->lastupdate = (string) Jenssegers\Date\Date::now();
+                $rlde->save();
+
+                $ID = $rlde->lastId();
+                tc_logger_activity_log_write('New Record', 'Rule', _filter_input_string(INPUT_POST, 'description'), get_userdata('uname'));
+                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'rlde' . '/' . $ID . '/');
+            } catch (NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+        }
+
+        tc_register_style('select2');
+        tc_register_style('iCheck');
+        tc_register_style('datetime');
+        tc_register_style('querybuilder');
+        tc_register_script('select2');
+        tc_register_script('moment.js');
+        tc_register_script('datetime');
+        tc_register_script('iCheck');
+
+        $app->view->display('rlde/create', [
+            'title' => _t('Create Rule')
+                ]
+        );
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+
+    $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
+
+        if ($app->req->isPost()) {
+            try {
+                $rlde = Node::table('rlde')->where('owner', '=', (int) get_userdata('id'))->find($id);
+                $rlde->description = (string) $app->req->post['description'];
+                $rlde->code = (string) $app->req->post['code'];
+                $rlde->comment = (string) $app->req->post['comment'];
+                $rlde->rule = (string) $app->req->post['rule'];
+                $rlde->lastupdate = (string) Jenssegers\Date\Date::now();
+                $rlde->save();
+
+                tc_logger_activity_log_write('Update Record', 'Rule', _filter_input_string(INPUT_POST, 'description'), get_userdata('uname'));
+                _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'rlde' . '/' . $id . '/');
+            } catch (NodeQException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
+            }
+        }
+
+        try {
+            $rule = Node::table('rlde')->where('owner', '=', (int) get_userdata('id'))->find($id);
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($rule == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($rule) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (_escape($rule->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            tc_register_style('select2');
+            tc_register_style('iCheck');
+            tc_register_style('datetime');
+            tc_register_style('querybuilder');
+            tc_register_script('select2');
+            tc_register_script('moment.js');
+            tc_register_script('datetime');
+            tc_register_script('iCheck');
+
+            $app->view->display('rlde/view', [
+                'title' => _t('Create Rule'),
+                'rule' => $rule
+                    ]
+            );
+        }
+    });
+
+    $app->get('/(\d+)/d/', function ($id) use($app) {
+        try {
+            Node::table('rlde')
+                    ->where('owner', '=', get_userdata('id'))
+                    ->find($id)
+                    ->delete();
+
+            $cpgn = $app->db->campaign();
+            $cpgn->set([
+                        'ruleid' => NULL
+                    ])
+                    ->where('ruleid = ?', $id)
+                    ->update();
+
+            $rss = $app->db->rss_campaign();
+            $rss->set([
+                        'ruleid' => NULL
+                    ])
+                    ->where('ruleid = ?', $id)
+                    ->update();
+
+            _tc_flash()->success(_tc_flash()->notice(200), get_base_url() . 'rlde' . '/');
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (ORMException $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage(), $app->req->server['HTTP_REFERER']);
         }
     });
 });

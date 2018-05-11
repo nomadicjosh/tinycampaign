@@ -9,16 +9,16 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
   <base href="<?=get_base_url();?>">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><?=(isset($title)) ? $title . ' - ' . _h(get_option('system_name')) : _h(get_option('system_name'));?></title>
+  <title><?=(isset($title)) ? $title . ' - ' . _escape(get_option('system_name')) : _escape(get_option('system_name'));?></title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <meta name="theme-color" content="#ffffff">
   <!-- Bootstrap 3.3.6 -->
   <link rel="stylesheet" href="static/assets/css/bootstrap/lumen-bootstrap.min.css">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Ionicons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Favicon Package -->
   <link rel="apple-touch-icon" sizes="180x180" href="static/assets/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="static/assets/img/favicon-32x32.png" sizes="32x32">
@@ -28,7 +28,9 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
 <!-- jQuery 2.2.3 -->
 <script src="static/assets/js/jQuery/jquery-2.2.3.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="static/assets/js/bootstrap/bootstrap.min.js"></script>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -43,7 +45,7 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
      folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="static/assets/css/skins/_all-skins.min.css">
 </head>
-<body class="hold-transition <?=_h(get_option('backend_skin'));?> <?=(_h(get_option('collapse_sidebar')) == 'yes' ? 'sidebar-collapse ' : '');?>sidebar-mini">
+<body class="hold-transition <?=_escape(get_option('backend_skin'));?> <?=(_escape(get_option('collapse_sidebar')) == 'yes' ? 'sidebar-collapse ' : '');?>sidebar-mini">
 <div class="wrapper">
 
   <header class="main-header">
@@ -217,6 +219,18 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
             <li<?=(SCREEN === 'tpl' ? ' class="active"' : '');?><?=ae('manage_campaigns');?>><a href="<?=get_base_url();?>template/"><i class="fa fa-circle-o"></i> <?=_t('Manage Templates');?></a></li>
           </ul>
         </li>
+        <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'rules' ? ' active' : '');?>">
+          <a href="#">
+            <i class="fa fa-object-group"></i> <span><?=_t('Rules');?></span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li<?=(SCREEN === 'crule' ? ' class="active"' : '');?><?=ae('create_campaign');?>><a href="<?=get_base_url();?>rlde/create/"><i class="fa fa-circle-o"></i> <?=_t('Create Rule');?></a></li>
+            <li<?=(SCREEN === 'rule' ? ' class="active"' : '');?><?=ae('manage_campaigns');?> ><a href="<?=get_base_url();?>rlde/"><i class="fa fa-circle-o"></i> <?=_t('Manage Rules');?></a></li>
+          </ul>
+        </li>
         <li<?=ae('manage_campaigns');?>  class="treeview<?=(SCREEN_PARENT === 'rss' ? ' active' : '');?>">
           <a href="#">
             <i class="fa fa-rss"></i> <span><?=_t('RSS Campaigns');?></span>
@@ -292,9 +306,6 @@ $cookie = get_secure_cookie_data('SWITCH_USERBACK');
 <script>
 var basePath = '<?=get_base_url();?>';
 </script>
-
-<!-- Bootstrap 3.3.6 -->
-<script src="static/assets/js/bootstrap/bootstrap.min.js"></script>
 <!-- Bootstrap Validator 0.11.7 -->
 <script src="static/assets/plugins/bootstrap-validator/validator.js"></script>
 <!-- AdminLTE App -->

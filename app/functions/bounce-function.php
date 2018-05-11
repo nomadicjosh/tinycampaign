@@ -17,7 +17,6 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * next rule number (BODY): 0257 <br />
@@ -1464,9 +1463,7 @@ function bmhDSNRules($dsn_msg, $dsn_report, $debug_mode = false)
  */
 function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader, $remove, $ruleNo = false, $ruleCat = false, $totalFetched = 0, $body = '', $headerFull = '', $bodyFull = '')
 {
-    $app = \Liten\Liten::getInstance();
-
-    $bounces = $app->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
+    $bounces = app()->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
 
     $cpgnId = (find_x_campaign_id($headerFull) >= 0 ? find_x_campaign_id($headerFull) : find_x_campaign_id($bodyFull));
     $listId = (find_x_list_id($headerFull) >= 0 ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
@@ -1492,14 +1489,14 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
 
     if ($remove == true || $remove == '1') {
         try {
-            $cpgn = $app->db->campaign()
+            $cpgn = app()->db->campaign()
                 ->where('id = ?', $cpgnId)
                 ->findOne();
             $cpgn->set([
                     'bounces' => $cpgn->bounces + 1
                 ])
                 ->update();
-            $q = $app->db->subscriber()
+            $q = app()->db->subscriber()
                 ->where('email = ?', $email)->_and_()
                 ->where('allowed = "true"')
                 ->findOne();
@@ -1517,7 +1514,7 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
         }
     } else {
         try {
-            $sql = $app->db->subscriber()
+            $sql = app()->db->subscriber()
                 ->where('email = ?', $email)->_and_()
                 ->where('allowed = "true"')
                 ->findOne();
@@ -1526,7 +1523,7 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
                 ])
                 ->update();
 
-            $cpgn = $app->db->campaign()
+            $cpgn = app()->db->campaign()
                 ->where('id = ?', $cpgnId)
                 ->findOne();
             $cpgn->set([

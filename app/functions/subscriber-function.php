@@ -17,7 +17,6 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * Retrieve subscriber info by a given field from the subscriber's table.
@@ -28,9 +27,8 @@ $app = \Liten\Liten::getInstance();
  */
 function get_subscriber_by($field, $value)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $subscriber = $app->db->subscriber()
+        $subscriber = app()->db->subscriber()
                 ->where("subscriber.$field = ?", $value)
                 ->findOne();
 
@@ -245,9 +243,8 @@ function tc_blacklist_status_label($status)
  */
 function get_subscriber_tag_list()
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $tagging = $app->db->subscriber()
+        $tagging = app()->db->subscriber()
                 ->select('tags')
                 ->where('addedBy = ?', get_userdata('id'));
         $q = $tagging->find(function ($data) {

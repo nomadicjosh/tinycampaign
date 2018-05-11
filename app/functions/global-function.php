@@ -20,9 +20,7 @@ if (!defined('BASE_PATH'))
  */
 function _tc_cache_init()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $driver = $app->hook->{'apply_filter'}('tc_cache_driver', 'file');
+    $driver = app()->hook->{'apply_filter'}('tc_cache_driver', 'file');
     $cache = new \app\src\Cache\tc_Object_Cache($driver);
     return $cache;
 }
@@ -101,7 +99,6 @@ function _random_lib()
 
 function _tc_unique_campaign_slug($campaign)
 {
-    $app = \Liten\Liten::getInstance();
     $slugify = new Cocur\Slugify\Slugify();
-    return $app->hook->{'apply_filter'}('unique_campaign_slug', $slugify->slugify($campaign, '_'));
+    return app()->hook->{'apply_filter'}('unique_campaign_slug', $slugify->slugify($campaign, '_'));
 }

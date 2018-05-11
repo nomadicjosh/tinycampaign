@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 /**
@@ -10,15 +11,26 @@ if (!defined('BASE_PATH'))
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
+
+/**
+ * Call the application global scope.
+ * 
+ * @since 2.0.6
+ * @return object
+ */
+function app()
+{
+    $app = \Liten\Liten::getInstance();
+    return $app;
+}
 
 tc_load_file(BASE_PATH . 'vendor/autoload.php');
 
-$app->inst->singleton('hook', function () {
+app()->inst->singleton('hook', function () {
     return new \app\src\Hooks();
 });
 
-$app->inst->singleton('asset', function () {
+app()->inst->singleton('asset', function () {
     $options = [
         'public_dir' => remove_trailing_slash(BASE_PATH),
         'css_dir' => 'static/assets/css',
@@ -63,8 +75,7 @@ function _trigger_error($message, $level = E_USER_NOTICE)
  */
 function maybe_serialize($data)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->maybe_serialize($data);
+    return app()->hook->maybe_serialize($data);
 }
 
 /**
@@ -80,8 +91,7 @@ function maybe_serialize($data)
  */
 function is_serialized($data)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->is_serialized($data);
+    return app()->hook->is_serialized($data);
 }
 
 /**
@@ -97,8 +107,7 @@ function is_serialized($data)
  */
 function maybe_unserialize($original)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->maybe_unserialize($original);
+    return app()->hook->maybe_unserialize($original);
 }
 
 /**
@@ -300,40 +309,42 @@ function remove_trailing_slash($string)
     return rtrim($string, '/\\');
 }
 
-$app->asset->registerStyleCollection('morris', ['morris/morris.css']);
-$app->asset->registerStyleCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
-$app->asset->registerStyleCollection('timepicker', ['timepicker/bootstrap-timepicker.min.css']);
-$app->asset->registerStyleCollection('datatables', ['datatables/dataTables.bootstrap.css']);
-$app->asset->registerStyleCollection('tabletools', ['datatables/extensions/TableTools/css/dataTables.tableTools.min.css']);
-$app->asset->registerStyleCollection('iCheck', ['iCheck/all.css']);
-$app->asset->registerStyleCollection('iCheck_blue', ['iCheck/minimal/blue.css']);
-$app->asset->registerStyleCollection('select2', ['select2/select2.min.css']);
-$app->asset->registerStyleCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.css']);
-$app->asset->registerStyleCollection('elfinder', ['elfinder/css/elfinder.min.css', 'elfinder/css/theme.css']);
-$app->asset->registerStyleCollection('elfinder-moono', ['elfinder/moono/css/theme.css']);
-$app->asset->registerStyleCollection('selectize', ['selectize/selectize.default.css']);
+app()->asset->registerStyleCollection('morris', ['morris/morris.css']);
+app()->asset->registerStyleCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
+app()->asset->registerStyleCollection('timepicker', ['timepicker/bootstrap-timepicker.min.css']);
+app()->asset->registerStyleCollection('datatables', ['datatables/dataTables.bootstrap.css']);
+app()->asset->registerStyleCollection('tabletools', ['datatables/extensions/TableTools/css/dataTables.tableTools.min.css']);
+app()->asset->registerStyleCollection('iCheck', ['iCheck/all.css']);
+app()->asset->registerStyleCollection('iCheck_blue', ['iCheck/minimal/blue.css']);
+app()->asset->registerStyleCollection('select2', ['select2/select2.min.css']);
+app()->asset->registerStyleCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.css']);
+app()->asset->registerStyleCollection('elfinder', ['elfinder/css/elfinder.min.css', 'elfinder/css/theme.css']);
+app()->asset->registerStyleCollection('elfinder-moono', ['elfinder/moono/css/theme.css']);
+app()->asset->registerStyleCollection('selectize', ['selectize/selectize.default.css']);
+app()->asset->registerStyleCollection('querybuilder', ['//cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/css/query-builder.default.min.css','//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css','//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.bootstrap3.min.css']);
 
-$app->asset->registerScriptCollection('morris', ['morris/morris.min.js']);
-$app->asset->registerScriptCollection('chartjs', ['chartjs/Chart.min.js']);
-$app->asset->registerScriptCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
-$app->asset->registerScriptCollection('timepicker', ['timepicker/bootstrap-timepicker.min.js']);
-$app->asset->registerScriptCollection('datatables', ['datatables/jquery.dataTables.min.js','datatables/dataTables.bootstrap.min.js','pages/datatable.js']);
-$app->asset->registerScriptCollection('tabletools', ['datatables/extensions/TableTools/js/dataTables.tableTools.min.js']);
-$app->asset->registerScriptCollection('iCheck', ['iCheck/icheck.min.js','pages/iCheck.js']);
-$app->asset->registerScriptCollection('select2', ['select2/select2.full.min.js','select2/select2.js','pages/select2.js']);
-$app->asset->registerScriptCollection('moment.js', ['daterangepicker/moment.min.js']);
-$app->asset->registerScriptCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.js','pages/datetime.js']);
-$app->asset->registerScriptCollection('elfinder', ['elfinder/js/elfinder.full.js', 'elfinder/js/tinymce.plugin.js']);
-$app->asset->registerScriptCollection('highcharts', ['Highcharts/highcharts.js', 'Highcharts/modules/exporting.js']);
-$app->asset->registerScriptCollection('highcharts-3d', ['Highcharts/highcharts.js', 'Highcharts/highcharts-3d.js', 'Highcharts/modules/exporting.js']);
-$app->asset->registerScriptCollection('dashboard', ['pages/dashboard.js']);
-$app->asset->registerScriptCollection('campaign-domains', ['pages/campaign-domains.js']);
-$app->asset->registerScriptCollection('campaign-opened', ['pages/campaign-opened.js']);
-$app->asset->registerScriptCollection('campaign-clicked', ['pages/campaign-clicked.js']);
+app()->asset->registerScriptCollection('morris', ['morris/morris.min.js']);
+app()->asset->registerScriptCollection('chartjs', ['chartjs/Chart.min.js']);
+app()->asset->registerScriptCollection('datepicker', ['datepicker/bootstrap-datepicker.js']);
+app()->asset->registerScriptCollection('timepicker', ['timepicker/bootstrap-timepicker.min.js']);
+app()->asset->registerScriptCollection('datatables', ['datatables/jquery.dataTables.min.js', 'datatables/dataTables.bootstrap.min.js', 'pages/datatable.js']);
+app()->asset->registerScriptCollection('tabletools', ['datatables/extensions/TableTools/js/dataTables.tableTools.min.js']);
+app()->asset->registerScriptCollection('iCheck', ['iCheck/icheck.min.js', 'pages/iCheck.js']);
+app()->asset->registerScriptCollection('select2', ['select2/select2.full.min.js', 'select2/select2.js', 'pages/select2.js']);
+app()->asset->registerScriptCollection('moment.js', ['daterangepicker/moment.min.js']);
+app()->asset->registerScriptCollection('datetime', ['bootstrap-datetimepicker/bootstrap-datetimepicker.min.js', 'pages/datetime.js']);
+app()->asset->registerScriptCollection('elfinder', ['elfinder/js/elfinder.full.js', 'elfinder/js/tinymce.plugin.js']);
+app()->asset->registerScriptCollection('highcharts', ['Highcharts/highcharts.js', 'Highcharts/modules/exporting.js']);
+app()->asset->registerScriptCollection('highcharts-3d', ['Highcharts/highcharts.js', 'Highcharts/highcharts-3d.js', 'Highcharts/modules/exporting.js']);
+app()->asset->registerScriptCollection('dashboard', ['pages/dashboard.js']);
+app()->asset->registerScriptCollection('campaign-domains', ['pages/campaign-domains.js']);
+app()->asset->registerScriptCollection('campaign-opened', ['pages/campaign-opened.js']);
+app()->asset->registerScriptCollection('campaign-clicked', ['pages/campaign-clicked.js']);
 require( APP_PATH . 'functions' . DS . 'global-function.php' );
 require( APP_PATH . 'functions' . DS . 'db-function.php' );
 require( APP_PATH . 'functions' . DS . 'notify-function.php' );
 require( APP_PATH . 'functions' . DS . 'bounce-function.php' );
+require( APP_PATH . 'functions' . DS . 'rules-function.php' );
 require( APP_PATH . 'functions' . DS . 'list-function.php' );
 require( APP_PATH . 'functions' . DS . 'nodeq-function.php' );
 require( APP_PATH . 'functions' . DS . 'auth-function.php' );

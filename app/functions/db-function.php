@@ -18,7 +18,6 @@ use Cascade\Cascade;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * Table dropdown: pulls dropdown list from specified table
@@ -42,14 +41,13 @@ $app = \Liten\Liten::getInstance();
  */
 function table_dropdown($table, $where = null, $id, $code, $name, $activeID = null, $bind = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
         if ($where !== null && $bind == null) {
-            $table = $app->db->query("SELECT $id, $code, $name FROM $table WHERE $where");
+            $table = app()->db->query("SELECT $id, $code, $name FROM $table WHERE $where");
         } elseif ($bind !== null) {
-            $table = $app->db->query("SELECT $id, $code, $name FROM $table WHERE $where", $bind);
+            $table = app()->db->query("SELECT $id, $code, $name FROM $table WHERE $where", $bind);
         } else {
-            $table = $app->db->query("SELECT $id, $code, $name FROM $table");
+            $table = app()->db->query("SELECT $id, $code, $name FROM $table");
         }
         $q = $table->find(function ($data) {
             $array = [];
@@ -76,10 +74,9 @@ function table_dropdown($table, $where = null, $id, $code, $name, $activeID = nu
  */
 function date_dropdown($limit = 0, $name = '', $table = '', $column = '', $id = '', $field = '', $bool = '')
 {
-    $app = \Liten\Liten::getInstance();
     try {
         if ($id != '') {
-            $date_select = $app->db->query("SELECT * FROM $table WHERE $column = ?", [
+            $date_select = app()->db->query("SELECT * FROM $table WHERE $column = ?", [
                 $id
             ]);
             $q = $date_select->find(function ($data) {
@@ -153,12 +150,11 @@ function date_dropdown($limit = 0, $name = '', $table = '', $column = '', $id = 
  */
 function qt($table, $field, $where = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
         if ($where !== null) {
-            $query = $app->db->query("SELECT * FROM $table WHERE $where");
+            $query = app()->db->query("SELECT * FROM $table WHERE $where");
         } else {
-            $query = $app->db->query("SELECT * FROM $table");
+            $query = app()->db->query("SELECT * FROM $table");
         }
         $query->find();
 
@@ -181,9 +177,8 @@ function qt($table, $field, $where = null)
  */
 function get_subscriber_list_id($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $q = $app->db->subscriber_list()
+        $q = app()->db->subscriber_list()
                 ->where('sid = ?', $id)->_and_()
                 ->where('unsubscribed = "0"');
 
@@ -220,12 +215,11 @@ function get_subscriber_list_id($id)
  */
 function get_campaign_lists($active = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
         $in = "'" . implode("','", get_campaign_list_id($active)) . "'";
-        $lists = $app->db->list()
+        $lists = app()->db->list()
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where("(list.status = 'open' OR list.id IN($in))")
+                ->where("list.id IN($in)")
                 ->find();
 
         foreach ($lists as $list) {
@@ -251,9 +245,8 @@ function get_campaign_lists($active = null)
  */
 function get_campaign_list_id($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $q = $app->db->campaign_list()
+        $q = app()->db->campaign_list()
                 ->where('cid = ?', $id);
 
         $cpgn = tc_cache_get($id, 'clist');
@@ -289,9 +282,8 @@ function get_campaign_list_id($id)
  */
 function get_server_info($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $server = $app->db->server()
+        $server = app()->db->server()
                 ->where('id = ?', $id)
                 ->findOne();
 
@@ -315,10 +307,8 @@ function get_server_info($id)
  */
 function tc_response_time($cid, $sid, $left_operand)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $resp = $app->db->campaign_queue()
+        $resp = app()->db->campaign_queue()
                 ->where('cid = ?', $cid)->_and_()
                 ->where('sid = ?', $sid)
                 ->findOne();
@@ -337,14 +327,13 @@ function tc_response_time($cid, $sid, $left_operand)
  * to be used for campaigns.
  * 
  * @since 2.0.5
- * @param array $list_array List of list id's.
+ * @param array $active RSS Campaign's unique id.
  */
 function get_rss_campaign_lists($active = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
         $in = "'" . implode("','", get_rss_campaign_list_id($active)) . "'";
-        $lists = $app->db->list()
+        $lists = app()->db->list()
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where("(list.status = 'open' OR list.id IN($in))")
                 ->find();
@@ -372,9 +361,8 @@ function get_rss_campaign_lists($active = null)
  */
 function get_rss_campaign_list_id($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $rss = $app->db->rss_campaign()->findOne($id);
+        $rss = app()->db->rss_campaign()->findOne($id);
 
         return maybe_unserialize($rss->lid);
     } catch (ORMException $e) {
@@ -392,9 +380,8 @@ function get_rss_campaign_list_id($id)
  */
 function get_template_list($active = null)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $templates = $app->db->template()
+        $templates = app()->db->template()
                 ->where('template.owner = ?', get_userdata('id'))
                 ->find();
 
@@ -417,9 +404,8 @@ function get_template_list($active = null)
  */
 function get_template_by_id($id)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $templates = $app->db->template()
+        $templates = app()->db->template()
                 ->where('template.id = ?', $id)
                 ->findOne();
 
@@ -440,9 +426,7 @@ function get_template_by_id($id)
  */
 function is_cancelled($data)
 {
-    $app = \Liten\Liten::getInstance();
-
-    $cancel = $app->db->campaign_queue();
+    $cancel = app()->db->campaign_queue();
     $cancel->set([
                 'is_cancelled' => 'true'
             ])
@@ -462,8 +446,7 @@ function is_cancelled($data)
  */
 function get_error_count($data)
 {
-    $app = \Liten\Liten::getInstance();
-    $error_count = $app->db->campaign_queue()
+    $error_count = app()->db->campaign_queue()
             ->where('lid = ?', $data->xlistid)->_and_()
             ->where('cid = ?', $data->xcampaignid)->_and_()
             ->where('sid = ?', $data->xsubscriberid)
@@ -481,11 +464,9 @@ function get_error_count($data)
  */
 function update_error_count($data)
 {
-    $app = \Liten\Liten::getInstance();
-
     $error_count = get_error_count($data);
 
-    if (_escape($error_count->error_count) == $app->hook->{'apply_filter'}('update_error_count', 2)) {
+    if (_escape($error_count->error_count) == app()->hook->{'apply_filter'}('update_error_count', 2)) {
         $error_count->set([
                     'error_count' => _escape($error_count->error_count) + 1
                 ])
@@ -510,8 +491,7 @@ function update_error_count($data)
  */
 function update_send_count($data)
 {
-    $app = \Liten\Liten::getInstance();
-    $send_count = $app->db->campaign_queue()
+    $send_count = app()->db->campaign_queue()
             ->where('lid = ?', $data->xlistid)->_and_()
             ->where('cid = ?', $data->xcampaignid)->_and_()
             ->where('sid = ?', $data->xsubscriberid)
@@ -520,4 +500,22 @@ function update_send_count($data)
                 'send_count' => $send_count->send_count + 1
             ])
             ->update();
+}
+
+/**
+ * Checks if subscriber is already subscribed to an email list.
+ * 
+ * @since 2.0.6
+ * @access private
+ * @param int $lid Email list id to check against.
+ * @param int $sid Subscriber list id to check against.
+ * @return bool
+ */
+function is_subscribed_to_list($lid, $sid)
+{
+    $sub_list = app()->db->subscriber_list()
+            ->where('lid = ?', $lid)->_and_()
+            ->where('sid = ?', $sid)
+            ->count();
+    return $sub_list > 0 ? true : false;
 }

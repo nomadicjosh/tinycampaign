@@ -340,27 +340,7 @@ $app->group('/list', function() use ($app) {
                     $handle = fopen($filename, "r");
                     fgetcsv($handle, 10000, $delimiter[$app->req->post['delimiter']]);
                     while (($data = fgetcsv($handle, 1000, $delimiter[$app->req->post['delimiter']])) !== FALSE) {
-                        $subscriber = $app->db->subscriber();
-                        $subscriber->insert([
-                            'fname' => $data[0],
-                            'lname' => $data[1],
-                            'email' => $data[2],
-                            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                            'ip' => $app->req->server['REMOTE_ADDR'],
-                            'addedBy' => get_userdata('id'),
-                            'addDate' => Jenssegers\Date\Date::now()
-                        ]);
-                        $sid = $subscriber->lastInsertId();
-                        $slist = $app->db->subscriber_list();
-                        $slist->insert([
-                            'lid' => $id,
-                            'sid' => $sid,
-                            'method' => 'import',
-                            'addDate' => Jenssegers\Date\Date::now(),
-                            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                            'confirmed' => $data[3],
-                            'unsubscribed' => $data[4]
-                        ]);
+                        $app->hook->{'add_action'}('import_subscriber', $id, $data);
                     }
                     fclose($handle);
                     tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));

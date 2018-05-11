@@ -20,7 +20,6 @@ use Cascade\Cascade;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$app = \Liten\Liten::getInstance();
 
 /**
  * Wrapper function for Hooks::register_admin_page() and
@@ -38,8 +37,7 @@ $app = \Liten\Liten::getInstance();
  */
 function register_admin_page($slug, $title, $function)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->register_admin_page($slug, $title, $function);
+    return app()->hook->register_admin_page($slug, $title, $function);
 }
 
 /**
@@ -55,8 +53,7 @@ function register_admin_page($slug, $title, $function)
  */
 function activate_plugin($id)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->activate_plugin($id);
+    return app()->hook->activate_plugin($id);
 }
 
 /**
@@ -72,8 +69,7 @@ function activate_plugin($id)
  */
 function deactivate_plugin($id)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->deactivate_plugin($id);
+    return app()->hook->deactivate_plugin($id);
 }
 
 /**
@@ -89,8 +85,7 @@ function deactivate_plugin($id)
  */
 function load_activated_plugins($plugins_dir = '')
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->load_activated_plugins($plugins_dir);
+    return app()->hook->load_activated_plugins($plugins_dir);
 }
 
 /**
@@ -106,8 +101,7 @@ function load_activated_plugins($plugins_dir = '')
  */
 function is_plugin_activated($plugin)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->is_plugin_activated($plugin);
+    return app()->hook->is_plugin_activated($plugin);
 }
 
 /**
@@ -125,8 +119,7 @@ function is_plugin_activated($plugin)
  */
 function get_option($meta_key, $default = false)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->{'get_option'}($meta_key, $default);
+    return app()->hook->{'get_option'}($meta_key, $default);
 }
 
 /**
@@ -144,8 +137,7 @@ function get_option($meta_key, $default = false)
  */
 function update_option($meta_key, $newvalue)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->{'update_option'}($meta_key, $newvalue);
+    return app()->hook->{'update_option'}($meta_key, $newvalue);
 }
 
 /**
@@ -163,8 +155,7 @@ function update_option($meta_key, $newvalue)
  */
 function add_option($name, $value = '')
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->{'add_option'}($name, $value);
+    return app()->hook->{'add_option'}($name, $value);
 }
 
 /**
@@ -180,8 +171,7 @@ function add_option($name, $value = '')
  */
 function delete_option($name)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->hook->{'delete_option'}($name);
+    return app()->hook->{'delete_option'}($name);
 }
 
 /**
@@ -206,8 +196,6 @@ function delete_option($name)
  */
 function _deprecated_function($function_name, $release, $replacement = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires when a deprecated function is called.
      *
@@ -220,7 +208,7 @@ function _deprecated_function($function_name, $release, $replacement = null)
      * @param string $release
      *            The release of tinyCampaign that deprecated the function.
      */
-    $app->hook->{'do_action'}('deprecated_function_run', $function_name, $replacement, $release);
+    app()->hook->{'do_action'}('deprecated_function_run', $function_name, $replacement, $release);
 
     /**
      * Filter whether to trigger an error for deprecated functions.
@@ -230,7 +218,7 @@ function _deprecated_function($function_name, $release, $replacement = null)
      * @param bool $trigger
      *            Whether to trigger the error for deprecated functions. Default true.
      */
-    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_function_trigger_error', true)) {
+    if (APP_ENV == 'DEV' && app()->hook->{'apply_filter'}('deprecated_function_trigger_error', true)) {
         if (function_exists('_t')) {
             if (!is_null($replacement)) {
                 _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />'), $function_name, $release, $replacement), E_USER_DEPRECATED);
@@ -269,8 +257,6 @@ function _deprecated_function($function_name, $release, $replacement = null)
  */
 function _deprecated_class($class_name, $release, $replacement = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires when a deprecated class is called.
      *
@@ -283,7 +269,7 @@ function _deprecated_class($class_name, $release, $replacement = null)
      * @param string $release
      *            The release of tinyCampaign that deprecated the class.
      */
-    $app->hook->{'do_action'}('deprecated_class_run', $class_name, $replacement, $release);
+    app()->hook->{'do_action'}('deprecated_class_run', $class_name, $replacement, $release);
 
     /**
      * Filter whether to trigger an error for deprecated classes.
@@ -293,7 +279,7 @@ function _deprecated_class($class_name, $release, $replacement = null)
      * @param bool $trigger
      *            Whether to trigger the error for deprecated classes. Default true.
      */
-    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_class_trigger_error', true)) {
+    if (APP_ENV == 'DEV' && app()->hook->{'apply_filter'}('deprecated_class_trigger_error', true)) {
         if (function_exists('_t')) {
             if (!is_null($replacement)) {
                 _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s instead. <br />'), $class_name, $release, $replacement), E_USER_DEPRECATED);
@@ -332,8 +318,6 @@ function _deprecated_class($class_name, $release, $replacement = null)
  */
 function _deprecated_class_method($method_name, $release, $replacement = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires when a deprecated class method is called.
      *
@@ -346,7 +330,7 @@ function _deprecated_class_method($method_name, $release, $replacement = null)
      * @param string $release
      *            The release of tinyCampaign that deprecated the class's method.
      */
-    $app->hook->{'do_action'}('deprecated_class_method_run', $method_name, $replacement, $release);
+    app()->hook->{'do_action'}('deprecated_class_method_run', $method_name, $replacement, $release);
 
     /**
      * Filter whether to trigger an error for deprecated class methods.
@@ -356,7 +340,7 @@ function _deprecated_class_method($method_name, $release, $replacement = null)
      * @param bool $trigger
      *            Whether to trigger the error for deprecated class methods. Default true.
      */
-    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_class_method_trigger_error', true)) {
+    if (APP_ENV == 'DEV' && app()->hook->{'apply_filter'}('deprecated_class_method_trigger_error', true)) {
         if (function_exists('_t')) {
             if (!is_null($replacement)) {
                 _trigger_error(sprintf(_t('%1$s() is <strong>deprecated</strong> since release %2$s! Use %3$s() instead. <br />'), $method_name, $release, $replacement), E_USER_DEPRECATED);
@@ -403,8 +387,6 @@ function _deprecated_class_method($method_name, $release, $replacement = null)
  */
 function _deprecated_argument($function_name, $release, $message = null)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires when a deprecated argument is called.
      *
@@ -417,7 +399,7 @@ function _deprecated_argument($function_name, $release, $message = null)
      * @param string $release
      *            The release of tinyCampaign that deprecated the argument used.
      */
-    $app->hook->{'do_action'}('deprecated_argument_run', $function_name, $message, $release);
+    app()->hook->{'do_action'}('deprecated_argument_run', $function_name, $message, $release);
     /**
      * Filter whether to trigger an error for deprecated arguments.
      *
@@ -426,7 +408,7 @@ function _deprecated_argument($function_name, $release, $message = null)
      * @param bool $trigger
      *            Whether to trigger the error for deprecated arguments. Default true.
      */
-    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('deprecated_argument_trigger_error', true)) {
+    if (APP_ENV == 'DEV' && app()->hook->{'apply_filter'}('deprecated_argument_trigger_error', true)) {
         if (function_exists('_t')) {
             if (!is_null($message)) {
                 _trigger_error(sprintf(_t('%1$s() was called with an argument that is <strong>deprecated</strong> since release %2$s! %3$s. <br />'), $function_name, $release, $message), E_USER_DEPRECATED);
@@ -463,8 +445,6 @@ function _deprecated_argument($function_name, $release, $message = null)
  */
 function _incorrectly_called($function_name, $message, $release)
 {
-    $app = \Liten\Liten::getInstance();
-
     /**
      * Fires when the given function is being used incorrectly.
      *
@@ -477,7 +457,7 @@ function _incorrectly_called($function_name, $message, $release)
      * @param string $release
      *            The release of tinyCampaign where the message was added.
      */
-    $app->hook->{'do_action'}('incorrectly_called_run', $function_name, $message, $release);
+    app()->hook->{'do_action'}('incorrectly_called_run', $function_name, $message, $release);
 
     /**
      * Filter whether to trigger an error for _incorrectly_called() calls.
@@ -487,7 +467,7 @@ function _incorrectly_called($function_name, $message, $release)
      * @param bool $trigger
      *            Whether to trigger the error for _incorrectly_called() calls. Default true.
      */
-    if (APP_ENV == 'DEV' && $app->hook->{'apply_filter'}('incorrectly_called_trigger_error', true)) {
+    if (APP_ENV == 'DEV' && app()->hook->{'apply_filter'}('incorrectly_called_trigger_error', true)) {
         if (function_exists('_t')) {
             $release = is_null($release) ? '' : sprintf(_t('(This message was added in release %s.) <br /><br />'), $release);
             /* translators: %s: Codex URL */
@@ -508,13 +488,11 @@ function _incorrectly_called($function_name, $message, $release)
  */
 function tc_dashboard_copyright_footer()
 {
-    $app = \Liten\Liten::getInstance();
-
     $copyright = '<!--  Copyright Line -->' . "\n";
     $copyright .= '<div class="copy">' . _t('&copy; 2013') . ' - ' . foot_release() . ' &nbsp; <a href="http://www.litenframework.com/"><img src="' . get_base_url() . 'static/assets/images/button.png" alt="Built with Liten Framework"/></a></div>' . "\n";
     $copyright .= '<!--  End Copyright Line -->' . "\n";
 
-    return $app->hook->{'apply_filter'}('dashboard_copyright_footer', $copyright);
+    return app()->hook->{'apply_filter'}('dashboard_copyright_footer', $copyright);
 }
 
 /**
@@ -524,13 +502,18 @@ function tc_dashboard_copyright_footer()
  */
 function tc_dashboard_head()
 {
-    $app = \Liten\Liten::getInstance();
+    /**
+     * Registers & enqueues a stylesheet to be printed in dashboard head section.
+     *
+     * @since 2.0.6
+     */
+    app()->hook->{'do_action'}('dashboard_enqueue_css');
     /**
      * Prints scripts and/or data in the head tag of the dashboard.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('tc_dashboard_head');
+    app()->hook->{'do_action'}('tc_dashboard_head');
 }
 
 /**
@@ -540,14 +523,19 @@ function tc_dashboard_head()
  */
 function tc_dashboard_footer()
 {
-    $app = \Liten\Liten::getInstance();
+    /**
+     * Registers & enqueues javascript to be printed in dashboard footer section.
+     *
+     * @since 2.0.6
+     */
+    app()->hook->{'do_action'}('dashboard_enqueue_js');
     /**
      * Prints scripts and/or data before the ending body tag
      * of the dashboard.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('tc_dashboard_footer');
+    app()->hook->{'do_action'}('tc_dashboard_footer');
 }
 
 /**
@@ -562,32 +550,32 @@ load_activated_plugins(APP_PATH . 'plugins' . DS);
  * to the menu structure.
  *
  * @since 2.0.0
- * @uses $app->hook->{'do_action'}() Calls 'admin_menu' hook.
+ * @uses app()->hook->{'do_action'}() Calls 'admin_menu' hook.
  */
-$app->hook->{'do_action'}('admin_menu');
+app()->hook->{'do_action'}('admin_menu');
 
 /**
  * An action called to add custom page links
  * to menu structure.
  *
  * @since 4.2.0
- * @uses $app->hook->{'do_action'}() Calls 'custom_plugin_page' hook.
+ * @uses app()->hook->{'do_action'}() Calls 'custom_plugin_page' hook.
  */
-$app->hook->{'do_action'}('custom_plugin_page');
+app()->hook->{'do_action'}('custom_plugin_page');
 
 /**
  * Fires once activated plugins have loaded.
  *
  * @since 2.0.0
  */
-$app->hook->{'do_action'}('plugin_loaded');
+app()->hook->{'do_action'}('plugin_loaded');
 
 /**
  * Fires after tinyCampaign has finished loading but before any headers are sent.
  *
  * @since 2.0.0
  */
-$app->hook->{'do_action'}('init');
+app()->hook->{'do_action'}('init');
 
 /**
  * Fires the admin_head action.
@@ -596,13 +584,12 @@ $app->hook->{'do_action'}('init');
  */
 function admin_head()
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Prints scripts and/or data in the head tag of the dashboard.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('admin_head');
+    app()->hook->{'do_action'}('admin_head');
 }
 
 /**
@@ -612,14 +599,13 @@ function admin_head()
  */
 function footer()
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Prints scripts and/or data before the ending body tag
      * of the dashboard.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('footer');
+    app()->hook->{'do_action'}('footer');
 }
 
 /**
@@ -629,13 +615,12 @@ function footer()
  */
 function release()
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Prints tinyCampaign release information.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('release');
+    app()->hook->{'do_action'}('release');
 }
 
 /**
@@ -645,13 +630,12 @@ function release()
  */
 function dashboard_top_widgets()
 {
-    $app = \Liten\Liten::getInstance();
     /**
      * Prints widgets at the top portion of the dashboard.
      *
      * @since 2.0.0
      */
-    $app->hook->{'do_action'}('dashboard_top_widgets');
+    app()->hook->{'do_action'}('dashboard_top_widgets');
 }
 
 /**
@@ -661,12 +645,10 @@ function dashboard_top_widgets()
  */
 function dashboard_email_list_count()
 {
-    $app = \Liten\Liten::getInstance();
     // Number of overall email lists.
     try {
-        $lists = $app->db->list()
-                ->where('list.owner = ?', get_userdata('id'))->_and_()
-                ->where('list.status = "open"')
+        $lists = app()->db->list()
+                ->where('list.owner = ?', get_userdata('id'))
                 ->count('id');
     } catch (ORMException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -683,7 +665,7 @@ function dashboard_email_list_count()
     $count .= '<div class="icon"><i class="ion ion-ios-list"></i></div>';
     $count .= '<a href="' . get_base_url() . 'list/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
     $count .= '</div></div>';
-    echo $app->hook->{'apply_filter'}('dashboard_email_list_count', $count);
+    echo app()->hook->{'apply_filter'}('dashboard_email_list_count', $count);
 }
 
 /**
@@ -693,11 +675,9 @@ function dashboard_email_list_count()
  */
 function dashboard_campaign_count()
 {
-    $app = \Liten\Liten::getInstance();
-
     // Number of overall emails sent
     try {
-        $emails = $app->db->campaign()
+        $emails = app()->db->campaign()
                 ->where('campaign.owner = ?', get_userdata('id'))->_and_()
                 ->where('campaign.status = "sent"')
                 ->count('campaign.id');
@@ -716,7 +696,7 @@ function dashboard_campaign_count()
     $count .= '<div class="icon"><i class="ion ion-email"></i></div>';
     $count .= '<a href="' . get_base_url() . 'campaign/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
     $count .= '</div></div>';
-    echo $app->hook->{'apply_filter'}('dashboard_campaign_count', $count);
+    echo app()->hook->{'apply_filter'}('dashboard_campaign_count', $count);
 }
 
 /**
@@ -726,11 +706,9 @@ function dashboard_campaign_count()
  */
 function dashboard_subscriber_count()
 {
-    $app = \Liten\Liten::getInstance();
-
     // Number of overall subscribers
     try {
-        $subs = $app->db->subscriber_list()
+        $subs = app()->db->subscriber_list()
                 ->_join('list', 'subscriber_list.lid = list.id')
                 ->where('list.owner = ?', get_userdata('id'))->_and_()
                 ->where('subscriber_list.confirmed = "1"')->_and_()
@@ -751,7 +729,7 @@ function dashboard_subscriber_count()
     $count .= '<div class="icon"><i class="ion ion-ios-people"></i></div>';
     $count .= '<a href="' . get_base_url() . 'subscriber/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
     $count .= '</div></div>';
-    echo $app->hook->{'apply_filter'}('dashboard_subscriber_count', $count);
+    echo app()->hook->{'apply_filter'}('dashboard_subscriber_count', $count);
 }
 
 /**
@@ -761,11 +739,9 @@ function dashboard_subscriber_count()
  */
 function dashboard_email_sent_count()
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
-        $emails = $app->db->campaign_queue()
-                ->_join('campaign','campaign_queue.cid = campaign.id')
+        $emails = app()->db->campaign_queue()
+                ->_join('campaign', 'campaign_queue.cid = campaign.id')
                 ->where('campaign.owner = ?', get_userdata('id'))->_and_()
                 ->where('campaign_queue.is_sent = "true"')
                 ->count('campaign_queue.id');
@@ -784,61 +760,55 @@ function dashboard_email_sent_count()
     $count .= '<div class="icon"><i class="ion ion-paper-airplane"></i></div>';
     $count .= '<a href="' . get_base_url() . 'campaign/" class="small-box-footer">' . _t('More info') . '<i class="fa fa-arrow-circle-right"></i></a>';
     $count .= '</div></div>';
-    echo $app->hook->{'apply_filter'}('dashboard_email_sent_count', $count);
+    echo app()->hook->{'apply_filter'}('dashboard_email_sent_count', $count);
 }
 
 /**
  * Retrieve javascript directory uri.
  *
  * @since 2.0.0
- * @uses $app->hook->{'apply_filter'}() Calls 'javascript_directory_uri' filter.
+ * @uses app()->hook->{'apply_filter'}() Calls 'javascript_directory_uri' filter.
  *      
  * @return string eduTrac javascript url.
  */
 function get_javascript_directory_uri()
 {
-    $app = \Liten\Liten::getInstance();
-
     $directory = 'static/assets/components';
     $javascript_root_uri = get_base_url();
     $javascript_dir_uri = "$javascript_root_uri$directory/";
-    return $app->hook->{'apply_filter'}('javascript_directory_uri', $javascript_dir_uri, $javascript_root_uri, $directory);
+    return app()->hook->{'apply_filter'}('javascript_directory_uri', $javascript_dir_uri, $javascript_root_uri, $directory);
 }
 
 /**
  * Retrieve less directory uri.
  *
  * @since 2.0.0
- * @uses $app->hook->{'apply_filter'}() Calls 'less_directory_uri' filter.
+ * @uses app()->hook->{'apply_filter'}() Calls 'less_directory_uri' filter.
  *      
  * @return string eduTrac less url.
  */
 function get_less_directory_uri()
 {
-    $app = \Liten\Liten::getInstance();
-
     $directory = 'static/assets/less';
     $less_root_uri = get_base_url();
     $less_dir_uri = "$less_root_uri$directory/";
-    return $app->hook->{'apply_filter'}('less_directory_uri', $less_dir_uri, $less_root_uri, $directory);
+    return app()->hook->{'apply_filter'}('less_directory_uri', $less_dir_uri, $less_root_uri, $directory);
 }
 
 /**
  * Retrieve css directory uri.
  *
  * @since 2.0.0
- * @uses $app->hook->{'apply_filter'}() Calls 'css_directory_uri' filter.
+ * @uses app()->hook->{'apply_filter'}() Calls 'css_directory_uri' filter.
  *      
  * @return string eduTrac css url.
  */
 function get_css_directory_uri()
 {
-    $app = \Liten\Liten::getInstance();
-
     $directory = 'static/assets/css';
     $css_root_uri = get_base_url();
     $css_dir_uri = "$css_root_uri$directory/";
-    return $app->hook->{'apply_filter'}('css_directory_uri', $css_dir_uri, $css_root_uri, $directory);
+    return app()->hook->{'apply_filter'}('css_directory_uri', $css_dir_uri, $css_root_uri, $directory);
 }
 
 /**
@@ -854,8 +824,6 @@ function get_css_directory_uri()
  */
 function tc_parse_str($string, $array)
 {
-    $app = \Liten\Liten::getInstance();
-
     parse_str($string, $array);
     /**
      * Filter the array of variables derived from a parsed string.
@@ -864,13 +832,11 @@ function tc_parse_str($string, $array)
      * @param array $array
      *            The array populated with variables.
      */
-    $array = $app->hook->{'apply_filter'}('tc_parse_str', $array);
+    $array = app()->hook->{'apply_filter'}('tc_parse_str', $array);
 }
 
 function get_user_avatar($email, $s = 80, $class = '', $d = 'mm', $r = 'g', $img = false)
 {
-    $app = \Liten\Liten::getInstance();
-
     if (function_exists('enable_url_ssl') || function_exists('enable_force_url_ssl')) {
         $protocol = 'https://';
     } else {
@@ -888,13 +854,11 @@ function get_user_avatar($email, $s = 80, $class = '', $d = 'mm', $r = 'g', $img
         $avatar = '<img src="' . $url . '" ' . resize_image($avatarsize[1], $avatarsize[1], $s) . ' class="' . $class . '" />';
     }
 
-    return $app->hook->{'apply_filter'}('user_avatar', $avatar, $email, $s, $class, $d, $r, $img);
+    return app()->hook->{'apply_filter'}('user_avatar', $avatar, $email, $s, $class, $d, $r, $img);
 }
 
 function nocache_headers()
 {
-    $app = \Liten\Liten::getInstance();
-
     $headers = [
         'Expires' => 'Sun, 01 Jan 2014 00:00:00 GMT',
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
@@ -903,7 +867,7 @@ function nocache_headers()
     foreach ($headers as $k => $v) {
         header("{$k}: {$v}");
     }
-    return $app->hook->{'apply_filter'}('nocache_headers', $headers);
+    return app()->hook->{'apply_filter'}('nocache_headers', $headers);
 }
 
 /**
@@ -920,8 +884,6 @@ function nocache_headers()
  */
 function compare_releases($current, $latest, $operator = '>')
 {
-    $app = \Liten\Liten::getInstance();
-
     $php_function = version_compare($latest, $current, $operator);
     /**
      * Filters the comparison between two release.
@@ -930,7 +892,7 @@ function compare_releases($current, $latest, $operator = '>')
      * @param $php_function PHP
      *            function for comparing two release values.
      */
-    $release = $app->hook->{'apply_filter'}('compare_releases', $php_function);
+    $release = app()->hook->{'apply_filter'}('compare_releases', $php_function);
 
     if ($release) {
         return $latest;
@@ -950,8 +912,6 @@ function compare_releases($current, $latest, $operator = '>')
  */
 function get_http_response_code($url)
 {
-    $app = \Liten\Liten::getInstance();
-
     $headers = get_headers($url);
     $status = substr($headers[0], 9, 3);
     /**
@@ -961,7 +921,7 @@ function get_http_response_code($url)
      * @param
      *            string
      */
-    return $app->hook->{'apply_filter'}('http_response_code', $status);
+    return app()->hook->{'apply_filter'}('http_response_code', $status);
 }
 
 /**
@@ -973,7 +933,6 @@ function get_http_response_code($url)
  */
 function tc_plugin_activate_message($plugin_name)
 {
-    $app = \Liten\Liten::getInstance();
     $success = _tc_flash()->{'success'}(_t('Plugin <strong>activated</strong>.'));
     /**
      * Filter the default plugin success activation message.
@@ -984,7 +943,7 @@ function tc_plugin_activate_message($plugin_name)
      * @param string $plugin_name
      *            The name of the plugin that was just activated.
      */
-    return $app->hook->{'apply_filter'}('tc_plugin_activate_message', $success, $plugin_name);
+    return app()->hook->{'apply_filter'}('tc_plugin_activate_message', $success, $plugin_name);
 }
 
 /**
@@ -996,7 +955,6 @@ function tc_plugin_activate_message($plugin_name)
  */
 function tc_plugin_deactivate_message($plugin_name)
 {
-    $app = \Liten\Liten::getInstance();
     $success = _tc_flash()->{'success'}(_t('Plugin <strong>deactivated</strong>.'));
     /**
      * Filter the default plugin success deactivation message.
@@ -1007,7 +965,7 @@ function tc_plugin_deactivate_message($plugin_name)
      * @param string $plugin_name
      *            The name of the plugin that was just deactivated.
      */
-    return $app->hook->{'apply_filter'}('tc_plugin_deactivate_message', $success, $plugin_name);
+    return app()->hook->{'apply_filter'}('tc_plugin_deactivate_message', $success, $plugin_name);
 }
 
 /**
@@ -1019,13 +977,11 @@ function tc_plugin_deactivate_message($plugin_name)
  */
 function _tc_dashboard_router()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $router = $app->config('routers_dir') . 'dashboard.router.php';
-    if (!$app->hook->{'has_filter'}('dashboard_router')) {
+    $router = app()->config('routers_dir') . 'dashboard.router.php';
+    if (!app()->hook->{'has_filter'}('dashboard_router')) {
         require($router);
     }
-    return $app->hook->{'apply_filter'}('dashboard_router', $router);
+    return app()->hook->{'apply_filter'}('dashboard_router', $router);
 }
 
 /**
@@ -1037,13 +993,11 @@ function _tc_dashboard_router()
  */
 function _tc_error_router()
 {
-    $app = \Liten\Liten::getInstance();
-
-    $router = $app->config('routers_dir') . 'error.router.php';
-    if (!$app->hook->{'has_filter'}('error_router')) {
+    $router = app()->config('routers_dir') . 'error.router.php';
+    if (!app()->hook->{'has_filter'}('error_router')) {
         require($router);
     }
-    return $app->hook->{'apply_filter'}('error_router', $router);
+    return app()->hook->{'apply_filter'}('error_router', $router);
 }
 
 /**
@@ -1054,8 +1008,7 @@ function _tc_error_router()
  */
 function tc_register_style($handle)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->asset->{'register_style'}($handle);
+    return app()->asset->{'register_style'}($handle);
 }
 
 /**
@@ -1066,8 +1019,7 @@ function tc_register_style($handle)
  */
 function tc_register_script($handle)
 {
-    $app = \Liten\Liten::getInstance();
-    return $app->asset->{'register_script'}($handle);
+    return app()->asset->{'register_script'}($handle);
 }
 
 /**
@@ -1077,8 +1029,7 @@ function tc_register_script($handle)
  */
 function tc_enqueue_style()
 {
-    $app = \Liten\Liten::getInstance();
-    echo $app->asset->{'enqueue_style'}();
+    echo app()->asset->{'enqueue_style'}();
 }
 
 /**
@@ -1088,8 +1039,7 @@ function tc_enqueue_style()
  */
 function tc_enqueue_script()
 {
-    $app = \Liten\Liten::getInstance();
-    echo $app->asset->{'enqueue_script'}();
+    echo app()->asset->{'enqueue_script'}();
 }
 
 /**
@@ -1100,9 +1050,8 @@ function tc_enqueue_script()
  */
 function get_logo_mini()
 {
-    $app = \Liten\Liten::getInstance();
     $logo = '<strong>' . _t('ti') . '</strong>' . _t('ny');
-    return $app->hook->{'apply_filter'}('logo_mini', $logo);
+    return app()->hook->{'apply_filter'}('logo_mini', $logo);
 }
 
 /**
@@ -1132,9 +1081,8 @@ function tc_validation_check($data)
  */
 function get_logo_large()
 {
-    $app = \Liten\Liten::getInstance();
     $logo = '<strong>' . _t('tiny') . '</strong>' . _t('Campaign');
-    return $app->hook->{'apply_filter'}('logo_large', $logo);
+    return app()->hook->{'apply_filter'}('logo_large', $logo);
 }
 
 /**
@@ -1145,11 +1093,10 @@ function get_logo_large()
  */
 function tinyc_footer_logo()
 {
-    $app = \Liten\Liten::getInstance();
     $div = '<div id="wrapper" style="margin:0 auto !important;text-align:center !important;">';
     $div .= '<div id="logo-track"><img src="' . get_base_url() . 'static/assets/img/tinyC-Logo.png" alt="tinyCampaign" /></div>';
     $div .= '</div>';
-    return $app->hook->{'apply_filter'}('footer_logo', $div);
+    return app()->hook->{'apply_filter'}('footer_logo', $div);
 }
 
 /**
@@ -1162,9 +1109,8 @@ function tinyc_footer_logo()
  */
 function campaign_tracking_code($cid, $sid)
 {
-    $app = \Liten\Liten::getInstance();
     $image = '<img src="' . get_base_url() . 'tracking/cid/' . $cid . '/sid/' . $sid . '/" width="1" height="1" border="0" alt="tracking" />';
-    return $app->hook->apply_filter('tracking_code', $image, $cid, $sid);
+    return app()->hook->apply_filter('tracking_code', $image, $cid, $sid);
 }
 
 function tc_smtp($tcMailer)
@@ -1227,8 +1173,6 @@ function tc_smtp($tcMailer)
  */
 function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = '')
 {
-    $app = \Liten\Liten::getInstance();
-
     if (is_object($data)) {
         try {
             $node = Node::table('php_encryption')->find(1);
@@ -1261,7 +1205,7 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
             $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
-            $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
+            app()->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
             $tcMailer->From = _escape($data->femail);
             $tcMailer->FromName = _escape($data->fname);
             $tcMailer->Sender = (_escape(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _escape(get_option('tc_bmh_username'))); // Return-Path
@@ -1303,8 +1247,6 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
  */
 function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
 {
-    $app = \Liten\Liten::getInstance();
-
     if (is_object($data)) {
         try {
             $node = Node::table('php_encryption')->find(1);
@@ -1339,7 +1281,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
             $tcMailer->addCustomHeader('X-Subscriber-Id', $data->xsubscriberid);
             $tcMailer->addCustomHeader('X-Subscriber-Email', $data->xsubscriberemail);
             $tcMailer->addCustomHeader('Feedback-ID', $data->feedbackid);
-            $app->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
+            app()->hook->{'do_action'}('custom_email_header', $tcMailer, $data);
             $tcMailer->From = _escape($data->femail);
             $tcMailer->FromName = _escape($data->fname);
             $tcMailer->Sender = (_escape(get_option('tc_bmh_username')) == '' ? $tcMailer->From : _escape(get_option('tc_bmh_username'))); // Return-Path
@@ -1369,7 +1311,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
         if ($is_error) {
             update_error_count($data);
         } else {
-            $app->hook->{'do_action'}('mark_queued_record_sent', $message);
+            app()->hook->{'do_action'}('mark_queued_record_sent', $message);
             update_send_count($data);
         }
     }
@@ -1379,12 +1321,11 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
  * Sends the campaign to the queue.
  * 
  * @since 2.0.2
+ * @access private
  * @param object $cpgn Campaign data object.
  */
 function send_campaign_to_queue($cpgn)
 {
-    $app = \Liten\Liten::getInstance();
-
     try {
         /**
          * If it passes the above check, then instantiate the message queue.
@@ -1394,7 +1335,7 @@ function send_campaign_to_queue($cpgn)
             /**
              * Retrieve list info based on the unique campaign id.
              */
-            $campaign_list = $app->db->campaign_list()
+            $campaign_list = app()->db->campaign_list()
                     ->select('campaign_list.lid')
                     ->where('campaign_list.cid = ?', _escape($cpgn->id))
                     ->find();
@@ -1415,7 +1356,7 @@ function send_campaign_to_queue($cpgn)
                 /**
                  * Get a list of subscribers that meet the criteria.
                  */
-                /* $subscriber = $app->db->subscriber()
+                /* $subscriber = app()->db->subscriber()
                   ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
                   ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                   ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
@@ -1428,17 +1369,33 @@ function send_campaign_to_queue($cpgn)
                   ->groupBy('subscriber.email')
                   ->find(); */
 
-                $subscriber = $app->db->subscriber()
-                        ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                        ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
-                        ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
-                        ->where('subscriber.allowed = "true"')->_and_()
-                        ->where('subscriber.bounces < "3"')->_and_()
-                        ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
-                        ->where('subscriber_list.confirmed = "1"')->_and_()
-                        ->where('subscriber_list.unsubscribed = "0"')
-                        ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
-                        ->find();
+                if (_escape($cpgn->ruleid) != null) {
+                    $rule = get_rule_by_id(_escape($cpgn->ruleid));
+                    $subscriber = app()->db->subscriber()
+                            ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                            ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                            ->where('subscriber.allowed = "true"')->_and_()
+                            ->where('subscriber.bounces < "3"')->_and_()
+                            ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                            ->where('subscriber_list.confirmed = "1"')->_and_()
+                            ->where('subscriber_list.unsubscribed = "0"')->_and_()
+                            ->where(_escape($rule->rule))
+                            ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->find();
+                } else {
+                    $subscriber = app()->db->subscriber()
+                            ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                            ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                            ->where('subscriber.allowed = "true"')->_and_()
+                            ->where('subscriber.bounces < "3"')->_and_()
+                            ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                            ->where('subscriber_list.confirmed = "1"')->_and_()
+                            ->where('subscriber_list.unsubscribed = "0"')
+                            ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                            ->find();
+                }
             } catch (NotFoundException $e) {
                 Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
             } catch (Exception $e) {
@@ -1476,7 +1433,7 @@ function send_campaign_to_queue($cpgn)
         }
 
         try {
-            $upd = $app->db->campaign();
+            $upd = app()->db->campaign();
             $upd->set([
                         'status' => 'processing',
                         'last_queued' => Jenssegers\Date\Date::now()
@@ -1510,9 +1467,8 @@ function send_campaign_to_queue($cpgn)
  */
 function mark_queued_record_sent($message)
 {
-    $app = \Liten\Liten::getInstance();
     try {
-        $q = $app->db->campaign()
+        $q = app()->db->campaign()
                 ->where('id = ?', _escape((int) $message->getMessageId()))
                 ->findOne();
         $q->set([
@@ -1532,24 +1488,69 @@ function mark_queued_record_sent($message)
     }
 }
 
-$app->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
-$app->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
-$app->hook->{'add_action'}('release', 'foot_release', 5);
-$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_email_list_count', 5);
-$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_campaign_count', 5);
-$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_subscriber_count', 5);
-$app->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_email_sent_count', 5);
-$app->hook->{'add_action'}('activated_plugin', 'tc_plugin_activate_message', 5, 1);
-$app->hook->{'add_action'}('deactivated_plugin', 'tc_plugin_deactivate_message', 5, 1);
-$app->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
-$app->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
-$app->hook->{'add_action'}('tcMailer_init', 'tc_smtp', 5, 1);
-$app->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
-$app->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
-$app->hook->{'add_action'}('tinyc_test_email_init', 'tinyc_test_email', 5, 6);
-$app->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
-$app->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
-$app->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
-$app->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
-$app->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
-$app->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);
+function import_subscriber_to_list($lid, $data)
+{
+    $sub = get_subscriber_by('email', $data[2]);
+    if (_escape($sub->id) <= 0) {
+        $subscriber = app()->db->subscriber();
+        $subscriber->insert([
+            'fname' => $data[0],
+            'lname' => $data[1],
+            'email' => $data[2],
+            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'ip' => app()->req->server['REMOTE_ADDR'],
+            'addedBy' => get_userdata('id'),
+            'addDate' => Jenssegers\Date\Date::now()
+        ]);
+        $sid = $subscriber->lastInsertId();
+        $slist = app()->db->subscriber_list();
+        $slist->insert([
+            'lid' => $lid,
+            'sid' => $sid,
+            'method' => 'import',
+            'addDate' => Jenssegers\Date\Date::now(),
+            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+            'confirmed' => $data[3],
+            'unsubscribed' => $data[4]
+        ]);
+    } else {
+        $sub_list = is_subscribed_to_list($lid, _escape($sub->id));
+        if (!$sub_list) {
+            $slist = app()->db->subscriber_list();
+            $slist->insert([
+                'lid' => $lid,
+                'sid' => _escape($sub->id),
+                'method' => 'import',
+                'addDate' => Jenssegers\Date\Date::now(),
+                'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'confirmed' => $data[3],
+                'unsubscribed' => $data[4]
+            ]);
+        } else {
+            //Do nothing
+        }
+    }
+}
+
+app()->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
+app()->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
+app()->hook->{'add_action'}('release', 'foot_release', 5);
+app()->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_email_list_count', 5);
+app()->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_campaign_count', 5);
+app()->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_subscriber_count', 5);
+app()->hook->{'add_action'}('dashboard_top_widgets', 'dashboard_email_sent_count', 5);
+app()->hook->{'add_action'}('activated_plugin', 'tc_plugin_activate_message', 5, 1);
+app()->hook->{'add_action'}('deactivated_plugin', 'tc_plugin_deactivate_message', 5, 1);
+app()->hook->{'add_action'}('login_form_top', 'tc_login_form_show_message', 5);
+app()->hook->{'add_action'}('tc_dashboard_footer', 'tc_enqueue_script', 5);
+app()->hook->{'add_action'}('tcMailer_init', 'tc_smtp', 5, 1);
+app()->hook->{'add_action'}('validation_check', 'tc_validation_check', 5, 1);
+app()->hook->{'add_action'}('queue_campaign', 'send_campaign_to_queue', 5, 1);
+app()->hook->{'add_action'}('tinyc_test_email_init', 'tinyc_test_email', 5, 6);
+app()->hook->{'add_action'}('tinyc_email_init', 'tinyc_email', 5, 6);
+app()->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
+app()->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
+app()->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
+app()->hook->{'add_action'}('import_subscriber', 'import_subscriber_to_list', 5, 2);
+app()->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
+app()->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);
