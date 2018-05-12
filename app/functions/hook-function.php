@@ -1369,7 +1369,7 @@ function send_campaign_to_queue($cpgn)
                   ->groupBy('subscriber.email')
                   ->find(); */
 
-                if (_escape($cpgn->ruleid) != null) {
+                if (_escape($cpgn->ruleid) > 0) {
                     $rule = get_rule_by_id(_escape($cpgn->ruleid));
                     $subscriber = app()->db->subscriber()
                             ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
