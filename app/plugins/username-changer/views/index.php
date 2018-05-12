@@ -2,8 +2,8 @@
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'plugins');
-define('SCREEN', 'uchanger');
+\TinyC\Config::set('screen_parent', 'plugins');
+\TinyC\Config::set('screen_child', 'uchanger');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

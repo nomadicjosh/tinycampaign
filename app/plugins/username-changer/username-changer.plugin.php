@@ -62,7 +62,7 @@ function uc_send_email_to_user($id)
 
 function uc_username_changer_page_url()
 {
-    echo '<li' . (SCREEN === 'uchanger' ? ' class="active"' : '') . '><a href="' . get_base_url() . 'username-changer/"><i class="fa fa-circle-o"></i> ' . _t('Username Changer', 'username-changer') . '</a></li>';
+    echo '<li' . (\TinyC\Config::get('screen_child') === 'uchanger' ? ' class="active"' : '') . '><a href="' . get_base_url() . 'username-changer/"><i class="fa fa-circle-o"></i> ' . _t('Username Changer', 'username-changer') . '</a></li>';
 }
 
 $app->hook->{'add_action'}('plugin_parent_page', 'uc_username_changer_page_url', 10);

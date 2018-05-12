@@ -293,9 +293,9 @@ function check_rss_campaigns()
         foreach ($feeds->find() as $feed) {
             $rss = new SimplePie();
             $rss->set_feed_url(_escape($feed->rss_feed));
-            $rss->enable_cache(false);
-            //$rss->set_cache_location(APP_PATH . 'tmp' . DS . 'cache' . DS);
-            //$rss->set_cache_duration(3600);
+            $rss->enable_cache();
+            $rss->set_cache_location(APP_PATH . 'tmp' . DS . 'cache' . DS);
+            $rss->set_cache_duration(3600);
 
             // Init feed
             $rss->init();
