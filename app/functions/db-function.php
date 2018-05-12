@@ -335,10 +335,14 @@ function get_rss_campaign_lists($active = null)
                 ->find();
 
         foreach ($lists as $list) {
-            if (in_array($list->id, get_rss_campaign_list_id($active))) {
-                echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
-            } else {
+            if (get_rss_campaign_list_id($active) == false) {
                 echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+            } else {
+                if (in_array($list->id, get_rss_campaign_list_id($active))) {
+                    echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" checked="checked"/> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+                } else {
+                    echo '<li><input type="hidden" name="id[]" value="' . $list->id . '" /><input type="checkbox" name="lid[' . $list->id . ']" class="minimal" value="' . $list->id . '" /> ' . $list->name . ' (' . get_list_subscriber_count($list->id) . ')</li>';
+                }
             }
         }
     } catch (ORMException $e) {
@@ -358,7 +362,7 @@ function get_rss_campaign_lists($active = null)
 function get_rss_campaign_list_id($id)
 {
     try {
-        $rss = app()->db->rss_campaign()->findOne($id);
+        $rss = app()->db->rss_campaign()->where('id = ?', $id)->findOne();
 
         return maybe_unserialize($rss->lid);
     } catch (ORMException $e) {
