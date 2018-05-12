@@ -1,11 +1,11 @@
 <?php
 
-namespace app\src\NodeQ;
+namespace TinyC\NodeQ;
 
-use \app\src\NodeQ\NodeQException;
-use \app\src\NodeQ\Database;
-use \app\src\NodeQ\Relation;
-use \app\src\NodeQ\Helpers;
+use \TinyC\NodeQ\NodeQException;
+use \TinyC\NodeQ\Database;
+use \TinyC\NodeQ\Relation;
+use \TinyC\NodeQ\Helpers;
 
 /**
  * Core class of Lazer.

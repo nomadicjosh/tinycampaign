@@ -1,4 +1,4 @@
-<?php namespace app\src\Exception;
+<?php namespace TinyC\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -17,7 +17,7 @@ if (!defined('BASE_PATH'))
  * @package     tinyCampaign
  * @author      Joshua Parker <joshmac3@icloud.com>
  */
-class IOException extends \app\src\Exception\BaseException
+class IOException extends \TinyC\Exception\BaseException
 {
     public function __construct($message = 'Cannot read/write to/from specified file or director.', $code = 403, $previous = null)
     {

@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'cpgns');
-app\src\Config::set('screen_child', 'cpgn');
+TinyC\Config::set('screen_parent', 'cpgns');
+TinyC\Config::set('screen_child', 'cpgn');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

@@ -2,10 +2,10 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\Exception\Exception;
-use app\src\NodeQ\Helpers\Validate as Validate;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\Exception\Exception;
+use TinyC\NodeQ\Helpers\Validate as Validate;
 use PDOException as ORMException;
 
 try {

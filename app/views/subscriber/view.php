@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'subs');
-app\src\Config::set('screen_child', 'sub');
+TinyC\Config::set('screen_parent', 'subs');
+TinyC\Config::set('screen_child', 'sub');
 $tags = "{tag: '".implode("'},{tag: '", get_subscriber_tag_list())."'}";
 ?>
 

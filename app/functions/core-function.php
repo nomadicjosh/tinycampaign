@@ -2,9 +2,9 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\Exception;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\IOException;
+use TinyC\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\IOException;
 use Cascade\Cascade;
 use Jenssegers\Date\Date;
 
@@ -370,7 +370,7 @@ function tc_hash_password($password)
     }
 
     // By default, use the portable hash from phpass
-    $hasher = new \app\src\PasswordHash(8, FALSE);
+    $hasher = new \TinyC\PasswordHash(8, FALSE);
 
     return $hasher->HashPassword($password);
 }
@@ -402,7 +402,7 @@ function tc_check_password($password, $hash, $user_id = '')
 
     // If the stored hash is longer than an MD5, presume the
     // new style phpass portable hash.
-    $hasher = new \app\src\PasswordHash(8, FALSE);
+    $hasher = new \TinyC\PasswordHash(8, FALSE);
 
     $check = $hasher->CheckPassword($password, $hash);
 
@@ -615,31 +615,31 @@ function check_mime_type($file, $mode = 0)
 /**
  * Check whether variable is an tinyCampaign Error.
  *
- * Returns true if $object is an object of the \app\src\tc_Error class.
+ * Returns true if $object is an object of the \TinyC\tc_Error class.
  *
  * @since 2.0.0
  * @param mixed $object
- *            Check if unknown variable is an \app\src\tc_Error object.
- * @return bool True, if \app\src\tc_Error. False, if not \app\src\tc_Error.
+ *            Check if unknown variable is an \TinyC\tc_Error object.
+ * @return bool True, if \TinyC\tc_Error. False, if not \TinyC\tc_Error.
  */
 function is_tc_error($object)
 {
-    return ($object instanceof \app\src\tc_Error);
+    return ($object instanceof \TinyC\tc_Error);
 }
 
 /**
  * Check whether variable is an tinyCampaign Exception.
  *
- * Returns true if $object is an object of the `\app\src\Exception\BaseException` class.
+ * Returns true if $object is an object of the `\TinyC\Exception\BaseException` class.
  *
  * @since 2.0.0
  * @param mixed $object
- *            Check if unknown variable is an `\app\src\Exception\BaseException` object.
- * @return bool True, if `\app\src\Exception\BaseException`. False, if not `\app\src\Exception\BaseException`.
+ *            Check if unknown variable is an `\TinyC\Exception\BaseException` object.
+ * @return bool True, if `\TinyC\Exception\BaseException`. False, if not `\TinyC\Exception\BaseException`.
  */
 function is_tc_exception($object)
 {
-    return ($object instanceof \app\src\Exception\BaseException);
+    return ($object instanceof \TinyC\Exception\BaseException);
 }
 
 /**
@@ -700,7 +700,7 @@ function is_duplicate_function($file_name)
     if (count($merge) !== count(array_unique($merge))) {
         $dupe = array_unique(array_diff_assoc($merge, array_unique($merge)));
         foreach ($dupe as $value) {
-            return new \app\src\tc_Error('duplicate_function_error', sprintf(_t('The following function is already defined elsewhere: <strong>%s</strong>'), $value));
+            return new \TinyC\tc_Error('duplicate_function_error', sprintf(_t('The following function is already defined elsewhere: <strong>%s</strong>'), $value));
         }
     }
     return false;
@@ -771,7 +771,7 @@ function tc_php_check_includes($file_name)
  *            PHP script/file to check.
  * @param bool $check_includes
  *            If set to TRUE, will check if other files have been included.
- * @return void|\app\src\Exception\Exception
+ * @return void|\TinyC\Exception\Exception
  * @throws NotFoundException If file does not exist or is not readable.
  * @throws Exception If file contains duplicate function names.
  */
@@ -785,7 +785,7 @@ function tc_php_check_syntax($file_name, $check_includes = true)
     $dupe_function = is_duplicate_function($file_name);
 
     if (is_tc_error($dupe_function)) {
-        return new \app\src\Exception\Exception($dupe_function->get_error_message(), 'php_check_syntax');
+        return new \TinyC\Exception\Exception($dupe_function->get_error_message(), 'php_check_syntax');
     }
 
     // Sort out the formatting of the filename
@@ -799,7 +799,7 @@ function tc_php_check_syntax($file_name, $check_includes = true)
 
     // If the error text above was matched, throw an exception containing the syntax error
     if ($count > 0) {
-        return new \app\src\Exception\Exception(trim($syntaxError), 'php_check_syntax');
+        return new \TinyC\Exception\Exception(trim($syntaxError), 'php_check_syntax');
     }
 
     // If we are going to check the files includes

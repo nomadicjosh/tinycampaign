@@ -1,7 +1,7 @@
-<?php namespace app\src;
+<?php namespace TinyC;
 
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 if (!defined('BASE_PATH'))

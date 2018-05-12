@@ -1,4 +1,4 @@
-<?php namespace app\src\Exception;
+<?php namespace TinyC\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -27,7 +27,7 @@ class BaseException extends \Liten\Exception\LitenException {
 
 	/**
 	 * Error instance.
-	 * @var \app\src\tc_Error
+	 * @var \TinyC\tc_Error
 	 */
 	protected $tc_error;
 
@@ -35,28 +35,28 @@ class BaseException extends \Liten\Exception\LitenException {
 	 * tinyCampaign exception constructor.
 	 *
 	 * The class constructor accepts either the framework `\Liten\Exception\LitenException` creation
-	 * parameters or an `\app\src\tc_Error` instance in place of the previous exception.
+	 * parameters or an `\TinyC\tc_Error` instance in place of the previous exception.
 	 *
-	 * If an `\app\src\tc_Error` instance is given in this way, the `$message` and `$code`
+	 * If an `\TinyC\tc_Error` instance is given in this way, the `$message` and `$code`
 	 * parameters are ignored in favour of the message and code provided by the
-	 * `\app\src\tc_Error` instance.
+	 * `\TinyC\tc_Error` instance.
 	 *
-	 * Depending on whether an `\app\src\tc_Error` instance was received, the instance is kept
+	 * Depending on whether an `\TinyC\tc_Error` instance was received, the instance is kept
 	 * or a new one is created from the provided parameters.
 	 *
 	 * @param string               $message  Exception message (optional, defaults to empty).
 	 * @param string               $code     Exception code (optional, defaults to empty).
-	 * @param `\Liten\Exception\LitenException` | `\app\src\tc_Error` $previous Previous exception or error (optional).
+	 * @param `\Liten\Exception\LitenException` | `\TinyC\tc_Error` $previous Previous exception or error (optional).
 	 *
-	 * @uses \app\src\tc_Error
-	 * @uses \app\src\tc_Error::get_error_code()
-	 * @uses \app\src\tc_Error::get_error_message()
+	 * @uses \TinyC\tc_Error
+	 * @uses \TinyC\tc_Error::get_error_code()
+	 * @uses \TinyC\tc_Error::get_error_message()
 	 */
 	public function __construct( $message = '', $code = '', $previous = null ) {
 		$exception = $previous;
 		$tc_error  = null;
 
-		if ( $previous instanceof \app\src\tc_Error ) {
+		if ( $previous instanceof \TinyC\tc_Error ) {
 			$code      = $previous->get_error_code();
 			$message   = $previous->get_error_message( $code );
 			$tc_error  = $previous;
@@ -70,13 +70,13 @@ class BaseException extends \Liten\Exception\LitenException {
 	}
 
 	/**
-	 * Obtain the exception's `\app\src\tc_Error` object.
+	 * Obtain the exception's `\TinyC\tc_Error` object.
 	 * 
      * @since 2.0.0
 	 * @return tc_Error tinyCampaign error.
 	 */
 	public function get_tc_error() {
-		return $this->tc_error ? $this->tc_error : new \app\src\tc_Error( $this->code, $this->message, $this );
+		return $this->tc_error ? $this->tc_error : new \TinyC\tc_Error( $this->code, $this->message, $this );
 	}
 
 }

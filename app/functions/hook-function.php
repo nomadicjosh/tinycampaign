@@ -4,10 +4,10 @@ if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 use Cascade\Cascade;
 
@@ -1154,7 +1154,7 @@ function tc_smtp($tcMailer)
             _tc_flash()->{'success'}(_t('Email Sent.'));
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
-        } catch (\app\src\Exception\Exception $e) {
+        } catch (\TinyC\Exception\Exception $e) {
             _tc_flash()->{'error'}($e->getMessage());
         }
     }
@@ -1169,7 +1169,7 @@ function tc_smtp($tcMailer)
  * @param string $subject Email subject.
  * @param string $html HTML version of the email message.
  * @param string $text Text version of the email message.
- * @param object $message Object of \app\src\tc_Queue().
+ * @param object $message Object of \TinyC\tc_Queue().
  */
 function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = '')
 {
@@ -1228,7 +1228,7 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
             $tcMailer->ClearAttachments();
         } catch (phpmailerException $e) {
             _tc_flash()->{'error'}($e->getMessage());
-        } catch (\app\src\Exception\Exception $e) {
+        } catch (\TinyC\Exception\Exception $e) {
             _tc_flash()->{'error'}($e->getMessage());
         }
     }
@@ -1243,7 +1243,7 @@ function tinyc_test_email($data, $to, $subject, $html, $text = '', $message = ''
  * @param string $subject Email subject.
  * @param string $html HTML version of the email message.
  * @param string $text Text version of the email message.
- * @param object $message Object of \app\src\tc_Queue().
+ * @param object $message Object of \TinyC\tc_Queue().
  */
 function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
 {
@@ -1303,7 +1303,7 @@ function tinyc_email($data, $to, $subject, $html, $text = '', $message = '')
         } catch (phpmailerException $e) {
             $is_error = true;
             $error_text = $e->getMessage();
-        } catch (\app\src\Exception\Exception $e) {
+        } catch (\TinyC\Exception\Exception $e) {
             $is_error = true;
             $error_text = $e->getMessage();
         }
@@ -1330,7 +1330,7 @@ function send_campaign_to_queue($cpgn)
         /**
          * If it passes the above check, then instantiate the message queue.
          */
-        $queue = new app\src\tc_Queue();
+        $queue = new TinyC\tc_Queue();
         try {
             /**
              * Retrieve list info based on the unique campaign id.
@@ -1417,7 +1417,7 @@ function send_campaign_to_queue($cpgn)
                 /**
                  * Create new tc_QueueMessage object.
                  */
-                $new_message = new app\src\tc_QueueMessage();
+                $new_message = new TinyC\tc_QueueMessage();
                 $new_message->setListId(_escape($c_list->lid));
                 $new_message->setMessageId($cpgn->id);
                 $new_message->setSubscriberId(_escape($sub->id));
@@ -1463,7 +1463,7 @@ function send_campaign_to_queue($cpgn)
  * recipient field in the campaign table.
  * 
  * @since 2.0.4
- * @param object $message Object of \app\src\tc_Queue().
+ * @param object $message Object of \TinyC\tc_Queue().
  */
 function mark_queued_record_sent($message)
 {
@@ -1477,7 +1477,7 @@ function mark_queued_record_sent($message)
                 ->update();
 
         // remove message from the queue by updating is_sent value
-        $queue = new \app\src\tc_Queue();
+        $queue = new \TinyC\tc_Queue();
         $queue->setMessageIsSent($message);
     } catch (NotFoundException $e) {
         Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));

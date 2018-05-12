@@ -1,11 +1,11 @@
-<?php namespace app\src;
+<?php namespace TinyC;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\MailHandler;
-use app\src\tc_Email;
+use TinyC\tc_Email;
 
 /**
  * Monolog Handler Email Class

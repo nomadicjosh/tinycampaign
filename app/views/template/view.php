@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'tpls');
-app\src\Config::set('screen_child', 'tpl');
+TinyC\Config::set('screen_parent', 'tpls');
+TinyC\Config::set('screen_child', 'tpl');
 
 ?>
 

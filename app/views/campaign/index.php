@@ -15,8 +15,8 @@ use PDOException as ORMException;
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'cpgns');
-app\src\Config::set('screen_child', 'cpgn');
+TinyC\Config::set('screen_parent', 'cpgns');
+TinyC\Config::set('screen_child', 'cpgn');
 
 ?>
 <?php if($count > 0) : ?>

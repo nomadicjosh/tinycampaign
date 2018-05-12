@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src\NodeQ\Helpers;
+namespace TinyC\NodeQ\Helpers;
 
 /**
  * Data managing class

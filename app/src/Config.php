@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src;
+namespace TinyC;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');

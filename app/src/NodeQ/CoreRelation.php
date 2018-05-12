@@ -1,11 +1,11 @@
 <?php
 
-namespace app\src\NodeQ;
+namespace TinyC\NodeQ;
 
-use \app\src\NodeQ\Helpers\Validate;
-use \app\src\NodeQ\Helpers\Config;
-use \app\src\NodeQ\Database;
-use \app\src\NodeQ\NodeQException;
+use \TinyC\NodeQ\Helpers\Validate;
+use \TinyC\NodeQ\Helpers\Config;
+use \TinyC\NodeQ\Database;
+use \TinyC\NodeQ\NodeQException;
 
 /**
  * Relation class of LAZER project.

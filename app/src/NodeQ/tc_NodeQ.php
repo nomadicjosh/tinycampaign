@@ -1,7 +1,7 @@
-<?php namespace app\src\NodeQ;
+<?php namespace TinyC\NodeQ;
 
-use \app\src\NodeQ\Database as NodeQ;
-use \app\src\NodeQ\Helpers;
+use \TinyC\NodeQ\Database as NodeQ;
+use \TinyC\NodeQ\Helpers;
 
 /**
  * NodeQ

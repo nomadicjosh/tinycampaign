@@ -1,8 +1,8 @@
-<?php namespace app\src\Cache;
+<?php namespace TinyC\Cache;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\Exception;
+use TinyC\Exception\Exception;
 
 /**
  * tinyCampaign \Memcache|\Memcached Class.
@@ -14,7 +14,7 @@ use app\src\Exception\Exception;
  * @subpackage Cache
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
+class tc_Cache_Memcache extends \TinyC\Cache\tc_Abstract_Cache
 {
 
     /**
@@ -90,7 +90,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::create()
+     * @see \TinyC\Cache\tc_Abstract_Cache::create()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -119,7 +119,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::read()
+     * @see \TinyC\Cache\tc_Abstract_Cache::read()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -147,7 +147,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::update()
+     * @see \TinyC\Cache\tc_Abstract_Cache::update()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -183,7 +183,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::delete()
+     * @see \TinyC\Cache\tc_Abstract_Cache::delete()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -207,7 +207,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::flush()
+     * @see \TinyC\Cache\tc_Abstract_Cache::flush()
      *
      * @since 2.0.0
      */
@@ -221,7 +221,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::flushNamespace()
+     * @see \TinyC\Cache\tc_Abstract_Cache::flushNamespace()
      *
      * @since 2.0.0
      * @param int|string $namespace
@@ -241,7 +241,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::set()
+     * @see \TinyC\Cache\tc_Abstract_Cache::set()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -316,7 +316,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::inc()
+     * @see \TinyC\Cache\tc_Abstract_Cache::inc()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -339,7 +339,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::dec()
+     * @see \TinyC\Cache\tc_Abstract_Cache::dec()
      *
      * @since 2.0.0
      * @param int|string $key
@@ -392,7 +392,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::uniqueKey()
+     * @see \TinyC\Cache\tc_Abstract_Cache::uniqueKey()
      *
      * @since 2.0.0
      * @access protected
@@ -415,7 +415,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::_exists()
+     * @see \TinyC\Cache\tc_Abstract_Cache::_exists()
      *
      * @since 2.0.0
      * @access protected
@@ -435,7 +435,7 @@ class tc_Cache_Memcache extends \app\src\Cache\tc_Abstract_Cache
      *
      * {@inheritDoc}
      *
-     * @see \app\src\Cache\tc_Abstract_Cache::_namespace()
+     * @see \TinyC\Cache\tc_Abstract_Cache::_namespace()
      *
      * @since 2.0.0
      * @param int|string $value

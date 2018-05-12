@@ -2,10 +2,10 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 /**
@@ -176,16 +176,16 @@ function update_preferences_button($sub)
  */
 function get_subscriber($subscriber, $object = true)
 {
-    if ($subscriber instanceof \app\src\tc_Subscriber) {
+    if ($subscriber instanceof \TinyC\tc_Subscriber) {
         $_subscriber = $subscriber;
     } elseif (is_array($subscriber)) {
         if (empty($subscriber['id'])) {
-            $_subscriber = new \app\src\tc_Subscriber($subscriber);
+            $_subscriber = new \TinyC\tc_Subscriber($subscriber);
         } else {
-            $_subscriber = \app\src\tc_Subscriber::get_instance($subscriber['id']);
+            $_subscriber = \TinyC\tc_Subscriber::get_instance($subscriber['id']);
         }
     } else {
-        $_subscriber = \app\src\tc_Subscriber::get_instance($subscriber);
+        $_subscriber = \TinyC\tc_Subscriber::get_instance($subscriber);
     }
 
     if (!$_subscriber) {

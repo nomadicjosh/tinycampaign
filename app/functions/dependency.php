@@ -27,7 +27,7 @@ function app()
 tc_load_file(BASE_PATH . 'vendor/autoload.php');
 
 app()->inst->singleton('hook', function () {
-    return new \app\src\Hooks();
+    return new \TinyC\Hooks();
 });
 
 app()->inst->singleton('asset', function () {
@@ -38,7 +38,7 @@ app()->inst->singleton('asset', function () {
         'pipeline' => false,
         'pipeline_dir' => 'static/assets/min'
     ];
-    return new \app\src\tc_Assets($options);
+    return new \TinyC\tc_Assets($options);
 });
 
 /**
@@ -161,7 +161,7 @@ function __return_null()
  */
 function plugin_basename($filename)
 {
-    return \app\src\Plugin::inst()->plugin_basename($filename);
+    return \TinyC\Plugin::inst()->plugin_basename($filename);
 }
 
 /**
@@ -182,7 +182,7 @@ function plugin_basename($filename)
  */
 function register_activation_hook($filename, $function)
 {
-    return \app\src\Plugin::inst()->register_activation_hook($filename, $function);
+    return \TinyC\Plugin::inst()->register_activation_hook($filename, $function);
 }
 
 /**
@@ -203,7 +203,7 @@ function register_activation_hook($filename, $function)
  */
 function register_deactivation_hook($filename, $function)
 {
-    return \app\src\Plugin::inst()->register_deactivation_hook($filename, $function);
+    return \TinyC\Plugin::inst()->register_deactivation_hook($filename, $function);
 }
 
 /**
@@ -219,7 +219,7 @@ function register_deactivation_hook($filename, $function)
  */
 function plugin_dir_path($filename)
 {
-    return \app\src\Plugin::inst()->plugin_dir_path($filename);
+    return \TinyC\Plugin::inst()->plugin_dir_path($filename);
 }
 
 /**

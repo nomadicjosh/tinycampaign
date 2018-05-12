@@ -2,14 +2,14 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\NodeQ\Helpers\Validate as Validate;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\NodeQ\Helpers\Validate as Validate;
 use Cascade\Cascade;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
-use app\src\Exception\IOException;
+use TinyC\Exception\IOException;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 
@@ -500,7 +500,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                     Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
                 }
             }
-        } catch (\app\src\Exception\IOException $e) {
+        } catch (\TinyC\Exception\IOException $e) {
             Cascade\Cascade::getLogger('system_email')->alert(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
         }
 
@@ -550,7 +550,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                     }
 
                     // instantiate the message queue
-                    $queue = new \app\src\tc_Queue();
+                    $queue = new \TinyC\tc_Queue();
 
                     // get messages from the queue
                     $messages = $queue->getEmails();
@@ -678,9 +678,9 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
         $time_start = microtime_float();
 
-        $bmh = new app\src\tc_BounceHandler();
+        $bmh = new TinyC\tc_BounceHandler();
         $bmh->actionFunction = 'bounce_callback_action'; // default is 'bounce_callback_action'
-        $bmh->verbose = app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_SIMPLE; //app\src\tc_BounceHandler::VERBOSE_REPORT; //app\src\tc_BounceHandler::VERBOSE_DEBUG; //app\src\tc_BounceHandler::VERBOSE_QUIET; // default is BounceMailHandler::VERBOSE_SIMPLE
+        $bmh->verbose = TinyC\tc_BounceHandler::VERBOSE_SIMPLE; //TinyC\tc_BounceHandler::VERBOSE_SIMPLE; //TinyC\tc_BounceHandler::VERBOSE_REPORT; //TinyC\tc_BounceHandler::VERBOSE_DEBUG; //TinyC\tc_BounceHandler::VERBOSE_QUIET; // default is BounceMailHandler::VERBOSE_SIMPLE
         //$bmh->useFetchStructure  = true; // true is default, no need to specify
         //$bmh->testMode           = false; // false is default, no need to specify
         //$bmh->debugBodyRule      = false; // false is default, no need to specify

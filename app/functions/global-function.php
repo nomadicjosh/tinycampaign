@@ -21,7 +21,7 @@ if (!defined('BASE_PATH'))
 function _tc_cache_init()
 {
     $driver = app()->hook->{'apply_filter'}('tc_cache_driver', 'file');
-    $cache = new \app\src\Cache\tc_Object_Cache($driver);
+    $cache = new \TinyC\Cache\tc_Object_Cache($driver);
     return $cache;
 }
 
@@ -34,7 +34,7 @@ function _tc_cache_init()
  */
 function _tc_custom_field($location = 'dashboard')
 {
-    $field = new \app\src\tc_CustomField($location);
+    $field = new \TinyC\tc_CustomField($location);
     return $field;
 }
 
@@ -58,7 +58,7 @@ function _tc_phpmailer($bool = true)
  */
 function _tc_email()
 {
-    $email = new \app\src\tc_Email();
+    $email = new \TinyC\tc_Email();
     return $email;
 }
 
@@ -69,7 +69,7 @@ function _tc_email()
  */
 function _tc_logger()
 {
-    $logger = new \app\src\tc_Logger();
+    $logger = new \TinyC\tc_Logger();
     return $logger;
 }
 
@@ -80,7 +80,7 @@ function _tc_logger()
  */
 function _tc_flash()
 {
-    $flash = new \app\src\tc_FlashMessages();
+    $flash = new \TinyC\tc_FlashMessages();
     return $flash;
 }
 

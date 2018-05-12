@@ -2,10 +2,10 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\Exception\Exception;
 use Cascade\Cascade;
 use PDOException as ORMException;
 

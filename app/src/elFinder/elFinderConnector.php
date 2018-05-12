@@ -1,4 +1,4 @@
-<?php namespace app\src\elFinder;
+<?php namespace TinyC\elFinder;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');

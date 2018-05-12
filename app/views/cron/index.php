@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'handler');
-app\src\Config::set('screen_child', 'handlers');
+TinyC\Config::set('screen_parent', 'handler');
+TinyC\Config::set('screen_child', 'handlers');
 
 ?>        
 

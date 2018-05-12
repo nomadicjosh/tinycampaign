@@ -3,13 +3,13 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Respect\Validation\Validator as v;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use Cascade\Cascade;
-use app\src\Config;
+use TinyC\Config;
 
 /**
  * tinyCampaign List Functions
@@ -298,16 +298,16 @@ function get_list_subscriber_count($id)
  */
 function get_list($list, $object = true)
 {
-    if ($list instanceof \app\src\tc_List) {
+    if ($list instanceof \TinyC\tc_List) {
         $_list = $list;
     } elseif (is_array($list)) {
         if (empty($list['id'])) {
-            $_list = new \app\src\tc_List($list);
+            $_list = new \TinyC\tc_List($list);
         } else {
-            $_list = \app\src\tc_List::get_instance($list['id']);
+            $_list = \TinyC\tc_List::get_instance($list['id']);
         }
     } else {
-        $_list = \app\src\tc_List::get_instance($list);
+        $_list = \TinyC\tc_List::get_instance($list);
     }
 
     if (!$_list) {
@@ -359,11 +359,11 @@ function mark_subscriber_as_spammer($email)
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+    \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if subscriber is a spammer.
      */
-    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
+    if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($email)) {
         try {
 
             $subscriber = app()->db->subscriber()
@@ -381,5 +381,29 @@ function mark_subscriber_as_spammer($email)
         } catch (ORMException $e) {
             Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         }
+    }
+}
+
+/**
+ * Retrieve a list of email lists to show
+ * in a select dropdown.
+ * 
+ * @since 2.0.6
+ * @param int $id Active list id.
+ */
+function get_email_list_select($id = null)
+{
+    try {
+        $lists = app()->db->list()
+                ->where('owner = ?', get_userdata('id'))
+                ->orderBy('name')
+                ->find();
+        foreach ($lists as $list) {
+            echo '<option value="' . _escape($list->id) . '"' . selected(_escape($list->id), $id, false) . '>' . _escape($list->name) . '</option>';
+        }
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
     }
 }

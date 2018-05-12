@@ -1,4 +1,4 @@
-<?php namespace app\src\elFinder;
+<?php namespace TinyC\elFinder;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -2100,7 +2100,7 @@ abstract class elFinderVolumeDriver
         } elseif ($type == 'mime_content_type') {
             $type = mime_content_type($path);
         } else {
-            $type = \app\src\elFinder\elFinderVolumeDriver::mimetypeInternalDetect($path);
+            $type = \TinyC\elFinder\elFinderVolumeDriver::mimetypeInternalDetect($path);
         }
 
         $type = explode(';', $type);
@@ -2114,7 +2114,7 @@ abstract class elFinderVolumeDriver
             $type = 'application/zip';
         }
 
-        return $type == 'unknown' && $this->mimeDetect != 'internal' ? \app\src\elFinder\elFinderVolumeDriver::mimetypeInternalDetect($path) : $type;
+        return $type == 'unknown' && $this->mimeDetect != 'internal' ? \TinyC\elFinder\elFinderVolumeDriver::mimetypeInternalDetect($path) : $type;
     }
 
     /**
@@ -2128,7 +2128,7 @@ abstract class elFinderVolumeDriver
     {
         $pinfo = pathinfo($path);
         $ext = isset($pinfo['extension']) ? strtolower($pinfo['extension']) : '';
-        return isset(\app\src\elFinder\elFinderVolumeDriver::$mimetypes[$ext]) ? \app\src\elFinder\elFinderVolumeDriver::$mimetypes[$ext] : 'unknown';
+        return isset(\TinyC\elFinder\elFinderVolumeDriver::$mimetypes[$ext]) ? \TinyC\elFinder\elFinderVolumeDriver::$mimetypes[$ext] : 'unknown';
     }
 
     /**

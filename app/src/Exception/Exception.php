@@ -1,4 +1,4 @@
-<?php namespace app\src\Exception;
+<?php namespace TinyC\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -17,7 +17,7 @@ if (!defined('BASE_PATH'))
  * @package     tinyCampaign
  * @author      Joshua Parker <joshmac3@icloud.com>
  */
-class Exception extends \app\src\Exception\BaseException
+class Exception extends \TinyC\Exception\BaseException
 {
     
 }

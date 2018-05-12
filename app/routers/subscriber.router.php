@@ -2,9 +2,9 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
+use TinyC\Exception\NotFoundException;
 use Respect\Validation\Validator as v;
-use app\src\Exception\Exception;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 /**
@@ -25,7 +25,7 @@ $app->group('/subscriber', function() use ($app) {
         if ($app->req->get['lookup'] == 'true') {
 
             try {
-                if ($app->req->get['spammer'] == '1' || $app->req->get['blacklisted'] == '1' || $app->req->get['unconfirmed'] == '0' || $app->req->get['email'] != '') {
+                if ($app->req->get['spammer'] == '1' || $app->req->get['blacklisted'] == '1' || $app->req->get['unconfirmed'] == '0' || $app->req->get['email'] != '' || $app->req->get['confirmed'] == '1' || $app->req->get['list'] > 0) {
                     $w = "WHERE subscriber.allowed <> '' AND";
                 } else {
                     $w = "WHERE subscriber.allowed <> ''";
@@ -34,18 +34,27 @@ $app->group('/subscriber', function() use ($app) {
                 if ($app->req->get['spammer'] == '1') {
                     $where[] = "subscriber.spammer = '1'";
                 }
+                
+                if ($app->req->get['email'] != '') {
+                    $email = $app->req->get['email'];
+                    $where[] = "subscriber.email = '$email'";
+                }
 
                 if ($app->req->get['blacklisted'] == '1') {
                     $where[] = "subscriber.bounces >= '3'";
+                }
+                
+                if ($app->req->get['confirmed'] == '1') {
+                    $where[] = "subscriber_list.confirmed = '1'";
                 }
 
                 if ($app->req->get['unconfirmed'] == '0') {
                     $where[] = "subscriber_list.confirmed = '0'";
                 }
-
-                if ($app->req->get['email'] != '') {
-                    $email = $app->req->get['email'];
-                    $where[] = "subscriber.email = '$email'";
+                
+                if ($app->req->get['list'] > 0) {
+                    $list = $app->req->get['list'];
+                    $where[] = "list.id = '$list'";
                 }
 
                 $final_where = '';
@@ -57,7 +66,8 @@ $app->group('/subscriber', function() use ($app) {
                 $subscribers = $app->db->query(
                         "SELECT subscriber.id, subscriber.fname, subscriber.lname, subscriber.email, subscriber.allowed, subscriber.addDate "
                         . "FROM subscriber "
-                        . "LEFT JOIN subscriber_list ON subscriber.id = subscriber_list.sid $w $final_where"
+                        . "LEFT JOIN subscriber_list ON subscriber.id = subscriber_list.sid "
+                        . "LEFT JOIN list ON subscriber_list.lid = list.id $w $final_where"
                 );
                 $subs = $subscribers->find(function ($data) {
                     $array = [];
@@ -72,7 +82,7 @@ $app->group('/subscriber', function() use ($app) {
                 _tc_flash()->error($e->getMessage());
             }
         }
-
+        
         tc_register_style('datatables');
         tc_register_style('select2');
         tc_register_style('iCheck');
@@ -98,7 +108,7 @@ $app->group('/subscriber', function() use ($app) {
 
     $app->match('GET|POST', '/add/', function () use($app) {
 
-        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+        \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -106,7 +116,7 @@ $app->group('/subscriber', function() use ($app) {
                 exit();
             }
 
-            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+            if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
                 try {
                     $subscriber = $app->db->subscriber();
                     $subscriber->insert([
@@ -223,7 +233,7 @@ $app->group('/subscriber', function() use ($app) {
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
         $sub = get_subscriber_by('id', $id);
-        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+        \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -231,7 +241,7 @@ $app->group('/subscriber', function() use ($app) {
                 exit();
             }
 
-            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+            if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
                 try {
                     $subscriber = $app->db->subscriber();
                     $subscriber->set([
@@ -458,10 +468,10 @@ $app->group('/subscriber', function() use ($app) {
                     ->delete();
 
             try {
-                app\src\NodeQ\tc_NodeQ::table('campaign_queue')
+                TinyC\NodeQ\tc_NodeQ::table('campaign_queue')
                         ->where('sid', '=', $id)
                         ->delete();
-            } catch (app\src\NodeQ\NodeQException $e) {
+            } catch (TinyC\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());
