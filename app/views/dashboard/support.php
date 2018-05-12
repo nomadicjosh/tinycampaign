@@ -13,7 +13,7 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN', 'support');
+app\src\Config::set('screen_parent', 'support');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

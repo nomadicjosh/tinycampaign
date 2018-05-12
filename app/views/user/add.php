@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'users');
-define('SCREEN', 'auser');
+app\src\Config::set('screen_parent', 'users');
+app\src\Config::set('screen_child', 'auser');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'list');
-define('SCREEN', _escape($list->code));
+app\src\Config::set('screen_parent', 'list');
+app\src\Config::set('screen_child', _escape($list->code));
 ?>
 
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>

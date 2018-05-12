@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'rss');
-define('SCREEN', 'crss');
+app\src\Config::set('screen_parent', 'rss');
+app\src\Config::set('screen_child', 'crss');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

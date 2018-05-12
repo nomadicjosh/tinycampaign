@@ -9,6 +9,7 @@ use PDOException as ORMException;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 use Cascade\Cascade;
+use app\src\Config;
 
 /**
  * tinyCampaign List Functions
@@ -34,7 +35,7 @@ function get_email_lists()
                 ->orderBy('name')
                 ->find();
         foreach ($lists as $list) {
-            echo '<li' . (SCREEN === _escape($list->code) ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . _escape($list->id) . '/"><i class="fa fa-circle-o"></i> ' . _escape($list->name) . '</a></li>';
+            echo '<li' . (Config::get('screen_child') === _escape($list->code) ? ' class="active"' : "") . '><a href="' . get_base_url() . 'list/' . _escape($list->id) . '/"><i class="fa fa-circle-o"></i> ' . _escape($list->name) . '</a></li>';
         }
     } catch (NotFoundException $e) {
         _tc_flash()->error($e->getMessage());

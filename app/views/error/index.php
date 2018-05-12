@@ -14,8 +14,8 @@ $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 $logger = new \app\src\tc_Logger();
-define('SCREEN_PARENT', 'admin');
-define('SCREEN', 'error');
+app\src\Config::set('screen_parent', 'admin');
+app\src\Config::set('screen_child', 'error');
 
 ?>        
 
