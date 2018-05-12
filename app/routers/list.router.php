@@ -2,8 +2,8 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 /**
@@ -71,7 +71,7 @@ $app->group('/list', function() use ($app) {
             'referrer' => get_base_url(),
         );
 
-        $dl = new \app\src\Downloader($args);
+        $dl = new \TinyC\Downloader($args);
 
         /*
           |-----------------
@@ -467,7 +467,7 @@ $app->group('/list', function() use ($app) {
         error_reporting(0);
         try {
             _mkdir(BASE_PATH . 'static' . DS . 'images' . DS . get_userdata('id') . DS);
-        } catch (\app\src\Exception\IOException $e) {
+        } catch (\TinyC\Exception\IOException $e) {
             Cascade\Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
         }
         $opts = [
@@ -633,10 +633,10 @@ $app->group('/list', function() use ($app) {
             }
 
             try {
-                app\src\NodeQ\tc_NodeQ::table('campaign_queue')
+                TinyC\NodeQ\tc_NodeQ::table('campaign_queue')
                         ->where('lid', '=', $id)
                         ->delete();
-            } catch (app\src\NodeQ\NodeQException $e) {
+            } catch (TinyC\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());

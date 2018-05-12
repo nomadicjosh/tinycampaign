@@ -3,13 +3,13 @@
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use Respect\Validation\Validator as v;
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
 use Cascade\Cascade;
 
 /**
@@ -21,7 +21,7 @@ use Cascade\Cascade;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-$hasher = new \app\src\PasswordHash(8, FALSE);
+$hasher = new \TinyC\PasswordHash(8, FALSE);
 
 /**
  * Before route check.
@@ -508,7 +508,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
 
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\NodeQException $e) {
+    } catch (TinyC\NodeQ\NodeQException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (NodeQException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -620,7 +620,7 @@ $app->match('GET|POST', '/server/create/', function () use($app) {
 
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\NodeQException $e) {
+    } catch (TinyC\NodeQ\NodeQException $e) {
         _tc_flash()->{'error'}($e->getMessage());
     } catch (NodeQException $e) {
         _tc_flash()->{'error'}($e->getMessage());
@@ -917,11 +917,11 @@ $app->post('/subscribe/', function () use($app) {
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+    \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if subscriber is actually a spammer.
      */
-    if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+    if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
         _tc_flash()->{'error'}(_t('Your email address has been flagged as spam and will not be subscribed to the list.'), get_base_url() . 'status' . '/');
         exit();
     }
@@ -1027,7 +1027,7 @@ $app->post('/asubscribe/', function () use($app) {
     /**
      * Set spam tolerance.
      */
-    \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+    \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
     /**
      * Check if email is empty.
      */
@@ -1052,7 +1052,7 @@ $app->post('/asubscribe/', function () use($app) {
     }
     /**
      * Check if subscriber is actually a spammer.
-     */ elseif (\app\src\tc_StopForumSpam::isSpamBotByEmail($email)) {
+     */ elseif (\TinyC\tc_StopForumSpam::isSpamBotByEmail($email)) {
         $status = _t("error");
         $message = '<font style="color:#ff0000">' . _t("Your email address was flagged as spam.") . '</font>';
         $valid = false;

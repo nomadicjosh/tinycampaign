@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'handler');
-app\src\Config::set('screen_child', 'hnew');
+TinyC\Config::set('screen_parent', 'handler');
+TinyC\Config::set('screen_child', 'hnew');
 $options = [
                  30        => '30 seconds',
                  60        => 'Minute',

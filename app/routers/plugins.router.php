@@ -60,7 +60,7 @@ $app->group('/plugins', function () use($app) {
 
         if (ob_get_length() > 0) {
             $output = ob_get_clean();
-            $error = new \app\src\tc_Error('unexpected_output', _t('The plugin generated unexpected output.'), $output);
+            $error = new \TinyC\tc_Error('unexpected_output', _t('The plugin generated unexpected output.'), $output);
             $app->flash('error_message', $error);
         }
         ob_end_clean();

@@ -1,4 +1,4 @@
-<?php namespace app\src\Cache;
+<?php namespace TinyC\Cache;
 
 if (! defined('BASE_PATH'))
     exit('No direct script access allowed');

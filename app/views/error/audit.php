@@ -15,8 +15,8 @@ use Jenssegers\Date\Date;
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'admin');
-app\src\Config::set('screen_child', 'audit');
+TinyC\Config::set('screen_parent', 'admin');
+TinyC\Config::set('screen_child', 'audit');
 
 ?>        
 

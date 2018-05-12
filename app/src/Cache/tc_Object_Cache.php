@@ -1,4 +1,4 @@
-<?php namespace app\src\Cache;
+<?php namespace TinyC\Cache;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -39,9 +39,9 @@ class tc_Object_Cache
         $this->app = !empty($liten) ? $liten : \Liten\Liten::getInstance();
 
         if ($driver == 'file') {
-            $this->_cache = new \app\src\Cache\tc_Cache_Filesystem();
+            $this->_cache = new \TinyC\Cache\tc_Cache_Filesystem();
         } elseif ($driver == 'apc') {
-            $this->_cache = new \app\src\Cache\tc_Cache_APC();
+            $this->_cache = new \TinyC\Cache\tc_Cache_APC();
         } elseif ($driver == 'memcache') {
             /**
              * Filter whether to use `\Memcache`|`\Memcached`.
@@ -52,7 +52,7 @@ class tc_Object_Cache
              */
             $useMemcached = $this->app->hook->{'apply_filter'}('use_memcached', false);
 
-            $this->_cache = new \app\src\Cache\tc_Cache_Memcache($useMemcached);
+            $this->_cache = new \TinyC\Cache\tc_Cache_Memcache($useMemcached);
 
             $pool = [
                 [
@@ -80,13 +80,13 @@ class tc_Object_Cache
              */
             $this->_cache = $this->app->hook->{'do_action'}('external_cache_driver');
         } elseif ($driver == 'xcache') {
-            $this->_cache = new \app\src\Cache\tc_Cache_XCache();
+            $this->_cache = new \TinyC\Cache\tc_Cache_XCache();
         } elseif ($driver == 'cookie') {
-            $this->_cache = new \app\src\Cache\tc_Cache_Cookie();
+            $this->_cache = new \TinyC\Cache\tc_Cache_Cookie();
         } elseif ($driver == 'json') {
-            $this->_cache = new \app\src\Cache\tc_Cache_JSON();
+            $this->_cache = new \TinyC\Cache\tc_Cache_JSON();
         } elseif ($driver == 'memory') {
-            $this->_cache = new \app\src\Cache\tc_Cache_Memory();
+            $this->_cache = new \TinyC\Cache\tc_Cache_Memory();
         }
 
         $error = $this->_cache;
@@ -227,7 +227,7 @@ class tc_Object_Cache
                 $namespace = 'default';
             }
             return $this->_cache->set($key, $data, $namespace, (int) $ttl);
-        } catch (\app\src\Exception\IOException $e) {
+        } catch (\TinyC\Exception\IOException $e) {
             Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Forbidden: %s', $e->getCode(), $e->getMessage()));
         }
     }

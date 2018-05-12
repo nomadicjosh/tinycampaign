@@ -1,7 +1,7 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\tc_NodeQ as Node;
 /**
  * My Templates View
  *  
@@ -14,8 +14,8 @@ use app\src\NodeQ\tc_NodeQ as Node;
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'tpls');
-app\src\Config::set('screen_child', 'tpl');
+TinyC\Config::set('screen_parent', 'tpls');
+TinyC\Config::set('screen_child', 'tpl');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

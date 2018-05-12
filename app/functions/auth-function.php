@@ -1,9 +1,9 @@
 <?php
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\Exception\UnauthorizedException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\UnauthorizedException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 use Cascade\Cascade;
 
@@ -16,7 +16,7 @@ use Cascade\Cascade;
  */
 function hasPermission($perm)
 {
-    $acl = new \app\src\ACL(get_userdata('id'));
+    $acl = new \TinyC\ACL(get_userdata('id'));
 
     if ($acl->hasPermission($perm) && is_user_logged_in()) {
         return true;

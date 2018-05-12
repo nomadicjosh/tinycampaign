@@ -2,13 +2,13 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use Cascade\Cascade;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\elFinder\elFinderConnector;
-use app\src\elFinder\elFinder;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\elFinder\elFinderConnector;
+use TinyC\elFinder\elFinder;
 use PDOException as ORMException;
 
 $app->group('/campaign', function() use ($app) {
@@ -685,7 +685,7 @@ $app->group('/campaign', function() use ($app) {
         error_reporting(0);
         try {
             _mkdir(BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS);
-        } catch (\app\src\Exception\IOException $e) {
+        } catch (\TinyC\Exception\IOException $e) {
             Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
         }
         $opts = [

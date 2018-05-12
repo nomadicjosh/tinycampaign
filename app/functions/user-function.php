@@ -2,8 +2,8 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 /**
@@ -337,16 +337,16 @@ function get_user_servers($active = null)
  */
 function get_user($user, $object = true)
 {
-    if ($user instanceof \app\src\tc_User) {
+    if ($user instanceof \TinyC\tc_User) {
         $_user = $user;
     } elseif (is_array($user)) {
         if (empty($user['id'])) {
-            $_user = new \app\src\tc_User($user);
+            $_user = new \TinyC\tc_User($user);
         } else {
-            $_user = \app\src\tc_User::get_instance($user['id']);
+            $_user = \TinyC\tc_User::get_instance($user['id']);
         }
     } else {
-        $_user = \app\src\tc_User::get_instance($user);
+        $_user = \TinyC\tc_User::get_instance($user);
     }
 
     if (!$_user) {

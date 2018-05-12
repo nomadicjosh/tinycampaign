@@ -3,7 +3,7 @@ $app = \Liten\Liten::getInstance();
 ob_start();
 ob_implicit_flush(0);
 $cookie = get_secure_cookie_data('SWITCH_USERBACK');
-use app\src\Config;
+use TinyC\Config;
 ?>
 <!DOCTYPE html>
 <html>

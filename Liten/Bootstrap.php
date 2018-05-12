@@ -36,3 +36,4 @@ $loader = new \Liten\Autoloader();
 $loader->register();
 $loader->addNamespace('Liten', BASE_PATH . 'Liten' . DS);
 $loader->addNamespace('app', BASE_PATH . 'app' . DS);
+$loader->addNamespace('TinyC', BASE_PATH . 'app' . DS . 'src' . DS);

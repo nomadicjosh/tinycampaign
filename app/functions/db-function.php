@@ -2,7 +2,7 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\Exception;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 use Cascade\Cascade;
 

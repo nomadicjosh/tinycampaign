@@ -1,4 +1,4 @@
-<?php namespace app\src;
+<?php namespace TinyC;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -49,7 +49,7 @@ class tc_Assets extends \Stolz\Assets\Manager
      * 
      * @since   2.0.0
      * @param   mixed $asset
-     * @return  `\app\src\tc_Assets`
+     * @return  `\TinyC\tc_Assets`
      */
     public function register_style($asset)
     {
@@ -80,7 +80,7 @@ class tc_Assets extends \Stolz\Assets\Manager
      * 
      * @since   2.0.0
      * @param   mixed $asset
-     * @return  `\app\src\tc_Assets`
+     * @return  `\TinyC\tc_Assets`
      */
     public function register_script($asset)
     {
@@ -139,7 +139,7 @@ class tc_Assets extends \Stolz\Assets\Manager
      * @since 2.0.0
 	 * @param   string  $collectionName
 	 * @param   array   $assets
-	 * @return  `\app\src\tc_Assets`
+	 * @return  `\TinyC\tc_Assets`
 	 */
 	public function registerStyleCollection($collectionName, array $assets)
 	{
@@ -154,7 +154,7 @@ class tc_Assets extends \Stolz\Assets\Manager
      * @since 2.0.0
 	 * @param   string  $collectionName
 	 * @param   array   $assets
-     * @return  `\app\src\tc_Assets`
+     * @return  `\TinyC\tc_Assets`
      */
     public function registerScriptCollection($collectionName, array $assets)
 	{

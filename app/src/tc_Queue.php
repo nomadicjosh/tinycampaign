@@ -1,12 +1,12 @@
 <?php
 
-namespace app\src;
+namespace TinyC;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\Exception;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
-use app\src\tc_QueueMessage as Message;
+use TinyC\tc_QueueMessage as Message;
 use Cascade\Cascade;
 
 /**

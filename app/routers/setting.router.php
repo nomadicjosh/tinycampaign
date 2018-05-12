@@ -2,12 +2,12 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
-use app\src\Exception\Exception;
+use TinyC\Exception\NotFoundException;
+use TinyC\Exception\Exception;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
-use app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
+use TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
 use PDOException as ORMException;
 
 /**
@@ -70,7 +70,7 @@ $app->before('GET', '/setting/smtp/', function() {
 $app->match('GET|POST', '/setting/smtp/', function () use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\NodeQException $e) {
+    } catch (TinyC\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (NodeQException $e) {
         _tc_flash()->error($e->getMessage());
@@ -112,7 +112,7 @@ $app->match('GET|POST', '/setting/smtp/', function () use($app) {
         _tc_flash()->error($e->getMessage());
     } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (app\src\Exception\Exception $e) {
+    } catch (TinyC\Exception\Exception $e) {
         _tc_flash()->error($e->getMessage());
     }
 
@@ -163,7 +163,7 @@ $app->before('GET', '/setting/bounce/', function() {
 $app->match('GET|POST', '/setting/bounce/', function () use($app) {
     try {
         $node = Node::table('php_encryption')->find(1);
-    } catch (app\src\NodeQ\NodeQException $e) {
+    } catch (TinyC\NodeQ\NodeQException $e) {
         _tc_flash()->error($e->getMessage());
     } catch (NodeQException $e) {
         _tc_flash()->error($e->getMessage());
@@ -204,7 +204,7 @@ $app->match('GET|POST', '/setting/bounce/', function () use($app) {
         _tc_flash()->error($e->getMessage());
     } catch (Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException $e) {
         _tc_flash()->error($e->getMessage());
-    } catch (app\src\Exception\Exception $e) {
+    } catch (TinyC\Exception\Exception $e) {
         _tc_flash()->error($e->getMessage());
     }
 

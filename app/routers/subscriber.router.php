@@ -2,9 +2,9 @@
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
-use app\src\Exception\NotFoundException;
+use TinyC\Exception\NotFoundException;
 use Respect\Validation\Validator as v;
-use app\src\Exception\Exception;
+use TinyC\Exception\Exception;
 use PDOException as ORMException;
 
 /**
@@ -98,7 +98,7 @@ $app->group('/subscriber', function() use ($app) {
 
     $app->match('GET|POST', '/add/', function () use($app) {
 
-        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+        \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -106,7 +106,7 @@ $app->group('/subscriber', function() use ($app) {
                 exit();
             }
 
-            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+            if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
                 try {
                     $subscriber = $app->db->subscriber();
                     $subscriber->insert([
@@ -223,7 +223,7 @@ $app->group('/subscriber', function() use ($app) {
     $app->match('GET|POST', '/(\d+)/', function ($id) use($app) {
 
         $sub = get_subscriber_by('id', $id);
-        \app\src\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
+        \TinyC\tc_StopForumSpam::$spamTolerance = _escape(get_option('spam_tolerance'));
 
         if ($app->req->isPost()) {
             if (!v::email()->validate($app->req->post['email'])) {
@@ -231,7 +231,7 @@ $app->group('/subscriber', function() use ($app) {
                 exit();
             }
 
-            if (\app\src\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
+            if (\TinyC\tc_StopForumSpam::isSpamBotByEmail($app->req->post['email'])) {
                 try {
                     $subscriber = $app->db->subscriber();
                     $subscriber->set([
@@ -458,10 +458,10 @@ $app->group('/subscriber', function() use ($app) {
                     ->delete();
 
             try {
-                app\src\NodeQ\tc_NodeQ::table('campaign_queue')
+                TinyC\NodeQ\tc_NodeQ::table('campaign_queue')
                         ->where('sid', '=', $id)
                         ->delete();
-            } catch (app\src\NodeQ\NodeQException $e) {
+            } catch (TinyC\NodeQ\NodeQException $e) {
                 _tc_flash()->error($e->getMessage());
             } catch (Exception $e) {
                 _tc_flash()->error($e->getMessage());

@@ -1,4 +1,4 @@
-<?php namespace app\src;
+<?php namespace TinyC;
 if ( ! defined('BASE_PATH') ) exit('No direct script access allowed');
 /**
  * tinyCampaign Session Management

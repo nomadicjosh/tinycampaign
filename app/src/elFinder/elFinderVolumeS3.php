@@ -1,4 +1,4 @@
-<?php namespace app\src\elFinder;
+<?php namespace TinyC\elFinder;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -28,7 +28,7 @@ if (!defined('BASE_PATH'))
 
 require_once "aws.phar";
 
-class elFinderVolumeS3 extends \app\src\elFinder\elFinderVolumeDriver
+class elFinderVolumeS3 extends \TinyC\elFinder\elFinderVolumeDriver
 {
 
     /**

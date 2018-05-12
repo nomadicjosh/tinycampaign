@@ -1,8 +1,8 @@
-<?php namespace app\src\NodeQ\Helpers;
+<?php namespace TinyC\NodeQ\Helpers;
 
-use \app\src\NodeQ\tc_NodeQ as Node;
-use app\src\NodeQ\NodeQException;
-use app\src\Exception\Exception;
+use \TinyC\NodeQ\tc_NodeQ as Node;
+use TinyC\NodeQ\NodeQException;
+use TinyC\Exception\Exception;
 use Cascade\Cascade;
 
 /**

@@ -66,10 +66,10 @@ $config = [
             'filename' => APP_PATH . 'tmp' . DS . 'logs' . DS . 'tc-critical.txt'
         ],
         'alert_file_handler' => [
-            'class' => 'app\src\tc_MailHandler',
+            'class' => 'TinyC\tc_MailHandler',
             'level' => 'ALERT',
             'formatter' => 'exception',
-            'mailer' => new app\src\tc_Email(),
+            'mailer' => new TinyC\tc_Email(),
             'message' => 'This message will be replaced with the real one.',
             'email_to' => _escape(app()->hook->{'get_option'}('system_email')),
             'subject' => _t('tinyCampaign System Alert!')

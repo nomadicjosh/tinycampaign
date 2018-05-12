@@ -1,5 +1,5 @@
-<?php namespace app\src;
-use app\src\Exception\Exception;
+<?php namespace TinyC;
+use TinyC\Exception\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -15,8 +15,8 @@ if (!defined('BASE_PATH'))
  *
  * In order to use:
  * 1. Require this file using i.e.: require_once('Model.php');
- * 2. Set spamTolerance by directly accessing the property i.e.: app\src\tc_StopForumSpam::spamTolerance = 10;
- * 3. Verify if a user is classified as spam with the is-functions i.e.: if (!app\src\tc_StopForumSpam::isSpamBotByIpOrEmailOrUsername($ip, $email, $alias) 
+ * 2. Set spamTolerance by directly accessing the property i.e.: TinyC\tc_StopForumSpam::spamTolerance = 10;
+ * 3. Verify if a user is classified as spam with the is-functions i.e.: if (!TinyC\tc_StopForumSpam::isSpamBotByIpOrEmailOrUsername($ip, $email, $alias) 
  * 
  * @author Christian Johansson <christian@cvj.se>
  * @link http://www.stopforumspam.com

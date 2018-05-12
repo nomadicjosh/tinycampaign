@@ -1,4 +1,4 @@
-<?php namespace app\src\elFinder;
+<?php namespace TinyC\elFinder;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -8,7 +8,7 @@ if (!defined('BASE_PATH'))
  *
  * @author Dmitry (dio) Levashov
  * */
-class elFinderVolumeMySQL extends \app\src\elFinder\elFinderVolumeDriver
+class elFinderVolumeMySQL extends \TinyC\elFinder\elFinderVolumeDriver
 {
 
     /**

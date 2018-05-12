@@ -1,5 +1,5 @@
 <?php
-namespace app\src;
+namespace TinyC;
 
 /**
  * Liten - PHP 5 micro framework

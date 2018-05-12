@@ -1,4 +1,4 @@
-<?php namespace app\src;
+<?php namespace TinyC;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -359,7 +359,7 @@ class tc_EmailOauth
              *            A tc_Error object with the phpmailerException code, message, and an array
              *            containing the mail recipient, subject, message, headers, and attachments.
              */
-            $this->app->hook->{'do_action'}('tc_mail_oauth_failed', new \app\src\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
+            $this->app->hook->{'do_action'}('tc_mail_oauth_failed', new \TinyC\tc_Error($e->getCode(), $e->getMessage(), $mail_error_data));
             return false;
         }
 

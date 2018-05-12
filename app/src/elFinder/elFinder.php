@@ -1,4 +1,4 @@
-<?php namespace app\src\elFinder;
+<?php namespace TinyC\elFinder;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
@@ -190,7 +190,7 @@ class elFinder
         if (isset($opts['roots']) && is_array($opts['roots'])) {
 
             foreach ($opts['roots'] as $i => $o) {
-                $class = '\app\src\elFinder\elFinderVolume' . (isset($o['driver']) ? $o['driver'] : '');
+                $class = '\TinyC\elFinder\elFinderVolume' . (isset($o['driver']) ? $o['driver'] : '');
 
                 if (class_exists($class)) {
                     $volume = new $class();

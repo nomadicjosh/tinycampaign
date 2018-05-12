@@ -1,9 +1,9 @@
 <?php
 
-namespace app\src\NodeQ\Helpers;
+namespace TinyC\NodeQ\Helpers;
 
-use \app\src\NodeQ\NodeQException;
-use \app\src\NodeQ\Relation;
+use \TinyC\NodeQ\NodeQException;
+use \TinyC\NodeQ\Relation;
 
 /**
  * Validation for tables

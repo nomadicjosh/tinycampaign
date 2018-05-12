@@ -1,4 +1,4 @@
-<?php namespace app\src\Exception;
+<?php namespace TinyC\Exception;
 
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');

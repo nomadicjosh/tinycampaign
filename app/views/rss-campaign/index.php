@@ -14,8 +14,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-app\src\Config::set('screen_parent', 'rss');
-app\src\Config::set('screen_child', 'rss');
+TinyC\Config::set('screen_parent', 'rss');
+TinyC\Config::set('screen_child', 'rss');
 
 ?>
 

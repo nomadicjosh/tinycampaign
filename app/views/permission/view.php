@@ -12,9 +12,9 @@
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-$ePerm = new app\src\ACL();
-app\src\Config::set('screen_parent', 'admin');
-app\src\Config::set('screen_child', 'perm');
+$ePerm = new TinyC\ACL();
+TinyC\Config::set('screen_parent', 'admin');
+TinyC\Config::set('screen_child', 'perm');
 ?>
         
 <!-- Content Wrapper. Contains page content -->

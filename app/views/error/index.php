@@ -13,9 +13,9 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-$logger = new \app\src\tc_Logger();
-app\src\Config::set('screen_parent', 'admin');
-app\src\Config::set('screen_child', 'error');
+$logger = new \TinyC\tc_Logger();
+TinyC\Config::set('screen_parent', 'admin');
+TinyC\Config::set('screen_child', 'error');
 
 ?>        
 

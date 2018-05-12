@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src\NodeQ;
+namespace TinyC\NodeQ;
 
 class Relation extends CoreRelation {
     
