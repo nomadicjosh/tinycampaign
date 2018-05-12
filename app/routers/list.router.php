@@ -328,33 +328,32 @@ $app->group('/list', function() use ($app) {
 
     $app->match('GET|POST', '/(\d+)/import/', function ($id) use($app) {
         if ($app->req->isPost()) {
-            try {
-                $delimiter = [
-                    'del1' => ",",
-                    'del2' => ";",
-                    'del3' => "\n",
-                    'del4' => "\t"
-                ];
-                $filename = $_FILES["csv_import"]["tmp_name"];
-                if ($_FILES["csv_import"]["size"] > 0) {
-                    $handle = fopen($filename, "r");
-                    fgetcsv($handle, 10000, $delimiter[$app->req->post['delimiter']]);
-                    while (($data = fgetcsv($handle, 1000, $delimiter[$app->req->post['delimiter']])) !== FALSE) {
-                        $app->hook->{'add_action'}('import_subscriber', $id, $data);
-                    }
-                    fclose($handle);
-                    tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
-                    tc_cache_flush_namespace('list_subscribers');
-                    _tc_flash()->success(_t('Subscribers were imported successfully.'));
-                } else {
-                    _tc_flash()->error(_t('Your .csv file was empty or missing.'));
+            $delimiter = [
+                'del1' => ",",
+                'del2' => ";",
+                'del3' => "\n",
+                'del4' => "\t"
+            ];
+            $filename = $_FILES["csv_import"]["tmp_name"];
+            if ($_FILES["csv_import"]["size"] > 0) {
+                $handle = fopen($filename, "r");
+                fgetcsv($handle, 10000, $delimiter[$app->req->post['delimiter']]);
+                while (($data = fgetcsv($handle, 1000, $delimiter[$app->req->post['delimiter']])) !== FALSE) {
+                    /**
+                     * Action hook for importing subscribers.
+                     * 
+                     * @since 2.0.6
+                     * @param int $id       Email list id.
+                     * @param object $data  Object of csv data.
+                     */
+                    $app->hook->{'do_action'}('import_subscriber', $id, $data);
                 }
-            } catch (NotFoundException $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (Exception $e) {
-                _tc_flash()->error($e->getMessage());
-            } catch (ORMException $e) {
-                _tc_flash()->error($e->getMessage());
+                fclose($handle);
+                tc_cache_flush_namespace('my_subscribers_' . get_userdata('id'));
+                tc_cache_flush_namespace('list_subscribers');
+                _tc_flash()->success(_t('Subscribers were imported successfully.'));
+            } else {
+                _tc_flash()->error(_t('Your .csv file was empty or missing.'));
             }
         }
 

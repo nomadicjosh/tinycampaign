@@ -1490,36 +1490,24 @@ function mark_queued_record_sent($message)
 
 function import_subscriber_to_list($lid, $data)
 {
-    $sub = get_subscriber_by('email', $data[2]);
-    if (_escape($sub->id) <= 0) {
-        $subscriber = app()->db->subscriber();
-        $subscriber->insert([
-            'fname' => $data[0],
-            'lname' => $data[1],
-            'email' => $data[2],
-            'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            'ip' => app()->req->server['REMOTE_ADDR'],
-            'addedBy' => get_userdata('id'),
-            'addDate' => Jenssegers\Date\Date::now()
-        ]);
-        $sid = $subscriber->lastInsertId();
-        $slist = app()->db->subscriber_list();
-        $slist->insert([
-            'lid' => $lid,
-            'sid' => $sid,
-            'method' => 'import',
-            'addDate' => Jenssegers\Date\Date::now(),
-            'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            'confirmed' => $data[3],
-            'unsubscribed' => $data[4]
-        ]);
-    } else {
-        $sub_list = is_subscribed_to_list($lid, _escape($sub->id));
-        if (!$sub_list) {
+    try {
+        $sub = get_subscriber_by('email', $data[2]);
+        if (_escape($sub->id) <= 0) {
+            $subscriber = app()->db->subscriber();
+            $subscriber->insert([
+                'fname' => $data[0],
+                'lname' => $data[1],
+                'email' => $data[2],
+                'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                'ip' => app()->req->server['REMOTE_ADDR'],
+                'addedBy' => get_userdata('id'),
+                'addDate' => Jenssegers\Date\Date::now()
+            ]);
+            $sid = $subscriber->lastInsertId();
             $slist = app()->db->subscriber_list();
             $slist->insert([
                 'lid' => $lid,
-                'sid' => _escape($sub->id),
+                'sid' => $sid,
                 'method' => 'import',
                 'addDate' => Jenssegers\Date\Date::now(),
                 'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
@@ -1527,8 +1515,26 @@ function import_subscriber_to_list($lid, $data)
                 'unsubscribed' => $data[4]
             ]);
         } else {
-            //Do nothing
+            $sub_list = is_subscribed_to_list($lid, _escape($sub->id));
+            if (!$sub_list) {
+                $slist = app()->db->subscriber_list();
+                $slist->insert([
+                    'lid' => $lid,
+                    'sid' => _escape($sub->id),
+                    'method' => 'import',
+                    'addDate' => Jenssegers\Date\Date::now(),
+                    'code' => _random_lib()->generateString(200, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+                    'confirmed' => $data[3],
+                    'unsubscribed' => $data[4]
+                ]);
+            } else {
+                //Do nothing
+            }
         }
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 }
 
