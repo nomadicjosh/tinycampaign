@@ -121,7 +121,7 @@ class tc_Queue
      */
     public function setMessageIsSent($message)
     {
-        if (!is_a($message, 'app\\src\\tc_QueueMessage')) {
+        if (!is_a($message, 'TinyC\\tc_QueueMessage')) {
             return false;
         }
 
@@ -139,7 +139,7 @@ class tc_Queue
      */
     public function addMessage($message)
     {
-        if (!is_a($message, 'app\\src\\tc_QueueMessage')) {
+        if (!is_a($message, 'TinyC\\tc_QueueMessage')) {
             return false;
         }
 
