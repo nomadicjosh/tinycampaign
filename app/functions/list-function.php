@@ -383,3 +383,27 @@ function mark_subscriber_as_spammer($email)
         }
     }
 }
+
+/**
+ * Retrieve a list of email lists to show
+ * in a select dropdown.
+ * 
+ * @since 2.0.6
+ * @param int $id Active list id.
+ */
+function get_email_list_select($id = null)
+{
+    try {
+        $lists = app()->db->list()
+                ->where('owner = ?', get_userdata('id'))
+                ->orderBy('name')
+                ->find();
+        foreach ($lists as $list) {
+            echo '<option value="' . _escape($list->id) . '"' . selected(_escape($list->id), $id, false) . '>' . _escape($list->name) . '</option>';
+        }
+    } catch (ORMException $e) {
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
+    }
+}

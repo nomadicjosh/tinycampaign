@@ -62,12 +62,25 @@ TinyC\Config::set('screen_child', 'sub');
                                     <option value="0"<?=selected(if_not_null($app->req->get['exception']), '0', false);?>><?= _t('No'); ?></option>
                                 </select>
                             </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('Email List'); ?></label>
+                                <select class="form-control select2" name="list" style="width: 100%;">
+                                    <option value="">&nbsp;</option>
+                                    <?php get_email_list_select(); ?>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('Show only confirmed'); ?></label>
+                                <input type="checkbox" name="confirmed" class="minimal" value="1" />
+                            </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><?= _t('Show only unconfirmed'); ?></label>
-                                <input type="checkbox" name="uncomfirmed" class="minimal" value="0" />
+                                <input type="checkbox" name="unconfirmed" class="minimal" value="0" />
                             </div>
 
                             <div class="form-group">
