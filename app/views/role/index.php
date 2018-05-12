@@ -14,8 +14,8 @@ $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 $roles = new app\src\ACL();
-define('SCREEN_PARENT', 'admin');
-define('SCREEN', 'role');
+app\src\Config::set('screen_parent', 'admin');
+app\src\Config::set('screen_child', 'role');
 
 ?>            
 

@@ -13,8 +13,8 @@ $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
 $ePerm = new app\src\ACL();
-define('SCREEN_PARENT', 'admin');
-define('SCREEN', 'perm');
+app\src\Config::set('screen_parent', 'admin');
+app\src\Config::set('screen_child', 'perm');
 ?>
         
 <!-- Content Wrapper. Contains page content -->

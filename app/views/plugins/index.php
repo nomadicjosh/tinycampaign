@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'plugins');
-define('SCREEN', 'plugins');
+app\src\Config::set('screen_parent', 'plugins');
+app\src\Config::set('screen_child', 'plugins');
 $plugins_header = $app->hook->{'get_plugins_header'}(APP_PATH . 'plugins/');
 ?>
 

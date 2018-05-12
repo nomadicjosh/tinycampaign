@@ -13,8 +13,8 @@ if (!defined('BASE_PATH'))
 $app = \Liten\Liten::getInstance();
 $app->view->extend('_layouts/dashboard');
 $app->view->block('dashboard');
-define('SCREEN_PARENT', 'list');
-define('SCREEN', 'lists');
+app\src\Config::set('screen_parent', 'list');
+app\src\Config::set('screen_child', 'lists');
 
 ?>
 
@@ -71,7 +71,7 @@ $(document).ready(function(){
                                 </td>
                                 <td<?=ie('email_list_inquiry_only');?> class="text-center">
                                     <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/" data-toggle="tooltip" data-placement="top" title="View/Edit"><button type="button" class="btn bg-yellow"><i class="fa fa-edit"></i></button></a>
-                                    <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button type="button" class="btn bg-blue"><i class="fa fa-group"></i></button></a>
+                                    <!-- <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/subscriber/" data-toggle="tooltip" data-placement="top" title="Subscribers"><button type="button" class="btn bg-blue"><i class="fa fa-group"></i></button></a> -->
                                     <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/import/" data-toggle="tooltip" data-placement="top" title="Import Subscribers"><button type="button" class="btn bg-orange"><i class="fa fa-upload"></i></button></a>
                                     <a href="<?= get_base_url(); ?>list/<?= _h((int)$list->id); ?>/export/" data-toggle="tooltip" data-placement="top" title="Export Subscribers"><button type="button" class="btn bg-purple"><i class="fa fa-download"></i></button></a>
                                     <a<?=ae('delete_email_list');?> href="#" data-toggle="modal" data-target="#delete-<?= _h((int)$list->id); ?>"><button type="button" class="btn bg-red"><i class="fa fa-trash-o"></i></button></a>

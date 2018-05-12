@@ -19,10 +19,46 @@ $app->before('GET', '/subscriber(.*)', function() {
 $app->group('/subscriber', function() use ($app) {
 
     $app->get('/', function () use($app) {
-        try {
-            $subscribers = $app->db->subscriber();
-            $subs = tc_cache_get('my_subscribers_' . get_userdata('id'), 'my_subscribers');
-            if (empty($subs)) {
+
+        $where = [];
+
+        if ($app->req->get['lookup'] == 'true') {
+
+            try {
+                if ($app->req->get['spammer'] == '1' || $app->req->get['blacklisted'] == '1' || $app->req->get['unconfirmed'] == '0' || $app->req->get['email'] != '') {
+                    $w = "WHERE subscriber.allowed <> '' AND";
+                } else {
+                    $w = "WHERE subscriber.allowed <> ''";
+                }
+
+                if ($app->req->get['spammer'] == '1') {
+                    $where[] = "subscriber.spammer = '1'";
+                }
+
+                if ($app->req->get['blacklisted'] == '1') {
+                    $where[] = "subscriber.bounces >= '3'";
+                }
+
+                if ($app->req->get['unconfirmed'] == '0') {
+                    $where[] = "subscriber_list.confirmed = '0'";
+                }
+
+                if ($app->req->get['email'] != '') {
+                    $email = $app->req->get['email'];
+                    $where[] = "subscriber.email = '$email'";
+                }
+
+                $final_where = '';
+
+                if (count($where) > 0) {
+                    $final_where = implode(' AND ', $where);
+                }
+
+                $subscribers = $app->db->query(
+                        "SELECT subscriber.id, subscriber.fname, subscriber.lname, subscriber.email, subscriber.allowed, subscriber.addDate "
+                        . "FROM subscriber "
+                        . "LEFT JOIN subscriber_list ON subscriber.id = subscriber_list.sid $w $final_where"
+                );
                 $subs = $subscribers->find(function ($data) {
                     $array = [];
                     foreach ($data as $d) {
@@ -30,24 +66,23 @@ $app->group('/subscriber', function() use ($app) {
                     }
                     return $array;
                 });
-                tc_cache_add('my_subscribers_' . get_userdata('id'), $subs, 'my_subscribers');
+            } catch (ORMException $e) {
+                _tc_flash()->error($e->getMessage());
+            } catch (Exception $e) {
+                _tc_flash()->error($e->getMessage());
             }
-        } catch (NotFoundException $e) {
-            _tc_flash()->error($e->getMessage());
-        } catch (Exception $e) {
-            _tc_flash()->error($e->getMessage());
-        } catch (ORMException $e) {
-            _tc_flash()->error($e->getMessage());
         }
 
         tc_register_style('datatables');
         tc_register_style('select2');
+        tc_register_style('iCheck');
         tc_register_script('select2');
         tc_register_script('datatables');
+        tc_register_script('iCheck');
 
         $app->view->display('subscriber/index', [
-            'title' => _t('Manage Subscribers'),
-            'subscribers' => array_to_object($subs)
+            'title' => _t('Lookup Subscribers'),
+            'subscribers' => ($subs != '' ? array_to_object($subs) : '')
                 ]
         );
     });

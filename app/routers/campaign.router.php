@@ -684,7 +684,7 @@ $app->group('/campaign', function() use ($app) {
     $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function () use($app) {
         error_reporting(0);
         try {
-            _mkdir($app->config('file.savepath') . get_userdata('uname') . '/');
+            _mkdir(BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS);
         } catch (\app\src\Exception\IOException $e) {
             Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
         }
@@ -693,15 +693,26 @@ $app->group('/campaign', function() use ($app) {
             'roots' => [
                 [
                     'driver' => 'LocalFileSystem',
-                    'path' => $app->config('file.savepath') . get_userdata('uname') . '/',
-                    'alias' => 'Files',
+                    'startPath' => BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS,
+                    'path' => BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS,
+                    'alias' => 'Media Library',
                     'mimeDetect' => 'auto',
                     'accessControl' => 'access',
+                    'tmbURL' => get_base_url() . 'static/media/' . get_userdata('id') . '/' . '.tmb',
+                    'tmpPath' => BASE_PATH . 'static' . DS . 'media' . DS . '.tmb',
+                    'URL' => get_base_url() . 'static/media/' . get_userdata('id') . '/',
                     'attributes' => [
                         [
                             'read' => true,
                             'write' => true,
                             'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.gitignore/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
                         ],
                         [
                             'pattern' => '/\.tmb/',
