@@ -5,6 +5,7 @@ if (!defined('BASE_PATH'))
 use TinyC\Exception\NotFoundException;
 use TinyC\Exception\Exception;
 use PDOException as ORMException;
+use Cascade\Cascade;
 
 /**
  * Dashboard Router
@@ -259,15 +260,20 @@ $app->group('/dashboard', function () use($app) {
     /**
      * Before route check.
      */
-    $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function() {
+    $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/media-connector/', function() {
         if (!is_user_logged_in()) {
             _tc_flash()->{'error'}(_t("You do not have permission to access requested screen"), get_base_url() . 'dashboard' . '/');
             exit();
         }
     });
 
-    $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function () use($app) {
+    $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/media-connector/', function () use($app) {
         error_reporting(0);
+        try {
+            _mkdir(BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS);
+        } catch (\TinyC\Exception\IOException $e) {
+            Cascade::getLogger('error')->error(sprintf('IOSTATE[%s]: Unable to create directory: %s', $e->getCode(), $e->getMessage()));
+        }
         $opts = [
             // 'debug' => true,
             'locale' => 'en_US.UTF-8',

@@ -23,7 +23,7 @@ TinyC\Config::set('screen_parent', 'media');
 <script type="text/javascript">
     $().ready(function () {
         var elf = $('#elfinder').elfinder({
-            url: '<?= get_base_url(); ?>dashboard/connector/',
+            url: '<?= get_base_url(); ?>dashboard/media-connector/',
             modal: true,
             resizable: false
         }).elfinder('instance');
