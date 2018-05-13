@@ -19,3 +19,4 @@ phpunit
 phinx.php
 .htaccess
 vendor
+*.spc
