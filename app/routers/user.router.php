@@ -442,8 +442,12 @@ $app->group('/user', function() use ($app) {
      * Before route check.
      */
     $app->before('GET', '/(\d+)/switch-back/', function() use($app) {
-        if (!hasPermission('switch_user')) {
-            _tc_flash()->error(_t("You don't have permission to switch users."), $app->req->server['HTTP_REFERER']);
+        if (!is_user_logged_in()) {
+            _tc_flash()->{'error'}(_t('401 - Error: Unauthorized.'), get_base_url());
+            exit();
+        }
+        if (!isset($app->req->cookie['SWITCH_USERBACK'])) {
+            _tc_flash()->{'error'}(_t('Cookie is not properly set for user switching'), get_base_url() . 'dashboard' . '/');
             exit();
         }
     });

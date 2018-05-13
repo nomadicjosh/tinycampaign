@@ -314,7 +314,7 @@ $app->group('/cron', function () use($app, $css, $js) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($sql->id)) <= 0) {
+         */ elseif (_escape($sql->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }

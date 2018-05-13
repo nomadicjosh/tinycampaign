@@ -335,7 +335,7 @@ function check_rss_campaigns()
                 }// if not send it
                 else {
                     $text = [];
-                    $text[] = '<a href="'.$link.'"><h2>' . $title . '</h2></a> ' . '<small><strong>' . $date . '</strong></small>' .  "\n";
+                    $text[] = '<h2><a href="'.$link.'">' . $title . '</a></h2> ' . '<small><strong>' . $date . '</strong></small>' .  "\n";
                     $text[] = $description;
                     $accumulatedText .= implode("\n", $text) . "\n\n";
                     $accumulatedGuid[] = $guid;

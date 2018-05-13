@@ -424,7 +424,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -502,7 +502,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -578,7 +578,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -648,7 +648,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -1290,6 +1290,15 @@ $app->group('/rss-campaign', function() use ($app) {
         }
     });
 
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/d/', function() {
+        if (!hasPermission('delete_campaign')) {
+            _tc_flash()->error(_t('You lack the proper permission to delete an RSS campaign.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+    
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
 
@@ -1481,6 +1490,15 @@ $app->group('/rlde', function() use ($app) {
         }
     });
 
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST', '/(\d+)/d/', function() {
+        if (!hasPermission('delete_campaign')) {
+            _tc_flash()->error(_t('You lack the proper permission to delete a rule.'), get_base_url() . 'dashboard' . '/');
+        }
+    });
+    
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
             Node::table('rlde')
