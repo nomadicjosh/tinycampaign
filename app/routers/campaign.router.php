@@ -7,8 +7,6 @@ use TinyC\Exception\Exception;
 use Cascade\Cascade;
 use TinyC\NodeQ\tc_NodeQ as Node;
 use TinyC\NodeQ\NodeQException;
-use TinyC\elFinder\elFinderConnector;
-use TinyC\elFinder\elFinder;
 use PDOException as ORMException;
 
 $app->group('/campaign', function() use ($app) {
