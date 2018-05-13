@@ -116,9 +116,14 @@ tinyCampaign Demo:
 
 <pre>
     v2.1.0 (TBD)
-    - [Feature] Campaign segmentation with rules
     - [Enhance] Added ability to re-queue campaigns to be sent to those subscribed after the campaign was queued
     
+    v2.0.6 (2018.05.13)
+    - [Fix] Misc.
+    - [Feature] Campaign segmentation with rules
+    - [Feature] Added Media Library Screen
+    - [Feature] Added FTP screen
+
     v2.0.5 (2018.05.09)
     - [Fix] Ternary to look at full header or full body to retrieve bounce info
     - [Fix] Error created when sending test email

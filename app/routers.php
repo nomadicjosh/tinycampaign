@@ -15,6 +15,11 @@ elseif (strpos(getPathInfo('/dashboard'), "/dashboard") === 0)
     _tc_dashboard_router();
 }
 
+elseif (strpos(getPathInfo('/media'), "/media") === 0)
+{
+    _tc_dashboard_router();
+}
+
 elseif (strpos(getPathInfo('/list'), "/list") === 0)
 {
     require($app->config('routers_dir') . 'list.router.php');

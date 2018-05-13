@@ -20,6 +20,9 @@
         "league/oauth2-google": "^2.2",
         "tubalmartin/cssmin": "^4.1",
         "simplepie/simplepie": "^1.5",
-        "phpseclib/mcrypt_compat": "^1.0"
+        "phpseclib/mcrypt_compat": "^1.0",
+        "studio-42/elfinder": "^2.1",
+        "kunalvarma05/dropbox-php-sdk": "^0.2.1",
+        "google/apiclient": "^2.2"
     }
 }

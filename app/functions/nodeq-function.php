@@ -293,9 +293,9 @@ function check_rss_campaigns()
         foreach ($feeds->find() as $feed) {
             $rss = new SimplePie();
             $rss->set_feed_url(_escape($feed->rss_feed));
-            $rss->enable_cache(false);
-            //$rss->set_cache_location(APP_PATH . 'tmp' . DS . 'cache' . DS);
-            //$rss->set_cache_duration(3600);
+            $rss->enable_cache();
+            $rss->set_cache_location(app()->config('file.savepath') . 'cache' . DS);
+            $rss->set_cache_duration(3600);
 
             // Init feed
             $rss->init();
@@ -327,10 +327,10 @@ function check_rss_campaigns()
                 $description = $item->get_description();
 
                 // check if item has been sent already
-                $rss_guid = app()->db->query('SELECT guid FROM rss_guid WHERE guid = ?', [$guid])->findOne();
+                $rss_guid = app()->db->query('SELECT id FROM rss_guid WHERE guid = ?', [$guid])->findOne();
 
                 // if so, skip
-                if ($rss_guid->guid != '') {
+                if ($rss_guid->id > 0) {
                     continue;
                 }// if not send it
                 else {
@@ -356,7 +356,9 @@ function check_rss_campaigns()
             foreach ($accumulatedGuid as $guid) {
                 $rss_guid = app()->db->rss_guid();
                 $rss_guid->insert([
-                    'guid' => $guid
+                    'rcid' => (int) _escape($feed->id),
+                    'guid' => (string) $guid,
+                    'addDate' => (string) Jenssegers\Date\Date::now()
                 ]);
             }
         }
