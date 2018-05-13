@@ -255,6 +255,248 @@ $app->group('/dashboard', function () use($app) {
             _tc_flash()->error($e->getMessage());
         }
     });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function() {
+        if (!is_user_logged_in()) {
+            _tc_flash()->{'error'}(_t("You do not have permission to access requested screen"), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function () use($app) {
+        error_reporting(0);
+        $opts = [
+            // 'debug' => true,
+            'locale' => 'en_US.UTF-8',
+            'roots' => [
+                [
+                    'driver' => 'LocalFileSystem',
+                    'startPath' => BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS,
+                    'path' => BASE_PATH . 'static' . DS . 'media' . DS . get_userdata('id') . DS,
+                    'alias' => 'Media Library',
+                    'mimeDetect' => 'auto',
+                    'accessControl' => 'access',
+                    'tmbURL' => get_base_url() . 'static/media/' . get_userdata('id') . '/' . '.tmb',
+                    'tmpPath' => BASE_PATH . 'static' . DS . 'media' . DS . '.tmb',
+                    'URL' => get_base_url() . 'static/media/' . get_userdata('id') . '/',
+                    'attributes' => [
+                        [
+                            'read' => true,
+                            'write' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\__optimized__/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\.gitkeep/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\.gitignore/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\.htaccess/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\index.html/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.tmb/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.quarantine/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.DS_Store/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.json$/',
+                            'read' => true,
+                            'write' => true,
+                            'hidden' => false,
+                            'locked' => false
+                        ]
+                    ],
+                    'uploadMaxSize' => '500M',
+                    'uploadAllow' => [
+                        'text/plain', 'image/png', 'image/jpeg', 'image/gif', 'application/zip',
+                        'text/csv', 'application/pdf', 'application/msword', 'application/vnd.ms-excel',
+                        'application/vnd.ms-powerpoint', 'application/msword', 'application/vnd.ms-excel',
+                        'application/vnd.ms-powerpoint', 'video/mp4'
+                    ],
+                    'uploadOrder' => ['allow', 'deny']
+                ]
+            ]
+        ];
+        // run elFinder
+        $connector = new elFinderConnector(new elFinder($opts));
+        $connector->run();
+    });
+
+    /**
+     * Before route check.
+     */
+    $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/ftp-connector/', function() {
+        if (!is_user_logged_in()) {
+            _tc_flash()->{'error'}(_t("You do not have permission to access requested screen"), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->match('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/ftp-connector/', function () use($app) {
+        error_reporting(0);
+        $opts = [
+            // 'debug' => true,
+            'locale' => 'en_US.UTF-8',
+            'roots' => [
+                [
+                    'driver' => 'LocalFileSystem',
+                    'path' => $app->config('cookies.savepath'),
+                    'tmpPath' => $app->config('cookies.savepath') . '.tmb',
+                    'alias' => 'Files',
+                    'mimeDetect' => 'auto',
+                    'accessControl' => 'access',
+                    'attributes' => [
+                        [
+                            'read' => true,
+                            'write' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.gitkeep/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\.gitignore/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\.htaccess/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => true
+                        ],
+                        [
+                            'pattern' => '/\index.html/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.tmb/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.quarantine/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.DS_Store/',
+                            'read' => false,
+                            'write' => false,
+                            'hidden' => true,
+                            'locked' => false
+                        ],
+                        [
+                            'pattern' => '/\.json$/',
+                            'read' => true,
+                            'write' => true,
+                            'hidden' => false,
+                            'locked' => false
+                        ]
+                    ],
+                    'uploadMaxSize' => '500M',
+                    'uploadAllow' => [
+                        'text/plain', 'text/html', 'application/json', 'application/xml',
+                        'application/javascript'
+                    ],
+                    'uploadOrder' => ['allow', 'deny']
+                ]
+            ]
+        ];
+        // run elFinder
+        $connector = new elFinderConnector(new elFinder($opts));
+        $connector->run();
+    });
+
+    $app->before('GET', '/ftp/', function() {
+        if (!hasPermission('install_plugins')) {
+            _tc_flash()->{'error'}(_t('You do not have permission to access FTP.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/ftp/', function () use($app) {
+
+        $app->view->display('dashboard/ftp', [
+            'title' => _t('FTP')
+                ]
+        );
+    });
+});
+
+$app->before('GET', '/media/', function() {
+    if (!is_user_logged_in()) {
+        _tc_flash()->{'error'}(_t('You do not have permission to manage the media library.'), get_base_url() . 'dashboard' . '/');
+        exit();
+    }
+});
+
+$app->get('/media/', function () use($app) {
+
+    $app->view->display('dashboard/media', [
+        'title' => _t('Media Library')
+            ]
+    );
 });
 
 $app->setError(function () use($app) {

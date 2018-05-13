@@ -155,6 +155,7 @@ use TinyC\Config;
                                 </span>
                             </a>
                             <ul class="treeview-menu">
+                                <li<?=ae('install_plugins');?><?= (Config::get('screen_child') === 'ftp' ? ' class="active"' : ''); ?>><a href="<?= get_base_url(); ?>dashboard/ftp/"><i class="fa fa-circle-o"></i> <?= _t('FTP'); ?></a></li>
                                 <li<?= (Config::get('screen_child') === 'general' ? ' class="active"' : ''); ?><?= ae('access_settings_screen'); ?>><a href="<?= get_base_url(); ?>setting/"><i class="fa fa-circle-o"></i> <?= _t('General Settings'); ?></a></li>
                                 <li<?= (Config::get('screen_child') === 'snapshot' ? ' class="active"' : ''); ?><?= ae('access_settings_screen'); ?>><a href="<?= get_base_url(); ?>dashboard/system-snapshot/"><i class="fa fa-circle-o"></i> <?= _t('System Snapshot Report'); ?></a></li>
                                 <li<?= (Config::get('screen_child') === 'smtp' ? ' class="active"' : ''); ?><?= ae('access_settings_screen'); ?>><a href="<?= get_base_url(); ?>setting/smtp/"><i class="fa fa-circle-o"></i> <?= _t('SMTP Settings'); ?></a></li>
@@ -196,8 +197,8 @@ use TinyC\Config;
                             </ul>
                         </li>
                         <li class="treeview<?= (Config::get('screen_parent') === 'media' ? ' active' : ''); ?>">
-                            <a href="<?= get_base_url(); ?>admin/media/">
-                                <i class="fa fa-camera"></i> <span><?= _t('Media Library', 'tritan-cms'); ?></span>
+                            <a href="<?= get_base_url(); ?>media/">
+                                <i class="fa fa-camera"></i> <span><?= _t('Media Library'); ?></span>
                             </a>
                         </li>
                         <li<?= ae('manage_email_lists'); ?> class="treeview<?= (Config::get('screen_parent') === 'list' ? ' active' : ''); ?>">
