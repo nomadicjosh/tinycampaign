@@ -591,10 +591,11 @@ function get_subscription_email_list_id($id)
  * 
  * @since 2.0.6
  * @access private
+ * @param object $queue     Message queue.
  * @param object $cpgn      Campaign data object.
  * @param object $c_list    Object of data from campaign_list table.
  */
-function get_subscribers_for_queue($cpgn, $c_list)
+function add_subscribers_to_queue($queue, $cpgn, $c_list)
 {
     try {
         /**
@@ -633,20 +634,7 @@ function get_subscribers_for_queue($cpgn, $c_list)
     } catch (Exception $e) {
         Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
-}
-
-/**
- * Add the retrieved list of subscribers to the queue for sending.
- * 
- * @since 2.0.6
- * @access private
- * @param object $queue         Message queue.
- * @param object $cpgn          Campaign data object.
- * @param object $subscriber    Container of subscribers to be added to queue.
- * @param object $c_list        Campaign list.
- */
-function add_subscribers_to_queue($queue, $cpgn, $subscriber, $c_list)
-{
+    
     /**
      * Loop through the above $subscriber query and add each
      * subscriber to the queue.
