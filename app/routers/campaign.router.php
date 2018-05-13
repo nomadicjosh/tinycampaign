@@ -424,7 +424,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -502,7 +502,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -578,7 +578,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }
@@ -648,7 +648,7 @@ $app->group('/campaign', function() use ($app) {
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($cpgn->id)) <= 0) {
+         */ elseif (_escape($cpgn->id) <= 0) {
 
             $app->view->display('error/404', ['title' => '404 Error']);
         }

@@ -114,7 +114,7 @@ $app->match('GET|POST', '/permission/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_escape($perm->id)) <= 0) {
+     */ elseif (_escape($perm->id) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -203,7 +203,7 @@ $app->match('GET|POST', '/role/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_escape($role->id)) <= 0) {
+     */ elseif (_escape($role->id) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -369,7 +369,7 @@ $app->match('GET|POST', '/template/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_escape($tpl->id)) <= 0) {
+     */ elseif (_escape($tpl->id) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -583,7 +583,7 @@ $app->match('GET|POST', '/server/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_escape($server->id)) <= 0) {
+     */ elseif (_escape($server->id) <= 0) {
 
         $app->view->display('error/404', ['title' => '404 Error']);
     }
@@ -763,7 +763,7 @@ $app->get('/archive/(\d+)/', function ($id) use($app) {
     }
     /**
      * If data is zero, 404 not found.
-     */ elseif (count(_escape($cpgn->id)) <= 0) {
+     */ elseif (_escape($cpgn->id) <= 0) {
         header('Content-Type: application/json');
         $app->res->_format('json', 404);
         exit();
@@ -828,7 +828,7 @@ $app->get('/confirm/(\w+)/lid/(\d+)/sid/(\d+)/', function ($code, $lid, $sid) us
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($subscriber->sid)) <= 0) {
+         */ elseif (_escape($subscriber->sid) <= 0) {
 
             _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
@@ -1171,7 +1171,7 @@ $app->get('/unsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code, 
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($subscriber->sid)) <= 0) {
+         */ elseif (_escape($subscriber->sid) <= 0) {
 
             _tc_flash()->{'error'}(_tc_flash()->notice(404));
         }
@@ -1261,7 +1261,7 @@ $app->get('/xunsubscribe/(\w+)/lid/(\d+)/sid/(\d+)/rid/(\d+)/', function ($code,
         }
         /**
          * If data is zero, 404 not found.
-         */ elseif (count(_escape($subscriber->sid)) <= 0) {
+         */ elseif (_escape($subscriber->sid) <= 0) {
 
             header('Content-Type: application/json');
             $app->res->_format('json', 404);
