@@ -415,6 +415,16 @@ $app->group('/subscriber', function() use ($app) {
             );
         }
     });
+    
+    /**
+     * Before route check.
+     */
+    $app->before('GET', '/getTags/', function() {
+        if(!is_user_logged_in()) {
+            redirect(get_base_url());
+            exit();
+        }
+    });
 
     $app->get('/getTags/', function () use($app) {
         try {
