@@ -323,6 +323,7 @@ function check_rss_campaigns()
                 }
                 $guid = $item->get_id(true);
                 $date = $item->get_date('m/d/y h:i a');
+                $link = $item->get_link();
                 $description = $item->get_description();
 
                 // check if item has been sent already
@@ -334,7 +335,7 @@ function check_rss_campaigns()
                 }// if not send it
                 else {
                     $text = [];
-                    $text[] = '<h2>' . $title . '</h2> ' . $date;
+                    $text[] = '<a href="'.$link.'"><h2>' . $title . '</h2></a> ' . '<small><strong>' . $date . '</strong></small>' .  "\n";
                     $text[] = $description;
                     $accumulatedText .= implode("\n", $text) . "\n\n";
                     $accumulatedGuid[] = $guid;
