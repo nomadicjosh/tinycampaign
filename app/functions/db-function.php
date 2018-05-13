@@ -585,3 +585,92 @@ function get_subscription_email_list_id($id)
         _tc_flash()->error($e->getMessage());
     }
 }
+
+/**
+ * Retrieve a list of subscribers to be added to the queue.
+ * 
+ * @since 2.0.6
+ * @access private
+ * @param object $cpgn      Campaign data object.
+ * @param object $c_list    Object of data from campaign_list table.
+ */
+function get_subscribers_for_queue($cpgn, $c_list)
+{
+    try {
+        /**
+         * Get a list of subscribers that meet the criteria to be added
+         * to the queue.
+         */
+        if (_escape($cpgn->ruleid) > 0) {
+            $rule = get_rule_by_id(_escape($cpgn->ruleid));
+            $subscriber = app()->db->subscriber()
+                    ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                    ->where('subscriber.allowed = "true"')->_and_()
+                    ->where('subscriber.bounces < "3"')->_and_()
+                    ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                    ->where('subscriber_list.confirmed = "1"')->_and_()
+                    ->where('subscriber_list.unsubscribed = "0"')->_and_()
+                    ->where(_escape($rule->rule))
+                    ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->find();
+        } else {
+            $subscriber = app()->db->subscriber()
+                    ->select('DISTINCT subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
+                    ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
+                    ->where('subscriber.allowed = "true"')->_and_()
+                    ->where('subscriber.bounces < "3"')->_and_()
+                    ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
+                    ->where('subscriber_list.confirmed = "1"')->_and_()
+                    ->where('subscriber_list.unsubscribed = "0"')
+                    ->groupBy('subscriber.id,subscriber.fname,subscriber.lname,subscriber.email')
+                    ->find();
+        }
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+/**
+ * Add the retrieved list of subscribers to the queue for sending.
+ * 
+ * @since 2.0.6
+ * @access private
+ * @param object $queue         Message queue.
+ * @param object $cpgn          Campaign data object.
+ * @param object $subscriber    Container of subscribers to be added to queue.
+ * @param object $c_list        Campaign list.
+ */
+function add_subscribers_to_queue($queue, $cpgn, $subscriber, $c_list)
+{
+    /**
+     * Loop through the above $subscriber query and add each
+     * subscriber to the queue.
+     */
+    $i = 0;
+    foreach ($subscriber as $sub) {
+        $list = get_list_by('id', _escape($c_list->lid));
+        $server = get_server_info(_escape($list->server));
+        $throttle = _escape($server->throttle) * ++$i;
+        $sendstart = _escape($cpgn->sendstart);
+        /**
+         * Create new tc_QueueMessage object.
+         */
+        $new_message = new TinyC\tc_QueueMessage();
+        $new_message->setListId(_escape($c_list->lid));
+        $new_message->setMessageId($cpgn->id);
+        $new_message->setSubscriberId(_escape($sub->id));
+        $new_message->setToEmail(_escape($sub->email));
+        $new_message->setToName(_escape($sub->fname) . ' ' . _escape($sub->lname));
+        $new_message->setTimestampCreated(\Jenssegers\Date\Date::now());
+        $new_message->setTimestampToSend(new \Jenssegers\Date\Date("$sendstart +$throttle seconds"));
+        /**
+         * Add message to the queue.
+         */
+        $queue->addMessage($new_message);
+    }
+}
