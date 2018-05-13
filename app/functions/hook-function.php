@@ -1350,9 +1350,7 @@ function send_campaign_to_queue($cpgn)
      */
     foreach ($campaign_list as $c_list) {
 
-        $subscriber = get_subscribers_for_queue($cpgn, $c_list);
-
-        add_subscribers_to_queue($queue, $cpgn, $subscriber, $c_list);
+        add_subscribers_to_queue($queue, $cpgn, $c_list);
     }
 
     try {
