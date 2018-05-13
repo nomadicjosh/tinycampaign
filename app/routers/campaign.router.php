@@ -688,6 +688,7 @@ $app->group('/campaign', function() use ($app) {
         }
         $opts = [
             // 'debug' => true,
+            'locale' => 'en_US.UTF-8',
             'roots' => [
                 [
                     'driver' => 'LocalFileSystem',
