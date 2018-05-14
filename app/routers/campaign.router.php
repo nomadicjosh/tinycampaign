@@ -1151,6 +1151,7 @@ $app->group('/rss-campaign', function() use ($app) {
                     'from_name' => $app->req->post['from_name'],
                     'from_email' => $app->req->post['from_email'],
                     'rss_feed' => $app->req->post['rss_feed'],
+                    'rss_items' => (int) $app->req->post['rss_items'] <= 0 ? 0 : (int) $app->req->post['rss_items'],
                     'lid' => maybe_serialize($app->req->post['lid']),
                     'tid' => $app->req->post['tid'],
                     'status' => 'active',
@@ -1213,6 +1214,7 @@ $app->group('/rss-campaign', function() use ($app) {
                             'from_name' => $app->req->post['from_name'],
                             'from_email' => $app->req->post['from_email'],
                             'rss_feed' => $app->req->post['rss_feed'],
+                            'rss_items' => (int) $app->req->post['rss_items'] <= 0 ? 0 : (int) $app->req->post['rss_items'],
                             'lid' => maybe_serialize($app->req->post['lid']),
                             'tid' => $app->req->post['tid'],
                             'status' => $app->req->post['status']
@@ -1297,7 +1299,7 @@ $app->group('/rss-campaign', function() use ($app) {
             _tc_flash()->error(_t('You lack the proper permission to delete an RSS campaign.'), get_base_url() . 'dashboard' . '/');
         }
     });
-    
+
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
 
@@ -1497,7 +1499,7 @@ $app->group('/rlde', function() use ($app) {
             _tc_flash()->error(_t('You lack the proper permission to delete a rule.'), get_base_url() . 'dashboard' . '/');
         }
     });
-    
+
     $app->get('/(\d+)/d/', function ($id) use($app) {
         try {
             Node::table('rlde')

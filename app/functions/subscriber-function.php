@@ -265,11 +265,9 @@ function get_subscriber_tag_list()
             }
         }
         return $tags;
-    } catch (NotFoundException $e) {
-        _etsis_flash()->error($e->getMessage());
-    } catch (Exception $e) {
-        _etsis_flash()->error($e->getMessage());
     } catch (ORMException $e) {
-        _etsis_flash()->error($e->getMessage());
+        _tc_flash()->error($e->getMessage());
+    } catch (Exception $e) {
+        _tc_flash()->error($e->getMessage());
     }
 }

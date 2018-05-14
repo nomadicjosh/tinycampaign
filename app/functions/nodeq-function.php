@@ -302,7 +302,9 @@ function check_rss_campaigns()
 
             // Make sure the page is being served with the UTF-8 headers.
             $rss->handle_content_type();
-            $items = $rss->get_items();
+            // Load 5 items if rss_items is less than zero.
+            $rss_items = _escape($feed->rss_items) <= 0 ? 5 : _escape($feed->rss_items);
+            $items = $rss->get_items(0, $rss_items);
 
             $accumulatedText = '';
             $accumulatedGuid = [];

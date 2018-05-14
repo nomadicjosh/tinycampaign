@@ -47,17 +47,17 @@ TinyC\Config::set('screen_child', 'rss');
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?>  <a href="#subject" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
-                                <input type="text" class="form-control" name="subject" value="<?= _escape($rss->subject); ?>" required>
+                                <input type="text" class="form-control" name="subject" value="<?= _escape($rss->subject); ?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?= _escape($rss->from_name); ?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?= _escape($rss->from_name); ?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?= _escape($rss->from_email); ?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?= _escape($rss->from_email); ?>" required/>
                             </div>
 
                             <div class="form-group">
@@ -67,14 +67,19 @@ TinyC\Config::set('screen_child', 'rss');
                                     <?php get_template_list(_escape($rss->tid)); ?>
                                 </select>
                             </div>
+                            
+                            <div class="form-group">
+                                <label><font color="red">*</font> <?= _t('RSS Feed'); ?></label>
+                                <input type="text" class="form-control" name="rss_feed" value="<?= if_not_null(_escape($rss->rss_feed)); ?>" required/>
+                            </div>
 
                         </div>
                         <!-- /.col -->
                         <div class="col-md-6">
 
                             <div class="form-group">
-                                <label><font color="red">*</font> <?= _t('RSS Feed'); ?></label>
-                                <input type="text" class="form-control" name="rss_feed" value="<?= if_not_null(_escape($rss->rss_feed)); ?>" required>
+                                <label><?= _t('RSS Items'); ?>  <a href="#items" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
+                                <input type="text" class="form-control" name="rss_items" value="<?= _escape($rss->rss_items); ?>" />
                             </div>
 
                             <div class="form-group">
@@ -93,12 +98,12 @@ TinyC\Config::set('screen_child', 'rss');
 
                             <div class="form-group">
                                 <label><?= _t('Owner'); ?></label>
-                                <input type="text" class="form-control" value="<?= get_name(_escape((int) $rss->owner)); ?>"readonly>
+                                <input type="text" class="form-control" value="<?= get_name(_escape((int) $rss->owner)); ?>"readonly/>
                             </div>
 
                             <div class="form-group">
                                 <label><?= _t('Modified'); ?></label>
-                                <input type="text" class="form-control" value="<?= Jenssegers\Date\Date::parse(_escape($rss->LastUpdate))->format('M. d, Y @ h:i A'); ?>" readonly>
+                                <input type="text" class="form-control" value="<?= Jenssegers\Date\Date::parse(_escape($rss->LastUpdate))->format('M. d, Y @ h:i A'); ?>" readonly/>
                             </div>
 
                         </div>
@@ -131,6 +136,28 @@ TinyC\Config::set('screen_child', 'rss');
                 </div>
                 <div class="modal-body">
                     <p><?=_t( "This is the email subject of every rss campaign that goes out." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
+    <!-- modal -->
+    <div class="modal" id="items">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'RSS Items' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Number of recent items to retrieve from feed on each call." );?></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
