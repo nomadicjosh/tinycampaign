@@ -42,28 +42,24 @@ TinyC\Config::set('screen_child', 'crss');
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Node'); ?></label>
-                                <input type="text" class="form-control" name="node" readonly value="<?= 'rss_' . _random_lib()->generateString(12, 'abcdefghijklmnopqrstuvwxyzzyxwvutsrqponmlkjihgfedcba'); ?>" required>
+                                <input type="text" class="form-control" name="node" readonly value="<?= 'rss_' . _random_lib()->generateString(12, 'abcdefghijklmnopqrstuvwxyzzyxwvutsrqponmlkjihgfedcba'); ?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Email Subject'); ?>  <a href="#subject" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
-                                <input type="text" class="form-control" name="subject" value="<?= (_escape($app->req->post['subject']) != '' ? _escape($app->req->post['subject']) : ''); ?>" required>
+                                <input type="text" class="form-control" name="subject" value="<?= (_escape($app->req->post['subject']) != '' ? _escape($app->req->post['subject']) : ''); ?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Name'); ?></label>
-                                <input type="text" class="form-control" name="from_name" value="<?= (_escape($app->req->post['from_name']) != '' ? _escape($app->req->post['from_name']) : ''); ?>" required>
+                                <input type="text" class="form-control" name="from_name" value="<?= (_escape($app->req->post['from_name']) != '' ? _escape($app->req->post['from_name']) : ''); ?>" required/>
                             </div>
 
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('From Email'); ?></label>
-                                <input type="text" class="form-control" name="from_email" value="<?= (_escape($app->req->post['from_email']) != '' ? _escape($app->req->post['from_email']) : ''); ?>" required>
+                                <input type="text" class="form-control" name="from_email" value="<?= (_escape($app->req->post['from_email']) != '' ? _escape($app->req->post['from_email']) : ''); ?>" required/>
                             </div>
-
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6">
-
+                            
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('Template'); ?></label>
                                 <select class="form-control select2" name="tid" style="width: 100%;" required>
@@ -72,9 +68,18 @@ TinyC\Config::set('screen_child', 'crss');
                                 </select>
                             </div>
 
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6">
+
                             <div class="form-group">
                                 <label><font color="red">*</font> <?= _t('RSS Feed'); ?></label>
-                                <input type="text" class="form-control" name="rss_feed" value="<?= if_not_null($app->req->post['rss_feed']); ?>" required>
+                                <input type="text" class="form-control" name="rss_feed" value="<?= if_not_null($app->req->post['rss_feed']); ?>" required/>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><?= _t('RSS Items'); ?>  <a href="#items" data-toggle="modal"><span class="badge"><i class="fa fa-question"></i></span></a></label>
+                                <input type="text" class="form-control" name="rss_items" value="<?= if_not_null($app->req->post['rss_items']); ?>" />
                             </div>
 
                             <div class="form-group">
@@ -112,6 +117,28 @@ TinyC\Config::set('screen_child', 'crss');
                 </div>
                 <div class="modal-body">
                     <p><?=_t( "This is the email subject of every rss campaign that goes out." );?></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
+    <!-- modal -->
+    <div class="modal" id="items">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><?=_t( 'RSS Items' );?></h4>
+                </div>
+                <div class="modal-body">
+                    <p><?=_t( "Number of recent items to retrieve from feed on each call." );?></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= _t('Close'); ?></button>
