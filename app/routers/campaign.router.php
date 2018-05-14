@@ -672,6 +672,72 @@ $app->group('/campaign', function() use ($app) {
     /**
      * Before route check.
      */
+    $app->before('GET|POST', '/(\d+)/report/opened/', function() {
+        if (!hasPermission('manage_campaigns')) {
+            _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
+            exit();
+        }
+    });
+
+    $app->get('/(\d+)/report/bounced/', function ($id) use($app) {
+
+        $cpgn = get_campaign_by_id($id);
+
+        try {
+            $bounces = Node::table('campaign_bounce')
+                    ->where('cid', '=', _escape($cpgn->id))
+                    ->findAll();
+            
+            $sum = Node::table('campaign_bounce')
+                    ->where('cid', '=', _escape($cpgn->id))
+                    ->count();
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
+
+        /**
+         * If the database table doesn't exist, then it
+         * is false and a 404 should be sent.
+         */
+        if ($cpgn == false) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If the query is legit, but there
+         * is no data in the table, then 404
+         * will be shown.
+         */ elseif (empty($cpgn) == true) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If data is zero, 404 not found.
+         */ elseif (_escape($cpgn->id) <= 0) {
+
+            $app->view->display('error/404', ['title' => '404 Error']);
+        }
+        /**
+         * If we get to this point, the all is well
+         * and it is ok to process the query and print
+         * the results in a html format.
+         */ else {
+
+            $app->view->display('campaign/bounced', [
+                'title' => _escape($cpgn->subject),
+                'cpgn' => $cpgn,
+                'bounces' => $bounces,
+                'sum' => $sum
+                    ]
+            );
+        }
+    });
+
+    /**
+     * Before route check.
+     */
     $app->before('GET|POST|PATCH|PUT|OPTIONS|DELETE', '/connector/', function() {
         if (!is_user_logged_in()) {
             _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
