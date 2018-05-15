@@ -52,7 +52,7 @@ TinyC\Config::set('screen_child', 'cpgn');
                     <tbody>
                         <?php foreach ($bounces as $bounced) : $sub = get_subscriber_by('id', _escape((int)$bounced->sid)); ?>
                             <tr class="gradeX">
-                                <td class="text-center"><a href=""><?= get_sub_name(_escape((int)$bounced->sid)); ?></a></td>
+                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_escape((int)$bounced->sid);?>/"><?= get_sub_name(_escape((int)$bounced->sid)); ?></a></td>
                                 <td class="text-center"><?=_escape($sub->bounces);?></td>
                                 <td class="text-center"><?=_escape($bounced->type);?></td>
                                 <td class="text-center"></td>
