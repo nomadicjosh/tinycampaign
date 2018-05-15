@@ -1,2 +1,2 @@
-fname,lname,email,confirmed,unsubscribed
-Daniel,Boone,dboone@gmail.com,1,0
+fname,lname,email,confirmed,unsubscribed,address1,address2,city,state,postal_code,country
+Daniel,Boone,dboone@gmail.com,1,0,,,,,,
