@@ -319,7 +319,7 @@ $app->group('/subscriber', function() use ($app) {
                         'state' => if_null($app->req->post['state']),
                         'postal_code' => $app->req->post['postal_code'],
                         'country' => if_null($app->req->post['country']),
-                        'spammer' => (int) 0,
+                        'spammer' => (int) $app->req->post['spammer'],
                         'exception' => $app->req->post['exception'],
                         'tags' => if_null($app->req->post['tags'])
                     ]);
