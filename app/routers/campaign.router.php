@@ -672,7 +672,7 @@ $app->group('/campaign', function() use ($app) {
     /**
      * Before route check.
      */
-    $app->before('GET|POST', '/(\d+)/report/opened/', function() {
+    $app->before('GET|POST', '/(\d+)/report/bounced/', function() {
         if (!hasPermission('manage_campaigns')) {
             _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
             exit();
@@ -688,8 +688,8 @@ $app->group('/campaign', function() use ($app) {
                     ->where('cid', '=', _escape($cpgn->id))
                     ->findAll();
             
-            $sum = Node::table('campaign_bounce')
-                    ->where('cid', '=', _escape($cpgn->id))
+            $sum = $app->db->campaign()
+                    ->where('id = ?', _escape($cpgn->id))
                     ->count();
         } catch (NodeQException $e) {
             _tc_flash()->error($e->getMessage());
