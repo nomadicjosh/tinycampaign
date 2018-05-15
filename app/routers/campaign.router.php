@@ -687,10 +687,6 @@ $app->group('/campaign', function() use ($app) {
             $bounces = Node::table('campaign_bounce')
                     ->where('cid', '=', _escape($cpgn->id))
                     ->findAll();
-            
-            $sum = $app->db->campaign()
-                    ->where('id = ?', _escape($cpgn->id))
-                    ->count();
         } catch (NodeQException $e) {
             _tc_flash()->error($e->getMessage());
         } catch (Exception $e) {
@@ -728,8 +724,7 @@ $app->group('/campaign', function() use ($app) {
             $app->view->display('campaign/bounced', [
                 'title' => _escape($cpgn->subject),
                 'cpgn' => $cpgn,
-                'bounces' => $bounces,
-                'sum' => $sum
+                'bounces' => $bounces
                     ]
             );
         }
