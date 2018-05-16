@@ -52,10 +52,10 @@ TinyC\Config::set('screen_child', 'cpgn');
                     <tbody>
                         <?php foreach ($bounces as $bounced) : $sub = get_subscriber_by('id', _escape((int)$bounced->sid)); ?>
                             <tr class="gradeX">
-                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_escape((int)$bounced->sid);?>/"><?= get_sub_name(_escape((int)$bounced->sid)); ?></a></td>
+                                <td class="text-center"><a href="<?=get_base_url();?>subscriber/<?=_escape((int)$bounced->sid);?>/"><?= _escape($sub->email); ?></a></td>
                                 <td class="text-center"><?=_escape($sub->bounces);?></td>
                                 <td class="text-center"><?=_escape($bounced->type);?></td>
-                                <td class="text-center"></td>
+                                <td class="text-center"><?=get_bounce_definition(_escape($bounced->rule_cat), _escape($bounced->rule_no));?></td>
                                 <td class="text-center"><?= \Jenssegers\Date\Date::parse(_escape($bounced->date_added))->format('M. d, Y h:i A'); ?></td>
                             </tr>
                         <?php endforeach; ?>

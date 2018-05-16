@@ -18,6 +18,14 @@ $app->group('/campaign', function() use ($app) {
         if (!hasPermission('manage_campaigns')) {
             _tc_flash()->error(_t('You lack the proper permission to access the requested screen.'), get_base_url() . 'dashboard' . '/');
         }
+
+        try {
+            Node::dispense('bounce_definition');
+        } catch (NodeQException $e) {
+            _tc_flash()->error($e->getMessage());
+        } catch (Exception $e) {
+            _tc_flash()->error($e->getMessage());
+        }
     });
 
     $app->get('/', function () use($app) {
