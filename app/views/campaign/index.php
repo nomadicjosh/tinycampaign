@@ -65,14 +65,17 @@ TinyC\Config::set('screen_child', 'cpgn');
                             <?php
                             try {
                                 $all = $app->db->campaign_queue()
+                                    ->where('is_cancelled', 'false')->_and_()
                                     ->where('cid = ?', _escape($msg->id))
                                     ->count();
                                 $sent = $app->db->campaign_queue()
                                     ->where('is_sent', 'true')->_and_()
+                                    ->where('is_cancelled', 'false')
                                     ->where('cid = ?', _escape($msg->id))
                                     ->count();
                                 $to_send = $app->db->campaign_queue()
                                     ->where('is_sent', 'false')->_and_()
+                                    ->where('is_cancelled', 'false')->_and_()
                                     ->where('cid = ?', _escape($msg->id))
                                     ->count();
                             } catch (ORMException $e) {

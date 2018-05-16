@@ -337,7 +337,7 @@ function check_rss_campaigns()
                 }// if not send it
                 else {
                     $text = [];
-                    $text[] = '<h2><a href="'.$link.'">' . $title . '</a></h2> ' . '<small><strong>' . $date . '</strong></small>' .  "\n";
+                    $text[] = '<h2><a href="' . $link . '">' . $title . '</a></h2> ' . '<small><strong>' . $date . '</strong></small>' . "\n";
                     $text[] = $description;
                     $accumulatedText .= implode("\n", $text) . "\n\n";
                     $accumulatedGuid[] = $guid;
@@ -446,5 +446,28 @@ function generate_rss_campaigns()
         Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
     } catch (Exception $e) {
         Cascade::getLogger('error')->error(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
+/**
+ * Returned bounce rule reason.
+ * 
+ * @since 2.0.6
+ * @param string $cat   Rule category.
+ * @param int $no       Rule Number.
+ * @return string
+ */
+function get_bounce_definition($cat, $no)
+{
+    try {
+        $node = Node::table('bounce_definition')
+                ->where('rule_cat', '=', $cat)
+                ->andWhere('rule_no', '=', $no)
+                ->find();
+        return _escape($node->reason);
+    } catch (NodeQException $e) {
+        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->error(sprintf('NODEQSTATE[%s]: Error: %s', $e->getCode(), $e->getMessage()));
     }
 }

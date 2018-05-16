@@ -589,7 +589,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $footer = str_replace('{email}', _escape($sub->email), $footer);
                         $footer = str_replace('{from_email}', _escape($cpgn->from_email), $footer);
                         $footer = str_replace('{personal_preferences}', get_base_url() . 'preferences/' . _escape($sub->code) . '/subscriber/' . _escape($sub->id) . '/', $footer);
-                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/cid/' . _escape($cpgn->id) . '/', $footer);
+                        $footer = str_replace('{unsubscribe_url}', get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/', $footer);
 
                         $msg = _escape($cpgn->html);
                         $msg = str_replace('{todays_date}', \Jenssegers\Date\Date::now()->format('M d, Y'), $msg);
@@ -608,7 +608,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                         $msg = str_replace('{state}', _escape($sub->state), $msg);
                         $msg = str_replace('{postal_code}', _escape($sub->postal_code), $msg);
                         $msg = str_replace('{country}', _escape($sub->country), $msg);
-                        $msg = str_replace('{unsubscribe_url}', '<a class="unsub_url" href="' . get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/cid/' . _escape($cpgn->id) . '/">' . _t('unsubscribe') . '</a>', $msg);
+                        $msg = str_replace('{unsubscribe_url}', '<a class="unsub_url" href="' . get_base_url() . 'unsubscribe/' . _escape($slist->code) . '/lid/' . _escape($slist->lid) . '/sid/' . _escape($slist->sid) . '/rid/' . _escape($message->getId()) . '/">' . _t('unsubscribe') . '</a>', $msg);
                         $msg = str_replace('{personal_preferences}', '<a class="personal_prefs" href="' . get_base_url() . 'preferences/' . _escape($sub->code) . '/subscriber/' . _escape($sub->id) . '/">' . _t('preferences page') . '</a>', $msg);
                         $msg .= $footer;
                         $msg .= tinyc_footer_logo();
