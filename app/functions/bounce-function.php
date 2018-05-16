@@ -1465,9 +1465,9 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
 {
     $bounces = app()->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
 
-    $cpgnId = (find_x_campaign_id($headerFull) >= 0 ? find_x_campaign_id($headerFull) : find_x_campaign_id($bodyFull));
-    $listId = (find_x_list_id($headerFull) >= 0 ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
-    $subId = (find_x_subscriber_id($headerFull) >= 0 ? find_x_subscriber_id($headerFull) : find_x_subscriber_id($bodyFull));
+    $cpgnId = (find_x_campaign_id($headerFull) != '' ? find_x_campaign_id($headerFull) : find_x_campaign_id($bodyFull));
+    $listId = (find_x_list_id($headerFull) != '' ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
+    $subId = (find_x_subscriber_id($headerFull) != '' ? find_x_subscriber_id($headerFull) : find_x_subscriber_id($bodyFull));
     $subEmail = (find_x_subscriber_email($headerFull) != '' ? find_x_subscriber_email($headerFull) : find_x_subscriber_email($bodyFull));
 
     try {
