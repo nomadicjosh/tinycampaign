@@ -609,7 +609,6 @@ function add_subscribers_to_queue($queue, $cpgn, $c_list)
                     ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                     ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
                     ->where('subscriber.allowed = "true"')->_and_()
-                    ->where('subscriber.bounces < "3"')->_and_()
                     ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
                     ->where('subscriber_list.confirmed = "1"')->_and_()
                     ->where('subscriber_list.unsubscribed = "0"')->_and_()
@@ -622,7 +621,6 @@ function add_subscribers_to_queue($queue, $cpgn, $c_list)
                     ->_join('subscriber_list', 'subscriber.id = subscriber_list.sid')
                     ->where('subscriber_list.lid = ?', _escape($c_list->lid))->_and_()
                     ->where('subscriber.allowed = "true"')->_and_()
-                    ->where('subscriber.bounces < "3"')->_and_()
                     ->where('(subscriber.spammer = "0" OR subscriber.exception = "1")')->_and_()
                     ->where('subscriber_list.confirmed = "1"')->_and_()
                     ->where('subscriber_list.unsubscribed = "0"')
@@ -634,7 +632,7 @@ function add_subscribers_to_queue($queue, $cpgn, $c_list)
     } catch (Exception $e) {
         Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
-    
+
     /**
      * Loop through the above $subscriber query and add each
      * subscriber to the queue.
