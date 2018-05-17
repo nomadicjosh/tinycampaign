@@ -452,7 +452,7 @@ function generate_rss_campaigns()
 /**
  * Returned bounce rule reason.
  * 
- * @since 2.0.6
+ * @since 2.0.7
  * @param string $cat   Rule category.
  * @param int $no       Rule Number.
  * @return string
