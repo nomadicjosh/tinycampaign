@@ -1457,6 +1457,43 @@ function import_subscriber_to_list($lid, $data)
     }
 }
 
+/**
+ * Function checks if subscriber should be unsubscribed from requested list based
+ * on the number of bounces and before emails are sent.
+ * 
+ * @since 2.0.6
+ * @access private
+ * @param int $lid List id to check against.
+ */
+function should_unsubscribe_recipient($lid)
+{
+    /**
+     * Filter hook runs 
+     */
+    $bounces = app()->hook->{'apply_filter'}('unsubscribe_when_bounced', (int) 3);
+
+    try {
+        $subscribers = app()->db->subscriber()
+                ->whereGte('bounces', $bounces)
+                ->find();
+        foreach ($subscribers as $subscriber) {
+            $slist = app()->db->subscriber_list()
+                    ->where('lid = ?', $lid)->_and_()
+                    ->where('sid = ?', _escape($subscriber->id))->_and_()
+                    ->where('unsubscribed = "0"')
+                    ->findOne();
+            $slist->set([
+                        'unsubscribed' => 1
+                    ])
+                    ->update();
+        }
+    } catch (ORMException $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    } catch (Exception $e) {
+        Cascade::getLogger('error')->{'error'}(sprintf('SQLSTATE[%s]: %s', $e->getCode(), $e->getMessage()));
+    }
+}
+
 app()->hook->{'add_action'}('tc_dashboard_head', 'head_release_meta', 5);
 app()->hook->{'add_action'}('tc_dashboard_head', 'tc_enqueue_style', 1);
 app()->hook->{'add_action'}('release', 'foot_release', 5);
@@ -1477,5 +1514,6 @@ app()->hook->{'add_action'}('custom_email_header', 'list_unsubscribe', 5, 2);
 app()->hook->{'add_action'}('check_subscriber_email', 'mark_subscriber_as_spammer', 5, 1);
 app()->hook->{'add_action'}('mark_queued_record_sent', 'mark_queued_record_sent', 5, 1);
 app()->hook->{'add_action'}('import_subscriber', 'import_subscriber_to_list', 5, 2);
+app()->hook->{'add_action'}('should_unsubscribe_recipient', 'should_unsubscribe_recipient', 5, 1);
 app()->hook->{'add_filter'}('tc_authenticate_user', 'tc_authenticate', 5, 3);
 app()->hook->{'add_filter'}('tc_auth_cookie', 'tc_set_auth_cookie', 5, 2);

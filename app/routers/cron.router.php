@@ -450,7 +450,7 @@ $app->group('/cron', function () use($app, $css, $js) {
                 // Ordinary crontab schedule format is supported.
                 // This schedule runs every 5 minutes.
                 // You could also insert DateTime string in the format of Y-m-d H:i:s.
-                'schedule' => '*/5 * * * *',
+                'schedule' => '* * * * *',
                 // Stdout and stderr is sent to the specified file
                 'output' => APP_PATH . 'tmp/logs/tc-error-' . Jenssegers\Date\Date::now()->format('Y-m-d') . '.txt',
                 // You can turn off a job by setting 'enabled' to false

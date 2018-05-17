@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASE_PATH'))
     exit('No direct script access allowed');
 use TinyC\NodeQ\tc_NodeQ as Node;
@@ -17,7 +18,6 @@ use PDOException as ORMException;
  * @package tinyCampaign
  * @author Joshua Parker <joshmac3@icloud.com>
  */
-
 /**
  * next rule number (BODY): 0257 <br />
  * default category:        unrecognized: <br />
@@ -99,9 +99,9 @@ function bmhBodyRules($body, /** @noinspection PhpUnusedParameterInspection */ $
      *   Delivery to the following recipient failed permanently:
      *   xxxxx@yourdomain.com
      */ elseif (
-        strpos($body, 'Technical details of permanent failure') === false // if there are technical details, try another test-case
-        &&
-        preg_match("/Delivery to the following (?:recipient|recipients) failed permanently\X*?(\S+@\S+\w)/i", $body, $match)
+            strpos($body, 'Technical details of permanent failure') === false // if there are technical details, try another test-case
+            &&
+            preg_match("/Delivery to the following (?:recipient|recipients) failed permanently\X*?(\S+@\S+\w)/i", $body, $match)
     ) {
         $result['rule_cat'] = 'unknown';
         $result['rule_no'] = '0998';
@@ -1463,12 +1463,17 @@ function bmhDSNRules($dsn_msg, $dsn_report, $debug_mode = false)
  */
 function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader, $remove, $ruleNo = false, $ruleCat = false, $totalFetched = 0, $body = '', $headerFull = '', $bodyFull = '')
 {
-    $bounces = app()->hook->{'apply_filter'}('remove_when_bounced', (int) 3);
-
     $cpgnId = (find_x_campaign_id($headerFull) != '' ? find_x_campaign_id($headerFull) : find_x_campaign_id($bodyFull));
     $listId = (find_x_list_id($headerFull) != '' ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
     $subId = (find_x_subscriber_id($headerFull) != '' ? find_x_subscriber_id($headerFull) : find_x_subscriber_id($bodyFull));
     $subEmail = (find_x_subscriber_email($headerFull) != '' ? find_x_subscriber_email($headerFull) : find_x_subscriber_email($bodyFull));
+    
+    /**
+     * Action hook runs when bounce check runs.
+     * 
+     * @since 2.0.6
+     */
+    app()->hook->{'do_action'}('should_unsubscribe_recipient', $listId);
 
     try {
         Node::dispense('campaign_bounce');
@@ -1490,21 +1495,29 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
     if ($remove == true || $remove == '1') {
         try {
             $cpgn = app()->db->campaign()
-                ->where('id = ?', $cpgnId)
-                ->findOne();
+                    ->where('id = ?', $cpgnId)
+                    ->findOne();
             $cpgn->set([
-                    'bounces' => $cpgn->bounces + 1
-                ])
-                ->update();
+                        'bounces' => $cpgn->bounces + 1
+                    ])
+                    ->update();
             $q = app()->db->subscriber()
-                ->where('email = ?', $email)->_and_()
-                ->where('allowed = "true"')
-                ->findOne();
+                    ->where('email = ?', $email)->_and_()
+                    ->where('allowed = "true"')
+                    ->findOne();
             $q->set([
-                    'allowed' => 'false',
-                    'bounces' => $bounces
-                ])
-                ->update();
+                        'allowed' => 'false',
+                        'bounces' => $q->bounces + 1
+                    ])
+                    ->update();
+            $unsub = app()->db->subscriber_list()
+                    ->where('lid = ?', $listId)->_and_()
+                    ->where('sid = ?', $subId)
+                    ->findOne();
+            $unsub->set([
+                        'unsubscribed' => 1
+                    ])
+                    ->update();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
@@ -1515,21 +1528,21 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
     } else {
         try {
             $sql = app()->db->subscriber()
-                ->where('email = ?', $email)->_and_()
-                ->where('allowed = "true"')
-                ->findOne();
+                    ->where('email = ?', $email)->_and_()
+                    ->where('allowed = "true"')
+                    ->findOne();
             $sql->set([
-                    'bounces' => $sql->bounces + 1
-                ])
-                ->update();
+                        'bounces' => $sql->bounces + 1
+                    ])
+                    ->update();
 
             $cpgn = app()->db->campaign()
-                ->where('id = ?', $cpgnId)
-                ->findOne();
+                    ->where('id = ?', $cpgnId)
+                    ->findOne();
             $cpgn->set([
-                    'bounces' => $cpgn->bounces + 1
-                ])
-                ->update();
+                        'bounces' => $cpgn->bounces + 1
+                    ])
+                    ->update();
         } catch (NotFoundException $e) {
             Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
         } catch (Exception $e) {
@@ -1539,15 +1552,15 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
         }
     }
 
-    /*$displayData = prepData($email, $bounceType, $remove);
-    $bounceType = $displayData['bounce_type'];
-    $emailName = $displayData['emailName'];
-    $emailAddy = $displayData['emailAddy'];
-    $remove = $displayData['remove'];
+    /* $displayData = prepData($email, $bounceType, $remove);
+      $bounceType = $displayData['bounce_type'];
+      $emailName = $displayData['emailName'];
+      $emailAddy = $displayData['emailAddy'];
+      $remove = $displayData['remove'];
 
-    echo $msgnum . ': ' . $ruleNo . ' | ' . $ruleCat . ' | ' . $bounceType . ' | ' . $remove . ' | ' . $email . ' | ' . $subject . "<br />\n";
+      echo $msgnum . ': ' . $ruleNo . ' | ' . $ruleCat . ' | ' . $bounceType . ' | ' . $remove . ' | ' . $email . ' | ' . $subject . "<br />\n";
 
-    return true;*/
+      return true; */
 }
 
 /**
