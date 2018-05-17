@@ -1401,6 +1401,13 @@ function mark_queued_record_sent($message)
     }
 }
 
+/**
+ * Import subscriber to list.
+ * 
+ * @since 2.0.6
+ * @param int $lid      List id.
+ * @param array $data   CSV data to import.
+ */
 function import_subscriber_to_list($lid, $data)
 {
     try {
@@ -1461,7 +1468,7 @@ function import_subscriber_to_list($lid, $data)
  * Function checks if subscriber should be unsubscribed from requested list based
  * on the number of bounces and before emails are sent.
  * 
- * @since 2.0.6
+ * @since 2.0.7
  * @access private
  * @param int $lid List id to check against.
  */

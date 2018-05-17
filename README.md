@@ -116,7 +116,13 @@ tinyCampaign Demo:
 
 <pre>
     v2.1.0 (TBD)
-    - [Enhance] Added ability to re-queue campaigns to be sent to those subscribed after the campaign was queued
+    - [Enhance] Added ability to re-queue campaigns to be sent to those subscribed after the campaign was last queued
+
+    v2.0.7 (2018.05.17)
+    - [Fix] Unsubscribe hard bounces
+    - [Fix] Unsubscribe route
+    - [Fix] Bounce handler
+    - [Feature] Added bounce definition node
     
     v2.0.6 (2018.05.13)
     - [Fix] Misc.

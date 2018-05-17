@@ -1471,7 +1471,7 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
     /**
      * Action hook runs when bounce check runs.
      * 
-     * @since 2.0.6
+     * @since 2.0.7
      */
     app()->hook->{'do_action'}('should_unsubscribe_recipient', $listId);
 
