@@ -1481,9 +1481,17 @@ function should_unsubscribe_recipient($lid)
 
     try {
         $subscribers = app()->db->subscriber()
-                ->whereGte('bounces', $bounces)
+                ->whereGte('bounces', $bounces)->_and_()
+                ->where('allowed = "true"')
                 ->find();
+
         foreach ($subscribers as $subscriber) {
+            app()->db->subscriber()->set([
+                        'allowed' => 'false'
+                    ])
+                    ->where('id = ?', _escape($subscriber->id))
+                    ->update();
+
             $slist = app()->db->subscriber_list()
                     ->where('lid = ?', $lid)->_and_()
                     ->where('sid = ?', _escape($subscriber->id))->_and_()
