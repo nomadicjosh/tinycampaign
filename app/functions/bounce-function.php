@@ -1467,7 +1467,7 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
     $listId = (find_x_list_id($headerFull) != '' ? find_x_list_id($headerFull) : find_x_list_id($bodyFull));
     $subId = (find_x_subscriber_id($headerFull) != '' ? find_x_subscriber_id($headerFull) : find_x_subscriber_id($bodyFull));
     $subEmail = (find_x_subscriber_email($headerFull) != '' ? find_x_subscriber_email($headerFull) : find_x_subscriber_email($bodyFull));
-    
+
     /**
      * Action hook runs when bounce check runs.
      * 
@@ -1492,8 +1492,14 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
         Cascade::getLogger('error')->error(sprintf('BOUNCESTATE[%s]: %s', $e->getCode(), $e->getMessage()));
     }
 
+    /**
+     * Hard Bounces!
+     */
     if ($remove == true || $remove == '1') {
         try {
+            /**
+             * Update campaign bounce count.
+             */
             $cpgn = app()->db->campaign()
                     ->where('id = ?', $cpgnId)
                     ->findOne();
@@ -1501,6 +1507,10 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
                         'bounces' => $cpgn->bounces + 1
                     ])
                     ->update();
+            /**
+             * Set allowed field on subscriber record to false and update
+             * bounce count.
+             */
             $q = app()->db->subscriber()
                     ->where('email = ?', $email)->_and_()
                     ->where('allowed = "true"')
@@ -1510,12 +1520,29 @@ function bounce_callback_action($msgnum, $bounceType, $email, $subject, $xheader
                         'bounces' => $q->bounces + 1
                     ])
                     ->update();
+            /**
+             * Unsubscribe subscriber from list.
+             */
             $unsub = app()->db->subscriber_list()
                     ->where('lid = ?', $listId)->_and_()
                     ->where('sid = ?', $subId)
                     ->findOne();
             $unsub->set([
                         'unsubscribed' => 1
+                    ])
+                    ->update();
+            /**
+             * Update queue to when subscriber was unsubscribed and via what
+             * campaign the subscriber unsubscribed.
+             */
+            $queue = app()->db->campaign_queue()
+                    ->where('lid = ?', $listId)->_and_()
+                    ->where('sid = ?', $subId)->_and_()
+                    ->where('cid = ?', $cpgnId)
+                    ->findOne();
+            $queue->set([
+                        'is_unsubscribed' => 1,
+                        'timestamp_unsubscribed' => (string) Jenssegers\Date\Date::now()
                     ])
                     ->update();
         } catch (NotFoundException $e) {
