@@ -1415,17 +1415,17 @@ function import_subscriber_to_list($lid, $data)
         if (_escape($sub->id) <= 0) {
             $subscriber = app()->db->subscriber();
             $subscriber->insert([
-                'fname' => $data[0],
-                'lname' => $data[1],
+                'fname' => if_null($data[0]),
+                'lname' => if_null($data[1]),
                 'email' => $data[2],
-                'address1' => $data[5],
-                'address2' => $data[6],
-                'city' => $data[7],
-                'state' => $data[8],
-                'postal_code' => $data[9],
-                'country' => $data[10],
+                'address1' => if_null($data[5]),
+                'address2' => if_null($data[6]),
+                'city' => if_null($data[7]),
+                'state' => if_null($data[8]),
+                'postal_code' => if_null($data[9]),
+                'country' => if_null($data[10]),
                 'code' => _random_lib()->generateString(50, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-                'ip' => app()->req->server['REMOTE_ADDR'],
+                'ip' => if_null(app()->req->server['REMOTE_ADDR']),
                 'addedBy' => get_userdata('id'),
                 'addDate' => Jenssegers\Date\Date::now()
             ]);
@@ -1481,9 +1481,17 @@ function should_unsubscribe_recipient($lid)
 
     try {
         $subscribers = app()->db->subscriber()
-                ->whereGte('bounces', $bounces)
+                ->whereGte('bounces', $bounces)->_and_()
+                ->where('allowed = "true"')
                 ->find();
+
         foreach ($subscribers as $subscriber) {
+            app()->db->subscriber()->set([
+                        'allowed' => 'false'
+                    ])
+                    ->where('id = ?', _escape($subscriber->id))
+                    ->update();
+
             $slist = app()->db->subscriber_list()
                     ->where('lid = ?', $lid)->_and_()
                     ->where('sid = ?', _escape($subscriber->id))->_and_()
