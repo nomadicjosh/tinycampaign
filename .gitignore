@@ -2,6 +2,7 @@
 .idea/
 .project
 .settings/
+.DS_Store
 et.iml
 app/tmp/logs/*.txt
 *.db
