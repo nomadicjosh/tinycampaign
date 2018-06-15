@@ -391,8 +391,8 @@ function generate_rss_campaigns()
 
                 $template = get_template_by_id(_escape($campaign->tid));
 
-                $message = _escape($template->content);
-                $message = str_replace('{rss_feed}', _escape($rss->rss_content), $message);
+                $message = $template->content;
+                $message = str_replace('{rss_feed}', $rss->rss_content, $message);
 
                 $now = Jenssegers\Date\Date::now();
 
