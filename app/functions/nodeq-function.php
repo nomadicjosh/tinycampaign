@@ -295,7 +295,7 @@ function check_rss_campaigns()
             $rss->set_feed_url(_escape($feed->rss_feed));
             $rss->enable_cache();
             $rss->set_cache_location(app()->config('file.savepath') . 'cache' . DS);
-            $rss->set_cache_duration(3600);
+            $rss->set_cache_duration(60);
 
             // Init feed
             $rss->init();
